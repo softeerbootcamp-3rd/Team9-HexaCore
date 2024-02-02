@@ -1,9 +1,10 @@
 function App() {
   return (
     <>
-      <div>Home</div>
+      <div className="text-red-500">Home</div>
     </>
   );
 }
 
 export default App;
+
