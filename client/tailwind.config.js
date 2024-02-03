@@ -11,7 +11,7 @@ export default {
         light: colors.indigo[50],
         ...colors.indigo,
       },
-      warning: {
+      danger: {
         DEFAULT: colors.red[400],
         ...colors.red,
       },
