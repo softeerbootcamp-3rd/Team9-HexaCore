@@ -1,0 +1,36 @@
+import type { MouseEventHandler, ReactNode } from 'react';
+
+const BUTTON_TYPE = ['enabled', 'disabled', 'danger'] as const;
+
+type Props = {
+  type?: (typeof BUTTON_TYPE)[number];
+  isRounded?: boolean;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
+  className?: string;
+  children: ReactNode;
+};
+
+function Button({ type = 'enabled', isRounded = false, onClick, className, children }: Props) {
+  return (
+    <button
+      className={`
+			text-sm px-4 py-2
+      ${isRounded ? 'rounded-full' : 'rounded-lg'}
+			${
+        type === 'enabled'
+          ? 'bg-primary text-white hover:bg-primary-600'
+          : type === 'danger'
+          ? 'bg-danger text-white hover:bg-danger-500'
+          : 'bg-background-300 text-background-700 cursor-not-allowed'
+      }
+			${className}
+		`}
+      disabled={type === 'disabled'}
+      onClick={onClick}>
+      {children}
+    </button>
+  );
+}
+
+export default Button;
+
