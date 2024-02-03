@@ -1,0 +1,9 @@
+{
+  "editor.insertSpaces": false,
+  "editor.tabSize": 2,
+  "editor.indentSize": "tabSize",
+  "files.autoSave": "onFocusChange",
+  "editor.trimAutoWhitespace": true,
+  "editor.formatOnSave": true
+}
+
