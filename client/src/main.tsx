@@ -6,7 +6,7 @@ import NotFound from '@/pages/NotFound';
 import Home from '@/pages/Home.jsx';
 import CarDetail from '@/pages/CarDetail';
 import HostManage from '@/pages/HostManage';
-import HostRegister from './pages/HostRegister';
+import HostRegister from '@/pages/HostRegister';
 import Profile from '@/pages/Profile';
 import '@/index.css';
 
