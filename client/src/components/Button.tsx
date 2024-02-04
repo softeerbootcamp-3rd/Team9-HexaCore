@@ -1,16 +1,16 @@
-import type { MouseEventHandler, ReactNode } from 'react';
+import type { MouseEventHandler } from 'react';
 
 const BUTTON_TYPE = ['enabled', 'disabled', 'danger'] as const;
 
 type Props = {
+  text: string;
   type?: (typeof BUTTON_TYPE)[number];
   isRounded?: boolean;
   onClick?: MouseEventHandler<HTMLButtonElement>;
   className?: string;
-  children: ReactNode;
 };
 
-function Button({ type = 'enabled', isRounded = false, onClick, className, children }: Props) {
+function Button({ text, type = 'enabled', isRounded = false, onClick, className }: Props) {
   return (
     <button
       className={`
@@ -27,7 +27,7 @@ function Button({ type = 'enabled', isRounded = false, onClick, className, child
 		`}
       disabled={type === 'disabled'}
       onClick={onClick}>
-      {children}
+      {text}
     </button>
   );
 }
