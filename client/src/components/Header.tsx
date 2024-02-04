@@ -15,9 +15,9 @@ function Header() {
           <Link to="/hosts/manage" className="mx-2">
             <Button text="호스트" type="enabled" isRounded />
           </Link>
-          <Link to="#" className="p-2 text-background-500 hover:text-background-900">
+          <button className="p-2 text-background-500 hover:text-background-900">
             <Envelope />
-          </Link>
+          </button>
           <Link to="/profile" className="p-2 text-background-500 hover:text-background-900">
             <UserCircle />
           </Link>
