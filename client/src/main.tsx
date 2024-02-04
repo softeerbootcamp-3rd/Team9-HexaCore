@@ -3,11 +3,10 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from '@/App.tsx';
 import NotFound from '@/pages/NotFound';
-import Home from '@/pages/Home.jsx';
-import CarDetail from '@/pages/CarDetail';
-import HostManage from '@/pages/HostManage';
-import HostRegister from '@/pages/HostRegister';
-import Profile from '@/pages/Profile';
+import homeRoutes from '@/pages/home/homeRoutes';
+import profileRoutes from '@/pages/profile/profileRoutes';
+import carRoutes from '@/pages/cars/carRoutes';
+import hostsRoutes from '@/pages/hosts/hostsRoutes';
 import '@/index.css';
 
 const router = createBrowserRouter([
@@ -15,26 +14,10 @@ const router = createBrowserRouter([
     path: '/',
     element: <App />,
     children: [
-      {
-        path: '/',
-        element: <Home />,
-      },
-      {
-        path: 'cars/:carId',
-        element: <CarDetail />,
-      },
-      {
-        path: 'hosts/manage',
-        element: <HostManage />,
-      },
-      {
-        path: 'hosts/register',
-        element: <HostRegister />,
-      },
-      {
-        path: 'profile/:userId',
-        element: <Profile />,
-      },
+      ...homeRoutes,
+      ...profileRoutes,
+      ...carRoutes,
+      ...hostsRoutes,
       {
         path: '*',
         element: <NotFound />,
