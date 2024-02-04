@@ -37,8 +37,8 @@
     - 머지는 리뷰를 받은 후에 본인이 직접 하기
 - 코드 전체공유: 금요일 (4시 30분) - 마지막 회의도 포함
     - 핵심 로직, 기술 공유
-- [코드 컨벤션](https://wiry-elderberry-3bf.notion.site/82a3adfd02a24b278cb2cf93ab96d4db?pvs=4)
-- [깃헙 컨벤션(이슈, 브랜치, 커밋, PR)](https://wiry-elderberry-3bf.notion.site/PR-90e9af0069494b87b949fd0312418e45?pvs=4)
+- [코드 컨벤션](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EC%BD%94%EB%93%9C-%EC%BB%A8%EB%B2%A4%EC%85%98)
+- [깃헙 컨벤션(이슈, 브랜치, 커밋, PR)](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EA%B9%83%ED%97%99-%EC%BB%A8%EB%B2%A4%EC%85%98-(%EC%9D%B4%EC%8A%88,-%EB%B8%8C%EB%9E%9C%EC%B9%98,-%EC%BB%A4%EB%B0%8B,-PR))
 <br/>
 
 
