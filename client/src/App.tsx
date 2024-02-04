@@ -5,7 +5,9 @@ function App() {
   return (
     <div>
       <Header />
-      <Outlet />
+      <div className="container mx-auto pt-28">
+        <Outlet />
+      </div>
     </div>
   );
 }
