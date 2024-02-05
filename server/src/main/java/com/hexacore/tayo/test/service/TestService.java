@@ -1,12 +1,17 @@
 package com.hexacore.tayo.test.service;
 
-import com.hexacore.tayo.common.*;
+import com.hexacore.tayo.common.DataResponseDto;
+import com.hexacore.tayo.common.PageInfoDto;
+import com.hexacore.tayo.common.PageResponseDto;
+import com.hexacore.tayo.common.ResponseCode;
+import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.test.dto.TestDto;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TestService {
+
     public DataResponseDto<TestDto> testDataResponse() {
         return DataResponseDto.of(new TestDto("hello World!"), "테스트 성공!");
     }

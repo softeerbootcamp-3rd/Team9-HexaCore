@@ -1,11 +1,10 @@
 package com.hexacore.tayo.common;
 
+import java.util.Optional;
+import java.util.function.Predicate;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-
-import java.util.Optional;
-import java.util.function.Predicate;
 
 @Getter
 @RequiredArgsConstructor
