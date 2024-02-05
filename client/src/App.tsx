@@ -5,9 +5,9 @@ function App() {
   return (
     <div>
       <Header />
-      <div className="container mx-auto pt-28">
+      <main className="container mx-auto pt-28 min-h-screen">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }
