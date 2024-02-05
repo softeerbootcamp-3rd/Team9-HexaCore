@@ -3,7 +3,7 @@ import Header from '@/components/Header';
 
 function App() {
   return (
-    <div>
+    <div className="bg-background-100">
       <Header />
       <main className="container mx-auto pt-28 min-h-screen">
         <Outlet />
