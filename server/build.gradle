@@ -34,7 +34,7 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-
+    runtimeOnly 'com.mysql:mysql-connector-j'
 	testImplementation "org.assertj:assertj-core:3.25.1"
 }
 
