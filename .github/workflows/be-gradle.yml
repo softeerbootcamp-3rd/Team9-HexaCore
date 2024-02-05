@@ -2,7 +2,7 @@ name: Build & Deploy Spring Boot Application
 
 on:
   push:
-    branches: [ "feat#23" ]
+    branches: [ "feat/#23" ]
 
 permissions:
   contents: read
