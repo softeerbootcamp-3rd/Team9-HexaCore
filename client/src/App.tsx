@@ -5,7 +5,7 @@ function App() {
   return (
     <div className="flex bg-background-100">
       <Header />
-      <main className="container mx-auto pt-28 min-h-screen grow">
+      <main className="container mx-auto min-h-screen grow pt-28">
         <Outlet />
       </main>
     </div>
