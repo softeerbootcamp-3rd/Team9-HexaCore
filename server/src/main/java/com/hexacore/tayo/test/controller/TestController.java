@@ -3,7 +3,7 @@ package com.hexacore.tayo.test.controller;
 import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.PageResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
-import com.hexacore.tayo.test.dto.TestDto;
+import com.hexacore.tayo.test.model.TestDto;
 import com.hexacore.tayo.test.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class TestController {
+
     @Autowired
     private TestService testService;
 

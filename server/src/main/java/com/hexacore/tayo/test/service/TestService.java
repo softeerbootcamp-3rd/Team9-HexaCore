@@ -6,7 +6,7 @@ import com.hexacore.tayo.common.PageResponseDto;
 import com.hexacore.tayo.common.ResponseCode;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.test.dto.TestDto;
+import com.hexacore.tayo.test.model.TestDto;
 import org.springframework.stereotype.Service;
 
 @Service
