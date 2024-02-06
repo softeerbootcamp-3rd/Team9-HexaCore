@@ -25,7 +25,7 @@ jobs:
       - name: Create application-secret.yml
         run: |
           touch ./server/src/main/resources/application-secret.yml 
-          echo "${{ secrets.APPLICATION_SECRET }}" > ./src/main/resources/application-secret.yml
+          echo "${{ secrets.APPLICATION_SECRET }}" > ./server/src/main/resources/application-secret.yml
 
       - name: Build with Gradle
         run: |
