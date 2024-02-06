@@ -97,7 +97,7 @@ function HostManage() {
             <div className='w-full h-4/5 mt-4 flex'>
               <h2 className='font-bold text-md min-w-fit'>부가설명 : </h2>
               <div className='w-4/5 bg-background-100 ml-4 rounded-lg p-6 text-sm break-words overflow-hidden'>
-                <div style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden', WebkitLineClamp: 8 }}>
+                <div style={{ display: '-webkit-box', WebkitBoxOrient: 'vertical', overflow: 'hidden', WebkitLineClamp: 6 }}>
                   {data.data.car.description}
                 </div>
               </div>
