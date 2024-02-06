@@ -24,7 +24,6 @@ public class CarService {
             throw new GeneralException(ResponseCode.NOT_FOUND, "존재하지 않는 id입니다");
         }
 
-        // 수정된 정보로 업데이트
         car.get().setDates(dateListDto.getDates());
         carRepository.save(car.get());
 

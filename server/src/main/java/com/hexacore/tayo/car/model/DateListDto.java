@@ -1,16 +1,16 @@
 package com.hexacore.tayo.car.model;
 
-import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.util.Pair;
 
 @Setter
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class DateListDto {
 
-    private List<Pair<Date, Date>> dates;
+    private List<List<String>> dates;
 }
