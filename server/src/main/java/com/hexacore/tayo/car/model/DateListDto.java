@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car.model;
 
+import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,5 +13,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class DateListDto {
 
-    private List<List<String>> dates;
+    private List<List<Date>> dates;
 }
