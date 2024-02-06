@@ -72,4 +72,4 @@ jobs:
             docker rm $(docker ps -a -q -f status=created)
             docker rmi $(docker images -q)
             docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
-            docker run -d -p 443:80 -p 80:80 -v /home/${{ secrets.EC2_USERNAME }}/data:/data ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }} --name tayoServer
+            docker run -d -p 443:80 -p 80:80 -p 8080:8080 -v /home/${{ secrets.EC2_USERNAME }}/data:/data --name tayoServer ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
