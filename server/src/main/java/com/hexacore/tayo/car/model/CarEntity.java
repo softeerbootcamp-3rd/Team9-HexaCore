@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car.model;
 
+import com.hexacore.tayo.common.BaseTime;
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,8 +10,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.util.Date;
 import java.util.List;
@@ -21,17 +20,11 @@ import org.locationtech.jts.geom.Point;
 
 @Entity
 @Table(name = "Car")
-public class CarEntity {
+public class CarEntity extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "created_at")
-    private Date createdAt;
-
-    @Column(name = "updated_at")
-    private Date updatedAt;
 
     @OneToOne
     @JoinColumn(name = "owner_id", nullable = false)
@@ -74,15 +67,4 @@ public class CarEntity {
     @Column(name = "dates", columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
     private List<Pair<Date, Date>> dates;
-
-    @PrePersist
-    private void onCreate() {
-        createdAt = new Date();
-        updatedAt = new Date();
-    }
-
-    @PreUpdate
-    private void onUpdate() {
-        updatedAt = new Date();
-    }
 }

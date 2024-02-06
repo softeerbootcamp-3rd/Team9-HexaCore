@@ -1,6 +1,7 @@
 package com.hexacore.tayo.reservation.model;
 
 import com.hexacore.tayo.car.model.CarEntity;
+import com.hexacore.tayo.common.BaseTime;
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,17 +15,11 @@ import java.util.Date;
 
 @Entity
 @Table(name = "Reservation")
-public class ReservationEntity {
+public class ReservationEntity extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(name = "created_at")
-    private Date createdAt;
-
-    @Column(name = "updated_at")
-    private Date updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "car_id", nullable = false)
