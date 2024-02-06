@@ -32,6 +32,16 @@ public enum ResponseCode {
                 .orElse(this.getMessage());
     }
 
+    public static HttpStatus valueOf(Integer code) {
+        for (ResponseCode responseCode : values()) {
+            if (responseCode.getCode().equals(code)) {
+                return responseCode.getHttpStatus();
+            }
+        }
+
+        throw new IllegalArgumentException("Invalid HTTP status code: " + code);
+    }
+
     @Override
     public String toString() {
         return String.format("%s (%d)", this.name(), this.httpStatus.value());
