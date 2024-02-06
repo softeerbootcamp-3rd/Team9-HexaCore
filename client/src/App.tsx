@@ -3,11 +3,11 @@ import Header from '@/components/Header';
 
 function App() {
   return (
-    <div>
+    <div className="flex bg-background-100">
       <Header />
-      <div className="container mx-auto pt-28">
+      <main className="container mx-auto pt-28 min-h-screen grow">
         <Outlet />
-      </div>
+      </main>
     </div>
   );
 }
