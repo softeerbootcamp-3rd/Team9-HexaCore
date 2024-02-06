@@ -13,12 +13,16 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.Date;
 import java.util.List;
-import org.antlr.v4.runtime.misc.Pair;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.locationtech.jts.geom.Point;
+import org.springframework.data.util.Pair;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "Car")
 public class CarEntity extends BaseTime {
 
