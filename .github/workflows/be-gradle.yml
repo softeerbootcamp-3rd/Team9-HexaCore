@@ -22,6 +22,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Create application-secret.yml
+        run: |
+          touch ./server/src/main/resources/application-secret.yml 
+          echo "${{ secrets.APPLICATION_SECRET }}" > ./src/main/resources/application-secret.yml
+
       - name: Build with Gradle
         run: |
           cd ./server
