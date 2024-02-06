@@ -20,7 +20,7 @@ public enum CarType {
         return type;
     }
 
-    public static CarType getCarType(String carType) {
+    public static CarType of(String carType) {
         for (CarType c : values()) {
             if (c.type.equals(carType)) {
                 return c;
