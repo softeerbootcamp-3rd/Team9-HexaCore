@@ -1,4 +1,4 @@
-package com.hexacore.tayo.test.service;
+package com.hexacore.tayo.test;
 
 import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.PageInfoDto;
