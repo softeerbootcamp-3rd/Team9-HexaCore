@@ -3,16 +3,28 @@ import InputBox from '@/pages/auth/InputBox';
 import Button from '@/components/Button';
 
 function SignUp() {
-	const [userId, setUserId] = useState('');
-	const [password, setPassword] = useState('');
-	const [name, setName] = useState('');
-	const [nickname, setNickname] = useState('');
-	const [email, setEmail] = useState('');
-	const [profilePicture, setProfilePicture] = useState<string | null>(null);
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
+	const [profilePicture, setProfilePicture] = useState<string | null>(null);
+
+	const [email, setEmail] = useState('');
+	const [isValidEmail, setIsValidEmail] = useState(false);
+
+	const [password, setPassword] = useState('');
+	const [isValidpassword, setIsValidPassword] = useState(false);
+
+	const [name, setName] = useState('');
+	const [isValidName, setIsValidName] = useState(false);
+
+	const [nickname, setNickname] = useState('');
+	const [isValidNickname, setIsValidNickname] = useState(false);
+
+	const [phoneNum, setPhoneNum] = useState('');
+	const [isValidPhoneNum, setIsValidPhoneNum] = useState(false);
 
 	const handleSignUp = () => {
 		// 서버에 회원가입 요청
+		console.log();
+
 	};
 
 	const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
@@ -35,12 +47,19 @@ function SignUp() {
 		}
 	};
 
+	const emailPattern: RegExp = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+	const passwordPattern: RegExp = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+	const phoneNumberPattern: RegExp = /^\d{3}-\d{4}-\d{4}$/;
+
+	const checkInputValues = (): boolean => {
+		return (isValidEmail && isValidpassword && isValidName && isValidNickname && isValidPhoneNum);
+	};
 
 	return (
 		<div className='flex justify-center'>
 			<div className='flex flex-col w-5/12'>
 
-				<text className='text-2xl pl-8 pt-5 p'>회원가입</text>
+				<div className='text-2xl pl-8 pt-5 p'>회원가입</div>
 
 				<div className="flex justify-between pb-4">
 					<div className='w-44'></div>
@@ -68,40 +87,45 @@ function SignUp() {
 				</div>
 
 				<InputBox
-					title='아이디'
-					placeHolder='아이디를 입력해주세요.'
-					value={userId}
-					onChange={(e) => setUserId(e.target.value)}
+					title='이메일'
+					placeHolder='tayo@tayo.com'
+					value={email}
+					type='email'
+					onChange={(e) => { setEmail(e.target.value) }}
+					onBlur={() => { setIsValidEmail(emailPattern.test(email)); }}
 				/>
 				<InputBox
 					title='비밀번호'
 					placeHolder='비밀번호를 입력해주세요.'
 					type='password'
 					value={password}
-					onChange={(e) => setPassword(e.target.value)}
+					onChange={(e) => { setPassword(e.target.value) }}
+					onBlur={() => { setIsValidPassword(passwordPattern.test(password)) }}
 				/>
 				<InputBox
 					title='이름'
-					placeHolder='이름을 입력해주세요.'
+					placeHolder='김타요'
 					value={name}
-					onChange={(e) => setName(e.target.value)}
+					onChange={(e) => { setName(e.target.value) }}
+					onBlur={() => { setIsValidName(name !== '') }}
 				/>
 				<InputBox
 					title='닉네임'
-					placeHolder='닉네임을 입력해주세요.'
+					placeHolder='타요 닉네임'
 					value={nickname}
-					onChange={(e) => setNickname(e.target.value)}
+					onChange={(e) => { setNickname(e.target.value) }}
+					onBlur={() => { setIsValidNickname(nickname !== '') }}
 				/>
 				<InputBox
-					title='이메일'
-					placeHolder='이메일을 입력해주세요.'
-					type='email'
-					value={email}
-					onChange={(e) => setEmail(e.target.value)}
+					title='전화번호'
+					placeHolder='010-1234-5678'
+					value={phoneNum}
+					onChange={(e) => { setPhoneNum(e.target.value) }}
+					onBlur={() => { setIsValidPhoneNum(phoneNumberPattern.test(phoneNum)); }}
 				/>
 
 				<div className='flex pt-8 justify-end pr-14 pb-10'>
-					<Button text='회원가입' className='w-44 h-12' isRounded onClick={handleSignUp} />
+					<Button text='회원가입' className='w-44 h-12' type={checkInputValues() ? 'enabled' : 'disabled'} isRounded onClick={handleSignUp} />
 				</div>
 
 			</div>
