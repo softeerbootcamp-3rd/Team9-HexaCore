@@ -1,34 +1,41 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import InputBox from "@/pages/auth/InputBox";
 import Button from '@/components/Button';
 
 function Login() {
-	const [username, setUsername] = useState('');
-	const [password, setPassword] = useState('');
+	const emailInputRef = useRef<HTMLInputElement | null>(null);
+	const pwdInputRef = useRef<HTMLInputElement | null>(null);
 
 	const handleLogin = () => {
-		// 서버에 로그인 요청
+		let userEmail = emailInputRef.current?.value;
+		let userPwd = pwdInputRef.current?.value;
+		if (userEmail == '') {
+			alert('아이디를 입력해주세요');
+		} else if (userPwd == '') {
+			alert('비밀번호를 입력해주세요');
+		} else {
+			// 서버에 로그인 요청
+		}
 	};
 
 	return (
 		<div className='flex justify-center pt-16'>
 			<div className='flex flex-col w-5/12'>
 
-				<text className={`text-2xl p-8`}>로그인</text>
+				<div className={`text-2xl p-8`}>로그인</div>
 
 				<InputBox
+					ref={emailInputRef}
 					title='아이디'
 					placeHolder='아이디를 입력해주세요.'
-					value={username}
-					onChange={(e) => setUsername(e.target.value)}
+					type='email'
 				/>
 				<InputBox
+					ref={pwdInputRef}
 					title='비밀번호'
 					placeHolder='비밀번호를 입력해주세요.'
 					type='password'
-					value={password}
-					onChange={(e) => setPassword(e.target.value)}
 				/>
 
 				<div className='flex pt-8 justify-end pr-14'>

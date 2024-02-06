@@ -1,17 +1,15 @@
-import type { ChangeEvent, FocusEventHandler, HTMLInputTypeAttribute } from 'react';
+import { forwardRef, type FocusEventHandler, type HTMLInputTypeAttribute } from 'react';
 
 type Props = {
 	title?: string,
 	placeHolder: string;
 	type?: HTMLInputTypeAttribute;
-	value: string;
 	onBlur?: FocusEventHandler<HTMLInputElement>;
-	onChange: (e: ChangeEvent<HTMLInputElement>) => void;
 	isWrong?: boolean;
 	className?: string;
 };
 
-function InputBox({ title, placeHolder, type = "text", value, onChange, onBlur, isWrong = false, className }: Props) {
+const InputBox = forwardRef<HTMLInputElement, Props>(({ title, placeHolder, type = "text", onBlur, isWrong = false, className }, ref) => {
 	return (
 		<div className='w-full p-3 flex'>
 			<div className='text-background-600 w-24 text-sm pl-5 flex flex-col justify-center'>{title}</div>
@@ -21,13 +19,12 @@ function InputBox({ title, placeHolder, type = "text", value, onChange, onBlur, 
 				${className}`}
 				type={type}
 				placeholder={placeHolder}
-				value={value}
-				onChange={onChange}
 				onBlur={onBlur}
+				ref={ref}
 			/>
 		</div >
 	);
-}
+})
 
 export default InputBox;
 

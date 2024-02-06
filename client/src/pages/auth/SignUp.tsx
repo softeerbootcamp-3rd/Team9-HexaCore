@@ -6,19 +6,19 @@ function SignUp() {
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
-	const [email, setEmail] = useState('');
+	const emailInputRef = useRef<HTMLInputElement | null>(null);
 	const [isValidEmail, setIsValidEmail] = useState(false);
 
-	const [password, setPassword] = useState('');
+	const pwdInputRef = useRef<HTMLInputElement | null>(null);
 	const [isValidpassword, setIsValidPassword] = useState(false);
 
-	const [name, setName] = useState('');
+	const nameInputRef = useRef<HTMLInputElement | null>(null);
 	const [isValidName, setIsValidName] = useState(false);
 
-	const [nickname, setNickname] = useState('');
+	const nicknameInputRef = useRef<HTMLInputElement | null>(null);
 	const [isValidNickname, setIsValidNickname] = useState(false);
 
-	const [phoneNum, setPhoneNum] = useState('');
+	const phoneNumInputRef = useRef<HTMLInputElement | null>(null);
 	const [isValidPhoneNum, setIsValidPhoneNum] = useState(false);
 
 	const handleSignUp = () => {
@@ -87,41 +87,36 @@ function SignUp() {
 				</div>
 
 				<InputBox
+					ref={emailInputRef}
 					title='이메일'
 					placeHolder='tayo@tayo.com'
-					value={email}
 					type='email'
-					onChange={(e) => { setEmail(e.target.value) }}
-					onBlur={() => { setIsValidEmail(emailPattern.test(email)); }}
+					onBlur={() => { setIsValidEmail(emailPattern.test(emailInputRef.current?.value!)); }}
 				/>
 				<InputBox
+					ref={pwdInputRef}
 					title='비밀번호'
-					placeHolder='비밀번호를 입력해주세요.'
+					placeHolder='영어, 숫자, 기호 포함 길이 6이상 비밀번호'
 					type='password'
-					value={password}
-					onChange={(e) => { setPassword(e.target.value) }}
-					onBlur={() => { setIsValidPassword(passwordPattern.test(password)) }}
+					onBlur={() => { setIsValidPassword(passwordPattern.test(pwdInputRef.current?.value!)) }}
 				/>
 				<InputBox
+					ref={nameInputRef}
 					title='이름'
 					placeHolder='김타요'
-					value={name}
-					onChange={(e) => { setName(e.target.value) }}
-					onBlur={() => { setIsValidName(name !== '') }}
+					onBlur={() => { setIsValidName(nameInputRef.current?.value !== '') }}
 				/>
 				<InputBox
+					ref={nicknameInputRef}
 					title='닉네임'
 					placeHolder='타요 닉네임'
-					value={nickname}
-					onChange={(e) => { setNickname(e.target.value) }}
-					onBlur={() => { setIsValidNickname(nickname !== '') }}
+					onBlur={() => { setIsValidNickname(nicknameInputRef.current?.value !== '') }}
 				/>
 				<InputBox
+					ref={phoneNumInputRef}
 					title='전화번호'
 					placeHolder='010-1234-5678'
-					value={phoneNum}
-					onChange={(e) => { setPhoneNum(e.target.value) }}
-					onBlur={() => { setIsValidPhoneNum(phoneNumberPattern.test(phoneNum)); }}
+					onBlur={() => { setIsValidPhoneNum(phoneNumberPattern.test(phoneNumInputRef.current?.value!)); }}
 				/>
 
 				<div className='flex pt-8 justify-end pr-14 pb-10'>
