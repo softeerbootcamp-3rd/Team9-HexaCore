@@ -46,8 +46,8 @@ function SignUp() {
 					<div className='w-44'></div>
 					{
 						profilePicture === null ?
-							<img src="/defaultProfile.png" className="rounded-full w-32 h-32" onClick={handleButtonClick} /> :
-							<img src={profilePicture} className="rounded-full w-32 h-32" onClick={handleButtonClick} />
+							<img src="/defaultProfile.png" className="rounded-full w-32 h-32 shadow-md" onClick={handleButtonClick} /> :
+							<img src={profilePicture} className="rounded-full w-32 h-32 shadow-md" onClick={handleButtonClick} />
 					}
 					<div className='flex flex-col justify-end pb-2 pr-10'>
 						{
@@ -56,6 +56,7 @@ function SignUp() {
 								<Button text='삭제' onClick={() => setProfilePicture(null)} type='danger' isRounded className='w-24 h-10'></Button>
 						}
 					</div>
+
 					<input
 						ref={fileInputRef}
 						type="file"
