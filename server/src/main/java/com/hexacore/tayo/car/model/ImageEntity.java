@@ -34,7 +34,7 @@ public class ImageEntity {
     @Column(name = "url", nullable = false)
     private String url;
 
-    @Column(name = "index", nullable = false)
+    @Column(name = "idx", nullable = false)
     private Integer index;
 
     @PrePersist
