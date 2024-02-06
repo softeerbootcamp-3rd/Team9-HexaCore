@@ -8,8 +8,7 @@ public class DataResponseDto<T> extends ResponseDto {
     private final T data;
 
     private DataResponseDto(T data) {
-        super(true, ResponseCode.OK.getCode(), ResponseCode.OK.getMessage());
-        this.data = data;
+        this(data, ResponseCode.OK.getMessage());
     }
 
     private DataResponseDto(T data, String message) {
