@@ -45,3 +45,31 @@ jobs:
           file: ./server/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
+  
+  deploy:
+    needs: build
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          port: 22
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            docker stop $(docker ps -a -q)
+            docker rm $(docker ps -a -q -f status=exited)
+            docker rm $(docker ps -a -q -f status=created)
+            docker rmi $(docker images -q)
+            docker pull ${{ secrets.DOCKER_REPO }}
+            docker run -d -p 443:80 -p 80:80 -v /home/${{ secrets.EC2_USERNAME }}/data:/data ${{ secrets.DOCKER_REPO }} --name tayoServer
