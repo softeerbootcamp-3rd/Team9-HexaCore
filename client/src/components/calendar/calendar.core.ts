@@ -27,9 +27,18 @@ type HostCalendarState = {
   isSelecting: boolean;
 };
 
-type HostCalendarAction = {
-  type: 'NEXT_MONTH' | 'PREV_MONTH';
-};
+type HostCalendarAction =
+  | {
+      type: 'NEXT_MONTH' | 'PREV_MONTH';
+    }
+  | {
+      type: 'SELECT_START';
+      payload: { date: Date };
+    }
+  | {
+      type: 'SELECT_END';
+      payload: { date: Date };
+    };
 
 type CalendarInit = {
   initDate: Date;
@@ -37,7 +46,7 @@ type CalendarInit = {
   reservedDateRanges: DateRange[];
 };
 
-export const calendarInitializer = ({ initDate, reservedDateRanges, selectedDateRanges }: CalendarInit): HostCalendarState => {
+export const hostCalendarInitializer = ({ initDate, reservedDateRanges, selectedDateRanges }: CalendarInit): HostCalendarState => {
   const firstDate = new Date(initDate.getFullYear(), initDate.getMonth(), 1);
   return {
     firstDate,
@@ -48,7 +57,7 @@ export const calendarInitializer = ({ initDate, reservedDateRanges, selectedDate
   };
 };
 
-export const calendarReducer = (state: HostCalendarState, action: HostCalendarAction): HostCalendarState => {
+export const hostCalendarReducer = (state: HostCalendarState, action: HostCalendarAction): HostCalendarState => {
   switch (action.type) {
     case 'NEXT_MONTH':
     case 'PREV_MONTH': {
@@ -58,6 +67,31 @@ export const calendarReducer = (state: HostCalendarState, action: HostCalendarAc
         ...state,
         firstDate,
         dateInfos,
+      };
+    }
+    case 'SELECT_START': {
+      if (state.isSelecting) return state;
+      const start = action.payload.date;
+      return {
+        ...state,
+        selectedDateRanges: [...state.selectedDateRanges, [start, start]],
+        isSelecting: true,
+      };
+    }
+    case 'SELECT_END': {
+      if (!state.isSelecting) return state;
+      const start = state.selectedDateRanges.at(-1)?.at(0);
+      const end = action.payload.date;
+      if (!start || start > end) return state;
+      const selectedDateRanges = [...state.selectedDateRanges];
+      selectedDateRanges[selectedDateRanges.length - 1] = [start, end];
+      selectedDateRanges.sort((a, b) => a[0].getTime() - b[0].getTime()); // TODO: merge
+      const dateInfos = generateDateInfos(state.firstDate, selectedDateRanges);
+      return {
+        ...state,
+        selectedDateRanges,
+        dateInfos,
+        isSelecting: false,
       };
     }
     default:
@@ -80,20 +114,25 @@ const generateDateInfos = (firstDate: Date, selectedDateRanges: DateRange[]): Da
     let status = DATE_STATUS.SELECTABLE;
 
     while (selectedIndex < selectedDateRanges.length) {
-      if (date < selectedDateRanges[selectedIndex][0]) break;
-      if (date.getTime() === selectedDateRanges[selectedIndex][0].getTime()) {
-        status = date.getTime() === selectedDateRanges[selectedIndex][1].getTime() ? DATE_STATUS.SELECTED_SINGLE : DATE_STATUS.SELECTED_START;
+      const dateTime = date.getTime();
+      const start = selectedDateRanges[selectedIndex][0].getTime();
+      const end = selectedDateRanges[selectedIndex][1].getTime();
+
+      if (dateTime < start) break;
+      if (dateTime === start) {
+        status = dateTime === end ? DATE_STATUS.SELECTED_SINGLE : DATE_STATUS.SELECTED_START;
         break;
       }
-      if (date.getTime() < selectedDateRanges[selectedIndex][1].getTime()) {
+      if (dateTime < end) {
         status = DATE_STATUS.SELECTED;
         break;
       }
-      if (date.getTime() === selectedDateRanges[selectedIndex][1].getTime()) {
+      if (dateTime === end) {
         status = DATE_STATUS.SELECTED_END;
         selectedIndex++;
         break;
       }
+
       selectedIndex++;
     }
     dateInfos.push({ date, status });
