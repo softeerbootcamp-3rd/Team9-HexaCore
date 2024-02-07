@@ -14,10 +14,19 @@ function CalendarDate({ date, status, onClick }: Props) {
     case DATE_STATUS.UNSELECTABLE:
       return <div className="flex h-8 w-8 items-center justify-center">{date.getDate()}</div>;
 
-    case DATE_STATUS.SELECTABLE:
+    case DATE_STATUS.HOST_SELECTABLE:
       return (
         <div className="flex h-8 w-8 items-center justify-center">
           <div className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full hover:bg-background-200" onClick={onClick}>
+            {date.getDate()}
+          </div>
+        </div>
+      );
+
+    case DATE_STATUS.GUEST_SELECTABLE:
+      return (
+        <div className="flex h-8 w-8 items-center justify-center">
+          <div className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-background-200 hover:bg-primary-300" onClick={onClick}>
             {date.getDate()}
           </div>
         </div>
