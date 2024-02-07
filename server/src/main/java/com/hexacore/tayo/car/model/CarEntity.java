@@ -76,7 +76,8 @@ public class CarEntity extends BaseTime {
     @Column(name = "dates", columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
     private List<List<Date>> dates;
-    
+
     @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
-    private Boolean isDeleted;
+    @Builder.Default
+    private Boolean isDeleted = false;
 }
