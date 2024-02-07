@@ -29,7 +29,7 @@ function ImageUploadButton({ imageInputRef, isLargeButton = false }: Props) {
     }
   };
 
-  const buttonClassName: string = `flex ${isLargeButton ? 'h-72 w-72 p-2' : 'h-32 w-32 p-1'} cursor-pointer items-center justify-center rounded-2xl bg-white p-2`;
+  const buttonClassName: string = `flex ${isLargeButton ? 'h-72 w-72' : 'h-32 w-32'} cursor-pointer items-center justify-center rounded-2xl bg-white`;
   const imageClassName: string = `h-full w-full rounded-2xl`;
 
   return (
