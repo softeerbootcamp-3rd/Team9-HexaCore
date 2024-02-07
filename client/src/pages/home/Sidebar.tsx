@@ -4,7 +4,7 @@ import Select, { SelectOption } from './Select';
 
 type CarType = '경차' | '소형차' | '준중형차' | '중형차' | '대형차' | 'SUV' | '캠핑카' | 'VAN';
 
-function Sidebar() {
+function SideBar() {
   const CarType = () => {
     const [activeCarTypes, setActiveCarTypes] = useState<Map<CarType, boolean>>(
       new Map([
@@ -31,8 +31,8 @@ function Sidebar() {
       <div>
         {Array.from(activeCarTypes.keys()).map((carType) => (
           <button
-            className={`rounded-xl p-2 m-1 
-						${activeCarTypes.get(carType) ? 'bg-background-100 text-background-400' : 'bg-primary-100'}`}
+            className={`rounded-xl p-4 m-1 text-sm
+						${activeCarTypes.get(carType) ? 'bg-primary-100' : 'bg-background-100 text-background-400'}`}
             key={carType}
             onClick={() => updateCarType(carType)}>
             {carType}
@@ -50,7 +50,7 @@ function Sidebar() {
     { label: 'Fifth', value: 5 },
   ];
 
-  const MyCustomSelect = () => {
+  const SubCategorySelect = () => {
     const [model, setModel] = useState<SelectOption[]>([options[0]]);
     return (
       <div className="card center flex-col">
@@ -59,19 +59,28 @@ function Sidebar() {
     );
   };
 
+  const CategorySelect = () => {
+    const [model, setModel] = useState<SelectOption | undefined>(options[0]);
+    return (
+      <div className="card center flex-col">
+        <Select options={options} value={model} onChange={(o) => setModel(o)} />
+      </div>
+    );
+  };
+
   return (
     <div className="w-[300px] bg-white flex flex-col p-4">
-      <div className="m-auto">
-        <Button text="필터 적용하기" type="enabled" />
+      <div>
+        <Button text="필터 적용하기" type="enabled" className="w-full h-12" />
       </div>
       <div className="p-4">
         <p className="pb-2">가격</p>
         <div className="flex pb-2 h-[45px] items-center">
-          <div className="pr-2">최저: </div>
+          <div className="pr-2 text-sm">최저: </div>
           <input className="rounded-xl bg-background-100 h-full p-2"></input>
         </div>
         <div className="flex pb-2 h-[45px] items-center">
-          <div className="pr-2">최고: </div>
+          <div className="pr-2 text-sm">최고: </div>
           <input className="rounded-xl bg-background-100 h-full p-2"></input>
         </div>
       </div>
@@ -87,13 +96,13 @@ function Sidebar() {
 
       <div className="p-4">
         <p className="pb-2">모델</p>
-        <MyCustomSelect />
+        <CategorySelect />
         <p className="py-2">세부 모델</p>
-        <MyCustomSelect />
+        <SubCategorySelect />
       </div>
     </div>
   );
 }
 
-export default Sidebar;
+export default SideBar;
 

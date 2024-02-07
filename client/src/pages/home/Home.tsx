@@ -1,14 +1,16 @@
-import Searchbar from './Searchbar';
-import Sidebar from './Sidebar';
+import MainCar from '@/components/svgs/MainCar';
+import SearchBar from './Searchbar';
+import SideBar from './Sidebar';
 
 function Home() {
   return (
     <div>
       <div>
-        <Searchbar />
+        <SearchBar />
       </div>
-      <div>
-        <Sidebar />
+      <div className="flex pt-10">
+        <SideBar />
+        {/* <MainCar /> */}
       </div>
     </div>
   );
