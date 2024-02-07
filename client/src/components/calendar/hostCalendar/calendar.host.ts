@@ -1,4 +1,4 @@
-import { DATE_STATUS, DateInfo, DateRange, getLastDateOfThisMonth, mergeDateRanges } from '../calendar.core';
+import { DATE_STATUS, DateInfo, DateRange, getLastDateOfThisMonth } from '../calendar.core';
 
 type HostCalendarState = {
   firstDate: Date;
@@ -14,15 +14,15 @@ type HostCalendarAction =
     }
   | {
       type: 'SELECT_START';
-      payload: { date: Date };
+      payload: { selectedDateRanges: DateRange[] };
     }
   | {
       type: 'SELECT_END';
-      payload: { date: Date };
+      payload: { selectedDateRanges: DateRange[] };
     }
   | {
       type: 'DESELECT';
-      payload: { date: Date };
+      payload: { selectedDateRanges: DateRange[] };
     };
 
 type HostCalendarInit = {
@@ -56,19 +56,16 @@ export const hostCalendarReducer = (state: HostCalendarState, action: HostCalend
     }
     case 'SELECT_START': {
       if (state.isSelecting) return state;
-      const start = action.payload.date;
+      const { selectedDateRanges } = action.payload;
       return {
         ...state,
-        selectedDateRanges: [...state.selectedDateRanges, [start, start]],
+        selectedDateRanges,
         isSelecting: true,
       };
     }
     case 'SELECT_END': {
       if (!state.isSelecting) return state;
-      const start = state.selectedDateRanges.at(-1)?.at(0);
-      const end = action.payload.date;
-      if (!start || start > end) return state;
-      const selectedDateRanges = mergeDateRanges([...state.selectedDateRanges.slice(0, -1), [start, end]]);
+      const { selectedDateRanges } = action.payload;
       const dateInfos = generateDateInfos(state.firstDate, selectedDateRanges);
       return {
         ...state,
@@ -78,10 +75,8 @@ export const hostCalendarReducer = (state: HostCalendarState, action: HostCalend
       };
     }
     case 'DESELECT': {
-      const cancelDate = action.payload.date;
-      const selectedDateRanges = state.selectedDateRanges.filter(
-        ([start, end]) => start.getTime() !== cancelDate.getTime() && end.getTime() !== cancelDate.getTime(),
-      );
+      if (state.isSelecting) return state;
+      const { selectedDateRanges } = action.payload;
       const dateInfos = generateDateInfos(state.firstDate, selectedDateRanges);
       return {
         ...state,
@@ -107,7 +102,7 @@ export const generateDateInfos = (firstDate: Date, selectedDateRanges: DateRange
 
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
     const date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-    let status = DATE_STATUS.SELECTABLE;
+    let status = DATE_STATUS.HOST_SELECTABLE;
 
     while (selectedIndex < selectedDateRanges.length) {
       const dateTime = date.getTime();
