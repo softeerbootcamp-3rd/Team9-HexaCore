@@ -2,6 +2,10 @@ import { useState, useRef, ChangeEvent } from 'react';
 import InputBox from '@/pages/auth/InputBox';
 import Button from '@/components/Button';
 
+const emailPattern: RegExp = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
+const passwordPattern: RegExp = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+const phoneNumberPattern: RegExp = /^\d{3}-\d{4}-\d{4}$/;
+
 function SignUp() {
 	const fileInputRef = useRef<HTMLInputElement | null>(null);
 	const [profilePicture, setProfilePicture] = useState<string | null>(null);
@@ -46,10 +50,6 @@ function SignUp() {
 			fileInputRef.current.click();
 		}
 	};
-
-	const emailPattern: RegExp = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
-	const passwordPattern: RegExp = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-	const phoneNumberPattern: RegExp = /^\d{3}-\d{4}-\d{4}$/;
 
 	const checkInputValues = (): boolean => {
 		return (isValidEmail && isValidpassword && isValidName && isValidNickname && isValidPhoneNum);
