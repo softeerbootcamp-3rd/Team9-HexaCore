@@ -1,10 +1,14 @@
 package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.model.CarEntity;
+import com.hexacore.tayo.car.model.CategoryDto;
+import com.hexacore.tayo.car.model.CategoryListDto;
 import com.hexacore.tayo.car.model.DateListDto;
+import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseCode;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.GeneralException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +17,15 @@ import org.springframework.stereotype.Service;
 public class CarService {
 
     private final CarRepository carRepository;
+    private final ModelRepository modelRepository;
+
+    /* 모델, 세부 모델명 조회 */
+    public ResponseDto getCategories() {
+        List<CategoryDto> models = modelRepository.findAll().stream()
+                .map(CategoryDto::new)
+                .toList();
+        return DataResponseDto.of(new CategoryListDto(models), "세부 모델 조회가 완료되었습니다.");
+    }
 
     /* 예약 가능 날짜 수정 */
     public ResponseDto updateDates(Long carId, DateListDto dateListDto) {

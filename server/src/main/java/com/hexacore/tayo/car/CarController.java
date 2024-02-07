@@ -5,6 +5,7 @@ import com.hexacore.tayo.common.ResponseCode;
 import com.hexacore.tayo.common.ResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,12 @@ public class CarController {
 
     @Autowired
     private CarService carService;
+
+    @GetMapping("/categories")
+    public ResponseEntity<ResponseDto> getCategories() {
+        ResponseDto responseDto = carService.getCategories();
+        return new ResponseEntity<>(responseDto, ResponseCode.valueOf(responseDto.getCode()));
+    }
 
     @PutMapping("{carId}/date")
     public ResponseEntity<ResponseDto> updateDates(@PathVariable Long carId, @RequestBody DateListDto dateListDto) {
