@@ -32,7 +32,7 @@ function CalendarDate({ date, status, onClick }: Props) {
     case DATE_STATUS.SELECTED_SINGLE:
       return (
         <div className="relative z-0 flex h-8 w-8 items-center justify-center rounded-full">
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary-300" onClick={onClick}>
+          <div className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary-300 hover:bg-primary-400" onClick={onClick}>
             {date.getDate()}
           </div>
         </div>
@@ -43,7 +43,7 @@ function CalendarDate({ date, status, onClick }: Props) {
       return (
         <div className="relative z-0 flex h-8 w-8 items-center justify-center rounded-full">
           <div
-            className={`flex h-6 w-6 items-center justify-center rounded-full bg-primary-300 before:absolute before:-z-10 before:h-6 before:w-1/2 before:bg-primary-100
+            className={`flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary-300 before:absolute before:-z-10 before:h-6 before:w-1/2 before:bg-primary-100 hover:bg-primary-400
             ${status === DATE_STATUS.SELECTED_START ? 'before:right-0' : 'before:left-0'}`}
             onClick={onClick}>
             {date.getDate()}

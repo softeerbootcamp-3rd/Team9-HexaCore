@@ -38,6 +38,10 @@ type HostCalendarAction =
   | {
       type: 'SELECT_END';
       payload: { date: Date };
+    }
+  | {
+      type: 'DESELECT';
+      payload: { date: Date };
     };
 
 type CalendarInit = {
@@ -84,6 +88,19 @@ export const hostCalendarReducer = (state: HostCalendarState, action: HostCalend
       const end = action.payload.date;
       if (!start || start > end) return state;
       const selectedDateRanges = mergeDateRanges([...state.selectedDateRanges.slice(0, -1), [start, end]]);
+      const dateInfos = generateDateInfos(state.firstDate, selectedDateRanges);
+      return {
+        ...state,
+        selectedDateRanges,
+        dateInfos,
+        isSelecting: false,
+      };
+    }
+    case 'DESELECT': {
+      const cancelDate = action.payload.date;
+      const selectedDateRanges = state.selectedDateRanges.filter(
+        ([start, end]) => start.getTime() !== cancelDate.getTime() && end.getTime() !== cancelDate.getTime(),
+      );
       const dateInfos = generateDateInfos(state.firstDate, selectedDateRanges);
       return {
         ...state,

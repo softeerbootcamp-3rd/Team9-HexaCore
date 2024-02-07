@@ -1,7 +1,7 @@
 import { useReducer } from 'react';
 import ChevronLeft from '@/components/svgs/ChevronLeft';
 import ChevronRight from '@/components/svgs/ChevronRight';
-import { DAYS, DateRange, hostCalendarInitializer, hostCalendarReducer } from './calendar.core';
+import { DATE_STATUS, DAYS, DateRange, DateStatus, hostCalendarInitializer, hostCalendarReducer } from './calendar.core';
 import CalendarDay from './CalendarDay';
 import CalendarDate from './CalendarDate';
 
@@ -15,9 +15,15 @@ type Props = {
 function HostCalendar({ initDate = new Date(), selectedDateRanges, reservedDateRanges, onSelectedDateRangesChange }: Props) {
   const [state, calendarDispatch] = useReducer(hostCalendarReducer, { initDate, reservedDateRanges, selectedDateRanges }, hostCalendarInitializer);
 
-  const handleDateSelect = (date: Date) => {
-    const type = state.isSelecting ? 'SELECT_END' : 'SELECT_START';
-    calendarDispatch({ type, payload: { date } });
+  console.log(state);
+
+  const handleDateSelect = (status: DateStatus, date: Date) => {
+    if (status === DATE_STATUS.SELECTED_START || status === DATE_STATUS.SELECTED_END || status === DATE_STATUS.SELECTED_SINGLE) {
+      calendarDispatch({ type: 'DESELECT', payload: { date } });
+    } else if (status === DATE_STATUS.SELECTABLE) {
+      const type = state.isSelecting ? 'SELECT_END' : 'SELECT_START';
+      calendarDispatch({ type, payload: { date } });
+    }
     onSelectedDateRangesChange(state.selectedDateRanges);
   };
 
@@ -42,7 +48,7 @@ function HostCalendar({ initDate = new Date(), selectedDateRanges, reservedDateR
           <CalendarDay key={index} day={day} />
         ))}
         {state.dateInfos.map(({ date, status }, index) => (
-          <CalendarDate key={index} date={date} status={status} onClick={() => handleDateSelect(date)} />
+          <CalendarDate key={index} date={date} status={status} onClick={() => handleDateSelect(status, date)} />
         ))}
       </div>
     </div>
