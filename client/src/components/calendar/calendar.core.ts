@@ -83,9 +83,7 @@ export const hostCalendarReducer = (state: HostCalendarState, action: HostCalend
       const start = state.selectedDateRanges.at(-1)?.at(0);
       const end = action.payload.date;
       if (!start || start > end) return state;
-      const selectedDateRanges = [...state.selectedDateRanges];
-      selectedDateRanges[selectedDateRanges.length - 1] = [start, end];
-      selectedDateRanges.sort((a, b) => a[0].getTime() - b[0].getTime()); // TODO: merge
+      const selectedDateRanges = mergeDateRanges([...state.selectedDateRanges.slice(0, -1), [start, end]]);
       const dateInfos = generateDateInfos(state.firstDate, selectedDateRanges);
       return {
         ...state,
@@ -142,4 +140,26 @@ const generateDateInfos = (firstDate: Date, selectedDateRanges: DateRange[]): Da
 };
 
 const getLastDateOfThisMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+const mergeDateRanges = (ranges: DateRange[]): DateRange[] => {
+  const sortedRanges = ranges.sort((a, b) => a[0].getTime() - b[0].getTime());
+
+  const mergedRanges: DateRange[] = [];
+  let currentRange = sortedRanges[0];
+
+  for (let i = 1; i < sortedRanges.length; i++) {
+    const [currentStart, currentEnd] = currentRange;
+    const [nextStart, nextEnd] = sortedRanges[i];
+
+    if (nextStart.getTime() <= currentEnd.getTime() + 86400000) currentRange = [currentStart, new Date(Math.max(currentEnd.getTime(), nextEnd.getTime()))];
+    else {
+      mergedRanges.push(currentRange);
+      currentRange = sortedRanges[i];
+    }
+  }
+
+  mergedRanges.push(currentRange);
+
+  return mergedRanges;
+};
 
