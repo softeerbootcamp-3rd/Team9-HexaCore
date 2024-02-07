@@ -27,7 +27,9 @@ type HostCalendarState = {
   isSelecting: boolean;
 };
 
-type HostCalendarAction = { type: unknown };
+type HostCalendarAction = {
+  type: 'NEXT_MONTH' | 'PREV_MONTH';
+};
 
 type CalendarInit = {
   initDate: Date;
@@ -48,6 +50,16 @@ export const calendarInitializer = ({ initDate, reservedDateRanges, selectedDate
 
 export const calendarReducer = (state: HostCalendarState, action: HostCalendarAction): HostCalendarState => {
   switch (action.type) {
+    case 'NEXT_MONTH':
+    case 'PREV_MONTH': {
+      const firstDate = new Date(state.firstDate.getFullYear(), state.firstDate.getMonth() + (action.type === 'NEXT_MONTH' ? 1 : -1), 1);
+      const dateInfos = generateDateInfos(firstDate, state.selectedDateRanges);
+      return {
+        ...state,
+        firstDate,
+        dateInfos,
+      };
+    }
     default:
       return state;
   }

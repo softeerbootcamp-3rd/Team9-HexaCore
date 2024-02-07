@@ -20,11 +20,15 @@ function HostCalendar({ initDate = new Date(), selectedDateRanges, reservedDateR
   return (
     <div className="flex select-none flex-col gap-2 text-sm">
       <div className="flex items-center justify-between px-2">
-        <button className="flex h-8 w-8 items-center justify-center rounded-full text-background-400 hover:bg-background-200 hover:text-background-800">
+        <button
+          className="flex h-8 w-8 items-center justify-center rounded-full text-background-400 hover:bg-background-200 hover:text-background-800"
+          onClick={() => calendarDispatch({ type: 'PREV_MONTH' })}>
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <span>{`${initDate.getFullYear()}년 ${initDate.getMonth() + 1}월`}</span>
-        <button className="flex h-8 w-8 items-center justify-center rounded-full text-background-400 hover:bg-background-200 hover:text-background-800">
+        <span>{`${state.firstDate.getFullYear()}년 ${state.firstDate.getMonth() + 1}월`}</span>
+        <button
+          className="flex h-8 w-8 items-center justify-center rounded-full text-background-400 hover:bg-background-200 hover:text-background-800"
+          onClick={() => calendarDispatch({ type: 'NEXT_MONTH' })}>
           <ChevronRight className="h-5 w-5" />
         </button>
       </div>
