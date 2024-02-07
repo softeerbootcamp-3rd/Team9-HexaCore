@@ -156,14 +156,30 @@ public class CarService {
 
     /* 유저가 등록한 차량이 있는지 체크 */
     private Boolean checkUserHasCar(Long userId) {
-        List<CarEntity> carEntityList = carRepository.findByOwner_IdAndIsDeletedFalse(userId);
         return !carRepository.findByOwner_IdAndIsDeletedFalse(userId).isEmpty();
     }
 
     /* 중복된 차량 번호가 있는지 체크 */
     private Boolean checkDuplicateCarNumber(String carNumber) {
-        List<CarEntity> carEntityList = carRepository.findByCarNumberAndIsDeletedFalse(carNumber);
         return !carRepository.findByCarNumberAndIsDeletedFalse(carNumber).isEmpty();
+    }
+
+    /* 차량 삭제 */
+    @Transactional
+    public ResponseDto deleteCar(Long carId) {
+        // 차량 isDeleted = true
+        CarEntity car = carRepository.findById(carId)
+                .orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND, "존재하지 않는 id입니다"));
+        car.setIsDeleted(true);
+        carRepository.save(car);
+
+        // 이미지 isDeleted = true
+        imageRepository.findByCar_Id(car.getId()).forEach((image) -> {
+            image.setIsDeleted(true);
+            imageRepository.save(image);
+        });
+
+        return ResponseDto.success(ResponseCode.OK, "차량 삭제가 완료되었습니다");
     }
 
     /* 예약 가능 날짜 수정 */
