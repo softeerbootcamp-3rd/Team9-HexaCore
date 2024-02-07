@@ -13,9 +13,8 @@ const profileRoutes: RouteObject[] = [
   {
     path: 'profile/:userId?',
     loader: async ({ params }) => {
-      const userId = params.userId ?? 'my-userId';
-
-      if (userId !== 'my-userId') {
+      const userId = params.userId ?? null;
+      if (userId !== null) {
         const data: UserInfo = {
           name: response.data.name || null,
           nickName: response.data.nickname || null,
