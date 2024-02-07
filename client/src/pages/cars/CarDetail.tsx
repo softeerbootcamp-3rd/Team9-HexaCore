@@ -13,8 +13,8 @@ function CarDetailTest() {
 
 	const [startDate, setStartDate] = useState("2024-02-02");
 	const [endDate, setEndDate] = useState("2024-02-03");
-	const [startTime, setStartTime] = useState('12');
-	const [endTime, setEndTime] = useState('12');
+	const [startTime, setStartTime] = useState('10');
+	const [endTime, setEndTime] = useState('10');
 
 	// 다음 이미지 표시
 	const showNextImage = () => {
