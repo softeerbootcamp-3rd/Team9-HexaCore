@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
 
 function Profile() {
-  const data = useLoaderData() as UserInfo;
+  const userData = useLoaderData() as UserInfo;
   const navigator = useNavigate();
-  if (data === null) {
+  if (userData === null) {
     navigator('/auth/login');
     return;
   }
@@ -22,10 +22,10 @@ function Profile() {
         <img className="w-32 h-40 rounded-2xl" src={data.image || '../public/default-profile.png'}></img>
         <div className="w-2/5 flex flex-col ml-6">
           <p className="font-bold text-md">
-            {data.name} ({data.nickName})
+            {userData.name} ({userData.nickName})
           </p>
-          <p className="text-sm mt-3 text-background-400">{data.email}</p>
-          <p className="text-sm text-background-400">{data.phoneNum}</p>
+          <p className="text-sm mt-3 text-background-400">{userData.email}</p>
+          <p className="text-sm text-background-400">{userData.phoneNum}</p>
           <Button text="수정" className="w-1/4 m-6 ml-0" onClick={editProfile}></Button>
         </div>
       </div>
