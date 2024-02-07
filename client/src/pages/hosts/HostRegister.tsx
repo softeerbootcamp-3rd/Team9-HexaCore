@@ -7,6 +7,7 @@ function HostRegister() {
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
   const feeRef = useRef<HTMLInputElement>(null);
+  const feeErrorRef = useRef<HTMLDivElement>(null);
   const [isCarNumberConfirmed, setCarNumberConfirmed] = useState<boolean>(false);
   const navigator = useNavigate();
 
@@ -43,8 +44,17 @@ function HostRegister() {
       }
     });
 
-    if (descriptionRef.current) formData.append('description', descriptionRef.current.value);
-    if (feeRef.current) formData.append('feePerHour', feeRef.current.value);
+    if (descriptionRef.current == null || feeRef.current == null) return;
+    if (Number.parseInt(feeRef.current.value) % 1000 !== 0) {
+      if (feeErrorRef.current) {
+        feeErrorRef.current.hidden = false;
+        feeErrorRef.current.innerText = '대여료의 단위는 1000원입니다. 다시 입력해주세요.';
+      }
+      return;
+    }
+
+    formData.append('description', descriptionRef.current.value);
+    formData.append('feePerHour', feeRef.current.value);
 
     // TODO: 서버에 차량 등록 요청을 하고 성공/실패 여부에 따라 리다이렉트한다.
     // carNumber, carName, address, position 등의 속성은 외부 API를 사용한다.
@@ -129,6 +139,7 @@ function HostRegister() {
                 <p className="mb-2 mt-4 text-xl font-semibold">{'대여료'}</p>
                 <h6 className="my-1 text-sm text-background-400">{'사용자에게 시간 당 얼마를 받을지 요금을 입력해주세요.'}</h6>
                 <div id="carFee">
+                  <div className="my-1 text-sm text-danger-400" hidden ref={feeErrorRef}></div>
                   <div className="flex w-3/4 items-center justify-between rounded-3xl bg-white px-3 py-1">
                     <input
                       className="w-full p-3 text-xl placeholder:text-background-200 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none"
