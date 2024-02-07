@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useEffect, useReducer } from 'react';
 import ChevronLeft from '@/components/svgs/ChevronLeft';
 import ChevronRight from '@/components/svgs/ChevronRight';
 import { DATE_STATUS, DAYS, DateRange, DateStatus, mergeDateRanges } from '../calendar.core';
@@ -8,38 +8,42 @@ import CalendarDate from '../CalendarDate';
 
 type Props = {
   initDate?: Date;
-  selectedDateRanges: DateRange[];
-  reservedDateRanges: DateRange[];
-  onSelectedDateRangesChange: (range: DateRange[]) => void;
+  availableDates: DateRange[];
+  reservations: DateRange[];
+  onAvailableDatesChange: (range: DateRange[]) => void;
 };
 
-function HostCalendar({ initDate = new Date(), selectedDateRanges, reservedDateRanges, onSelectedDateRangesChange }: Props) {
-  const [state, calendarDispatch] = useReducer(hostCalendarReducer, { initDate, reservedDateRanges, selectedDateRanges }, hostCalendarInitializer);
+function HostCalendar({ initDate = new Date(), availableDates, reservations, onAvailableDatesChange }: Props) {
+  const [state, calendarDispatch] = useReducer(hostCalendarReducer, { initDate, reservations, availableDates }, hostCalendarInitializer);
+
+  useEffect(() => {
+    calendarDispatch({ type: 'SET_RESERVATIONS', payload: { reservations } });
+  }, [reservations]);
 
   const handleDateSelect = (status: DateStatus, date: Date) => {
-    let { selectedDateRanges } = state;
+    let { availableDates } = state;
     switch (status) {
       case DATE_STATUS.SELECTED_START:
       case DATE_STATUS.SELECTED_END:
       case DATE_STATUS.SELECTED_SINGLE: {
-        selectedDateRanges = selectedDateRanges.filter(([start, end]) => start.getTime() !== date.getTime() && end.getTime() !== date.getTime());
-        calendarDispatch({ type: 'DESELECT', payload: { selectedDateRanges } });
+        availableDates = availableDates.filter(([start, end]) => start.getTime() !== date.getTime() && end.getTime() !== date.getTime());
+        calendarDispatch({ type: 'DESELECT', payload: { availableDates } });
         break;
       }
       case DATE_STATUS.HOST_SELECTABLE: {
         if (state.isSelecting) {
-          const start = selectedDateRanges.at(-1)?.at(0);
+          const start = availableDates.at(-1)?.at(0);
           if (!start || start > date) return state;
-          selectedDateRanges = mergeDateRanges([...selectedDateRanges.slice(0, -1), [start, date]]);
-          calendarDispatch({ type: 'SELECT_END', payload: { selectedDateRanges } });
+          availableDates = mergeDateRanges([...availableDates.slice(0, -1), [start, date]]);
+          calendarDispatch({ type: 'SELECT_END', payload: { availableDates } });
           break;
         }
-        selectedDateRanges = [...selectedDateRanges, [date, date]];
-        calendarDispatch({ type: 'SELECT_START', payload: { selectedDateRanges } });
+        availableDates = [...availableDates, [date, date]];
+        calendarDispatch({ type: 'SELECT_START', payload: { availableDates } });
         break;
       }
     }
-    onSelectedDateRangesChange(selectedDateRanges);
+    onAvailableDatesChange(availableDates);
   };
 
   return (
@@ -71,13 +75,4 @@ function HostCalendar({ initDate = new Date(), selectedDateRanges, reservedDateR
 }
 
 export default HostCalendar;
-
-/*
-      const start = state.selectedDateRanges.at(-1)?.at(0);
-      const end = action.payload.date;
-      if (!start || start > end) return state;
-      const selectedDateRanges = mergeDateRanges([...state.selectedDateRanges.slice(0, -1), [start, end]]);
-
-      selectedDateRanges: [...state.selectedDateRanges, [start, start]],
-*/
 

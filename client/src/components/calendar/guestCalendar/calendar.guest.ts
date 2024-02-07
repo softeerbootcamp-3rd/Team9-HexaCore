@@ -3,8 +3,8 @@ import { DATE_STATUS, DateInfo, DateRange, getLastDateOfThisMonth } from '../cal
 type GuestCalendarState = {
   firstDate: Date;
   dateInfos: DateInfo[];
-  selectedDateRange: DateRange;
-  selectableDateRanges: DateRange[];
+  reservation: DateRange;
+  availableDates: DateRange[];
   isSelecting: boolean;
 };
 
@@ -14,38 +14,34 @@ type GuestCalendarAction =
     }
   | {
       type: 'SELECT_START';
-      payload: { selectedDateRange: DateRange };
+      payload: { reservation: DateRange };
     }
   | {
       type: 'SELECT_END';
-      payload: { selectedDateRange: DateRange };
+      payload: { reservation: DateRange };
     }
   | {
       type: 'DESELECT';
-      payload: { selectedDateRange: DateRange };
+      payload: { reservation: DateRange };
     }
   | {
-      type: 'SET_SELECTABLE_DATE_RANGES';
-      payload: { selectableDateRanges: DateRange[] };
+      type: 'SET_AVAILABLE_DATES';
+      payload: { availableDates: DateRange[] };
     };
 
 type GuestCalendarInit = {
   initDate: Date;
-  selectedDateRange?: DateRange;
-  selectableDateRanges: DateRange[];
+  reservation?: DateRange;
+  availableDates: DateRange[];
 };
 
-export const guestCalendarInitializer = ({
-  initDate,
-  selectableDateRanges,
-  selectedDateRange = [new Date(0), new Date(0)],
-}: GuestCalendarInit): GuestCalendarState => {
+export const guestCalendarInitializer = ({ initDate, availableDates, reservation = [new Date(0), new Date(0)] }: GuestCalendarInit): GuestCalendarState => {
   const firstDate = new Date(initDate.getFullYear(), initDate.getMonth(), 1);
   return {
     firstDate,
-    dateInfos: generateDateInfos(firstDate, selectedDateRange, selectableDateRanges),
-    selectableDateRanges,
-    selectedDateRange,
+    dateInfos: generateDateInfos({ availableDates, firstDate, reservation }),
+    availableDates,
+    reservation,
     isSelecting: false,
   };
 };
@@ -55,30 +51,30 @@ export const guestCalendarReducer = (state: GuestCalendarState, action: GuestCal
     case 'NEXT_MONTH':
     case 'PREV_MONTH': {
       const firstDate = new Date(state.firstDate.getFullYear(), state.firstDate.getMonth() + (action.type === 'NEXT_MONTH' ? 1 : -1), 1);
-      const dateInfos = generateDateInfos(firstDate, state.selectedDateRange, state.selectableDateRanges);
+      const dateInfos = generateDateInfos({ ...state, firstDate });
       return {
         ...state,
         firstDate,
         dateInfos,
       };
     }
-    case 'SET_SELECTABLE_DATE_RANGES': {
-      const { selectableDateRanges } = action.payload;
-      const dateInfos = generateDateInfos(state.firstDate, state.selectedDateRange, selectableDateRanges);
+    case 'SET_AVAILABLE_DATES': {
+      const { availableDates } = action.payload;
+      const dateInfos = generateDateInfos({ ...state, availableDates });
       return {
         ...state,
         dateInfos,
-        selectableDateRanges,
+        availableDates,
       };
     }
     case 'SELECT_START':
     case 'SELECT_END':
     case 'DESELECT': {
-      const { selectedDateRange } = action.payload;
-      const dateInfos = generateDateInfos(state.firstDate, selectedDateRange, state.selectableDateRanges);
+      const { reservation } = action.payload;
+      const dateInfos = generateDateInfos({ ...state, reservation });
       return {
         ...state,
-        selectedDateRange,
+        reservation,
         isSelecting: action.type === 'SELECT_START',
         dateInfos,
       };
@@ -88,7 +84,15 @@ export const guestCalendarReducer = (state: GuestCalendarState, action: GuestCal
   }
 };
 
-export const generateDateInfos = (firstDate: Date, selectedDateRange: DateRange, selectableDateRanges: DateRange[]): DateInfo[] => {
+export const generateDateInfos = ({
+  firstDate,
+  reservation,
+  availableDates,
+}: {
+  firstDate: Date;
+  reservation: DateRange;
+  availableDates: DateRange[];
+}): DateInfo[] => {
   const lastDate = getLastDateOfThisMonth(firstDate);
   const dateInfos: DateInfo[] = [];
 
@@ -96,18 +100,18 @@ export const generateDateInfos = (firstDate: Date, selectedDateRange: DateRange,
     dateInfos.push({ date: new Date(), status: DATE_STATUS.NONE });
   }
 
-  const selectedStart = selectedDateRange[0].getTime();
-  const selectedEnd = selectedDateRange[1].getTime();
+  const selectedStart = reservation[0].getTime();
+  const selectedEnd = reservation[1].getTime();
 
   let selectableIndex = 0;
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
     const date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
     let status = DATE_STATUS.UNSELECTABLE;
 
-    while (selectableIndex < selectableDateRanges.length) {
+    while (selectableIndex < availableDates.length) {
       const dateTime = date.getTime();
-      const start = selectableDateRanges[selectableIndex][0].getTime();
-      const end = selectableDateRanges[selectableIndex][1].getTime();
+      const start = availableDates[selectableIndex][0].getTime();
+      const end = availableDates[selectableIndex][1].getTime();
 
       if (dateTime < start) break;
       if (dateTime <= end) {
@@ -135,7 +139,8 @@ export const generateDateInfos = (firstDate: Date, selectedDateRange: DateRange,
   return dateInfos;
 };
 
-export const isValidReservation = (selectedDateRange: DateRange, selectableDateRanges: DateRange[]): boolean => {
-  const [start, end] = selectedDateRange;
-  return selectableDateRanges.some(([s, e]) => s.getTime() <= start.getTime() && end.getTime() <= e.getTime());
+export const isValidReservation = (reservation: DateRange, availableDates: DateRange[]): boolean => {
+  const [start, end] = reservation;
+  return availableDates.some(([s, e]) => s.getTime() <= start.getTime() && end.getTime() <= e.getTime());
 };
+

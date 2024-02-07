@@ -8,43 +8,43 @@ import CalendarDate from '../CalendarDate';
 
 type Props = {
   initDate?: Date;
-  selectableDateRanges: DateRange[];
-  selectedDateRange?: DateRange;
-  onSelectedDateRangesChange: (range: DateRange) => void;
+  availableDates: DateRange[];
+  reservation?: DateRange;
+  onReservationsChange: (range: DateRange) => void;
 };
 
-function GuestCalendar({ initDate = new Date(), selectableDateRanges, selectedDateRange, onSelectedDateRangesChange }: Props) {
-  const [state, calendarDispatch] = useReducer(guestCalendarReducer, { initDate, selectableDateRanges, selectedDateRange }, guestCalendarInitializer);
+function GuestCalendar({ initDate = new Date(), availableDates, reservation, onReservationsChange }: Props) {
+  const [state, calendarDispatch] = useReducer(guestCalendarReducer, { initDate, availableDates, reservation }, guestCalendarInitializer);
 
   useEffect(() => {
-    calendarDispatch({ type: 'SET_SELECTABLE_DATE_RANGES', payload: { selectableDateRanges } });
-  }, [selectableDateRanges]);
+    calendarDispatch({ type: 'SET_AVAILABLE_DATES', payload: { availableDates } });
+  }, [availableDates]);
 
   const handleDateSelect = (status: DateStatus, date: Date) => {
-    let { selectedDateRange } = state;
+    let { reservation } = state;
     switch (status) {
       case DATE_STATUS.SELECTED_START:
       case DATE_STATUS.SELECTED_END:
       case DATE_STATUS.SELECTED_SINGLE: {
-        selectedDateRange = [new Date(0), new Date(0)];
-        calendarDispatch({ type: 'DESELECT', payload: { selectedDateRange } });
+        reservation = [new Date(0), new Date(0)];
+        calendarDispatch({ type: 'DESELECT', payload: { reservation } });
         break;
       }
       case DATE_STATUS.GUEST_SELECTABLE: {
         if (state.isSelecting) {
-          const start = selectedDateRange.at(0);
+          const start = reservation.at(0);
           if (!start || start > date) return;
-          selectedDateRange = [start, date];
-          if (!isValidReservation(selectedDateRange, state.selectableDateRanges)) return;
-          calendarDispatch({ type: 'SELECT_END', payload: { selectedDateRange } });
+          reservation = [start, date];
+          if (!isValidReservation(reservation, state.availableDates)) return;
+          calendarDispatch({ type: 'SELECT_END', payload: { reservation } });
           break;
         }
-        selectedDateRange = [date, date];
-        calendarDispatch({ type: 'SELECT_START', payload: { selectedDateRange } });
+        reservation = [date, date];
+        calendarDispatch({ type: 'SELECT_START', payload: { reservation } });
         break;
       }
     }
-    onSelectedDateRangesChange(selectedDateRange);
+    onReservationsChange(reservation);
   };
 
   return (
