@@ -4,18 +4,18 @@ import HostRegister from '@/pages/hosts/HostRegister';
 import response from './CarData.json';
 
 type CarData = {
-  carName: String,
-  carNumber: String,
-  imageUrls: String[],
-  mileage: Number,
-  fuel: String,
-  type: String,
-  capacity: Number,
-  year: Number,
-  feePerHour: Number,
-  carAddress: String,
-  description: String,
-  dates: String[]
+  carName: String;
+  carNumber: String;
+  imageUrls: String[];
+  mileage: Number;
+  fuel: String;
+  type: String;
+  capacity: Number;
+  year: Number;
+  feePerHour: Number;
+  carAddress: String;
+  description: String;
+  dates: String[];
 };
 const hostsRoutes: RouteObject[] = [
   {
@@ -33,8 +33,8 @@ const hostsRoutes: RouteObject[] = [
         feePerHour: response.data.car.feePerHour,
         carAddress: response.data.car.carAddress,
         description: response.data.car.description,
-        dates: response.data.car.dates
-      }
+        dates: response.data.car.dates,
+      };
       return data;
     },
     element: <HostManage />,
@@ -46,4 +46,3 @@ const hostsRoutes: RouteObject[] = [
 ];
 
 export default hostsRoutes;
-
