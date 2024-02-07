@@ -13,12 +13,15 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.Date;
 import java.util.List;
-import org.antlr.v4.runtime.misc.Pair;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.locationtech.jts.geom.Point;
 
 @Entity
+@Getter
+@Setter
 @Table(name = "Car")
 public class CarEntity extends BaseTime {
 
@@ -66,5 +69,5 @@ public class CarEntity extends BaseTime {
 
     @Column(name = "dates", columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
-    private List<Pair<Date, Date>> dates;
+    private List<List<Date>> dates;
 }

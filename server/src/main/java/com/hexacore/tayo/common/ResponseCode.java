@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 public enum ResponseCode {
     OK(HttpStatus.OK, "Ok"),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "Bad request"),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "Not Found"),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "Unauthorized"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal error");
 
@@ -20,7 +21,7 @@ public enum ResponseCode {
     public Integer getCode() {
         return this.httpStatus.value();
     }
-    
+
     public String getMessage(Throwable e) {
         return this.getMessage(this.getMessage() + " - " + e.getMessage());
     }
@@ -29,6 +30,16 @@ public enum ResponseCode {
         return Optional.ofNullable(message)
                 .filter(Predicate.not(String::isBlank))
                 .orElse(this.getMessage());
+    }
+
+    public static HttpStatus valueOf(Integer code) {
+        for (ResponseCode responseCode : values()) {
+            if (responseCode.getCode().equals(code)) {
+                return responseCode.getHttpStatus();
+            }
+        }
+
+        throw new IllegalArgumentException("Invalid HTTP status code: " + code);
     }
 
     @Override
