@@ -3,12 +3,12 @@ import Profile from '@/pages/profile/Profile';
 import response from './dummy.json';
 
 type UserInfo = {
-  name: String | null,
-  nickName: String | null,
-  phoneNum: String | null,
-  email: String | null,
-  image: String | null
-}
+  name: String | null;
+  nickName: String | null;
+  phoneNum: String | null;
+  email: String | null;
+  image: String | null;
+};
 const profileRoutes: RouteObject[] = [
   {
     path: 'profile/:userId?',
@@ -22,10 +22,9 @@ const profileRoutes: RouteObject[] = [
           email: response.data.email || null,
           phoneNum: response.data.phoneNumber || null,
           image: response.data.profileImg || null,
-        }
+        };
         return data;
-      }
-      else {
+      } else {
         return null;
       }
     },
@@ -34,4 +33,3 @@ const profileRoutes: RouteObject[] = [
 ];
 
 export default profileRoutes;
-
