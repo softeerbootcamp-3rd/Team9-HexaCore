@@ -1,5 +1,5 @@
 import ImageUploadButton from '@/pages/hosts/ImageUploadButton';
-import { KeyboardEvent, useRef, useState } from 'react';
+import { KeyboardEvent, WheelEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function HostRegister() {
@@ -10,6 +10,10 @@ function HostRegister() {
   const feeErrorRef = useRef<HTMLDivElement>(null);
   const [isCarNumberConfirmed, setCarNumberConfirmed] = useState<boolean>(false);
   const navigator = useNavigate();
+
+  const disableWheel = (e: WheelEvent<HTMLInputElement>) => {
+    e.currentTarget.blur();
+  };
 
   const validateNumber = (e: KeyboardEvent<HTMLInputElement>) => {
     const pattern = /^[0-9|Backspace|ArrowLeft|ArrowRight]+$/; // 숫자, 백스페이스, 좌우 방향키를 허용하는 정규식
@@ -147,6 +151,7 @@ function HostRegister() {
                       type="number"
                       placeholder="100,000"
                       onKeyDown={validateNumber}
+                      onWheel={disableWheel}
                       ref={feeRef}
                     />
                     <p className="text-semibold min-w-16 text-lg text-background-400">{'원/ 시간'}</p>
