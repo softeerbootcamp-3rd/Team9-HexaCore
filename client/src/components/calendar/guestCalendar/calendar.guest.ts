@@ -135,3 +135,7 @@ export const generateDateInfos = (firstDate: Date, selectedDateRange: DateRange,
   return dateInfos;
 };
 
+export const isValidReservation = (selectedDateRange: DateRange, selectableDateRanges: DateRange[]): boolean => {
+  const [start, end] = selectedDateRange;
+  return selectableDateRanges.some(([s, e]) => s.getTime() <= start.getTime() && end.getTime() <= e.getTime());
+};

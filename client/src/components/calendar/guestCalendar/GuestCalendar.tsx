@@ -2,7 +2,7 @@ import { useEffect, useReducer } from 'react';
 import ChevronLeft from '@/components/svgs/ChevronLeft';
 import ChevronRight from '@/components/svgs/ChevronRight';
 import { DATE_STATUS, DAYS, DateRange, DateStatus } from '../calendar.core';
-import { guestCalendarInitializer, guestCalendarReducer } from './calendar.guest';
+import { guestCalendarInitializer, guestCalendarReducer, isValidReservation } from './calendar.guest';
 import CalendarDay from '../CalendarDay';
 import CalendarDate from '../CalendarDate';
 
@@ -33,8 +33,9 @@ function GuestCalendar({ initDate = new Date(), selectableDateRanges, selectedDa
       case DATE_STATUS.GUEST_SELECTABLE: {
         if (state.isSelecting) {
           const start = selectedDateRange.at(0);
-          if (!start || start > date) return state;
+          if (!start || start > date) return;
           selectedDateRange = [start, date];
+          if (!isValidReservation(selectedDateRange, state.selectableDateRanges)) return;
           calendarDispatch({ type: 'SELECT_END', payload: { selectedDateRange } });
           break;
         }
