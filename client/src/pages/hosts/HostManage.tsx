@@ -51,10 +51,10 @@ function HostManage() {
               </div>
 
               <div className="h-1/2 flex flex-wrap">
-                {data.type && <Tag text={data.type}></Tag>}
-                {data.capacity && <Tag text={`${data.capacity}인승`}></Tag>}
-                {data.fuel && <Tag text={data.fuel}></Tag>}
-                {data.mileage && <Tag text={`${data.mileage}km/L`}></Tag>}
+                {data.type && <Tag className="w-16 h-8" text={data.type}></Tag>}
+                {data.capacity && <Tag className="w-16 h-8" text={`${data.capacity}인승`}></Tag>}
+                {data.fuel && <Tag className="w-16 h-8" text={data.fuel}></Tag>}
+                {data.mileage && <Tag className="w-16 h-8" text={`${data.mileage}km/L`}></Tag>}
               </div>
             </div>
           </div>
