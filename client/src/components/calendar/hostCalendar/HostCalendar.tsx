@@ -1,9 +1,10 @@
 import { useReducer } from 'react';
 import ChevronLeft from '@/components/svgs/ChevronLeft';
 import ChevronRight from '@/components/svgs/ChevronRight';
-import { DATE_STATUS, DAYS, DateRange, DateStatus, hostCalendarInitializer, hostCalendarReducer } from './calendar.core';
-import CalendarDay from './CalendarDay';
-import CalendarDate from './CalendarDate';
+import { DATE_STATUS, DAYS, DateRange, DateStatus } from '../calendar.core';
+import { hostCalendarInitializer, hostCalendarReducer } from './calendar.host';
+import CalendarDay from '../CalendarDay';
+import CalendarDate from '../CalendarDate';
 
 type Props = {
   initDate?: Date;
@@ -14,8 +15,6 @@ type Props = {
 
 function HostCalendar({ initDate = new Date(), selectedDateRanges, reservedDateRanges, onSelectedDateRangesChange }: Props) {
   const [state, calendarDispatch] = useReducer(hostCalendarReducer, { initDate, reservedDateRanges, selectedDateRanges }, hostCalendarInitializer);
-
-  console.log(state);
 
   const handleDateSelect = (status: DateStatus, date: Date) => {
     if (status === DATE_STATUS.SELECTED_START || status === DATE_STATUS.SELECTED_END || status === DATE_STATUS.SELECTED_SINGLE) {

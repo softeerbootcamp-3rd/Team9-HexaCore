@@ -1,4 +1,4 @@
-import { DATE_STATUS, DateStatus } from './calendar.info';
+import { DATE_STATUS, DateStatus } from './calendar.core';
 
 type Props = {
   date: Date;
@@ -51,7 +51,7 @@ function CalendarDate({ date, status, onClick }: Props) {
         </div>
       );
 
-    case DATE_STATUS.RESERVED:
+    case DATE_STATUS.HOST_RESERVED:
       return null; // TODO:
 
     default:
