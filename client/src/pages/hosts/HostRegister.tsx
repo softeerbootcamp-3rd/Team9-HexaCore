@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 function HostRegister() {
   const imageInputRefs = Array.from({ length: 5 }, () => useRef<HTMLInputElement>(null));
+  const imageInputErrorRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
   const feeRef = useRef<HTMLInputElement>(null);
@@ -59,7 +60,13 @@ function HostRegister() {
   };
 
   const onSubmitRequestCarRegister = async () => {
+    if (descriptionRef.current == null || feeRef.current == null || feeErrorRef.current == null || imageInputErrorRef.current == null) return;
+
+    feeErrorRef.current.hidden = true;
+    imageInputErrorRef.current.hidden = true;
+
     const formData = new FormData();
+    let formFailed = false;
 
     imageInputRefs.forEach((imageInputRef) => {
       const imageInput = imageInputRef.current;
@@ -69,31 +76,36 @@ function HostRegister() {
       }
     });
 
-    if (descriptionRef.current == null || feeRef.current == null || feeErrorRef.current == null) return;
+    if (formData.getAll('images').length != 5) {
+      imageInputErrorRef.current.hidden = false;
+      imageInputErrorRef.current.innerText = '차량 사진은 반드시 5장을 제출해야합니다.';
+      formFailed = true;
+    }
+
+    formData.append('description', descriptionRef.current.value);
 
     if (feeRef.current.validity.valueMissing) {
       feeErrorRef.current.hidden = false;
       feeErrorRef.current.innerText = '대여료는 필수로 입력하셔야 합니다.';
-      return;
+      formFailed = true;
+    } else {
+      const feeValue = Number(feeRef.current.value.replace(/,/g, ''));
+      const isRangeUnderflow = feeValue < 1000;
+      const isStepMismatch = feeValue % 1000 != 0;
+
+      if (isRangeUnderflow || isStepMismatch) {
+        feeErrorRef.current.hidden = false;
+        feeErrorRef.current.innerText = '대여료는 1000원 이상, 단위는 1000원입니다. 다시 입력해주세요.';
+        formFailed = true;
+      } else formData.append('feePerHour', feeValue.toString());
     }
-
-    const feeValue = Number(feeRef.current.value.replace(/,/g, ''));
-    const isRangeUnderflow = feeValue < 1000;
-    const isStepMismatch = feeValue % 1000 != 0;
-
-    if (isRangeUnderflow || isStepMismatch) {
-      feeErrorRef.current.hidden = false;
-      feeErrorRef.current.innerText = '대여료는 1000원 이상, 단위는 1000원입니다. 다시 입력해주세요.';
-      return;
-    }
-
-    formData.append('description', descriptionRef.current.value);
-    formData.append('feePerHour', feeValue.toString());
 
     // TODO: 서버에 차량 등록 요청을 하고 성공/실패 여부에 따라 리다이렉트한다.
     // carNumber, carName, address, position 등의 속성은 외부 API를 사용한다.
     // position 속성은 등록하기 버튼을 누른 후, 위치 정보로 좌표 관련 외부 API를 사용하여 좌표값을 얻는다.
     // 등록에 성공하였다면 호스트 페이지로 이동한다.
+    if (formFailed) return;
+
     alert('차량 등록을 완료하였습니다.');
     navigator('/hosts/manage');
   };
@@ -170,10 +182,12 @@ function HostRegister() {
                 </div>
               </div>
               <div>
-                <p className="mb-2 mt-4 text-xl font-semibold">{'대여료'}</p>
+                <div className="mb-2 mt-4 flex items-center justify-start gap-2">
+                  <p className="text-xl font-semibold">{'대여료'}</p>
+                  <div className="pt-2 text-sm text-danger-400" hidden ref={feeErrorRef}></div>
+                </div>
                 <h6 className="my-1 text-sm text-background-400">{'사용자에게 시간 당 얼마를 받을지 요금을 입력해주세요.'}</h6>
                 <div id="carFee">
-                  <div className="my-1 text-sm text-danger-400" hidden ref={feeErrorRef}></div>
                   <div className="flex w-3/4 items-center justify-between rounded-3xl bg-white px-3 py-1">
                     <input
                       className="w-full p-3 text-xl placeholder:text-background-200 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -192,7 +206,10 @@ function HostRegister() {
                 </div>
               </div>
               <div className="flex h-96 flex-col">
-                <p className="mb-2 mt-4 text-xl font-semibold">{'사진 등록'}</p>
+                <div className="mb-2 mt-4 flex items-center justify-start gap-2">
+                  <p className="text-xl font-semibold">{'사진 등록'}</p>
+                  <div className="pt-2 text-sm text-danger-400" hidden ref={imageInputErrorRef}></div>
+                </div>
                 <h6 className="my-1 text-sm text-background-400">{'차량 정면, 후면, 운전석 쪽, 보조석 쪽, 내부 사진 등을 올려주세요.'}</h6>
                 <div id="carImages" className="flex h-4/5 flex-wrap content-start">
                   <div className="h-full w-1/2">
