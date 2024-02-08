@@ -48,12 +48,17 @@ function HostRegister() {
       }
     });
 
-    if (descriptionRef.current == null || feeRef.current == null) return;
-    if (Number.parseInt(feeRef.current.value) % 1000 !== 0) {
-      if (feeErrorRef.current) {
-        feeErrorRef.current.hidden = false;
-        feeErrorRef.current.innerText = '대여료의 단위는 1000원입니다. 다시 입력해주세요.';
-      }
+    if (descriptionRef.current == null || feeRef.current == null || feeErrorRef.current == null) return;
+
+    if (feeRef.current.validity.rangeUnderflow || feeRef.current.validity.stepMismatch) {
+      feeErrorRef.current.hidden = false;
+      feeErrorRef.current.innerText = '대여료는 1000원 이상, 단위는 1000원입니다. 다시 입력해주세요.';
+      return;
+    }
+
+    if (feeRef.current.validity.valueMissing) {
+      feeErrorRef.current.hidden = false;
+      feeErrorRef.current.innerText = '대여료는 필수로 입력하셔야 합니다.';
       return;
     }
 
@@ -147,12 +152,15 @@ function HostRegister() {
                   <div className="flex w-3/4 items-center justify-between rounded-3xl bg-white px-3 py-1">
                     <input
                       className="w-full p-3 text-xl placeholder:text-background-200 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none"
-                      name="Location"
+                      name="Fee"
                       type="number"
                       placeholder="100,000"
                       onKeyDown={validateNumber}
                       onWheel={disableWheel}
+                      step={1000}
+                      min={1000}
                       ref={feeRef}
+                      required
                     />
                     <p className="text-semibold min-w-16 text-lg text-background-400">{'원/ 시간'}</p>
                   </div>
@@ -188,7 +196,8 @@ function HostRegister() {
     </>
   );
 
-  return <>{isCarNumberConfirmed ? HostRegisterForm : CarNumberForm}</>;
+  if (isCarNumberConfirmed) return HostRegisterForm;
+  return CarNumberForm;
 }
 
 export default HostRegister;
