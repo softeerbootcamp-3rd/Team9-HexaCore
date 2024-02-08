@@ -13,8 +13,8 @@ import com.hexacore.tayo.car.model.ModelEntity;
 import com.hexacore.tayo.car.model.PositionDto;
 import com.hexacore.tayo.car.model.PostCarDto;
 import com.hexacore.tayo.common.DataResponseDto;
-import com.hexacore.tayo.common.ResponseCode;
 import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.transaction.Transactional;
@@ -25,6 +25,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,7 +46,7 @@ public class CarService {
         List<CategoryDto> models = modelRepository.findAll().stream()
                 .map(CategoryDto::new)
                 .toList();
-        return DataResponseDto.of(new CategoryListDto(models), "세부 모델 조회가 완료되었습니다");
+        return DataResponseDto.of(new CategoryListDto(models));
     }
 
     /* 차량 등록 */
@@ -55,15 +56,18 @@ public class CarService {
         Long userId = 1L;
 
         if (checkUserHasCar(userId)) {
-            throw new GeneralException(ResponseCode.BAD_REQUEST, "유저가 이미 차량을 등록했습니다");
+            // 유저가 이미 차량을 등록한 경우
+            throw new GeneralException(ErrorCode.USER_ALREADY_HAS_CAR);
         }
         if (checkDuplicateCarNumber(postCarDto.getCarNumber())) {
-            throw new GeneralException(ResponseCode.BAD_REQUEST, "이미 등록된 차량 번호입니다");
+            // 중복되는 차량 번호가 있을 경우
+            throw new GeneralException(ErrorCode.CAR_NUMBER_DUPLICATED);
         }
 
         // 등록에 필요한 정보 가져오기
         ModelEntity model = modelRepository.findBySubCategory(postCarDto.getCarName())
-                .orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND, "존재하지 않는 모델명입니다"));
+                // 존재하지 않는 모델인 경우
+                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
         Point position = createPoint(postCarDto.getPosition());
 
         CarEntity car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId, postCarDto.getCarNumber())
@@ -106,7 +110,7 @@ public class CarService {
             saveImages(postCarDto.getImages(), carEntity);
         }
 
-        return ResponseDto.success(ResponseCode.OK, "차량 등록이 완료되었습니다");
+        return ResponseDto.success(HttpStatus.CREATED);
     }
 
     /* 경도와 위도 값을 Point 객체로 변환 */
@@ -123,7 +127,7 @@ public class CarService {
                 .toList();
 
         if (urls.size() < 5) {
-            throw new GeneralException(ResponseCode.BAD_REQUEST, "이미지를 5개 이상 등록해야 합니다");
+            throw new GeneralException(ErrorCode.CAR_IMAGE_INSUFFICIENT);
         }
 
         for (int idx = 0; idx < urls.size(); idx++) {
@@ -149,7 +153,7 @@ public class CarService {
                     new PutObjectRequest(bucket, originalFilename, image.getInputStream(), metadata)
             );
         } catch (IOException e) {
-            throw new GeneralException(ResponseCode.INTERNAL_SERVER_ERROR, "이미지 S3 업로드에 실패했습니다");
+            throw new GeneralException(ErrorCode.S3_UPLOAD_FAILED);
         }
         return amazonS3Client.getUrl(bucket, originalFilename).toString();
     }
@@ -169,7 +173,7 @@ public class CarService {
     public ResponseDto deleteCar(Long carId) {
         // 차량 isDeleted = true
         CarEntity car = carRepository.findById(carId)
-                .orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND, "존재하지 않는 id입니다"));
+                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         car.setIsDeleted(true);
         carRepository.save(car);
 
@@ -179,18 +183,18 @@ public class CarService {
             imageRepository.save(image);
         });
 
-        return ResponseDto.success(ResponseCode.OK, "차량 삭제가 완료되었습니다");
+        return ResponseDto.success(HttpStatus.OK);
     }
 
     /* 예약 가능 날짜 수정 */
     public ResponseDto updateDates(Long carId, DateListDto dateListDto) {
         CarEntity car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
-                .orElseThrow(() -> new GeneralException(ResponseCode.NOT_FOUND, "존재하지 않는 id입니다"));
+                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         car.setDates(dateListDto.getDates());
         carRepository.save(car);
 
-        return ResponseDto.success(ResponseCode.OK, "예약 가능 날짜 수정이 완료되었습니다");
+        return ResponseDto.success(HttpStatus.ACCEPTED);
     }
 }
