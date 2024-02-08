@@ -1,5 +1,5 @@
 import ImageUploadButton from '@/pages/hosts/ImageUploadButton';
-import { KeyboardEvent, WheelEvent, useRef, useState } from 'react';
+import { KeyboardEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function HostRegister() {
@@ -11,16 +11,37 @@ function HostRegister() {
   const [isCarNumberConfirmed, setCarNumberConfirmed] = useState<boolean>(false);
   const navigator = useNavigate();
 
-  const disableWheel = (e: WheelEvent<HTMLInputElement>) => {
-    e.currentTarget.blur();
-  };
-
   const validateNumber = (e: KeyboardEvent<HTMLInputElement>) => {
-    const pattern = /^[0-9|Backspace|ArrowLeft|ArrowRight]+$/; // 숫자, 백스페이스, 좌우 방향키를 허용하는 정규식
+    const pattern = /^([0-9]|Backspace|ArrowLeft|ArrowRight)+$/; // 숫자, 백스페이스, 좌우 방향키를 허용하는 정규식
     const isValidInput = pattern.test(e.key);
 
     if (!isValidInput) {
       e.preventDefault();
+    }
+  };
+
+  // 입력된
+  const formatCurrency = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.currentTarget.value.length == 0 || !feeRef.current) return;
+
+    const currencyValue = e.currentTarget.value ?? 0; // NaN일때 0으로 변환
+    const currencyValueNumber = Number(currencyValue.replace(/,/g, ''));
+
+    // 0 혹은 NaN이면 빈 칸으로 바꾼다.
+    if (currencyValueNumber == 0 || Number.isNaN(currencyValueNumber)) {
+      feeRef.current.value = '';
+      return;
+    }
+
+    const currencyValueFilledZero = currencyValueNumber >= 1000 ? currencyValueNumber : currencyValueNumber * 1000;
+    const formattedCurrency = currencyValueFilledZero.toLocaleString('ko-KR');
+    // 0 3개마다 , 표시
+
+    if (feeRef.current) {
+      feeRef.current.value = formattedCurrency;
+      // 입력 창의 커서를 ",000"의 앞의 위치로 강제한다.
+      feeRef.current.selectionStart = e.currentTarget.value.length - 4;
+      feeRef.current.selectionEnd = e.currentTarget.value.length - 4;
     }
   };
 
@@ -50,20 +71,24 @@ function HostRegister() {
 
     if (descriptionRef.current == null || feeRef.current == null || feeErrorRef.current == null) return;
 
-    if (feeRef.current.validity.rangeUnderflow || feeRef.current.validity.stepMismatch) {
-      feeErrorRef.current.hidden = false;
-      feeErrorRef.current.innerText = '대여료는 1000원 이상, 단위는 1000원입니다. 다시 입력해주세요.';
-      return;
-    }
-
     if (feeRef.current.validity.valueMissing) {
       feeErrorRef.current.hidden = false;
       feeErrorRef.current.innerText = '대여료는 필수로 입력하셔야 합니다.';
       return;
     }
 
+    const feeValue = Number(feeRef.current.value.replace(/,/g, ''));
+    const isRangeUnderflow = feeValue < 1000;
+    const isStepMismatch = feeValue % 1000 != 0;
+
+    if (isRangeUnderflow || isStepMismatch) {
+      feeErrorRef.current.hidden = false;
+      feeErrorRef.current.innerText = '대여료는 1000원 이상, 단위는 1000원입니다. 다시 입력해주세요.';
+      return;
+    }
+
     formData.append('description', descriptionRef.current.value);
-    formData.append('feePerHour', feeRef.current.value);
+    formData.append('feePerHour', feeValue.toString());
 
     // TODO: 서버에 차량 등록 요청을 하고 성공/실패 여부에 따라 리다이렉트한다.
     // carNumber, carName, address, position 등의 속성은 외부 API를 사용한다.
@@ -153,12 +178,12 @@ function HostRegister() {
                     <input
                       className="w-full p-3 text-xl placeholder:text-background-200 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none"
                       name="Fee"
-                      type="number"
+                      type="text"
                       placeholder="100,000"
                       onKeyDown={validateNumber}
-                      onWheel={disableWheel}
-                      step={1000}
-                      min={1000}
+                      onKeyUp={formatCurrency}
+                      onSelect={formatCurrency}
+                      maxLength={20}
                       ref={feeRef}
                       required
                     />
