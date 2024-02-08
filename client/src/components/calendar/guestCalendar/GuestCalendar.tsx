@@ -20,9 +20,9 @@ function GuestCalendar({ initDate = new Date(), availableDates, reservation, onR
     calendarDispatch({ type: 'SET_AVAILABLE_DATES', payload: { availableDates } });
   }, [availableDates]);
 
-  const handleDateSelect = (status: SelectStatus, date: Date) => {
+  const handleDateSelect = (selectStatus: SelectStatus, date: Date) => {
     let { reservation } = state;
-    switch (status) {
+    switch (selectStatus) {
       case SELECT_STATUS.SELECTED_START:
       case SELECT_STATUS.SELECTED_END:
       case SELECT_STATUS.SELECTED_SINGLE: {
@@ -67,8 +67,8 @@ function GuestCalendar({ initDate = new Date(), availableDates, reservation, onR
         {DAYS.map((day, index) => (
           <CalendarDay key={index} day={day} />
         ))}
-        {state.dateInfos.map(({ date, status }, index) => (
-          <CalendarDate key={index} date={date} status={status} onClick={() => handleDateSelect(status, date)} />
+        {state.dateInfos.map(({ date, selectStatus }, index) => (
+          <CalendarDate key={index} date={date} selectStatus={selectStatus} onClick={() => handleDateSelect(selectStatus, date)} />
         ))}
       </div>
     </div>

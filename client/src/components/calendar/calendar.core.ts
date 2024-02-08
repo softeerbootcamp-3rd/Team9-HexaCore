@@ -14,20 +14,9 @@ export const SELECT_STATUS = {
 } as const;
 export type SelectStatus = (typeof SELECT_STATUS)[keyof typeof SELECT_STATUS];
 
-export const RESERVATION_STATUS = {
-  NONE: 'NONE',
-  RESERVED: 'RESERVED',
-  RESERVED_START: 'RESERVED_START',
-  RESERVED_END: 'RESERVED_END',
-  RESERVED_SINGLE: 'RESERVED_SINGLE',
-  SELECTED_RESERVED_START: 'SELECTED_RESERVED_START',
-  SELECTED_RESERVED_END: 'SELECTED_RESERVED_END',
-} as const;
-export type ReservationStatus = (typeof RESERVATION_STATUS)[keyof typeof RESERVATION_STATUS];
-
 export type DateInfo = {
   date: Date;
-  status: SelectStatus;
+  selectStatus: SelectStatus;
 };
 
 export const getLastDateOfThisMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0);

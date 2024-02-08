@@ -97,7 +97,7 @@ export const generateDateInfos = ({
   const dateInfos: DateInfo[] = [];
 
   for (let i = 1; i <= firstDate.getDay(); i++) {
-    dateInfos.push({ date: new Date(), status: SELECT_STATUS.NONE });
+    dateInfos.push({ date: new Date(), selectStatus: SELECT_STATUS.NONE });
   }
 
   const selectedStart = reservation[0].getTime();
@@ -106,7 +106,7 @@ export const generateDateInfos = ({
   let selectableIndex = 0;
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
     const date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-    let status: SelectStatus = SELECT_STATUS.UNSELECTABLE;
+    let selectStatus: SelectStatus = SELECT_STATUS.UNSELECTABLE;
 
     while (selectableIndex < availableDates.length) {
       const dateTime = date.getTime();
@@ -116,24 +116,24 @@ export const generateDateInfos = ({
       if (dateTime < start) break;
       if (dateTime <= end) {
         if (dateTime === selectedStart) {
-          status = dateTime === selectedEnd ? SELECT_STATUS.SELECTED_SINGLE : SELECT_STATUS.SELECTED_START;
+          selectStatus = dateTime === selectedEnd ? SELECT_STATUS.SELECTED_SINGLE : SELECT_STATUS.SELECTED_START;
           break;
         }
         if (dateTime === selectedEnd) {
-          status = SELECT_STATUS.SELECTED_END;
+          selectStatus = SELECT_STATUS.SELECTED_END;
           break;
         }
         if (selectedStart < dateTime && dateTime < selectedEnd) {
-          status = SELECT_STATUS.SELECTED;
+          selectStatus = SELECT_STATUS.SELECTED;
           break;
         }
-        status = SELECT_STATUS.GUEST_SELECTABLE;
+        selectStatus = SELECT_STATUS.GUEST_SELECTABLE;
         break;
       }
       selectableIndex++;
     }
 
-    dateInfos.push({ date, status });
+    dateInfos.push({ date, selectStatus });
   }
 
   return dateInfos;

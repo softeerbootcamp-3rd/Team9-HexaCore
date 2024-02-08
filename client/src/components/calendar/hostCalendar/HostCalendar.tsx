@@ -2,9 +2,9 @@ import { useEffect, useReducer } from 'react';
 import ChevronLeft from '@/components/svgs/ChevronLeft';
 import ChevronRight from '@/components/svgs/ChevronRight';
 import { DAYS, DateRange, SELECT_STATUS, SelectStatus, mergeDateRanges } from '../calendar.core';
-import { hostCalendarInitializer, hostCalendarReducer } from './calendar.host';
+import { ReservationStatus, hostCalendarInitializer, hostCalendarReducer } from './calendar.host';
 import CalendarDay from '../CalendarDay';
-import CalendarDate from '../CalendarDate';
+import HostCalendarDate from './HostCalendarDate';
 
 type Props = {
   initDate?: Date;
@@ -20,9 +20,9 @@ function HostCalendar({ initDate = new Date(), availableDates, reservations, onA
     calendarDispatch({ type: 'SET_RESERVATIONS', payload: { reservations } });
   }, [reservations]);
 
-  const handleDateSelect = (status: SelectStatus, date: Date) => {
+  const handleDateSelect = ({ selectStatus, reservationStatus, date }: { selectStatus: SelectStatus; reservationStatus: ReservationStatus; date: Date }) => {
     let { availableDates } = state;
-    switch (status) {
+    switch (selectStatus) {
       case SELECT_STATUS.SELECTED_START:
       case SELECT_STATUS.SELECTED_END:
       case SELECT_STATUS.SELECTED_SINGLE: {
@@ -66,8 +66,14 @@ function HostCalendar({ initDate = new Date(), availableDates, reservations, onA
         {DAYS.map((day, index) => (
           <CalendarDay key={index} day={day} />
         ))}
-        {state.dateInfos.map(({ date, status }, index) => (
-          <CalendarDate key={index} date={date} status={status} onClick={() => handleDateSelect(status, date)} />
+        {state.dateInfos.map(({ date, selectStatus, reservationStatus }, index) => (
+          <HostCalendarDate
+            key={index}
+            date={date}
+            selectStatus={selectStatus}
+            reservationStatus={reservationStatus}
+            onClick={() => handleDateSelect({ selectStatus, reservationStatus, date })}
+          />
         ))}
       </div>
     </div>

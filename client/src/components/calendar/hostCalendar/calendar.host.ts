@@ -1,8 +1,23 @@
 import { DateInfo, DateRange, SELECT_STATUS, SelectStatus, getLastDateOfThisMonth } from '../calendar.core';
 
+export const RESERVATION_STATUS = {
+  NONE: 'NONE',
+  RESERVED: 'RESERVED',
+  RESERVED_START: 'RESERVED_START',
+  RESERVED_END: 'RESERVED_END',
+  RESERVED_SINGLE: 'RESERVED_SINGLE',
+  SELECTED_RESERVED_START: 'SELECTED_RESERVED_START',
+  SELECTED_RESERVED_END: 'SELECTED_RESERVED_END',
+} as const;
+export type ReservationStatus = (typeof RESERVATION_STATUS)[keyof typeof RESERVATION_STATUS];
+
+type HostDateInfo = DateInfo & {
+  reservationStatus: ReservationStatus;
+};
+
 type HostCalendarState = {
   firstDate: Date;
-  dateInfos: DateInfo[];
+  dateInfos: HostDateInfo[];
   availableDates: DateRange[];
   reservations: DateRange[];
   isSelecting: boolean;
@@ -39,7 +54,7 @@ export const hostCalendarInitializer = ({ initDate, reservations, availableDates
   const firstDate = new Date(initDate.getFullYear(), initDate.getMonth(), 1);
   return {
     firstDate,
-    dateInfos: generateDateInfos({ firstDate, availableDates, reservations }),
+    dateInfos: generateHostDateInfos({ firstDate, availableDates, reservations }),
     reservations,
     availableDates,
     isSelecting: false,
@@ -51,7 +66,7 @@ export const hostCalendarReducer = (state: HostCalendarState, action: HostCalend
     case 'NEXT_MONTH':
     case 'PREV_MONTH': {
       const firstDate = new Date(state.firstDate.getFullYear(), state.firstDate.getMonth() + (action.type === 'NEXT_MONTH' ? 1 : -1), 1);
-      const dateInfos = generateDateInfos({ ...state, firstDate });
+      const dateInfos = generateHostDateInfos({ ...state, firstDate });
       return {
         ...state,
         firstDate,
@@ -70,7 +85,7 @@ export const hostCalendarReducer = (state: HostCalendarState, action: HostCalend
     case 'SELECT_END': {
       if (!state.isSelecting) return state;
       const { availableDates } = action.payload;
-      const dateInfos = generateDateInfos({ ...state, availableDates });
+      const dateInfos = generateHostDateInfos({ ...state, availableDates });
       return {
         ...state,
         availableDates,
@@ -81,7 +96,7 @@ export const hostCalendarReducer = (state: HostCalendarState, action: HostCalend
     case 'DESELECT': {
       if (state.isSelecting) return state;
       const { availableDates } = action.payload;
-      const dateInfos = generateDateInfos({ ...state, availableDates });
+      const dateInfos = generateHostDateInfos({ ...state, availableDates });
       return {
         ...state,
         availableDates,
@@ -91,7 +106,7 @@ export const hostCalendarReducer = (state: HostCalendarState, action: HostCalend
     }
     case 'SET_RESERVATIONS': {
       const { reservations } = action.payload;
-      const dateInfos = generateDateInfos({ ...state, reservations });
+      const dateInfos = generateHostDateInfos({ ...state, reservations });
       return {
         ...state,
         dateInfos,
@@ -104,18 +119,27 @@ export const hostCalendarReducer = (state: HostCalendarState, action: HostCalend
   }
 };
 
-export const generateDateInfos = ({ firstDate, availableDates }: { firstDate: Date; availableDates: DateRange[]; reservations: DateRange[] }): DateInfo[] => {
+export const generateHostDateInfos = ({
+  firstDate,
+  reservations,
+  availableDates,
+}: {
+  firstDate: Date;
+  availableDates: DateRange[];
+  reservations: DateRange[];
+}): HostDateInfo[] => {
   const lastDate = getLastDateOfThisMonth(firstDate);
-  const dateInfos: DateInfo[] = [];
+  const dateInfos: HostDateInfo[] = [];
 
   for (let i = 1; i <= firstDate.getDay(); i++) {
-    dateInfos.push({ date: new Date(), status: SELECT_STATUS.NONE });
+    dateInfos.push({ date: new Date(), selectStatus: SELECT_STATUS.NONE, reservationStatus: RESERVATION_STATUS.NONE });
   }
 
   let selectedIndex = 0;
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
     const date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-    let status: SelectStatus = SELECT_STATUS.HOST_SELECTABLE;
+    let selectStatus: SelectStatus = SELECT_STATUS.HOST_SELECTABLE;
+    const reservationStatus: ReservationStatus = RESERVATION_STATUS.NONE;
 
     while (selectedIndex < availableDates.length) {
       const dateTime = date.getTime();
@@ -124,15 +148,15 @@ export const generateDateInfos = ({ firstDate, availableDates }: { firstDate: Da
 
       if (dateTime < start) break;
       if (dateTime === start) {
-        status = dateTime === end ? SELECT_STATUS.SELECTED_SINGLE : SELECT_STATUS.SELECTED_START;
+        selectStatus = dateTime === end ? SELECT_STATUS.SELECTED_SINGLE : SELECT_STATUS.SELECTED_START;
         break;
       }
       if (dateTime < end) {
-        status = SELECT_STATUS.SELECTED;
+        selectStatus = SELECT_STATUS.SELECTED;
         break;
       }
       if (dateTime === end) {
-        status = SELECT_STATUS.SELECTED_END;
+        selectStatus = SELECT_STATUS.SELECTED_END;
         selectedIndex++;
         break;
       }
@@ -140,7 +164,7 @@ export const generateDateInfos = ({ firstDate, availableDates }: { firstDate: Da
       selectedIndex++;
     }
 
-    dateInfos.push({ date, status });
+    dateInfos.push({ date, selectStatus, reservationStatus });
   }
 
   return dateInfos;
