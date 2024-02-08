@@ -11,10 +11,8 @@ function CarDetailTest() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [totalFee, setTotalFee] = useState(0);
 
-  const [startDate, setStartDate] = useState("2024-02-02");
-  const [endDate, setEndDate] = useState("2024-02-02");
-  const [startTime, setStartTime] = useState('10');
-  const [endTime, setEndTime] = useState('10');
+  const [startDateTime, setStartDateTime] = useState(new Date(2024, 1, 2, 12, 0, 0, 0));
+  const [endDateTime, setEndDateTime] = useState(new Date(2024, 1, 3, 12, 0, 0, 0));
 
   // 다음 이미지 표시
   const showNextImage = () => {
@@ -26,11 +24,30 @@ function CarDetailTest() {
     setCurrentIdx((prevIdx) => (prevIdx - 1 + data.imageUrls.length) % data.imageUrls.length);
   };
 
+  // 대여 시간 정보 업데이트
+  const updateStartDateTime = (time: string) => {
+    setStartDateTime((prevDate: Date) => {
+      const newDate = new Date(prevDate);
+      newDate.setHours(parseInt(time));
+      
+      return newDate;
+    });
+  };
+
+  // 반납 시간 정보 업데이트
+  const updateEndDateTime = (time: string) => {
+    setEndDateTime((prevDate: Date) => {
+      const newDate = new Date(prevDate);
+      newDate.setHours(parseInt(time));
+      
+      return newDate;
+    });
+  };
+
   // 가격 계산 함수
   const calculatePrice = () => {
-    // 시작 시간과 종료 시간을 Date 객체로 변환
-    const startDateTime = new Date(startDate + "T" + startTime + ":00");
-    const endDateTime = new Date(endDate + "T" + endTime + ":00");
+    console.log("endDateTime: " + endDateTime);
+    console.log("startDateTime: " + startDateTime);
 
     // 시간 간격 계산 (밀리초 단위)
     const timeDiff = endDateTime.getTime() - startDateTime.getTime();
@@ -48,12 +65,22 @@ function CarDetailTest() {
   // TimePicker 값 변경 시 가격 재계산
   useEffect(() => {
     calculatePrice();
-  }, [startTime, endTime]);
+  }, [startDateTime, endDateTime]);
+
+  // DateTime을 string으로 변환
+  const dateTimeToString = (date: Date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}T${date.getHours()}:00:00`;
+  };
 
   // 예약하기 버튼 클릭 핸들러
   const handleReservation = () => {
-    const rentDate = `${startDate}T${startTime}:00:00`;
-    const returnDate = `${endDate}T${endTime}:00:00`;
+    // date를 string으로 변환
+    const rentDate = dateTimeToString(startDateTime);
+    const returnDate = dateTimeToString(endDateTime);
+
     const reservationData = {
       carId: data.carId,
       rentDate: rentDate,
@@ -164,19 +191,19 @@ function CarDetailTest() {
           <div className="grid grid-cols-2 gap-0 rounded-xl border-[1px] border-background-300 overflow-hidden">
             <label className="flex flex-col border-b-[0.5px] border-r-[0.5px] border-background-300 p-3 gap-1" htmlFor="rentHourSelect">
               <p className="font-medium text-xs">대여일</p>
-              <p className="text-background-500">{startDate}</p>
+              <p className="text-background-500">{startDateTime.getFullYear()}-{(startDateTime.getMonth() + 1).toString().padStart(2, '0')}-{startDateTime.getDate().toString().padStart(2, '0')}</p>
             </label>
             <label className="flex flex-col border-b-[0.5px] border-l-[0.5px] border-background-300 p-3 gap-1" htmlFor="rentHourSelect">
               <p className="font-medium text-xs">반납일</p>
-              <p className="text-background-500">{endDate}</p>
+              <p className="text-background-500">{endDateTime.getFullYear()}-{(endDateTime.getMonth() + 1).toString().padStart(2, '0')}-{endDateTime.getDate().toString().padStart(2, '0')}</p>
             </label>
             <div className="border-t-[0.5px] border-r-[0.5px] border-background-300 p-3 gap-1">
               <p className="font-medium text-xs">대여 시각</p>
-              <TimePicker className="text-background-500 w-full" id={"rentHourSelect"} onTimeChange={setStartTime} />
+              <TimePicker className="text-background-500 w-full" id={"rentHourSelect"} onTimeChange={updateStartDateTime} />
             </div>
             <div className="border-t-[0.5px] border-l-[0.5px] border-background-300 p-3 gap-1">
               <p className="font-medium text-xs">반납 시각</p>
-              <TimePicker className="text-background-500 w-full" id={"returnHourSelect"} onTimeChange={setEndTime} />
+              <TimePicker className="text-background-500 w-full" id={"returnHourSelect"} onTimeChange={updateEndDateTime} />
             </div>
           </div>
 
