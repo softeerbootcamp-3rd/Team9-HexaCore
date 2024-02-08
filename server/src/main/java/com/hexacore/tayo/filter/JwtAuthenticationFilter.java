@@ -4,7 +4,6 @@ import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.jwt.JwtService;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,16 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.PatternMatchUtils;
 
 import java.io.IOException;
-import java.security.Key;
 import java.util.Date;
 
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements Filter {
     private final JwtService jwtService;
-
-    @Value("${jwt.secret-key}")
-    private static String secretKey;
-    private final Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
     @Value("${jwt.access.cookie-name}")
     private String accessTokenCookieName;
