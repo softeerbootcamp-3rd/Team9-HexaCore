@@ -70,4 +70,6 @@ public class CarEntity extends BaseTime {
     @Column(name = "dates", columnDefinition = "json")
     @JdbcTypeCode(SqlTypes.JSON)
     private List<List<Date>> dates;
+
+
 }
