@@ -1,4 +1,4 @@
-import { DATE_STATUS, DateInfo, DateRange, getLastDateOfThisMonth } from '../calendar.core';
+import { DateInfo, DateRange, SELECT_STATUS, SelectStatus, getLastDateOfThisMonth } from '../calendar.core';
 
 type HostCalendarState = {
   firstDate: Date;
@@ -104,26 +104,18 @@ export const hostCalendarReducer = (state: HostCalendarState, action: HostCalend
   }
 };
 
-export const generateDateInfos = ({
-  firstDate,
-  reservations,
-  availableDates,
-}: {
-  firstDate: Date;
-  availableDates: DateRange[];
-  reservations: DateRange[];
-}): DateInfo[] => {
+export const generateDateInfos = ({ firstDate, availableDates }: { firstDate: Date; availableDates: DateRange[]; reservations: DateRange[] }): DateInfo[] => {
   const lastDate = getLastDateOfThisMonth(firstDate);
   const dateInfos: DateInfo[] = [];
 
   for (let i = 1; i <= firstDate.getDay(); i++) {
-    dateInfos.push({ date: new Date(), status: DATE_STATUS.NONE });
+    dateInfos.push({ date: new Date(), status: SELECT_STATUS.NONE });
   }
 
   let selectedIndex = 0;
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
     const date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-    let status = DATE_STATUS.HOST_SELECTABLE;
+    let status: SelectStatus = SELECT_STATUS.HOST_SELECTABLE;
 
     while (selectedIndex < availableDates.length) {
       const dateTime = date.getTime();
@@ -132,21 +124,22 @@ export const generateDateInfos = ({
 
       if (dateTime < start) break;
       if (dateTime === start) {
-        status = dateTime === end ? DATE_STATUS.SELECTED_SINGLE : DATE_STATUS.SELECTED_START;
+        status = dateTime === end ? SELECT_STATUS.SELECTED_SINGLE : SELECT_STATUS.SELECTED_START;
         break;
       }
       if (dateTime < end) {
-        status = DATE_STATUS.SELECTED;
+        status = SELECT_STATUS.SELECTED;
         break;
       }
       if (dateTime === end) {
-        status = DATE_STATUS.SELECTED_END;
+        status = SELECT_STATUS.SELECTED_END;
         selectedIndex++;
         break;
       }
 
       selectedIndex++;
     }
+
     dateInfos.push({ date, status });
   }
 

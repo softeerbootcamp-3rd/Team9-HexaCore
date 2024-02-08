@@ -2,23 +2,32 @@ export const DAYS = ['일', '월', '화', '수', '목', '금', '토'] as const;
 
 export type DateRange = [Date, Date];
 
-export const DATE_STATUS = {
+export const SELECT_STATUS = {
   NONE: 'NONE',
   UNSELECTABLE: 'UNSELECTABLE',
   SELECTED: 'SELECTED',
   SELECTED_START: 'SELECTED_START',
   SELECTED_END: 'SELECTED_END',
   SELECTED_SINGLE: 'SELECTED_SINGLE',
-
   HOST_SELECTABLE: 'HOST_SELECTABLE',
-  HOST_RESERVED: 'HOST_RESERVED',
   GUEST_SELECTABLE: 'GUEST_SELECTABLE',
-};
-export type DateStatus = (typeof DATE_STATUS)[keyof typeof DATE_STATUS];
+} as const;
+export type SelectStatus = (typeof SELECT_STATUS)[keyof typeof SELECT_STATUS];
+
+export const RESERVATION_STATUS = {
+  NONE: 'NONE',
+  RESERVED: 'RESERVED',
+  RESERVED_START: 'RESERVED_START',
+  RESERVED_END: 'RESERVED_END',
+  RESERVED_SINGLE: 'RESERVED_SINGLE',
+  SELECTED_RESERVED_START: 'SELECTED_RESERVED_START',
+  SELECTED_RESERVED_END: 'SELECTED_RESERVED_END',
+} as const;
+export type ReservationStatus = (typeof RESERVATION_STATUS)[keyof typeof RESERVATION_STATUS];
 
 export type DateInfo = {
   date: Date;
-  status: DateStatus;
+  status: SelectStatus;
 };
 
 export const getLastDateOfThisMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0);

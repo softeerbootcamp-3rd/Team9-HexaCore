@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react';
 import ChevronLeft from '@/components/svgs/ChevronLeft';
 import ChevronRight from '@/components/svgs/ChevronRight';
-import { DATE_STATUS, DAYS, DateRange, DateStatus } from '../calendar.core';
+import { SELECT_STATUS, DAYS, DateRange, SelectStatus } from '../calendar.core';
 import { guestCalendarInitializer, guestCalendarReducer, isValidReservation } from './calendar.guest';
 import CalendarDay from '../CalendarDay';
 import CalendarDate from '../CalendarDate';
@@ -10,27 +10,27 @@ type Props = {
   initDate?: Date;
   availableDates: DateRange[];
   reservation?: DateRange;
-  onReservationsChange: (range: DateRange) => void;
+  onReservationChange: (range: DateRange) => void;
 };
 
-function GuestCalendar({ initDate = new Date(), availableDates, reservation, onReservationsChange }: Props) {
+function GuestCalendar({ initDate = new Date(), availableDates, reservation, onReservationChange }: Props) {
   const [state, calendarDispatch] = useReducer(guestCalendarReducer, { initDate, availableDates, reservation }, guestCalendarInitializer);
 
   useEffect(() => {
     calendarDispatch({ type: 'SET_AVAILABLE_DATES', payload: { availableDates } });
   }, [availableDates]);
 
-  const handleDateSelect = (status: DateStatus, date: Date) => {
+  const handleDateSelect = (status: SelectStatus, date: Date) => {
     let { reservation } = state;
     switch (status) {
-      case DATE_STATUS.SELECTED_START:
-      case DATE_STATUS.SELECTED_END:
-      case DATE_STATUS.SELECTED_SINGLE: {
+      case SELECT_STATUS.SELECTED_START:
+      case SELECT_STATUS.SELECTED_END:
+      case SELECT_STATUS.SELECTED_SINGLE: {
         reservation = [new Date(0), new Date(0)];
         calendarDispatch({ type: 'DESELECT', payload: { reservation } });
         break;
       }
-      case DATE_STATUS.GUEST_SELECTABLE: {
+      case SELECT_STATUS.GUEST_SELECTABLE: {
         if (state.isSelecting) {
           const start = reservation.at(0);
           if (!start || start > date) return;
@@ -44,7 +44,7 @@ function GuestCalendar({ initDate = new Date(), availableDates, reservation, onR
         break;
       }
     }
-    onReservationsChange(reservation);
+    onReservationChange(reservation);
   };
 
   return (

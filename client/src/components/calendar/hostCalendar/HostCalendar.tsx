@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react';
 import ChevronLeft from '@/components/svgs/ChevronLeft';
 import ChevronRight from '@/components/svgs/ChevronRight';
-import { DATE_STATUS, DAYS, DateRange, DateStatus, mergeDateRanges } from '../calendar.core';
+import { DAYS, DateRange, SELECT_STATUS, SelectStatus, mergeDateRanges } from '../calendar.core';
 import { hostCalendarInitializer, hostCalendarReducer } from './calendar.host';
 import CalendarDay from '../CalendarDay';
 import CalendarDate from '../CalendarDate';
@@ -20,20 +20,20 @@ function HostCalendar({ initDate = new Date(), availableDates, reservations, onA
     calendarDispatch({ type: 'SET_RESERVATIONS', payload: { reservations } });
   }, [reservations]);
 
-  const handleDateSelect = (status: DateStatus, date: Date) => {
+  const handleDateSelect = (status: SelectStatus, date: Date) => {
     let { availableDates } = state;
     switch (status) {
-      case DATE_STATUS.SELECTED_START:
-      case DATE_STATUS.SELECTED_END:
-      case DATE_STATUS.SELECTED_SINGLE: {
+      case SELECT_STATUS.SELECTED_START:
+      case SELECT_STATUS.SELECTED_END:
+      case SELECT_STATUS.SELECTED_SINGLE: {
         availableDates = availableDates.filter(([start, end]) => start.getTime() !== date.getTime() && end.getTime() !== date.getTime());
         calendarDispatch({ type: 'DESELECT', payload: { availableDates } });
         break;
       }
-      case DATE_STATUS.HOST_SELECTABLE: {
+      case SELECT_STATUS.HOST_SELECTABLE: {
         if (state.isSelecting) {
           const start = availableDates.at(-1)?.at(0);
-          if (!start || start > date) return state;
+          if (!start || start > date) return;
           availableDates = mergeDateRanges([...availableDates.slice(0, -1), [start, date]]);
           calendarDispatch({ type: 'SELECT_END', payload: { availableDates } });
           break;

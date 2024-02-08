@@ -1,4 +1,4 @@
-import { DATE_STATUS, DateInfo, DateRange, getLastDateOfThisMonth } from '../calendar.core';
+import { SELECT_STATUS, DateInfo, DateRange, getLastDateOfThisMonth, SelectStatus } from '../calendar.core';
 
 type GuestCalendarState = {
   firstDate: Date;
@@ -97,7 +97,7 @@ export const generateDateInfos = ({
   const dateInfos: DateInfo[] = [];
 
   for (let i = 1; i <= firstDate.getDay(); i++) {
-    dateInfos.push({ date: new Date(), status: DATE_STATUS.NONE });
+    dateInfos.push({ date: new Date(), status: SELECT_STATUS.NONE });
   }
 
   const selectedStart = reservation[0].getTime();
@@ -106,7 +106,7 @@ export const generateDateInfos = ({
   let selectableIndex = 0;
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
     const date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
-    let status = DATE_STATUS.UNSELECTABLE;
+    let status: SelectStatus = SELECT_STATUS.UNSELECTABLE;
 
     while (selectableIndex < availableDates.length) {
       const dateTime = date.getTime();
@@ -116,18 +116,18 @@ export const generateDateInfos = ({
       if (dateTime < start) break;
       if (dateTime <= end) {
         if (dateTime === selectedStart) {
-          status = dateTime === selectedEnd ? DATE_STATUS.SELECTED_SINGLE : DATE_STATUS.SELECTED_START;
+          status = dateTime === selectedEnd ? SELECT_STATUS.SELECTED_SINGLE : SELECT_STATUS.SELECTED_START;
           break;
         }
         if (dateTime === selectedEnd) {
-          status = DATE_STATUS.SELECTED_END;
+          status = SELECT_STATUS.SELECTED_END;
           break;
         }
         if (selectedStart < dateTime && dateTime < selectedEnd) {
-          status = DATE_STATUS.SELECTED;
+          status = SELECT_STATUS.SELECTED;
           break;
         }
-        status = DATE_STATUS.GUEST_SELECTABLE;
+        status = SELECT_STATUS.GUEST_SELECTABLE;
         break;
       }
       selectableIndex++;
