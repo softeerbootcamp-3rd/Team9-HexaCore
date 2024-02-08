@@ -76,11 +76,11 @@ function SideBar() {
       <div className="p-4">
         <p className="pb-2">가격</p>
         <div className="flex pb-2 h-[45px] items-center">
-          <div className="pr-2 text-sm">최저: </div>
+          <div className="pr-2 text-sm flex-shrink-0">최저: </div>
           <input className="rounded-xl bg-background-100 h-full p-2"></input>
         </div>
         <div className="flex pb-2 h-[45px] items-center">
-          <div className="pr-2 text-sm">최고: </div>
+          <div className="pr-2 text-sm flex-shrink-0">최고: </div>
           <input className="rounded-xl bg-background-100 h-full p-2"></input>
         </div>
       </div>
