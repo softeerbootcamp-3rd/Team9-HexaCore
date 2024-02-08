@@ -1,0 +1,12 @@
+{
+	"success": true,
+	"code": 200,
+	"message": "유저 정보 조회 성공",
+	"data": {
+		"name": "윤수지",
+		"email": "test@example.com",
+		"nickname": "닉네임",
+		"phoneNumber": "010-0000-0000",
+		"profileImg": ""
+	}
+}
