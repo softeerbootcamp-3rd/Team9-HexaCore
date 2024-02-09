@@ -1,4 +1,4 @@
-type CarType = '경차' | '소형차' | '준중형차' | '중형차' | '대형차' | 'SUV' | '캠핑카' | 'VAN';
+export type CarType = '경차' | '소형차' | '준중형차' | '중형차' | '대형차' | 'SUV' | '캠핑카' | 'VAN';
 
 type CarTypeProps = {
   activeCarTypes: Map<CarType, boolean>;
@@ -29,6 +29,4 @@ function SelectCarType({ activeCarTypes, setActiveCarTypes }: CarTypeProps) {
   );
 }
 
-export type { CarType };
 export default SelectCarType;
-
