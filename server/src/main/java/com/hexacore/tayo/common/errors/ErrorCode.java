@@ -25,6 +25,12 @@ public enum ErrorCode {
     USER_WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 틀렸습니다."),
 
     CAR_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 차량입니다."),
+    CAR_IMAGE_INSUFFICIENT(HttpStatus.BAD_REQUEST, "이미지를 5개 이상 등록해야 합니다."),
+    CAR_MODEL_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 모델명입니다."),
+    CAR_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST, "중복된 차량 번호입니다."),
+    USER_ALREADY_HAS_CAR(HttpStatus.BAD_REQUEST, "유저가 이미 차량을 등록했습니다."),
+
+    S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드에 실패했습니다."),
 
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 문제 발생, 다음에 시도해주세요.");
     public final HttpStatus httpStatus;
