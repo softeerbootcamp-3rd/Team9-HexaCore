@@ -25,13 +25,13 @@ function HostRegister() {
 
   // 입력된
   const formatCurrency = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.currentTarget.value.length == 0 || !feeRef.current) return;
+    if (e.currentTarget.value.length === 0 || !feeRef.current) return;
 
     const currencyValue = e.currentTarget.value ?? 0; // NaN일때 0으로 변환
     const currencyValueNumber = Number(currencyValue.replace(/,/g, ''));
 
     // 0 혹은 NaN이면 빈 칸으로 바꾼다.
-    if (currencyValueNumber == 0 || Number.isNaN(currencyValueNumber)) {
+    if (currencyValueNumber === 0 || Number.isNaN(currencyValueNumber)) {
       feeRef.current.value = '';
       return;
     }
@@ -70,7 +70,7 @@ function HostRegister() {
   };
 
   const onSubmitRequestCarRegister = async () => {
-    if (descriptionRef.current == null || feeRef.current == null) return;
+    if (descriptionRef.current === null || feeRef.current === null) return;
     setFeeMessage(null);
     setImageMessage(null);
 
