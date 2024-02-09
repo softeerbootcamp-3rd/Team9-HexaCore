@@ -13,7 +13,10 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.Date;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -22,6 +25,9 @@ import org.locationtech.jts.geom.Point;
 @Entity
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "Car")
 public class CarEntity extends BaseTime {
 
@@ -71,5 +77,7 @@ public class CarEntity extends BaseTime {
     @JdbcTypeCode(SqlTypes.JSON)
     private List<List<Date>> dates;
 
-
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
+    @Builder.Default
+    private Boolean isDeleted = false;
 }

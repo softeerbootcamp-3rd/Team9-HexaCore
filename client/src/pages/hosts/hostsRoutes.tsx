@@ -3,19 +3,19 @@ import HostManage from '@/pages/hosts/HostManage';
 import HostRegister from '@/pages/hosts/HostRegister';
 import response from './CarData.json';
 
-type CarData = {
-  carName: String;
-  carNumber: String;
-  imageUrls: String[];
+export type CarData = {
+  carName: string;
+  carNumber: string;
+  imageUrls: string[];
   mileage: Number;
-  fuel: String;
-  type: String;
+  fuel: string;
+  type: string;
   capacity: Number;
   year: Number;
   feePerHour: Number;
-  carAddress: String;
-  description: String;
-  dates: String[];
+  carAddress: string;
+  description: string;
+  dates: string[];
 };
 const hostsRoutes: RouteObject[] = [
   {
