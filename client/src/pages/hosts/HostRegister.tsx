@@ -3,7 +3,7 @@ import { KeyboardEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function HostRegister() {
-  const imageInputRefs = Array.from({ length: 5 }, () => useRef<HTMLInputElement>(null));
+  const [images, setImages] = useState<(File | null)[]>([null, null, null, null, null]);
   const imageInputErrorRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
@@ -46,6 +46,14 @@ function HostRegister() {
     }
   };
 
+  const changeImageByIndex = (index: number, image: File) => {
+    setImages((images) => {
+      const newImages = [...images];
+      newImages[index] = image;
+      return newImages;
+    });
+  };
+
   const onSubmitCheckCarNumber = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -68,12 +76,8 @@ function HostRegister() {
     const formData = new FormData();
     let formFailed = false;
 
-    imageInputRefs.forEach((imageInputRef) => {
-      const imageInput = imageInputRef.current;
-      if (imageInput && imageInput.files && imageInput.files.length > 0) {
-        // 각 이미지 파일을 FormData에 추가
-        formData.append('images', imageInput.files[0]);
-      }
+    images.forEach((image) => {
+      if (image !== null) formData.append(`images`, image);
     });
 
     if (formData.getAll('images').length != 5) {
@@ -213,13 +217,12 @@ function HostRegister() {
                 <h6 className="my-1 text-sm text-background-400">{'차량 정면, 후면, 운전석 쪽, 보조석 쪽, 내부 사진 등을 올려주세요.'}</h6>
                 <div id="carImages" className="flex h-4/5 flex-wrap content-start">
                   <div className="h-full w-1/2">
-                    <ImageUploadButton imageInputRef={imageInputRefs[0]} isLargeButton={true} />
+                    <ImageUploadButton isLargeButton onImageChange={(image) => changeImageByIndex(0, image)} />
                   </div>
                   <div className="flex h-full w-1/2 flex-wrap content-start">
-                    <ImageUploadButton imageInputRef={imageInputRefs[1]} />
-                    <ImageUploadButton imageInputRef={imageInputRefs[2]} />
-                    <ImageUploadButton imageInputRef={imageInputRefs[3]} />
-                    <ImageUploadButton imageInputRef={imageInputRefs[4]} />
+                    {Array.from({ length: 4 }, (_, index) => (
+                      <ImageUploadButton key={index} onImageChange={(image) => changeImageByIndex(index + 1, image)} />
+                    ))}
                   </div>
                 </div>
               </div>
