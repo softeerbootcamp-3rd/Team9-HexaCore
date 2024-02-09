@@ -3,25 +3,26 @@ package com.hexacore.tayo.test;
 import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.PageInfoDto;
 import com.hexacore.tayo.common.PageResponseDto;
-import com.hexacore.tayo.common.ResponseCode;
 import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.test.model.TestDto;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TestService {
 
     public DataResponseDto<TestDto> testDataResponse() {
-        return DataResponseDto.of(new TestDto("hello World!"), "테스트 성공!");
+        return DataResponseDto.of(new TestDto("hello World!"));
     }
 
     public ResponseDto testResponse() {
-        return ResponseDto.success(ResponseCode.OK, "성공!");
+        return ResponseDto.success(HttpStatus.OK);
     }
 
     public DataResponseDto<TestDto> testException() {
-        throw new GeneralException(ResponseCode.UNAUTHORIZED, "로그인이 필요한 서비스 입니다");
+        throw new GeneralException(ErrorCode.USER_UNAUTHORIZED);
     }
 
     public PageResponseDto<TestDto> testPage() {

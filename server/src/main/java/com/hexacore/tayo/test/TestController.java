@@ -18,21 +18,25 @@ public class TestController {
 
     @GetMapping("/data")
     public ResponseEntity<DataResponseDto<TestDto>> getDataTest() {
-        return new ResponseEntity<>(testService.testDataResponse(), HttpStatus.OK);
+        DataResponseDto<TestDto> response = testService.testDataResponse();
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
     @GetMapping("/response")
     public ResponseEntity<ResponseDto> getResponseTest() {
-        return new ResponseEntity<>(testService.testResponse(), HttpStatus.OK);
+        ResponseDto response = testService.testResponse();
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
     @GetMapping("/exception")
     public ResponseEntity<ResponseDto> getException() {
-        return new ResponseEntity<>(testService.testException(), HttpStatus.OK);
+        ResponseDto response = testService.testException();
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
     @GetMapping("/page")
     public ResponseEntity<PageResponseDto<TestDto>> getPage() {
-        return new ResponseEntity<>(testService.testPage(), HttpStatus.OK);
+        PageResponseDto<TestDto> response = testService.testPage();
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 }

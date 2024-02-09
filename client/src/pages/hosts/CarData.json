@@ -1,0 +1,31 @@
+{
+	"success": true,
+	"code": 200,
+	"message": "차량 상세 정보 조회 성공",
+	"data": {
+		"car": {
+			"carName": "제네시스 G80",
+			"carNumber": "00가 0000",
+			"imageUrls": [
+				"https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzAzMTNfMjU4%2FMDAxNjc4Njg1MzAwMTYy.s9TBuiw2-thfon0NZ4qbcJ4z1hC0okbyXvEQRjuRX5Ig.fZJFbU9tmT27LpdirGAt2MbOEXc3uTdMKJKyyiVNqG8g.JPEG.niceguyyo%2F20211201_153235.jpg&type=a340",
+				"https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMzA1MjdfNTkg%2FMDAxNjg1MTE1NzgzOTkz.SdRD_U9gqqpyOx8xJM-iVm-LeL0kU5lZ2hz5kQ930pQg.O1JVpsPa882PqXDLa7WmRUnorkVRG9uhgccHNueP08Mg.JPEG.bbakdone123%2F1685004422984%25A3%25AD8.jpg&type=a340",
+				"https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyNDAxMDNfMjI0%2FMDAxNzA0MjQwNDQxNDI4.iBZEOWb9rhyhJXywgK8mt3x2SNjcakq6QrOjkKCTV5gg.NrZT9RBRUthPdjBiVa_NvalXFgf5u-3jUFGUpJe4BIkg.JPEG.firstrental00%2FKakaoTalk_20240102_130318974_04.jpg&type=a340"
+			],
+			"mileage": 10,
+			"fuel": "전기",
+			"type": "승용차",
+			"capacity": 4,
+			"year": 4,
+			"feePerHour": 10000,
+			"carAddress": "경기도 오산시 밀머리로",
+			"description": "설명dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+			"dates": [
+				"2024-02-01",
+				"2024-02-02",
+				"2024-02-03",
+				"2024-02-04",
+				"2024-02-05"
+			]
+		}
+	}
+}

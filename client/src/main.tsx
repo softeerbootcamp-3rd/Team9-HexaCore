@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import App from '@/App.tsx';
 import NotFound from '@/pages/NotFound';
+import authRoutes from '@/pages/auth/authRoutes';
 import homeRoutes from '@/pages/home/homeRoutes';
 import profileRoutes from '@/pages/profile/profileRoutes';
 import carRoutes from '@/pages/cars/carRoutes';
@@ -14,6 +15,7 @@ const router = createBrowserRouter([
     path: '/',
     element: <App />,
     children: [
+      ...authRoutes,
       ...homeRoutes,
       ...profileRoutes,
       ...carRoutes,
