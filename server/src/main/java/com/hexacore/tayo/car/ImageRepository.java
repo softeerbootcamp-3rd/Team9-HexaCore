@@ -12,10 +12,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface ImageRepository extends JpaRepository <ImageEntity, Long> {
+
+    List<ImageEntity> findByCar_Id(Long carId);
     List<ImageEntity> findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(Long carId);
 
-    @Transactional
-    @Modifying
-    @Query("UPDATE ImageEntity SET url = :newUrl WHERE id = :imageId")
-    void updateUrlById(@Param("imageId") Long imageId, @Param("newUrl") String newUrl);
+    Optional<ImageEntity> findByCar_IdAndOrderIdxAndIsDeletedFalse(Long carId,Integer orderIdx);
+
 }

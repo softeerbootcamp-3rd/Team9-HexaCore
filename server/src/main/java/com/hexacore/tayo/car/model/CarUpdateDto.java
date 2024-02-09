@@ -14,5 +14,6 @@ public class CarUpdateDto {
     private String address;
     private PositionDto position;
     private String description;
-    private List<MultipartFile> imageUrls;
+    private List<MultipartFile> imageFiles;
+    private List<Integer> imageIndexes;
 }

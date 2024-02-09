@@ -46,13 +46,13 @@ public class CarController {
     @GetMapping("{carId}")
     public ResponseEntity<ResponseDto> carDetail(@PathVariable Long carId) {
         ResponseDto responseDto = carService.carDetail(carId);
-        return new ResponseEntity<>(responseDto, ResponseCode.valueOf(responseDto.getCode()));
+        return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
 
     @PutMapping("{carId}")
     public ResponseEntity<ResponseDto> carUpdate(@PathVariable Long carId, @ModelAttribute CarUpdateDto carUpdateDto) {
         ResponseDto responseDto = carService.carUpdate(carId,carUpdateDto);
-        return new ResponseEntity<>(responseDto, ResponseCode.valueOf(responseDto.getCode()));
+        return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
 
     @PutMapping("{carId}/date")
