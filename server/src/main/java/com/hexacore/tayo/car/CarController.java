@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car;
 
+import com.hexacore.tayo.car.model.CarUpdateDto;
 import com.hexacore.tayo.car.model.DateListDto;
 import com.hexacore.tayo.common.ResponseCode;
 import com.hexacore.tayo.common.ResponseDto;
@@ -16,13 +17,19 @@ public class CarController {
 
 
     @GetMapping("{carId}")
-    public ResponseEntity<ResponseDto> carDetail(@PathVariable("carId") Long carId) {
+    public ResponseEntity<ResponseDto> carDetail(@PathVariable Long carId) {
         ResponseDto responseDto = carService.carDetail(carId);
         return new ResponseEntity<>(responseDto, ResponseCode.valueOf(responseDto.getCode()));
     }
 
+    @PutMapping("{carId}")
+    public ResponseEntity<ResponseDto> carUpdate(@PathVariable Long carId, @ModelAttribute CarUpdateDto carUpdateDto) {
+        ResponseDto responseDto = carService.carUpdate(carId,carUpdateDto);
+        return new ResponseEntity<>(responseDto, ResponseCode.valueOf(responseDto.getCode()));
+    }
+
     @PutMapping("{carId}/date")
-    public ResponseEntity<ResponseDto> updateDates(@PathVariable("carId") Long carId, @RequestBody DateListDto dateListDto) {
+    public ResponseEntity<ResponseDto> updateDates(@PathVariable Long carId, @RequestBody DateListDto dateListDto) {
         ResponseDto responseDto = carService.updateDates(carId, dateListDto);
         return new ResponseEntity<>(responseDto, ResponseCode.valueOf(responseDto.getCode()));
     }
