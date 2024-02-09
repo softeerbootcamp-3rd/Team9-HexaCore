@@ -1,15 +1,17 @@
+import Button from '@/components/Button';
+import TitledBlock from '@/components/TitledBlock';
 import ImageUploadButton from '@/pages/hosts/ImageUploadButton';
 import { KeyboardEvent, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function HostRegister() {
-  const imageInputRefs = Array.from({ length: 5 }, () => useRef<HTMLInputElement>(null));
-  const imageInputErrorRef = useRef<HTMLInputElement>(null);
+  const [images, setImages] = useState<(File | null)[]>([null, null, null, null, null]);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
-  const feeRef = useRef<HTMLInputElement>(null);
-  const feeErrorRef = useRef<HTMLDivElement>(null);
   const [isCarNumberConfirmed, setCarNumberConfirmed] = useState<boolean>(false);
+  const [imageMessage, setImageMessage] = useState<string | null>(null);
+  const [feeMessage, setFeeMessage] = useState<string | null>(null);
+  const feeRef = useRef<HTMLInputElement>(null);
   const navigator = useNavigate();
 
   const validateNumber = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -23,13 +25,13 @@ function HostRegister() {
 
   // 입력된
   const formatCurrency = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.currentTarget.value.length == 0 || !feeRef.current) return;
+    if (e.currentTarget.value.length === 0 || !feeRef.current) return;
 
     const currencyValue = e.currentTarget.value ?? 0; // NaN일때 0으로 변환
     const currencyValueNumber = Number(currencyValue.replace(/,/g, ''));
 
     // 0 혹은 NaN이면 빈 칸으로 바꾼다.
-    if (currencyValueNumber == 0 || Number.isNaN(currencyValueNumber)) {
+    if (currencyValueNumber === 0 || Number.isNaN(currencyValueNumber)) {
       feeRef.current.value = '';
       return;
     }
@@ -46,6 +48,14 @@ function HostRegister() {
     }
   };
 
+  const changeImageByIndex = (index: number, image: File) => {
+    setImages((images) => {
+      const newImages = [...images];
+      newImages[index] = image;
+      return newImages;
+    });
+  };
+
   const onSubmitCheckCarNumber = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -60,33 +70,26 @@ function HostRegister() {
   };
 
   const onSubmitRequestCarRegister = async () => {
-    if (descriptionRef.current == null || feeRef.current == null || feeErrorRef.current == null || imageInputErrorRef.current == null) return;
-
-    feeErrorRef.current.hidden = true;
-    imageInputErrorRef.current.hidden = true;
+    if (descriptionRef.current === null || feeRef.current === null) return;
+    setFeeMessage(null);
+    setImageMessage(null);
 
     const formData = new FormData();
     let formFailed = false;
 
-    imageInputRefs.forEach((imageInputRef) => {
-      const imageInput = imageInputRef.current;
-      if (imageInput && imageInput.files && imageInput.files.length > 0) {
-        // 각 이미지 파일을 FormData에 추가
-        formData.append('images', imageInput.files[0]);
-      }
+    images.forEach((image) => {
+      if (image !== null) formData.append(`images`, image);
     });
 
     if (formData.getAll('images').length != 5) {
-      imageInputErrorRef.current.hidden = false;
-      imageInputErrorRef.current.innerText = '차량 사진은 반드시 5장을 제출해야합니다.';
+      setImageMessage('차량 사진은 반드시 5장을 제출해야합니다.');
       formFailed = true;
     }
 
     formData.append('description', descriptionRef.current.value);
 
     if (feeRef.current.validity.valueMissing) {
-      feeErrorRef.current.hidden = false;
-      feeErrorRef.current.innerText = '대여료는 필수로 입력하셔야 합니다.';
+      setFeeMessage('대여료는 필수로 입력하셔야 합니다.');
       formFailed = true;
     } else {
       const feeValue = Number(feeRef.current.value.replace(/,/g, ''));
@@ -94,8 +97,7 @@ function HostRegister() {
       const isStepMismatch = feeValue % 1000 != 0;
 
       if (isRangeUnderflow || isStepMismatch) {
-        feeErrorRef.current.hidden = false;
-        feeErrorRef.current.innerText = '대여료는 1000원 이상, 단위는 1000원입니다. 다시 입력해주세요.';
+        setFeeMessage('대여료는 1000원 이상, 단위는 1000원입니다. 다시 입력해주세요.');
         formFailed = true;
       } else formData.append('feePerHour', feeValue.toString());
     }
@@ -118,128 +120,111 @@ function HostRegister() {
     // TODO: 외부 위치 정보 API를 활용해서 위치 정보를 갱신한다.
   };
 
-  const CarNumberForm = (
-    <>
-      <h1 className="my-7 text-center text-5xl font-semibold">{'Hello'}</h1>
-      <div className="my-5">
-        <h4 className="text-center text-background-400">{'스마트한 내차 빌려주기, 시작해볼까요?'}</h4>
-        <h4 className="text-center text-background-400">{'정확한 차량번호를 입력해주세요.'}</h4>
-      </div>
-      <form method="POST" action="https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry" onSubmit={onSubmitCheckCarNumber}>
-        <div className="flex justify-center">
-          <div className="flex w-5/12 items-center justify-between rounded-3xl bg-white px-6 py-2">
-            <input className="w-full p-3 text-2xl focus:outline-none" name="REGINUMBER" type="text" placeholder="12가 3456" />
-            <input type="image" src="/search-button.png" width={48} height={48} />
-          </div>
-        </div>
-      </form>
-    </>
-  );
-
-  const HostRegisterForm = (
-    <>
-      <div className="flex min-w-full flex-col justify-center">
+  if (!isCarNumberConfirmed)
+    return (
+      <div className="flex flex-col h-full">
+        <div className="h-1/5" />
         <div>
-          <div className="flex justify-center">
-            <div className="mx-6 flex min-h-80 w-5/12 min-w-40 flex-col justify-between">
-              <div id="carInfoSection">
-                <p className="my-2 text-xl font-semibold">{'차량 정보'}</p>
-                <div id="carInfo" className="flex h-24 flex-col items-start justify-center rounded-3xl bg-white p-5">
-                  <p className="text-lg text-background-400">{'제네시스 G80 12가 3456'}</p>
-                  <p className="text-lg text-background-400">{'대형차 | 5인승 | 연료 | 연비'}</p>
-                </div>
-              </div>
-              <div id="additionalInfoSection" className="flex grow flex-col pb-1">
-                <p className="mb-2 mt-4 text-xl font-semibold">{'부가 설명'}</p>
-                <h6 className="my-1 text-sm text-background-400">{'차에 대한 부가 정보나, 차를 사용할 때 주의점을 적어주세요.'}</h6>
-                <div id="additionalInfo" className="min-h-40 grow rounded-3xl bg-white p-4">
-                  <textarea
-                    ref={descriptionRef}
-                    name="carAdditionalInfo"
-                    placeholder="차량을 소중히 운전해주세요."
-                    className="h-full min-h-60 w-full grow resize-none placeholder:text-background-200 focus:outline-none"></textarea>
-                </div>
-              </div>
-            </div>
-            <div className="mx-6 flex w-5/12 min-w-80 flex-col justify-between">
-              <div>
-                <p className="my-2 text-xl font-semibold">{'차량 위치'}</p>
-                <h6 className="my-1 text-sm text-background-400">{'차를 빌린 사용자가 차량을 픽업할 위치를 입력해주세요.'}</h6>
-                <div id="carLocation">
-                  <div className="flex justify-start">
-                    <div className="flex w-3/4 cursor-pointer items-center justify-between rounded-3xl bg-white px-3 py-1" onClick={onClickGetLocation}>
-                      <input
-                        className="w-full cursor-pointer rounded-2xl p-3 text-xl placeholder:text-background-200 focus:outline-none disabled:bg-white"
-                        name="Location"
-                        type="text"
-                        placeholder="서울시"
-                        ref={addressRef}
-                        readOnly
-                      />
-                      <input type="image" src="/search-button.png" width={48} height={48} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <div className="mb-2 mt-4 flex items-center justify-start gap-2">
-                  <p className="text-xl font-semibold">{'대여료'}</p>
-                  <div className="pt-2 text-sm text-danger-400" hidden ref={feeErrorRef}></div>
-                </div>
-                <h6 className="my-1 text-sm text-background-400">{'사용자에게 시간 당 얼마를 받을지 요금을 입력해주세요.'}</h6>
-                <div id="carFee">
-                  <div className="flex w-3/4 items-center justify-between rounded-3xl bg-white px-3 py-1">
-                    <input
-                      className="w-full p-3 text-xl placeholder:text-background-200 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none"
-                      name="Fee"
-                      type="text"
-                      placeholder="100,000"
-                      onKeyDown={validateNumber}
-                      onKeyUp={formatCurrency}
-                      onSelect={formatCurrency}
-                      maxLength={20}
-                      ref={feeRef}
-                      required
-                    />
-                    <p className="text-semibold min-w-16 text-lg text-background-400">{'원/ 시간'}</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex h-96 flex-col">
-                <div className="mb-2 mt-4 flex items-center justify-start gap-2">
-                  <p className="text-xl font-semibold">{'사진 등록'}</p>
-                  <div className="pt-2 text-sm text-danger-400" hidden ref={imageInputErrorRef}></div>
-                </div>
-                <h6 className="my-1 text-sm text-background-400">{'차량 정면, 후면, 운전석 쪽, 보조석 쪽, 내부 사진 등을 올려주세요.'}</h6>
-                <div id="carImages" className="flex h-4/5 flex-wrap content-start">
-                  <div className="h-full w-1/2">
-                    <ImageUploadButton imageInputRef={imageInputRefs[0]} isLargeButton={true} />
-                  </div>
-                  <div className="flex h-full w-1/2 flex-wrap content-start">
-                    <ImageUploadButton imageInputRef={imageInputRefs[1]} />
-                    <ImageUploadButton imageInputRef={imageInputRefs[2]} />
-                    <ImageUploadButton imageInputRef={imageInputRefs[3]} />
-                    <ImageUploadButton imageInputRef={imageInputRefs[4]} />
-                  </div>
-                </div>
-              </div>
-            </div>
+          <h1 className="mb-7 text-center text-5xl font-semibold">{'Hello'}</h1>
+          <div className="my-5">
+            <h4 className="text-center text-background-400">{'스마트한 내차 빌려주기, 시작해볼까요?'}</h4>
+            <h4 className="text-center text-background-400">{'정확한 차량번호를 입력해주세요.'}</h4>
           </div>
-          <div className="mt-8 flex justify-center">
-            <div className="mx-6 w-9/12 py-3"></div>
-            <div className="flex w-1/12 justify-end p-2">
-              <button className="min-w-32 rounded-2xl bg-primary-500 px-6 py-3 text-white" onClick={onSubmitRequestCarRegister}>
-                {'등록하기'}
-              </button>
+          <form method="POST" action="https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry" onSubmit={onSubmitCheckCarNumber}>
+            <div className="flex justify-center">
+              <div className="flex w-5/12 items-center justify-between rounded-3xl bg-white px-6 py-2">
+                <input className="w-full p-3 text-2xl focus:outline-none" name="REGINUMBER" type="text" placeholder="12가 3456" />
+                <input type="image" src="/search-button.png" width={48} height={48} />
+              </div>
             </div>
-          </div>
+          </form>
         </div>
       </div>
-    </>
-  );
+    );
 
-  if (isCarNumberConfirmed) return HostRegisterForm;
-  return CarNumberForm;
+  return (
+    <div className="flex min-h-full flex-col gap-5 justify-between">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+        <div className="flex flex-col gap-4 col-span-2">
+          <TitledBlock title="차량 정보">
+            <div className="rounded-3xl bg-white p-5 shadow-lg">
+              <p className="text-lg text-background-400">{'제네시스 G80 12가 3456'}</p>
+              <p className="text-lg text-background-400">{'대형차 | 5인승 | 연료 | 연비'}</p>
+            </div>
+          </TitledBlock>
+          <TitledBlock title="부가 설명" className="flex flex-col grow">
+            <p className="mb-1 text-sm text-background-400">{'차에 대한 부가 정보나, 차를 사용할 때 주의점을 적어주세요.'}</p>
+            <div className="min-h-40 grow rounded-3xl bg-white p-5 shadow-lg">
+              <textarea
+                ref={descriptionRef}
+                name="carAdditionalInfo"
+                placeholder="차량을 소중히 운전해주세요."
+                className="h-full w-full resize-none placeholder:text-background-200 focus:outline-none"></textarea>
+            </div>
+          </TitledBlock>
+        </div>
+
+        <div className="flex flex-col gap-4 col-span-3">
+          <div className="flex flex-wrap gap-2 w-full">
+            <TitledBlock title="차량 위치" className="flex-1">
+              <p className="mb-1 text-sm text-background-400">{'차를 빌린 사용자가 차량을 픽업할 위치를 입력해주세요.'}</p>
+              <div className="flex cursor-pointer items-center justify-between rounded-3xl bg-white px-3 py-1 shadow-lg" onClick={onClickGetLocation}>
+                <input
+                  className="max-w-5 cursor-pointer rounded-2xl p-3 text-xl placeholder:text-background-200 focus:outline-none disabled:bg-white"
+                  name="Location"
+                  type="text"
+                  placeholder="서울시"
+                  ref={addressRef}
+                  readOnly
+                />
+                <img src="/search-button.png" className="w-10 h-10" />
+              </div>
+            </TitledBlock>
+            <TitledBlock title="대여료" className="flex-1">
+              <p className={`mb-1 text-sm ${feeMessage === null ? 'text-background-400' : 'text-danger-400'}`}>
+                {feeMessage ?? '사용자에게 시간 당 얼마를 받을지 요금을 입력해주세요.'}
+              </p>
+              <div id="carFee">
+                <div className="flex items-center justify-between rounded-3xl bg-white px-3 py-1 shadow-lg">
+                  <input
+                    className="w-full p-3 text-xl placeholder:text-background-200 focus:outline-none [&::-webkit-inner-spin-button]:appearance-none"
+                    name="Fee"
+                    type="text"
+                    placeholder="100,000"
+                    onKeyDown={validateNumber}
+                    onKeyUp={formatCurrency}
+                    onSelect={formatCurrency}
+                    maxLength={20}
+                    ref={feeRef}
+                    required
+                  />
+                  <p className="text-semibold min-w-16 text-lg text-background-400">{'원/ 시간'}</p>
+                </div>
+              </div>
+            </TitledBlock>
+          </div>
+          <TitledBlock title="사진 등록">
+            <div className="flex flex-col">
+              <p className={`mb-1 text-sm ${imageMessage === null ? 'text-background-400' : 'text-danger-400'}`}>
+                {imageMessage ?? '차량 정면, 후면, 운전석 쪽, 보조석 쪽, 내부 사진 등을 올려주세요.'}
+              </p>
+              <div id="carImages" className="flex flex-wrap content-start gap-2">
+                <ImageUploadButton onImageChange={(image) => changeImageByIndex(0, image)} className="flex-1" />
+                <div className="flex-1 grid gap-2 grid-cols-2 grid-rows-2">
+                  {Array.from({ length: 4 }, (_, index) => (
+                    <ImageUploadButton key={index} onImageChange={(image) => changeImageByIndex(index + 1, image)} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </TitledBlock>
+        </div>
+      </div>
+      <div className="flex justify-end mb-8">
+        <Button text="등록하기" onClick={onSubmitRequestCarRegister} />
+      </div>
+    </div>
+  );
 }
 
 export default HostRegister;
