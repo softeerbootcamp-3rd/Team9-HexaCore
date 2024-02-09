@@ -1,8 +1,16 @@
 import { useEffect, useReducer } from 'react';
 import ChevronLeft from '@/components/svgs/ChevronLeft';
 import ChevronRight from '@/components/svgs/ChevronRight';
-import { DAYS, DateRange, SELECT_STATUS, SelectStatus, mergeDateRanges } from '../calendar.core';
-import { ReservationStatus, hostCalendarInitializer, hostCalendarReducer } from './calendar.host';
+import { DAYS, DateRange, SELECT_STATUS, SelectStatus } from '../calendar.core';
+import {
+  RESERVATION_STATUS,
+  ReservationStatus,
+  closeSelectionFromAvailableDates,
+  hostCalendarInitializer,
+  hostCalendarReducer,
+  openSelectionFromAvailableDates,
+  removeDateFromAvailableDates,
+} from './calendar.host';
 import CalendarDay from '../CalendarDay';
 import HostCalendarDate from './HostCalendarDate';
 
@@ -21,24 +29,24 @@ function HostCalendar({ initDate = new Date(), availableDates, reservations, onA
   }, [reservations]);
 
   const handleDateSelect = ({ selectStatus, reservationStatus, date }: { selectStatus: SelectStatus; reservationStatus: ReservationStatus; date: Date }) => {
+    if (reservationStatus !== RESERVATION_STATUS.NONE) return;
+
     let { availableDates } = state;
     switch (selectStatus) {
       case SELECT_STATUS.SELECTED_START:
       case SELECT_STATUS.SELECTED_END:
       case SELECT_STATUS.SELECTED_SINGLE: {
-        availableDates = availableDates.filter(([start, end]) => start.getTime() !== date.getTime() && end.getTime() !== date.getTime());
+        availableDates = removeDateFromAvailableDates({ date, availableDates, reservations: state.reservations });
         calendarDispatch({ type: 'DESELECT', payload: { availableDates } });
         break;
       }
       case SELECT_STATUS.HOST_SELECTABLE: {
         if (state.isSelecting) {
-          const start = availableDates.at(-1)?.at(0);
-          if (!start || start > date) return;
-          availableDates = mergeDateRanges([...availableDates.slice(0, -1), [start, date]]);
+          availableDates = closeSelectionFromAvailableDates({ date, availableDates });
           calendarDispatch({ type: 'SELECT_END', payload: { availableDates } });
           break;
         }
-        availableDates = [...availableDates, [date, date]];
+        availableDates = openSelectionFromAvailableDates({ date, availableDates });
         calendarDispatch({ type: 'SELECT_START', payload: { availableDates } });
         break;
       }

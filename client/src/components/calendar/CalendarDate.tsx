@@ -35,21 +35,14 @@ function CalendarDate({ date, selectStatus, onClick }: Props) {
     case SELECT_STATUS.SELECTED:
       return (
         <div className="flex aspect-square w-full items-center justify-center">
-          <div
-            className={`flex h-6 w-full items-center justify-center 
-          ${selectStatus === SELECT_STATUS.SELECTED ? 'bg-primary-100 text-background-800' : 'bg-danger-100 text-background-800'}`}>
-            {date.getDate()}
-          </div>
+          <div className="flex h-6 w-full items-center justify-center bg-primary-100 text-background-800">{date.getDate()}</div>
         </div>
       );
 
     case SELECT_STATUS.SELECTED_SINGLE: {
       return (
         <div className="relative z-0 flex aspect-square w-full items-center justify-center rounded-full">
-          <div
-            className={`flex h-6 w-6 cursor-pointer items-center justify-center rounded-full 
-            ${SELECT_STATUS.SELECTED_SINGLE ? 'bg-primary-300 hover:bg-primary-400' : 'bg-danger-200 hover:bg-danger-300'}`}
-            onClick={onClick}>
+          <div className="flex h-6 w-6 cursor-pointer items-center justify-center rounded-full bg-primary-300 hover:bg-primary-400" onClick={onClick}>
             {date.getDate()}
           </div>
         </div>
