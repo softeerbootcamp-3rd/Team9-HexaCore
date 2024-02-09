@@ -2,13 +2,14 @@ import type { RouteObject } from 'react-router-dom';
 import Profile from '@/pages/profile/Profile';
 import response from './dummy.json';
 
-type UserInfo = {
-  name: String | null;
-  nickName: String | null;
-  phoneNum: String | null;
-  email: String | null;
-  image: String | null;
+export type UserInfo = {
+  name: string | null;
+  nickName: string | null;
+  phoneNum: string | null;
+  email: string | null;
+  image: string | null;
 };
+
 const profileRoutes: RouteObject[] = [
   {
     path: 'profile/:userId?',
@@ -32,3 +33,4 @@ const profileRoutes: RouteObject[] = [
 ];
 
 export default profileRoutes;
+
