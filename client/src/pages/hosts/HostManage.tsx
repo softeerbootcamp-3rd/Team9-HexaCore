@@ -163,8 +163,8 @@ function HostManage() {
         <div className="flex flex-col gap-3 w-3/5">
           {/* Button div */}
           <div className="flex gap-6">
-            <button className={`bg-gray-200 ${selectedTab === 'calendar' ? 'text-black font-bold' : 'text-background-500'} pl-3 text-[20px] font-medium`} onClick={() => handleTabSelect('calendar')}>예약 가능 일자</button>
-            <button className={`bg-gray-200 ${selectedTab === 'reservation' ? 'text-black font-bold' : 'text-background-500'} pl-3 text-[20px] font-medium`} onClick={() => handleTabSelect('reservation')}>내 차 예약 내역</button>
+            <button className={`bg-gray-200 ${selectedTab === 'calendar' ? 'text-black font-bold' : 'text-background-300'} pl-3 text-[20px] font-medium`} onClick={() => handleTabSelect('calendar')}>예약 가능 일자</button>
+            <button className={`bg-gray-200 ${selectedTab === 'reservation' ? 'text-black font-bold' : 'text-background-300'} pl-3 text-[20px] font-medium`} onClick={() => handleTabSelect('reservation')}>내 차 예약 내역</button>
           </div>
           {renderSelectedComponent()}
         </div>
