@@ -122,24 +122,6 @@ function HostRegister() {
     // TODO: 외부 위치 정보 API를 활용해서 위치 정보를 갱신한다.
   };
 
-  const CarNumberForm = (
-    <>
-      <h1 className="my-7 text-center text-5xl font-semibold">{'Hello'}</h1>
-      <div className="my-5">
-        <h4 className="text-center text-background-400">{'스마트한 내차 빌려주기, 시작해볼까요?'}</h4>
-        <h4 className="text-center text-background-400">{'정확한 차량번호를 입력해주세요.'}</h4>
-      </div>
-      <form method="POST" action="https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry" onSubmit={onSubmitCheckCarNumber}>
-        <div className="flex justify-center">
-          <div className="flex w-5/12 items-center justify-between rounded-3xl bg-white px-6 py-2">
-            <input className="w-full p-3 text-2xl focus:outline-none" name="REGINUMBER" type="text" placeholder="12가 3456" />
-            <input type="image" src="/search-button.png" width={48} height={48} />
-          </div>
-        </div>
-      </form>
-    </>
-  );
-
   const HostRegisterForm = (
     <>
       <div className="flex min-w-full flex-col justify-center">
@@ -242,7 +224,26 @@ function HostRegister() {
   );
 
   if (isCarNumberConfirmed) return HostRegisterForm;
-  return CarNumberForm;
+  return (
+    <div className="flex flex-col h-full">
+      <div className="h-1/5" />
+      <div>
+        <h1 className="mb-7 text-center text-5xl font-semibold">{'Hello'}</h1>
+        <div className="my-5">
+          <h4 className="text-center text-background-400">{'스마트한 내차 빌려주기, 시작해볼까요?'}</h4>
+          <h4 className="text-center text-background-400">{'정확한 차량번호를 입력해주세요.'}</h4>
+        </div>
+        <form method="POST" action="https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry" onSubmit={onSubmitCheckCarNumber}>
+          <div className="flex justify-center">
+            <div className="flex w-5/12 items-center justify-between rounded-3xl bg-white px-6 py-2">
+              <input className="w-full p-3 text-2xl focus:outline-none" name="REGINUMBER" type="text" placeholder="12가 3456" />
+              <input type="image" src="/search-button.png" width={48} height={48} />
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
 }
 
 export default HostRegister;
