@@ -7,12 +7,12 @@ export type CarData = {
   carName: string;
   carNumber: string;
   imageUrls: string[];
-  mileage: Number;
+  mileage: number;
   fuel: string;
   type: string;
-  capacity: Number;
-  year: Number;
-  feePerHour: Number;
+  capacity: number;
+  year: number;
+  feePerHour: number;
   carAddress: string;
   description: string;
   dates: string[];
@@ -46,3 +46,4 @@ const hostsRoutes: RouteObject[] = [
 ];
 
 export default hostsRoutes;
+
