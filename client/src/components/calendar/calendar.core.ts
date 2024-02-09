@@ -22,6 +22,7 @@ export type DateInfo = {
 export const getLastDateOfThisMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0);
 
 export const mergeDateRanges = (ranges: DateRange[]): DateRange[] => {
+  if (ranges.length === 0) return [];
   const sortedRanges = ranges.sort((a, b) => a[0].getTime() - b[0].getTime());
 
   const mergedRanges: DateRange[] = [];
