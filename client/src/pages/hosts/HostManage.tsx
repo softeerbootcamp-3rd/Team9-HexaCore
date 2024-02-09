@@ -8,7 +8,13 @@ function HostManage() {
   const navigate = useNavigate();
   const data = useLoaderData() as CarData;
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [selectedTab, setSelectedTab] = useState('calendar');
+  
+  const TABS = ['calendar', 'reservation'] as const;
+  type TabType = (typeof TABS)[number];
+  
+  const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
+
+  
 
   // 다음 이미지 표시
   const showNextImage = () => {
@@ -36,7 +42,7 @@ function HostManage() {
   }
 
   // 
-  const handleTabSelect = (tab: string) => {
+  const handleTabSelect = (tab: TabType) => {
     setSelectedTab(tab);
   };
 
