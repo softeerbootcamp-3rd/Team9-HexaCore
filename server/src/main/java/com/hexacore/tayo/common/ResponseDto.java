@@ -1,5 +1,6 @@
 package com.hexacore.tayo.common;
 
+import com.hexacore.tayo.common.errors.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -26,6 +27,10 @@ public class ResponseDto {
 
     public static ResponseDto error(ResponseCode errorCode, String message) {
         return new ResponseDto(false, errorCode.getCode(), errorCode.getMessage(message));
+    }
+
+    public static ResponseDto error(ErrorCode errorCode) {
+        return new ResponseDto(false, errorCode.getHttpStatus().value(), errorCode.getErrorMessage());
     }
 
 }
