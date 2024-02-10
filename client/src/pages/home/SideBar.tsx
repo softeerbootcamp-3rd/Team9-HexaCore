@@ -8,9 +8,13 @@ import type { Category } from '@/pages/home/homeRoutes';
 
 type SideBarProps = {
   models: Category[];
+  address: React.RefObject<HTMLInputElement>;
+  rentDate: React.RefObject<HTMLInputElement>;
+  returnDate: React.RefObject<HTMLInputElement>;
+  people: React.RefObject<HTMLInputElement>;
 };
 
-function SideBar({ models }: SideBarProps) {
+function SideBar({ models, address, rentDate, returnDate, people }: SideBarProps) {
   const [activeCarTypes, setActiveCarTypes] = useState<Map<CarType, boolean>>(
     new Map([
       ['경차', false],
@@ -27,6 +31,38 @@ function SideBar({ models }: SideBarProps) {
   const maxPrice = useRef<HTMLInputElement | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string[]>([]);
+
+  const handleFilter = async () => {
+    const minPriceNumber = Number(minPrice.current?.value.replace(/,/g, ''));
+    const maxPriceNumber = Number(maxPrice.current?.value.replace(/,/g, ''));
+    if (minPriceNumber >= maxPriceNumber) {
+      alert('최고 가격은 최저 가격보다 높아야 합니다.');
+      return;
+    }
+    const activeKeys = Array.from(activeCarTypes.entries())
+      .filter(([, value]) => value === true)
+      .map(([key]) => key);
+    console.log(
+      'address > ',
+      address.current?.value,
+      ' rentDate > ',
+      rentDate.current?.value,
+      ' returnDate > ',
+      returnDate.current?.value,
+      ' people > ',
+      people.current?.value,
+      ' minPrice > ',
+      minPriceNumber,
+      ' maxPrice > ',
+      maxPriceNumber,
+      ' carType > ',
+      activeKeys,
+      ' category > ',
+      selectedCategory,
+      ' subCategory > ',
+      selectedSubCategory,
+    );
+  };
 
   // TODO: HostRegister.tsx에 있는 코드를 재활용할 수 있도록 수정
   // KeyboardEvent<HTMLInputElement> -> React.KeyboardEvent<HTMLInputElement> : "KeyboardEvent 형식이 제네릭이 아닙니다" 워닝 수정
@@ -70,7 +106,7 @@ function SideBar({ models }: SideBarProps) {
   return (
     <div className="w-[300px] h-min-[800px] bg-white flex flex-col p-4 flex-shrink-0">
       <div>
-        <Button text="필터 적용하기" type="enabled" className="w-full h-12" />
+        <Button text="필터 적용하기" type="enabled" className="w-full h-12" onClick={handleFilter} />
       </div>
       <div className="p-4">
         <p className="pb-2">최저 가격</p>

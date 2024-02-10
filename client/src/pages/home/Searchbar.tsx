@@ -1,23 +1,32 @@
 import Search from '@/components/svgs/Search';
 import { CarData } from '@/pages/home/CarCard';
-import { Dispatch, useRef } from 'react';
+import { Dispatch } from 'react';
 import response from '@/pages/home/dummy/cars.json';
 
 type SearchBarProps = {
   setCarDataList: Dispatch<React.SetStateAction<CarData[]>>;
   setClickSearch: Dispatch<React.SetStateAction<boolean>>;
+  address: React.RefObject<HTMLInputElement>;
+  rentDate: React.RefObject<HTMLInputElement>;
+  returnDate: React.RefObject<HTMLInputElement>;
+  people: React.RefObject<HTMLInputElement>;
 };
 
-function SearchBar({ setCarDataList, setClickSearch }: SearchBarProps) {
-  const address = useRef<HTMLInputElement>(null);
-  const rentDate = useRef<HTMLInputElement>(null);
-  const returnDate = useRef<HTMLInputElement>(null);
-  const people = useRef<HTMLInputElement>(null);
-
+function SearchBar({ setCarDataList, setClickSearch, address, rentDate, returnDate, people }: SearchBarProps) {
   const handleSearch = async () => {
     const carDataList: CarData[] = response.data.cars;
     setCarDataList(carDataList);
     setClickSearch(true);
+    console.log(
+      'address > ',
+      address.current?.value,
+      ' rentDate > ',
+      rentDate.current?.value,
+      ' returnDate > ',
+      returnDate.current?.value,
+      ' people > ',
+      people.current?.value,
+    );
   };
 
   return (
@@ -57,7 +66,13 @@ function SearchBar({ setCarDataList, setClickSearch }: SearchBarProps) {
               <div>
                 <b>인원 수</b>
               </div>
-              <input ref={people} className="text-sm focus:outline-none" placeholder="탑승 인원"></input>
+              <input
+                ref={people}
+                onInput={(e) => {
+                  e.currentTarget.value = e.currentTarget.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+                }}
+                className="text-sm focus:outline-none"
+                placeholder="탑승 인원"></input>
             </label>
           </div>
           <div className="w-1/4 flex">
