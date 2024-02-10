@@ -2,8 +2,8 @@ import Button from '@/components/Button';
 import { useRef, useState } from 'react';
 import SingleSelect from '@/pages/home/SingleSelect';
 import MultipleSelect from '@/pages/home/MultipleSelect';
-import type { CarType } from '@/pages/home/CarType';
-import SelectCarType from '@/pages/home/CarType';
+import type { CarType } from '@/pages/home/SelectCarType';
+import SelectCarType from '@/pages/home/SelectCarType';
 import type { Category } from '@/pages/home/homeRoutes';
 
 type SideBarProps = {
