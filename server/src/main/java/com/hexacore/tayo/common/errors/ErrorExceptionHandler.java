@@ -21,4 +21,9 @@ public class ErrorExceptionHandler {
         return new ResponseEntity<>(ResponseDto.error(e.getErrorCode(), e.getMessage()),
                 e.getErrorCode().getHttpStatus());
     }
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ResponseDto> handleAuthException(AuthException e) {
+        return new ResponseEntity<>(ResponseDto.error(e.getErrorCode()), e.getErrorCode().getHttpStatus());
+    }
 }

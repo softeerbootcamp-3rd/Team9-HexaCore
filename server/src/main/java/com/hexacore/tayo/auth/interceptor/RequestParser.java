@@ -1,4 +1,4 @@
-package com.hexacore.tayo.interceptor;
+package com.hexacore.tayo.auth.interceptor;
 
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;

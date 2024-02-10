@@ -1,8 +1,8 @@
-package com.hexacore.tayo.interceptor;
+package com.hexacore.tayo.auth.interceptor;
 
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
-import com.hexacore.tayo.jwt.JwtService;
+import com.hexacore.tayo.auth.JwtService;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,6 +29,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
+        System.out.println("in AuthenticationInterceptor");
         String accessToken = RequestParser.getToken(request, accessTokenCookieName);
         Claims claims = jwtService.getClaims(accessToken);
 

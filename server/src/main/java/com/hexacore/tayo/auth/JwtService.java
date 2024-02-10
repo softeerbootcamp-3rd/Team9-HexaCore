@@ -1,8 +1,8 @@
-package com.hexacore.tayo.jwt;
+package com.hexacore.tayo.auth;
 
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
-import com.hexacore.tayo.jwt.model.RefreshTokenEntity;
+import com.hexacore.tayo.auth.model.RefreshTokenEntity;
 import com.hexacore.tayo.user.model.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -20,8 +20,8 @@ import java.util.Date;
 public class JwtService {
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Value("${jwt.secret-key}")
-    private static String secretKey;
+    //    @Value("${jwt.secret-key}")
+    private static String secretKey = "sdfhsfbjsbfhsdbjbsdjhfvsjdhfvsjhvfhjsdfvsdjhfsfsfdsdf";
     private final Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
     @Value("${jwt.access.expiration}")
@@ -117,16 +117,14 @@ public class JwtService {
      * 서명으로 토큰의 유효성 검증
      *
      * @param token 토큰
-     * @return boolean
      */
-    public boolean isValidToken(String token) {
+    public void checkTokenValidation(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(key) // 서명을 검증할 키
                     .build()
                     .parseClaimsJws(token);
 
-            return true;
         } catch (Exception e) {
             // 서명 검증에 실패한 경우
             throw new AuthException(ErrorCode.INVALID_JWT_TOKEN);

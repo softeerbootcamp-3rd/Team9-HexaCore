@@ -1,8 +1,8 @@
 package com.hexacore.tayo.config;
 
-import com.hexacore.tayo.interceptor.AuthenticationInterceptor;
-import com.hexacore.tayo.interceptor.RefreshAccessTokenInterceptor;
-import com.hexacore.tayo.jwt.JwtService;
+import com.hexacore.tayo.auth.interceptor.AuthenticationInterceptor;
+import com.hexacore.tayo.auth.interceptor.RefreshAccessTokenInterceptor;
+import com.hexacore.tayo.auth.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

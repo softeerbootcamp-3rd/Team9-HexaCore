@@ -1,6 +1,6 @@
-package com.hexacore.tayo.jwt;
+package com.hexacore.tayo.auth;
 
-import com.hexacore.tayo.jwt.model.RefreshTokenEntity;
+import com.hexacore.tayo.auth.model.RefreshTokenEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
