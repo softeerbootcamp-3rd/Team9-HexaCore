@@ -1,11 +1,9 @@
 package com.hexacore.tayo.car.model;
 
 import com.hexacore.tayo.user.model.UserSimpleDto;
-import lombok.Getter;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import lombok.Getter;
 
 @Getter
 public class CarDto {

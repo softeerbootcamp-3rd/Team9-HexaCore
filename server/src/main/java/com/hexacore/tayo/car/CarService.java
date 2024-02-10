@@ -8,15 +8,12 @@ import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.stream.IntStream;
-
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -76,7 +73,7 @@ public class CarService {
             car.setDescription(postCarDto.getDescription());
             car.setIsDeleted(false);
             // 이미지 저장
-            saveImages(postCarDto.getImageIndexes(),postCarDto.getImageFiles(), car);
+            saveImages(postCarDto.getImageIndexes(), postCarDto.getImageFiles(), car);
         } else {
             // 유저가 이전에 등록한 같은 번호의 차가 없는 경우 CREATE
             CarEntity carEntity = CarEntity.builder()
@@ -96,7 +93,7 @@ public class CarService {
 
             carRepository.save(carEntity);
             // 이미지 저장
-            saveImages(postCarDto.getImageIndexes(),postCarDto.getImageFiles(), carEntity);
+            saveImages(postCarDto.getImageIndexes(), postCarDto.getImageFiles(), carEntity);
         }
 
         return ResponseDto.success(HttpStatus.CREATED);
@@ -108,12 +105,12 @@ public class CarService {
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         List<String> images = carDateList(carId);
-        return DataResponseDto.of(new CarDto(car,images));
+        return DataResponseDto.of(new CarDto(car, images));
     }
 
     /* 차량 정보 수정 */
     @Transactional
-    public ResponseDto carUpdate(Long carId, CarUpdateDto carUpdateDto){
+    public ResponseDto carUpdate(Long carId, CarUpdateDto carUpdateDto) {
         CarEntity car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -122,7 +119,7 @@ public class CarService {
         car.setPosition(carUpdateDto.getPosition().toEntity());
         car.setDescription(carUpdateDto.getDescription());
         
-       saveImages(carUpdateDto.getImageIndexes(),carUpdateDto.getImageFiles(), car);
+        saveImages(carUpdateDto.getImageIndexes(), carUpdateDto.getImageFiles(), car);
 
         return ResponseDto.success(HttpStatus.OK);
     }
@@ -183,7 +180,7 @@ public class CarService {
     }
 
     /* 이미지 엔티티 저장 */
-    private void saveImages(List<Integer> indexes,List<MultipartFile> files, CarEntity carEntity) {
+    private void saveImages(List<Integer> indexes, List<MultipartFile> files, CarEntity carEntity) {
         List<Map<String, Object>> datas = IntStream.range(0, Math.min(indexes.size(), files.size()))
                 .mapToObj(i -> {
                     String url = uploadImage(files.get(i));
@@ -192,14 +189,14 @@ public class CarService {
                 })
                 .collect(Collectors.toList());
 
-        for (Map<String,Object> data : datas) {
+        for (Map<String, Object> data : datas) {
             int idx = (int) data.get("index");
             String url = (String) data.get("url");
 
-            Optional<ImageEntity> optionalImage = imageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(carEntity.getId(),idx);
+            Optional<ImageEntity> optionalImage = imageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(carEntity.getId(), idx);
             ImageEntity imageEntity;
             //인덱스가 idx인 image가 존재하면 soft delete
-            if (optionalImage.isPresent()){
+            if (optionalImage.isPresent()) {
                 imageEntity = optionalImage.get();
                 imageEntity.setIsDeleted(true);
                 imageRepository.save(imageEntity);

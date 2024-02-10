@@ -1,6 +1,4 @@
 package com.hexacore.tayo.user.model;
-
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

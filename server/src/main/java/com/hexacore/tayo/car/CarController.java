@@ -51,7 +51,7 @@ public class CarController {
 
     @PutMapping("{carId}")
     public ResponseEntity<ResponseDto> carUpdate(@PathVariable Long carId, @ModelAttribute CarUpdateDto carUpdateDto) {
-        ResponseDto responseDto = carService.carUpdate(carId,carUpdateDto);
+        ResponseDto responseDto = carService.carUpdate(carId, carUpdateDto);
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
 
