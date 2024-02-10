@@ -2,6 +2,7 @@ package com.hexacore.tayo.jwt;
 
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
+import com.hexacore.tayo.jwt.model.RefreshTokenEntity;
 import com.hexacore.tayo.user.model.UserEntity;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -18,6 +19,8 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
+    private final RefreshTokenRepository refreshTokenRepository;
+
     @Value("${jwt.secret-key}")
     private static String secretKey;
     private final Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
@@ -40,7 +43,7 @@ public class JwtService {
                 .compact();
     }
 
-    public String createRefreshToken(String userId, Long id) {
+    public String createRefreshToken(String userId) {
         String refreshToken = Jwts.builder()
                 .setSubject(userId) // 토큰을 발급한 주체
                 .setIssuedAt(new Date(System.currentTimeMillis()))
@@ -48,13 +51,29 @@ public class JwtService {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
-        // todo 리프레시 토큰 디비에 저장
+        // 생성한 리프레시 토큰을 데이터 베이스에 저장
+        refreshTokenRepository.save(RefreshTokenEntity.builder()
+                .refreshToken(refreshToken)
+                .id(Long.valueOf(userId))
+                .build()
+        );
 
         return refreshToken;
     }
 
+    public void deleteRefreshToken(Long userId) {
+        refreshTokenRepository.deleteById(userId);
+    }
+
+    public String getRefreshToken(Long userId) {
+        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findById(userId).orElseThrow(() ->
+                new AuthException(ErrorCode.INVALID_JWT_TOKEN));
+
+        return refreshTokenEntity.getRefreshToken();
+    }
+
     /**
-     * @param token
+     * @param token 토큰
      * @return 서명을 이용해 토큰을 검증하고 토큰을 파싱해 토큰에 저장된 값을 읽어온다.
      */
     public Claims getClaims(String token) {
