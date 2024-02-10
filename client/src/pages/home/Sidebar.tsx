@@ -8,13 +8,14 @@ import type { Category } from '@/pages/home/homeRoutes';
 
 type SideBarProps = {
   models: Category[];
-  address: React.RefObject<HTMLInputElement>;
+  latitude: React.MutableRefObject<number>;
+  longitude: React.MutableRefObject<number>;
   rentDate: React.RefObject<HTMLInputElement>;
   returnDate: React.RefObject<HTMLInputElement>;
   people: React.RefObject<HTMLInputElement>;
 };
 
-function SideBar({ models, address, rentDate, returnDate, people }: SideBarProps) {
+function SideBar({ models, latitude, longitude, rentDate, returnDate, people }: SideBarProps) {
   const [activeCarTypes, setActiveCarTypes] = useState<Map<CarType, boolean>>(
     new Map([
       ['경차', false],
@@ -43,8 +44,10 @@ function SideBar({ models, address, rentDate, returnDate, people }: SideBarProps
       .filter(([, value]) => value === true)
       .map(([key]) => key);
     console.log(
-      'address > ',
-      address.current?.value,
+      'lng > ',
+      longitude.current,
+      ' lat > ',
+      latitude.current,
       ' rentDate > ',
       rentDate.current?.value,
       ' returnDate > ',
