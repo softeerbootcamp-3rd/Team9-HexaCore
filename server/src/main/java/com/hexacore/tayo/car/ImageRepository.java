@@ -14,4 +14,6 @@ public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
 
     Optional<ImageEntity> findByCar_IdAndOrderIdxAndIsDeletedFalse(Long carId, Integer orderIdx);
 
+    boolean existsByCar_Id(Long carId);
+
 }

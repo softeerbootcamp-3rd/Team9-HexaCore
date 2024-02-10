@@ -181,6 +181,9 @@ public class CarService {
 
     /* 이미지 엔티티 저장 */
     private void saveImages(List<Integer> indexes, List<MultipartFile> files, CarEntity carEntity) {
+        if(!imageRepository.existsByCar_Id(carEntity.getId()) && indexes.size() < 5){
+            throw new GeneralException(ErrorCode.CAR_IMAGE_INSUFFICIENT);
+        }
         List<Map<String, Object>> datas = IntStream.range(0, Math.min(indexes.size(), files.size()))
                 .mapToObj(i -> {
                     String url = uploadImage(files.get(i));
@@ -200,9 +203,6 @@ public class CarService {
                 imageEntity = optionalImage.get();
                 imageEntity.setIsDeleted(true);
                 imageRepository.save(imageEntity);
-            }
-            else if (datas.size() < 5) {
-                throw new GeneralException(ErrorCode.CAR_IMAGE_INSUFFICIENT);
             }
             //새로 만들어서 추가하기
             imageEntity = ImageEntity.builder()
