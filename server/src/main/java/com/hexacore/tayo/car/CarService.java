@@ -3,16 +3,28 @@ package com.hexacore.tayo.car;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.hexacore.tayo.car.model.*;
+import com.hexacore.tayo.car.model.CarDto;
+import com.hexacore.tayo.car.model.CarEntity;
+import com.hexacore.tayo.car.model.CarType;
+import com.hexacore.tayo.car.model.CarUpdateDto;
+import com.hexacore.tayo.car.model.CategoryDto;
+import com.hexacore.tayo.car.model.CategoryListDto;
+import com.hexacore.tayo.car.model.DateListDto;
+import com.hexacore.tayo.car.model.ImageEntity;
+import com.hexacore.tayo.car.model.ModelEntity;
+import com.hexacore.tayo.car.model.PositionDto;
+import com.hexacore.tayo.car.model.PostCarDto;
 import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import java.util.*;
-import java.util.stream.Collectors;
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
@@ -118,7 +130,7 @@ public class CarService {
         car.setAddress(carUpdateDto.getAddress());
         car.setPosition(carUpdateDto.getPosition().toEntity());
         car.setDescription(carUpdateDto.getDescription());
-        
+
         saveImages(carUpdateDto.getImageIndexes(), carUpdateDto.getImageFiles(), car);
 
         return ResponseDto.success(HttpStatus.OK);
@@ -171,7 +183,6 @@ public class CarService {
     }
 
 
-
     /* 경도와 위도 값을 Point 객체로 변환 */
     private Point createPoint(PositionDto positionDto) {
         GeometryFactory geometryFactory = new GeometryFactory();
@@ -181,7 +192,7 @@ public class CarService {
 
     /* 이미지 엔티티 저장 */
     private void saveImages(List<Integer> indexes, List<MultipartFile> files, CarEntity carEntity) {
-        if(!imageRepository.existsByCar_Id(carEntity.getId()) && indexes.size() < 5){
+        if (!imageRepository.existsByCar_Id(carEntity.getId()) && indexes.size() < 5) {
             throw new GeneralException(ErrorCode.CAR_IMAGE_INSUFFICIENT);
         }
         List<Map<String, Object>> datas = IntStream.range(0, Math.min(indexes.size(), files.size()))
@@ -190,13 +201,14 @@ public class CarService {
                     Object index = indexes.get(i);
                     return Map.of("index", index, "url", url);
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         for (Map<String, Object> data : datas) {
             int idx = (int) data.get("index");
             String url = (String) data.get("url");
 
-            Optional<ImageEntity> optionalImage = imageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(carEntity.getId(), idx);
+            Optional<ImageEntity> optionalImage = imageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(
+                    carEntity.getId(), idx);
             ImageEntity imageEntity;
             //인덱스가 idx인 image가 존재하면 soft delete
             if (optionalImage.isPresent()) {
