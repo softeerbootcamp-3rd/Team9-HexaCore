@@ -1,39 +1,33 @@
 import type { RouteObject } from 'react-router-dom';
 import HostManage from '@/pages/hosts/HostManage';
 import HostRegister from '@/pages/hosts/HostRegister';
-import response from './CarData.json';
+import { fetchCarDetail, parseCarDetail } from '@/fetches/cars/fetchCarDetail';
+import { fetchHostReservations, parseHostReservations } from '@/fetches/reservations/fetchHostReservations';
 
-export type CarData = {
-  carName: string;
-  carNumber: string;
-  imageUrls: string[];
-  mileage: number;
-  fuel: string;
-  type: string;
-  capacity: number;
-  year: number;
-  feePerHour: number;
-  carAddress: string;
-  description: string;
-  dates: string[];
+export type HostManageLoaderData = {
+  carDetail: ReturnType<typeof parseCarDetail>;
+  hostReservations: ReturnType<typeof parseHostReservations>;
 };
+
 const hostsRoutes: RouteObject[] = [
   {
     path: 'hosts/manage',
     loader: async () => {
-      const data: CarData = {
-        carName: response.data.car.carName,
-        carNumber: response.data.car.carNumber,
-        imageUrls: response.data.car.imageUrls,
-        mileage: response.data.car.mileage,
-        fuel: response.data.car.fuel,
-        type: response.data.car.type,
-        capacity: response.data.car.capacity,
-        year: response.data.car.year,
-        feePerHour: response.data.car.feePerHour,
-        carAddress: response.data.car.carAddress,
-        description: response.data.car.description,
-        dates: response.data.car.dates,
+      const carId = 1;
+      const [carDetailResult, HostReservationResult] = await Promise.allSettled([fetchCarDetail(carId), fetchHostReservations()]);
+
+      if (carDetailResult.status === 'rejected') {
+        throw new Error('차량 정보를 불러오는데 실패했습니다'); // TODO: retry and default value
+      }
+      if (HostReservationResult.status === 'rejected') {
+        throw new Error('예약 정보를 불러오는데 실패했습니다');
+      }
+
+      const carDetail = parseCarDetail(carDetailResult.value);
+      const hostReservations = parseHostReservations(HostReservationResult.value);
+      const data: HostManageLoaderData = {
+        carDetail,
+        hostReservations,
       };
       return data;
     },
