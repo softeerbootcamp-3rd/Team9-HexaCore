@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
 import java.util.Date;
 
 @Service
@@ -20,12 +19,12 @@ import java.util.Date;
 public class JwtService {
     private final RefreshTokenRepository refreshTokenRepository;
 
-    //    @Value("${jwt.secret-key}")
-    private static String secretKey = "sdfhsfbjsbfhsdbjbsdjhfvsjdhfvsjhvfhjsdfvsdjhfsfsfdsdf";
-    private final Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
+    @Value("${jwt.secret-key}")
+    private String secretKey;
 
     @Value("${jwt.access.expiration}")
     private Long accessTokenExpirationPeriod;
+
     @Value("${jwt.refresh.expiration}")
     private Long refreshTokenExpirationPeriod;
 
@@ -44,7 +43,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis())) // 토큰을 발급한 시간
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationPeriod)) // 토큰 만료 일자
-                .signWith(key, SignatureAlgorithm.HS256) // 토큰 서명
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256) // 토큰 서명
                 .compact();
     }
 
@@ -54,18 +53,18 @@ public class JwtService {
      * @param userId 리프레시 토큰을 발급받은 주체
      * @return 발급한 리프레시 토큰
      */
-    public String createRefreshToken(String userId) {
+    public String createRefreshToken(Long userId) {
         String refreshToken = Jwts.builder()
-                .setSubject(userId) // 토큰을 발급한 주체
+                .setSubject(String.valueOf(userId)) // 토큰을 발급한 주체
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationPeriod))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes()), SignatureAlgorithm.HS256)
                 .compact();
 
         // 생성한 리프레시 토큰을 데이터 베이스에 저장
         refreshTokenRepository.save(RefreshTokenEntity.builder()
                 .refreshToken(refreshToken)
-                .id(Long.valueOf(userId))
+                .id(userId)
                 .build()
         );
 
@@ -103,7 +102,7 @@ public class JwtService {
     public Claims getClaims(String token) {
         try {
             return Jwts.parserBuilder()
-                    .setSigningKey(key) // 서명을 검증할 키
+                    .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes())) // 서명을 검증할 키
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
@@ -121,7 +120,7 @@ public class JwtService {
     public void checkTokenValidation(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(key) // 서명을 검증할 키
+                    .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes())) // 서명을 검증할 키
                     .build()
                     .parseClaimsJws(token);
 

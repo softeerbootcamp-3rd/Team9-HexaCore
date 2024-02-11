@@ -19,9 +19,9 @@ public class InterceptorConfig implements WebMvcConfigurer {
         registry.addInterceptor(authenticationInterceptor())
                 .order(1)
                 .addPathPatterns("/**")
-                .excludePathPatterns("/member/signUp", "/center/signUp", "/login", "/refresh"); // 로그인 인증 필요없는 요청
+                .excludePathPatterns("/signup", "/login", "/refresh"); // 로그인 인증 필요없는 요청
 
-        // 엑세스 토큰 재발급 요청인 경우 refreshAccessTokenInterceptor
+        // 엑세스 토큰 재발급 요청인 경우
         registry.addInterceptor(refreshAccessTokenInterceptor())
                 .order(2)
                 .addPathPatterns("/refresh");

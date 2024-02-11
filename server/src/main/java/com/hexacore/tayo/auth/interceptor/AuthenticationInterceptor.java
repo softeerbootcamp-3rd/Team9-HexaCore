@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
 import java.util.Date;
 
@@ -29,7 +30,10 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        System.out.println("in AuthenticationInterceptor");
+        if (handler.getClass().equals(ResourceHttpRequestHandler.class)) {
+            return true;
+        }
+
         String accessToken = RequestParser.getToken(request, accessTokenCookieName);
         Claims claims = jwtService.getClaims(accessToken);
 

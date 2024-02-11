@@ -22,7 +22,6 @@ public class RefreshAccessTokenInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        System.out.println("in RefreshAccessTokenInterceptor");
         String clientRefreshToken = RequestParser.getToken(request, refreshTokenCookieName);
         Claims clientClaims = jwtService.getClaims(clientRefreshToken);
 
@@ -31,12 +30,13 @@ public class RefreshAccessTokenInterceptor implements HandlerInterceptor {
             throw new AuthException(ErrorCode.EXPIRED_REFRESH_TOKEN);
         }
 
-        String serverRefreshToken = jwtService.getRefreshToken(Long.valueOf(clientClaims.get("userId", String.class)));
-        // 디비에 저장되어 있는 토큰의 유효성 검증
+        Long userId = Long.valueOf(clientClaims.getSubject());
+        String serverRefreshToken = jwtService.getRefreshToken(userId);
         jwtService.checkTokenValidation(serverRefreshToken);
 
         // 클라이언트로부터 받은 리프레시 토큰과, 디비에 저장해 놓은 리프레시 토큰 값이 같은지 비교
         if (clientRefreshToken.equals(serverRefreshToken)) {
+            request.setAttribute("userId", String.valueOf(userId));
             return true;
         } else {
             throw new AuthException(ErrorCode.INVALID_JWT_TOKEN);
