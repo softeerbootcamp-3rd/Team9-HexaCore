@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router-dom';
 import HostManage from '@/pages/hosts/HostManage';
 import HostRegister from '@/pages/hosts/HostRegister';
+import { Reservation } from '@/types/Reservations';
 import carResponse from './CarData.json';
 import carReserationResponse from './CarReservationData.json';
 export type CarData = {
@@ -16,15 +17,6 @@ export type CarData = {
   carAddress: string | null;
   description: string | null;
   dates: string[] | null;
-};
-export type Reservation = {
-  id: number | undefined;
-  target: { id: number | undefined; name: string | null; image: string | null; phoneNumber: string | null };
-  fee: number | undefined;
-  address: string | null;
-  startDate: string | null;
-  endDate: string | null;
-  status: string | null;
 };
 const hostsRoutes: RouteObject[] = [
   {

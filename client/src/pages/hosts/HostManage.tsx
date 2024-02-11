@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
-import { CarData, Reservation } from './hostsRoutes';
+import { CarData } from './hostsRoutes';
+import { Reservation } from '@/types/Reservations';
 import Button from '@/components/Button';
 import ListComponent from '@/components/ListComponent';
 
 function HostManage() {
   const navigate = useNavigate();
   const data = useLoaderData() as { car: CarData; reservations: Reservation[] };
-  console.log(data);
   const [currentIdx, setCurrentIdx] = useState(0);
 
   const TABS = ['calendar', 'reservation'] as const;
