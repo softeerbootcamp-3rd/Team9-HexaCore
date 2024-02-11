@@ -44,3 +44,9 @@ export const mergeDateRanges = (ranges: DateRange[]): DateRange[] => {
   return mergedRanges;
 };
 
+export const toZeroHour = (day: Date) => {
+  const newDay = new Date(day);
+  newDay.setHours(0, 0, 0, 0);
+  return newDay;
+};
+

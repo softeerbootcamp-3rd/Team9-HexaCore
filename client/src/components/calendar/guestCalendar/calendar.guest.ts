@@ -1,4 +1,4 @@
-import { SELECT_STATUS, DateInfo, DateRange, getLastDateOfThisMonth, SelectStatus } from '../calendar.core';
+import { SELECT_STATUS, DateInfo, DateRange, getLastDateOfThisMonth, SelectStatus, toZeroHour } from '../calendar.core';
 
 type GuestCalendarState = {
   firstDate: Date;
@@ -105,7 +105,7 @@ export const generateDateInfos = ({
 
   let selectableIndex = 0;
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
-    const date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+    const date = toZeroHour(d);
     let selectStatus: SelectStatus = SELECT_STATUS.UNSELECTABLE;
 
     while (selectableIndex < availableDates.length) {
