@@ -1,4 +1,4 @@
-import { DateInfo, DateRange, SELECT_STATUS, SelectStatus, getLastDateOfThisMonth, mergeDateRanges } from '../calendar.core';
+import { DateInfo, DateRange, SELECT_STATUS, SelectStatus, getLastDateOfThisMonth, mergeDateRanges, toZeroHour } from '../calendar.core';
 
 export const RESERVATION_STATUS = {
   NONE: 'NONE',
@@ -139,7 +139,7 @@ export const generateHostDateInfos = ({
   let selectedIndex = 0;
 
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
-    const date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+    const date = toZeroHour(d);
     let selectStatus: SelectStatus =
       d < new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0) ? SELECT_STATUS.UNSELECTABLE : SELECT_STATUS.HOST_SELECTABLE;
     let reservationStatus: ReservationStatus = RESERVATION_STATUS.NONE;

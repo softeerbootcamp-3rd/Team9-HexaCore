@@ -198,7 +198,7 @@ function HostRegister() {
                     ref={feeRef}
                     required
                   />
-                  <p className="text-semibold min-w-16 text-lg text-background-400">{'원/ 시간'}</p>
+                  <p className="text-semibold min-w-16 text-lg text-background-400">{'원 / 시간'}</p>
                 </div>
               </div>
             </TitledBlock>

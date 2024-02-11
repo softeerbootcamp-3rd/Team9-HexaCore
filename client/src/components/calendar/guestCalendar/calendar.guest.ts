@@ -1,4 +1,4 @@
-import { SELECT_STATUS, DateInfo, DateRange, getLastDateOfThisMonth, SelectStatus } from '../calendar.core';
+import { SELECT_STATUS, DateInfo, DateRange, getLastDateOfThisMonth, SelectStatus, toZeroHour } from '../calendar.core';
 
 type GuestCalendarState = {
   firstDate: Date;
@@ -105,7 +105,7 @@ export const generateDateInfos = ({
 
   let selectableIndex = 0;
   for (let d = new Date(firstDate); d <= lastDate; d.setDate(d.getDate() + 1)) {
-    const date = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0);
+    const date = toZeroHour(d);
     let selectStatus: SelectStatus = SELECT_STATUS.UNSELECTABLE;
 
     while (selectableIndex < availableDates.length) {
@@ -142,5 +142,13 @@ export const generateDateInfos = ({
 export const isValidReservation = (reservation: DateRange, availableDates: DateRange[]): boolean => {
   const [start, end] = reservation;
   return availableDates.some(([s, e]) => s.getTime() <= start.getTime() && end.getTime() <= e.getTime());
+};
+
+export const generateDateRange = ({ from, years = 0, months = 0, days = 0 }: { from: Date; years?: number; months?: number; days?: number }): DateRange => {
+  const start = toZeroHour(from);
+  const end = toZeroHour(new Date(start.getFullYear() + years, start.getMonth() + months, start.getDate() + days));
+
+  if (start.getTime() > end.getTime()) return [end, start];
+  return [start, end];
 };
 
