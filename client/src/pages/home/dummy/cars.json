@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "code": 200,
+  "message": "차량 리스트 조회 성공",
+  "data": {
+    "cars": [
+      {
+        "id": 1,
+        "carName": "제네시스 G80",
+        "imageUrl": "https://image-cdn.hypb.st/https%3A%2F%2Fkr.hypebeast.com%2Ffiles%2F2023%2F02%2Fhyundai-automobile-the-new-avante-revealed-01.jpg?cbr=1&q=90",
+        "carAddress": "경기도 오산시 밀머리로",
+        "mileage": 100,
+        "capacity": 4,
+        "feePerHour": 10000
+      },
+      {
+        "id": 2,
+        "carName": "제네시스 N13",
+        "imageUrl": "https://image-cdn.hypb.st/https%3A%2F%2Fkr.hypebeast.com%2Ffiles%2F2023%2F02%2Fhyundai-automobile-the-new-avante-revealed-01.jpg?cbr=1&q=90",
+        "carAddress": "서울시 개포구 강남3동",
+        "mileage": 100,
+        "capacity": 4,
+        "feePerHour": 20000
+      },
+      {
+        "id": 3,
+        "carName": "제네시스 N13",
+        "imageUrl": "https://image-cdn.hypb.st/https%3A%2F%2Fkr.hypebeast.com%2Ffiles%2F2023%2F02%2Fhyundai-automobile-the-new-avante-revealed-01.jpg?cbr=1&q=90",
+        "carAddress": "서울시 개포구 강남3동",
+        "mileage": 100,
+        "capacity": 4,
+        "feePerHour": 20000
+      }
+    ]
+  }
+}
+
