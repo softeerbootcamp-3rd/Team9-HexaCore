@@ -27,6 +27,6 @@ public class ModelEntity extends BaseTime {
     @Column(name = "category", nullable = false)
     private String category;
 
-    @Column(name = "sub_category")
+    @Column(name = "sub_category", unique = true)
     private String subCategory;
 }
