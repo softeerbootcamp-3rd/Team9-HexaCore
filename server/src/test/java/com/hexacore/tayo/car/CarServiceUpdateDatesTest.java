@@ -2,7 +2,6 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.model.CarEntity;
 import com.hexacore.tayo.car.model.DateListDto;
-import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import jakarta.transaction.Transactional;
