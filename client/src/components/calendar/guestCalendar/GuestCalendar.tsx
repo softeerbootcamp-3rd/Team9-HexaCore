@@ -63,7 +63,7 @@ function GuestCalendar({ initDate = new Date(), availableDates, reservation, onR
         </button>
       </div>
 
-      <div className="grid grid-cols-7 grid-rows-7">
+      <div className="grid grid-cols-7 grid-rows-7 text-sm">
         {DAYS.map((day, index) => (
           <CalendarDay key={index} day={day} />
         ))}

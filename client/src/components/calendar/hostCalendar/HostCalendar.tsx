@@ -15,13 +15,14 @@ import CalendarDay from '../CalendarDay';
 import HostCalendarDate from './HostCalendarDate';
 
 type Props = {
+  size?: 'small' | 'large';
   initDate?: Date;
   availableDates: DateRange[];
   reservations: DateRange[];
   onAvailableDatesChange: (range: DateRange[]) => void;
 };
 
-function HostCalendar({ initDate = new Date(), availableDates, reservations, onAvailableDatesChange }: Props) {
+function HostCalendar({ size = 'small', initDate = new Date(), availableDates, reservations, onAvailableDatesChange }: Props) {
   const [state, calendarDispatch] = useReducer(hostCalendarReducer, { initDate, reservations, availableDates }, hostCalendarInitializer);
 
   useEffect(() => {
@@ -58,24 +59,25 @@ function HostCalendar({ initDate = new Date(), availableDates, reservations, onA
     <div className="flex select-none flex-col gap-2 text-sm">
       <div className="flex items-center justify-between px-2">
         <button
-          className="flex h-8 w-8 items-center justify-center rounded-full text-background-400 hover:bg-background-200 hover:text-background-800"
+          className={`flex items-center justify-center rounded-full text-background-400 hover:bg-background-200 hover:text-background-800 ${size === 'large' ? 'h-11 w-11' : 'h-8 w-8'}`}
           onClick={() => calendarDispatch({ type: 'PREV_MONTH' })}>
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className={size === 'large' ? 'h-8 w-8' : 'h-5 w-5'} />
         </button>
-        <span>{`${state.firstDate.getFullYear()}년 ${state.firstDate.getMonth() + 1}월`}</span>
+        <span className={size === 'large' ? 'text-lg font-semibold' : ''}>{`${state.firstDate.getFullYear()}년 ${state.firstDate.getMonth() + 1}월`}</span>
         <button
-          className="flex h-8 w-8 items-center justify-center rounded-full text-background-400 hover:bg-background-200 hover:text-background-800"
+          className={`flex items-center justify-center rounded-full text-background-400 hover:bg-background-200 hover:text-background-800 ${size === 'large' ? 'h-11 w-11' : 'h-8 w-8'}`}
           onClick={() => calendarDispatch({ type: 'NEXT_MONTH' })}>
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className={size === 'large' ? 'h-8 w-8' : 'h-5 w-5'} />
         </button>
       </div>
 
-      <div className="grid grid-cols-7 grid-rows-7">
+      <div className={`grid grid-cols-7 grid-rows-7 ${size === 'large' ? 'text-lg' : 'text-sm'}`}>
         {DAYS.map((day, index) => (
           <CalendarDay key={index} day={day} />
         ))}
         {state.dateInfos.map(({ date, selectStatus, reservationStatus }, index) => (
           <HostCalendarDate
+            size={size}
             key={index}
             date={date}
             selectStatus={selectStatus}

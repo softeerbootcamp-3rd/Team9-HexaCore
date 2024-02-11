@@ -5,7 +5,7 @@ type Props = {
 };
 
 function CalendarDay({ day }: Props) {
-  return <div className="flex aspect-square w-full items-center justify-center text-xs text-background-400">{day}</div>;
+  return <div className="flex aspect-square w-full items-center justify-center text-background-400">{day}</div>;
 }
 
 export default CalendarDay;
