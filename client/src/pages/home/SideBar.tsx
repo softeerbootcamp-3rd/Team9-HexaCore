@@ -122,7 +122,7 @@ function SideBar({ models, latitude, longitude, rentDate, returnDate, people }: 
             onKeyUp={(e) => formatCurrency(e, minPrice)}
             onSelect={(e) => formatCurrency(e, minPrice)}
             maxLength={20}></input>
-          <p className="flex items-center text-semibold text-background-400">{'원/ 시간'}</p>
+          <p className="flex items-center text-semibold text-background-400">{'원 / 시간'}</p>
         </div>
 
         {/* TODO: 최고 가격이 최저 가격보다 항상 높도록 설정 */}
@@ -136,7 +136,7 @@ function SideBar({ models, latitude, longitude, rentDate, returnDate, people }: 
             onKeyUp={(e) => formatCurrency(e, maxPrice)}
             onSelect={(e) => formatCurrency(e, maxPrice)}
             maxLength={20}></input>
-          <p className="flex items-center text-semibold text-background-400">{'원/ 시간'}</p>
+          <p className="flex items-center text-semibold text-background-400">{'원 / 시간'}</p>
         </div>
       </div>
 
