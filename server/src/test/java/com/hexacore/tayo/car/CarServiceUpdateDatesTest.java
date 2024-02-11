@@ -1,5 +1,8 @@
 package com.hexacore.tayo.car;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+
 import com.hexacore.tayo.car.model.CarEntity;
 import com.hexacore.tayo.car.model.DateListDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -10,7 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +56,7 @@ class CarServiceUpdateDatesTest {
 
         // then
         CarEntity updatedCar = carRepository.findById(carId).orElse(new CarEntity());
-        Assertions.assertEquals(dates, updatedCar.getDates());
+        assertThat(dates).isEqualTo(updatedCar.getDates());
     }
 
     @Test
@@ -81,11 +83,14 @@ class CarServiceUpdateDatesTest {
         DateListDto dateListDto = new DateListDto(dates);
 
         // when
-        GeneralException exception = Assertions.assertThrows(GeneralException.class,
-                () -> carService.updateDates(carId, dateListDto));
+        Throwable thrown = catchThrowable(() -> carService.updateDates(carId, dateListDto));
 
         // then
-        Assertions.assertEquals(ErrorCode.CAR_NOT_FOUND, exception.getErrorCode());
+        assertThat(thrown)
+                .as("존재하지 않는 차량 ID에 대한 예외 처리")
+                .isInstanceOf(GeneralException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.CAR_NOT_FOUND)
+                .hasMessageContaining("존재하지 않는 차량입니다.");
     }
 
     @Test
@@ -111,11 +116,14 @@ class CarServiceUpdateDatesTest {
         DateListDto dateListDto = new DateListDto(dates);
 
         // when
-        GeneralException exception = Assertions.assertThrows(GeneralException.class,
-                () -> carService.updateDates(carId, dateListDto));
+        Throwable thrown = catchThrowable(() -> carService.updateDates(carId, dateListDto));
 
         // then
-        Assertions.assertEquals(ErrorCode.DATE_SIZE_MISMATCH, exception.getErrorCode());
+        assertThat(thrown)
+                .as("날짜 구간이 맞지 않는 상황에 대한 예외 처리")
+                .isInstanceOf(GeneralException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.DATE_SIZE_MISMATCH)
+                .hasMessageContaining("날짜 구간이 맞지 않습니다.");
     }
 
     @Test
@@ -142,10 +150,13 @@ class CarServiceUpdateDatesTest {
         DateListDto dateListDto = new DateListDto(dates);
 
         // when
-        GeneralException exception = Assertions.assertThrows(GeneralException.class,
-                () -> carService.updateDates(carId, dateListDto));
+        Throwable thrown = catchThrowable(() -> carService.updateDates(carId, dateListDto));
 
         // then
-        Assertions.assertEquals(ErrorCode.START_DATE_AFTER_END_DATE, exception.getErrorCode());
+        assertThat(thrown)
+                .as("시작 날짜가 끝 날짜보다 뒤인 경우에 대한 예외 처리")
+                .isInstanceOf(GeneralException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.START_DATE_AFTER_END_DATE)
+                .hasMessageContaining("예약 시작 날짜가 끝 날짜보다 뒤에 있을 수 없습니다.");
     }
 }
