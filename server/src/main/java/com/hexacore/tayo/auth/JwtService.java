@@ -8,6 +8,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,7 @@ public class JwtService {
      * @param userId 리프레시 토큰을 발급받은 주체
      * @return 발급한 리프레시 토큰
      */
+    @Transactional
     public String createRefreshToken(Long userId) {
         String refreshToken = Jwts.builder()
                 .setSubject(String.valueOf(userId)) // 토큰을 발급한 주체
@@ -76,6 +78,7 @@ public class JwtService {
      *
      * @param userId 리프레시 토큰을 발급받은 주체
      */
+    @Transactional
     public void deleteRefreshToken(Long userId) {
         refreshTokenRepository.deleteById(userId);
     }
