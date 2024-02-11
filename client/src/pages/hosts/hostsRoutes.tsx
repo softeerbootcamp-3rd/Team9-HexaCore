@@ -46,7 +46,7 @@ const hostsRoutes: RouteObject[] = [
             phoneNumber: reservation.guest.phoneNumber || null,
           },
           fee: reservation.fee || null,
-          address: carData.carAddress || null,
+          address: reservation.carAddress || null,
           startDate: reservation.rentDate || null,
           endDate: reservation.returnDate || null,
           status: reservation.status || null,
