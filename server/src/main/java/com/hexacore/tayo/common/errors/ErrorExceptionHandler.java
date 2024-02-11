@@ -3,6 +3,8 @@ package com.hexacore.tayo.common.errors;
 import com.hexacore.tayo.common.ResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -13,6 +15,14 @@ public class ErrorExceptionHandler {
     public ResponseEntity<ResponseDto> handleException(Exception e) {
         return new ResponseEntity<>(ResponseDto.error(ErrorCode.SERVER_ERROR, e),
                 HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ResponseDto> handleValidationExceptions(MethodArgumentNotValidException e) {
+        BindingResult result = e.getBindingResult();
+        String message = result.getFieldErrors().get(0).getDefaultMessage();
+        return new ResponseEntity<>(ResponseDto.error(ErrorCode.VALIDATION_ERROR, message),
+                HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(GeneralException.class)
