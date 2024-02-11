@@ -13,7 +13,7 @@ function CalendarDate({ size = 'small', date, selectStatus, onClick }: Props) {
       return <div className="flex aspect-square w-full items-center justify-center" />;
 
     case SELECT_STATUS.UNSELECTABLE:
-      return <div className="flex aspect-square w-full items-center justify-center">{date.getDate()}</div>;
+      return <div className="flex aspect-square w-full items-center justify-center text-background-300">{date.getDate()}</div>;
 
     case SELECT_STATUS.HOST_SELECTABLE:
       return (
