@@ -2,18 +2,23 @@ import { useEffect, useReducer } from 'react';
 import ChevronLeft from '@/components/svgs/ChevronLeft';
 import ChevronRight from '@/components/svgs/ChevronRight';
 import { SELECT_STATUS, DAYS, DateRange, SelectStatus } from '../calendar.core';
-import { guestCalendarInitializer, guestCalendarReducer, isValidReservation } from './calendar.guest';
+import { generateDateRange, guestCalendarInitializer, guestCalendarReducer, isValidReservation } from './calendar.guest';
 import CalendarDay from '../CalendarDay';
 import CalendarDate from '../CalendarDate';
 
 type Props = {
   initDate?: Date;
-  availableDates: DateRange[];
+  availableDates?: DateRange[];
   reservation?: DateRange;
   onReservationChange: (range: DateRange) => void;
 };
 
-function GuestCalendar({ initDate = new Date(), availableDates, reservation, onReservationChange }: Props) {
+function GuestCalendar({
+  initDate = new Date(),
+  availableDates = [generateDateRange({ from: new Date(), years: 5 })],
+  reservation,
+  onReservationChange,
+}: Props) {
   const [state, calendarDispatch] = useReducer(guestCalendarReducer, { initDate, availableDates, reservation }, guestCalendarInitializer);
 
   useEffect(() => {

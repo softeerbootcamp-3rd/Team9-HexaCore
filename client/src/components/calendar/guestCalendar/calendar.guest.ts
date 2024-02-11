@@ -144,3 +144,11 @@ export const isValidReservation = (reservation: DateRange, availableDates: DateR
   return availableDates.some(([s, e]) => s.getTime() <= start.getTime() && end.getTime() <= e.getTime());
 };
 
+export const generateDateRange = ({ from, years = 0, months = 0, days = 0 }: { from: Date; years?: number; months?: number; days?: number }): DateRange => {
+  const start = toZeroHour(from);
+  const end = toZeroHour(new Date(start.getFullYear() + years, start.getMonth() + months, start.getDate() + days));
+
+  if (start.getTime() > end.getTime()) return [end, start];
+  return [start, end];
+};
+
