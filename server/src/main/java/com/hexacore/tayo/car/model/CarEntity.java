@@ -28,7 +28,9 @@ import org.locationtech.jts.geom.Point;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "car")
+@Table(name = "car", indexes = {
+        @Index(name = "car_position_idx", columnList = "position", unique = false),
+})
 public class CarEntity extends BaseTime {
 
     @Id
@@ -67,7 +69,7 @@ public class CarEntity extends BaseTime {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "position", nullable = false)
+    @Column(name = "position", nullable = false, columnDefinition = "POINT SRID 4326")
     private Point position;
 
     @Column(name = "description")

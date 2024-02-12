@@ -11,11 +11,15 @@ import org.locationtech.jts.geom.Point;
 @AllArgsConstructor
 public class PositionDto {
 
+    final private int SRID = 4326;
+
     private Double lat;
     private Double lng;
 
     public Point toEntity() {
         GeometryFactory geometryFactory = new GeometryFactory();
-        return geometryFactory.createPoint(new Coordinate(this.lng, this.lat));
+        Point position = geometryFactory.createPoint(new Coordinate(this.lng, this.lat));
+        position.setSRID(SRID);
+        return position;
     }
 }
