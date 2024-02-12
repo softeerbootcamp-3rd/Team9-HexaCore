@@ -6,12 +6,9 @@ import com.hexacore.tayo.car.model.ImageEntity;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.image.S3Manager;
-import com.hexacore.tayo.user.dto.LoginRequestDto;
-import com.hexacore.tayo.user.dto.LoginResponseDto;
+import com.hexacore.tayo.user.dto.*;
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
-import com.hexacore.tayo.user.dto.SignUpRequestDto;
-import com.hexacore.tayo.user.dto.UserUpdateRequestDto;
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -53,6 +50,19 @@ public class UserService {
 
         userRepository.save(newUser);
         return ResponseDto.success(HttpStatus.CREATED);
+    }
+
+    public UserInfoResponseDto getUser(Long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() ->
+                new GeneralException(ErrorCode.USER_NOT_FOUND));
+
+        return UserInfoResponseDto.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .phoneNumber(user.getPhoneNumber())
+                .profileImgUrl(user.getProfileImgUrl())
+                .build();
     }
 
     @Transactional

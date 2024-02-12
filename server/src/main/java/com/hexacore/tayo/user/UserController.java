@@ -1,11 +1,8 @@
 package com.hexacore.tayo.user;
 
+import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
-import com.hexacore.tayo.user.dto.LoginRequestDto;
-import com.hexacore.tayo.user.dto.LoginResponseDto;
-import com.hexacore.tayo.user.dto.SignUpRequestDto;
-import com.hexacore.tayo.user.dto.UserUpdateRequestDto;
-import com.hexacore.tayo.user.model.UserEntity;
+import com.hexacore.tayo.user.dto.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,6 +30,15 @@ public class UserController {
         ResponseDto response = userService.signUp(signUpRequestDto);
 
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+    }
+
+    // 유저 정보 조회
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<ResponseDto> getUserInfo(@PathVariable Long userId) {
+        UserInfoResponseDto userInfoDto = userService.getUser(userId);
+
+        ResponseDto responseDto = DataResponseDto.of(userInfoDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     // 유저 정보 수정
@@ -72,6 +78,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    // 엑세스 토큰 재발급
     @GetMapping("/refresh")
     public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
 
