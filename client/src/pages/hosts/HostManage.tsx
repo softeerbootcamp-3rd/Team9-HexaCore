@@ -135,7 +135,7 @@ function HostManage() {
                   </div>
                 </div>
                 <p className="text-background-500">
-                  차종 {data.car.type} &#183; 연비 {data.car.mileage?.toString()}km/l &#183; 연료 {data.car.fuel}
+                  차종 {data.car.type} &#183; 연비 {data.car.mileage?.toString()}km/L &#183; 연료 {data.car.fuel}
                 </p>
               </div>
               {/* Line */}
@@ -160,7 +160,7 @@ function HostManage() {
                   </div>
                   <div className="flex flex-col">
                     <p className="font-semibold">가격</p>
-                    <p className="text-background-500 text-sm">{data.car.feePerHour?.toString()}원/ 시간</p>
+                    <p className="text-background-500 text-sm">{data.car.feePerHour?.toString()}원 / 시간</p>
                   </div>
                 </div>
 
