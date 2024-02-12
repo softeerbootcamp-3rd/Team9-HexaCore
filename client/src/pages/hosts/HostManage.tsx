@@ -107,7 +107,7 @@ function HostManage() {
       <div className="flex gap-8 mb-10">
         {/* Car Info Manage */}
         <div className="flex flex-col w-2/5 gap-3">
-          <h3 className="pl-3 text-[22px] font-medium">차량 정보</h3>
+          <h3 className="pl-3 text-lg xl:text-xl font-medium">차량 정보</h3>
           <div className="flex flex-col w-full bg-white rounded-3xl shadow-xl overflow-hidden">
             {/* Image Gallery */}
             <div className="flex w-full h-[300px] overflow-hidden relative">
@@ -125,13 +125,13 @@ function HostManage() {
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between">
                   <div className="flex items-center gap-3">
-                    <h1 className="text-2xl font-bold">{data.car.name}</h1>
+                    <h1 className="text-base lg:text-2xl font-bold">{data.car.name}</h1>
                     <div className="text-background-700 font-semibold text-base">{data.car.number}</div>
                     {/* <Tag className="h-6 text-background-700 font-semibold text-base" text={data.car.carNumber} /> */}
                   </div>
                   <div className="flex gap-3">
-                    <Button className="h-8" text="수정" onClick={editCar}></Button>
-                    <Button className="h-8" text="삭제" type="danger" onClick={deleteCar}></Button>
+                    <Button className="h-8 text-xs xl:text-sm whitespace-nowrap" text="수정" onClick={editCar}></Button>
+                    <Button className="h-8 text-xs xl:text-sm whitespace-nowrap" text="삭제" type="danger" onClick={deleteCar}></Button>
                   </div>
                 </div>
                 <p className="text-background-500">
@@ -192,12 +192,16 @@ function HostManage() {
           {/* Button div */}
           <div className="flex gap-6">
             <button
-              className={`bg-gray-200 ${selectedTab === 'calendar' ? 'text-black font-bold' : 'text-background-300'} pl-3 text-[20px] font-medium`}
+              className={`bg-gray-200 w-fit text-lg xl:text-xl whitespace-nowrap ${
+                selectedTab === 'calendar' ? 'text-black font-bold' : 'text-background-300'
+              } pl-3 text-[20px] font-medium`}
               onClick={() => handleTabSelect('calendar')}>
               예약 가능 일자
             </button>
             <button
-              className={`bg-gray-200 ${selectedTab === 'reservation' ? 'text-black font-bold' : 'text-background-300'} pl-3 text-[20px] font-medium`}
+              className={`bg-gray-200 w-fit text-lg xl:text-xl whitespace-nowrap ${
+                selectedTab === 'reservation' ? 'text-black font-bold' : 'text-background-300'
+              } pl-3 text-[20px] font-medium`}
               onClick={() => handleTabSelect('reservation')}>
               내 차 예약 내역
             </button>

@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import Button from './Button';
 
 type Props = {
@@ -9,6 +10,22 @@ type Props = {
 function ListComponent({ target, reservation, className }: Props) {
   let buttonText;
   let buttonType: 'disabled' | 'danger' | 'enabled' | undefined;
+
+  useEffect(() => {
+    const handleResize = () => {
+      const buttons = document.querySelectorAll('Button');
+      buttons.forEach((button) => {
+        if (window.innerWidth <= 1520) {
+          button.classList.add('w-[9ch]', 'min-w-[9ch]');
+        } else {
+          button.classList.remove('w-[9ch]', 'min-w-[9ch]');
+        }
+      });
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   if (reservation.status === 'cancel') {
     if (target.type === 'host') {
@@ -92,7 +109,7 @@ function ListComponent({ target, reservation, className }: Props) {
                   {reservation.price || undefined}원
                 </p>
               </div>
-              <Button className="w-1/4 min-w-14 h-auto mr-6 rounded-xl text-xs lg:text-sm break-all" type={buttonType} text={buttonText}></Button>
+              <Button className="w-1/4 h-auto mr-6 rounded-xl text-xs lg:text-sm" type={buttonType} text={buttonText}></Button>
             </div>
           </div>
         </li>
