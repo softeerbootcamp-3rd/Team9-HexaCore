@@ -21,7 +21,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Image")
+@Table(name = "image")
 public class ImageEntity extends BaseTime {
 
     @Id

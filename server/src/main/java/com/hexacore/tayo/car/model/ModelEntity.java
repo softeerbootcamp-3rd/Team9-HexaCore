@@ -17,7 +17,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Model")
+@Table(name = "model")
 public class ModelEntity extends BaseTime {
 
     @Id

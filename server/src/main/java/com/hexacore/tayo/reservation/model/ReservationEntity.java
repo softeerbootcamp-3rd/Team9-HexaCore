@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 import java.util.Date;
 
 @Entity
-@Table(name = "Reservation")
+@Table(name = "reservation")
 public class ReservationEntity extends BaseTime {
 
     @Id
