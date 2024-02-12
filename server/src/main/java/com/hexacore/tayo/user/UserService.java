@@ -113,6 +113,10 @@ public class UserService {
         UserEntity loginUser = userRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(() ->
                 new AuthException(ErrorCode.USER_NOT_FOUND));
 
+        if (loginUser.isDeleted()) {
+            throw new AuthException(ErrorCode.USER_DELETED);
+        }
+
         if (!BCrypt.checkpw(loginRequestDto.getPassword(), loginUser.getPassword())) {
             throw new AuthException(ErrorCode.USER_WRONG_PASSWORD);
         }
