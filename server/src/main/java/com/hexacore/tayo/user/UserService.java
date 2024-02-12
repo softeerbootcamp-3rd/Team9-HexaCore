@@ -16,7 +16,6 @@ import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -56,13 +55,7 @@ public class UserService {
         UserEntity user = userRepository.findById(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
-        return UserInfoResponseDto.builder()
-                .userId(user.getId())
-                .email(user.getEmail())
-                .name(user.getName())
-                .phoneNumber(user.getPhoneNumber())
-                .profileImgUrl(user.getProfileImgUrl())
-                .build();
+        return getUserInfo(user);
     }
 
     @Transactional
@@ -124,9 +117,12 @@ public class UserService {
             throw new AuthException(ErrorCode.USER_WRONG_PASSWORD);
         }
 
+        UserInfoResponseDto loginUserInfo = getUserInfo(loginUser);
+
         return LoginResponseDto.builder()
                 .accessToken(jwtService.createAccessToken(loginUser))
                 .refreshToken(jwtService.createRefreshToken(loginUser.getId()))
+                .loginUserInfo(loginUserInfo)
                 .build();
     }
 
@@ -135,6 +131,16 @@ public class UserService {
                 new AuthException(ErrorCode.USER_NOT_FOUND));
 
         return jwtService.createAccessToken(expiredUser);
+    }
+
+    private UserInfoResponseDto getUserInfo(UserEntity user) {
+        return UserInfoResponseDto.builder()
+                .userId(user.getId())
+                .email(user.getEmail())
+                .name(user.getName())
+                .phoneNumber(user.getPhoneNumber())
+                .profileImgUrl(user.getProfileImgUrl())
+                .build();
     }
 
     // 비밀번호 암호화

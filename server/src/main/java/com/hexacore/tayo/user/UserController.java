@@ -51,13 +51,14 @@ public class UserController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<ResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
         LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
 
         response.addCookie(makeTokenCookie(accessTokenCookieName, loginResponseDto.getAccessToken(), "/"));
         response.addCookie(makeTokenCookie(refreshTokenCookieName, loginResponseDto.getRefreshToken(), "/refresh"));
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        ResponseDto responseDto = DataResponseDto.of(loginResponseDto.getLoginUserInfo());
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
     // 로그아웃
