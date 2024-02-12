@@ -21,6 +21,27 @@ public class CarDto {
     private String description;
     private List<List<Date>> dates;
 
+    private CarDto(CarEntity car) {
+        this.carName = car.getModel().getSubCategory();
+        this.carNumber = car.getCarNumber();
+        this.imageUrls = car.getImages().stream().map(ImageEntity::getUrl).toList();
+        this.mileage = car.getMileage();
+        this.fuel = car.getFuel();
+        this.type = car.getType();
+        this.capacity = car.getCapacity();
+        this.year = car.getYear();
+        this.feePerHour = car.getFeePerHour();
+        this.address = car.getAddress();
+        this.description = car.getDescription();
+        this.dates = car.getDates();
+        this.host = new UserSimpleDto(car.getOwner());
+    }
+
+    public static CarDto of(CarEntity car) {
+        return new CarDto(car);
+    }
+
+    // FIXME: duplicate method
     public CarDto(CarEntity car, List<String> images) {
         this.carName = car.getModel().getSubCategory();
         this.carNumber = car.getCarNumber();
