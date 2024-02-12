@@ -36,7 +36,7 @@ public class RefreshAccessTokenInterceptor implements HandlerInterceptor {
 
         // 클라이언트로부터 받은 리프레시 토큰과, 디비에 저장해 놓은 리프레시 토큰 값이 같은지 비교
         if (clientRefreshToken.equals(serverRefreshToken)) {
-            request.setAttribute("userId", String.valueOf(userId));
+            request.setAttribute("userId", userId);
             return true;
         } else {
             throw new AuthException(ErrorCode.INVALID_JWT_TOKEN);
