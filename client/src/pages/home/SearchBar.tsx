@@ -40,10 +40,10 @@ function SearchBar({ setCarDataList, setClickSearch, rentDate, returnDate, peopl
 
   return (
     <div className="flex flex-col items-center">
-      <p className="pt-14 pb-6 text-background-500">빌리고 싶은 차량을 검색해 보세요.</p>
-      <div className="relative h-[68px] w-[743px] flex rounded-full border border-background-200 bg-white">
-        <div className="w-1/3 flex rounded-full" onClick={() => setIsOpenMap((prev) => !prev)}>
-          <label className="w-full px-6 flex flex-col justify-center">
+      <p className="pb-6 pt-14 text-background-500">빌리고 싶은 차량을 검색해 보세요.</p>
+      <div className="relative flex h-[68px] w-[743px] rounded-full border border-background-200 bg-white">
+        <div className="flex w-1/3 rounded-full" onClick={() => setIsOpenMap((prev) => !prev)}>
+          <label className="flex w-full flex-col justify-center px-6">
             <div>
               <b>위치</b>
             </div>
@@ -51,8 +51,8 @@ function SearchBar({ setCarDataList, setClickSearch, rentDate, returnDate, peopl
           </label>
         </div>
         <div className="border-r border-solid border-background-200"></div>
-        <div className="w-1/6 flex">
-          <label className="w-full px-6 flex flex-col justify-center">
+        <div className="flex w-1/6">
+          <label className="flex w-full flex-col justify-center px-6">
             <div>
               <b>대여일</b>
             </div>
@@ -60,8 +60,8 @@ function SearchBar({ setCarDataList, setClickSearch, rentDate, returnDate, peopl
           </label>
         </div>
         <div className="border-r border-solid border-background-200"></div>
-        <div className="w-1/6 flex">
-          <label className="w-full px-6 flex flex-col justify-center">
+        <div className="flex w-1/6">
+          <label className="flex w-full flex-col justify-center px-6">
             <div>
               <b>반납일</b>
             </div>
@@ -69,9 +69,9 @@ function SearchBar({ setCarDataList, setClickSearch, rentDate, returnDate, peopl
           </label>
         </div>
         <div className="border-r border-solid border-background-200"></div>
-        <div className="rounded-full w-1/3 flex">
-          <div className="w-3/4 flex">
-            <label className="w-full pl-6 flex flex-col justify-center">
+        <div className="flex w-1/3 rounded-full">
+          <div className="flex w-3/4">
+            <label className="flex w-full flex-col justify-center pl-6">
               <div>
                 <b>인원 수</b>
               </div>
@@ -84,7 +84,7 @@ function SearchBar({ setCarDataList, setClickSearch, rentDate, returnDate, peopl
                 placeholder="탑승 인원"></input>
             </label>
           </div>
-          <div className="w-1/4 flex">
+          <div className="flex w-1/4">
             <button onClick={handleSearch}>
               <Search />
             </button>

@@ -86,15 +86,15 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
   };
 
   return (
-    <div className="z-10 absolute top-[68px] rounded-xl bg-white p-4">
+    <div className="absolute top-[68px] z-10 rounded-xl bg-white p-4">
       <div className="pb-2">
         <input
           ref={searchAddress}
-          className="cursor-default rounded-md bg-white py-1.5 px-3 text-left shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6"
+          className="ring-gray-300 focus:ring-indigo-500 cursor-default rounded-md bg-white px-3 py-1.5 text-left shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 sm:text-sm sm:leading-6"
           placeholder="검색할 주소"></input>
         <Button text="검색" onClick={() => searchAddressToCoordinate(searchAddress.current ? searchAddress.current.value : '')} />
       </div>
-      <div id="map" ref={mapElement} className="w-[500px] h-[500px] p-2" />
+      <div id="map" ref={mapElement} className="h-[500px] w-[500px] p-2" />
     </div>
   );
 }

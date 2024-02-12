@@ -107,13 +107,13 @@ function SideBar({ models, latitude, longitude, rentDate, returnDate, people }: 
   };
 
   return (
-    <div className="w-[300px] h-min-[800px] bg-white flex flex-col p-4 flex-shrink-0">
+    <div className="h-min-[800px] flex w-[300px] flex-shrink-0 flex-col bg-white p-4">
       <div>
-        <Button text="필터 적용하기" type="enabled" className="w-full h-12" onClick={handleFilter} />
+        <Button text="필터 적용하기" type="enabled" className="h-12 w-full" onClick={handleFilter} />
       </div>
       <div className="p-4">
         <p className="pb-2">최저 가격</p>
-        <div className="flex min-h-[45px] cursor-default rounded-md bg-white py-1.5 px-3 text-left shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
+        <div className="ring-gray-300 focus:ring-indigo-500 flex min-h-[45px] cursor-default rounded-md bg-white px-3 py-1.5 text-left shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 sm:text-sm sm:leading-6">
           <input
             ref={minPrice}
             className="focus:outline-none"
@@ -122,12 +122,12 @@ function SideBar({ models, latitude, longitude, rentDate, returnDate, people }: 
             onKeyUp={(e) => formatCurrency(e, minPrice)}
             onSelect={(e) => formatCurrency(e, minPrice)}
             maxLength={20}></input>
-          <p className="flex items-center text-semibold text-background-400">{'원 / 시간'}</p>
+          <p className="text-semibold flex items-center text-background-400">{'원 / 시간'}</p>
         </div>
 
         {/* TODO: 최고 가격이 최저 가격보다 항상 높도록 설정 */}
         <p className="py-2">최고 가격</p>
-        <div className="flex min-h-[45px] cursor-default rounded-md bg-white py-1.5 px-3 text-left shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6">
+        <div className="ring-gray-300 focus:ring-indigo-500 flex min-h-[45px] cursor-default rounded-md bg-white px-3 py-1.5 text-left shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 sm:text-sm sm:leading-6">
           <input
             ref={maxPrice}
             className="focus:outline-none"
@@ -136,7 +136,7 @@ function SideBar({ models, latitude, longitude, rentDate, returnDate, people }: 
             onKeyUp={(e) => formatCurrency(e, maxPrice)}
             onSelect={(e) => formatCurrency(e, maxPrice)}
             maxLength={20}></input>
-          <p className="flex items-center text-semibold text-background-400">{'원 / 시간'}</p>
+          <p className="text-semibold flex items-center text-background-400">{'원 / 시간'}</p>
         </div>
       </div>
 

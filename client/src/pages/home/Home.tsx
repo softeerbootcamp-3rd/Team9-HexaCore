@@ -35,16 +35,16 @@ function Home() {
           <MainCar />
         </div>
       ) : carDataList.length === 0 ? (
-        <div className="flex pt-10 gap-4">
+        <div className="flex gap-4 pt-10">
           <SideBar models={categoryData} latitude={latitude} longitude={longitude} rentDate={rentDate} returnDate={returnDate} people={people} />
-          <div className="flex flex-wrap -mx-2">
+          <div className="-mx-2 flex flex-wrap">
             <p className="text-background-400">검색 결과가 없습니다.</p>
           </div>
         </div>
       ) : (
-        <div className="flex pt-10 gap-4">
+        <div className="flex gap-4 pt-10">
           <SideBar models={categoryData} latitude={latitude} longitude={longitude} rentDate={rentDate} returnDate={returnDate} people={people} />
-          <div className="flex flex-wrap -mx-2 w-full">
+          <div className="-mx-2 flex w-full flex-wrap">
             {carDataList.map((carData) => (
               <CarCard
                 id={carData.id}
