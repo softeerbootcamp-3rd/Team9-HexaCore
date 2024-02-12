@@ -58,7 +58,7 @@ public class CarRepositoryTest {
         Optional<CarEntity> car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(user.getId(), carNumber);
 
         // then
-        Assertions.assertThat(car.isPresent()).isTrue();
+        Assertions.assertThat(car).isPresent();
         Assertions.assertThat(car.get().getOwner().getId()).isEqualTo(user.getId());
         Assertions.assertThat(car.get().getCarNumber()).isEqualTo(carNumber);
         Assertions.assertThat(car.get().getIsDeleted()).isTrue();

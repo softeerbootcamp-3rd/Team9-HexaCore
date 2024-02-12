@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 public class CarServiceDeleteCarTest {
@@ -43,12 +44,12 @@ public class CarServiceDeleteCarTest {
         BDDMockito.verify(carRepository, Mockito.times(1)).save(Mockito.any(CarEntity.class));
         BDDMockito.verify(imageRepository, Mockito.times(2)).save(Mockito.any(ImageEntity.class));
         Assertions.assertThat(response.getSuccess()).isTrue();
-        Assertions.assertThat(response.getCode()).isEqualTo(204);
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
     }
 
     @Test
     @DisplayName("존재하지 않는 차량 Id를 삭제하는 경우 CAR_NOT_FOUND 에러가 발생한다")
-    void deleteCar_CAR_NOT_FOUND() {
+    void deleteCar_throwCarNotFound() {
         // given
         Long carId = 0L;
         BDDMockito.given(carRepository.findById(carId)).willReturn(Optional.empty());

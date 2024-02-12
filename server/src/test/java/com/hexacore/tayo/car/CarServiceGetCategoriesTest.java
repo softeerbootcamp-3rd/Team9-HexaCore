@@ -12,6 +12,7 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 public class CarServiceGetCategoriesTest {
@@ -33,7 +34,7 @@ public class CarServiceGetCategoriesTest {
 
         // then
         Assertions.assertThat(response.getSuccess()).isTrue();
-        Assertions.assertThat(response.getCode()).isEqualTo(200);
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.OK.value());
         Assertions.assertThat(response.getData()).isInstanceOf(CategoryListDto.class);
         Assertions.assertThat(((CategoryListDto) response.getData()).getModels().get(0).getCategory()).isEqualTo("모델명");
         Assertions.assertThat(((CategoryListDto) response.getData()).getModels().get(0).getSubCategory())

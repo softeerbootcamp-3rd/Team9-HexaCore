@@ -32,10 +32,10 @@ public class ModelRepositoryTest {
         Optional<ModelEntity> noExistResult = modelRepository.findBySubCategory("세부모델명");
 
         // then
-        Assertions.assertThat(existResult.isPresent()).isTrue();
+        Assertions.assertThat(existResult).isPresent();
         Assertions.assertThat(existResult.get().getCategory()).isEqualTo(category);
         Assertions.assertThat(existResult.get().getSubCategory()).isEqualTo(subCategory);
 
-        Assertions.assertThat(noExistResult.isEmpty()).isTrue();
+        Assertions.assertThat(noExistResult).isEmpty();
     }
 }

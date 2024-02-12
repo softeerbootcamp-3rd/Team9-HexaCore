@@ -24,6 +24,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,7 +70,7 @@ public class CarServiceCreateCarTest {
         // then
         BDDMockito.verify(mockCarRepository, Mockito.times(1)).save(Mockito.any(CarEntity.class));
         Assertions.assertThat(response.getSuccess()).isTrue();
-        Assertions.assertThat(response.getCode()).isEqualTo(201);
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.CREATED.value());
 
     }
 
@@ -101,12 +102,12 @@ public class CarServiceCreateCarTest {
         // then
         BDDMockito.verify(mockCarRepository, Mockito.times(0)).save(Mockito.any(CarEntity.class));
         Assertions.assertThat(response.getSuccess()).isTrue();
-        Assertions.assertThat(response.getCode()).isEqualTo(201);
+        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.CREATED.value());
     }
 
     @Test
     @DisplayName("차량의 모델명이 등록되어 있지 않은 경우 CAR_MODEL_NOT_FOUND 에러가 발생한다")
-    void createCar_CAR_MODEL_NOT_FOUND() {
+    void createCar_throwCarModelNotFound() {
         // given
         PostCarDto postCarDto = new PostCarDto("11주 1111", "모델명 서브모델명", 10.0, "가솔린", "경차", 2, 2020, 10000, "경기도 테스트 주소",
                 new PositionDto(10.0, 10.0), "설명",
@@ -127,7 +128,7 @@ public class CarServiceCreateCarTest {
 
     @Test
     @DisplayName("유저가 이미 등록한 차량이 있는 경우 USER_ALREADY_HAS_CAR 에러가 발생한다")
-    void createCar_USER_ALREADY_HAS_CAR() {
+    void createCar_throwUserAlreadyHasCar() {
         // given
         PostCarDto postCarDto = new PostCarDto("11주 1111", "모델명 서브모델명", 10.0, "가솔린", "경차", 2, 2020, 10000, "경기도 테스트 주소",
                 new PositionDto(10.0, 10.0), "설명",
@@ -145,7 +146,7 @@ public class CarServiceCreateCarTest {
 
     @Test
     @DisplayName("중복되는 차량 번호를 등록한 경우 CAR_NUMBER_DUPLICATED 에러가 발생한다")
-    void cretaeCar_CAR_NUMBER_DUPLICATED() {
+    void cretaeCar_throwCarNumberDuplicated() {
         // given
         PostCarDto postCarDto = new PostCarDto("11주 1111", "모델명 서브모델명", 10.0, "가솔린", "경차", 2, 2020, 10000, "경기도 테스트 주소",
                 new PositionDto(10.0, 10.0), "설명",
@@ -164,7 +165,7 @@ public class CarServiceCreateCarTest {
 
     @Test
     @DisplayName("입력받은 인덱스의 길이와 이미지의 길이가 같지 않은 경우 IMAGE_INDEX_MISMATCH 에러가 발생한다")
-    void createCar_IMAGE_INDEX_MISMATCH() {
+    void createCar_throwImageIndexMisMatch() {
         // given: 이미지의 길이는 1, 인덱스의 길이는 3
         PostCarDto postCarDto = new PostCarDto("11주 1111", "모델명 서브모델명", 10.0, "가솔린", "경차", 2, 2020, 10000, "경기도 테스트 주소",
                 new PositionDto(10.0, 10.0), "설명",
@@ -183,7 +184,7 @@ public class CarServiceCreateCarTest {
 
     @Test
     @DisplayName("차량의 이미지를 5개 미만으로 등록한 경우 CAR_IMAGE_INSUFFICIENT 에러가 발생한다")
-    void createCar_CAR_IMAGE_INSUFFICIENT() {
+    void createCar_throwCarImageInsufficient() {
         // given
         PostCarDto postCarDto = new PostCarDto("11주 1111", "모델명 서브모델명", 10.0, "가솔린", "경차", 2, 2020, 10000, "경기도 테스트 주소",
                 new PositionDto(10.0, 10.0), "설명",
@@ -206,7 +207,7 @@ public class CarServiceCreateCarTest {
 
     @Test
     @DisplayName("이미지가 아닌 파일을 등록한 경우 INVALID_IMAGE_TYPE 에러가 발생한다")
-    void createCar_INVALID_IMAGE_TYPE() {
+    void createCar_throwInvalidImageType() {
         // given
         PostCarDto postCarDto = new PostCarDto("11주 1111", "모델명 서브모델명", 10.0, "가솔린", "경차", 2, 2020, 10000, "경기도 테스트 주소",
                 new PositionDto(10.0, 10.0), "설명",
