@@ -46,10 +46,7 @@ public class CarService {
 
     /* 차량 등록 */
     @Transactional
-    public ResponseDto createCar(PostCarDto postCarDto) {
-        // TODO: JWT 토큰에서 userId 가져와서 로그인한 경우에만 실행되도록
-        Long userId = 1L;
-
+    public ResponseDto createCar(Long userId, PostCarDto postCarDto) {
         if (checkUserHasCar(userId)) {
             // 유저가 이미 차량을 등록한 경우
             throw new GeneralException(ErrorCode.USER_ALREADY_HAS_CAR);

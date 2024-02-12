@@ -4,6 +4,7 @@ import com.hexacore.tayo.car.model.CarUpdateDto;
 import com.hexacore.tayo.car.model.DateListDto;
 import com.hexacore.tayo.car.model.PostCarDto;
 import com.hexacore.tayo.common.ResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -31,8 +32,9 @@ public class CarController {
     }
 
     @PostMapping()
-    public ResponseEntity<ResponseDto> createCar(@ModelAttribute PostCarDto postCarDto) {
-        ResponseDto responseDto = carService.createCar(postCarDto);
+    public ResponseEntity<ResponseDto> createCar(HttpServletRequest request, @ModelAttribute PostCarDto postCarDto) {
+        Long userId = Long.valueOf((Integer) request.getAttribute("userId"));
+        ResponseDto responseDto = carService.createCar(userId, postCarDto);
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
 
