@@ -4,12 +4,14 @@ import { stringTupleToDateRange } from '@/utils/converters';
 
 type HostReservationsResponseRaw = typeof HostReservationsDummy; // TODO: 응답 형식 타입 정의
 
+export type ReservationStatus = 'cancel' | 'ready' | 'using' | 'terminated';
+
 export type ReservationData = {
   id: number;
   target: { id: number; name: string; image: string; phoneNumber: string};
   rentPeriod: DateRange;
   rentFee: number;
-  rentStatus: string;
+  rentStatus: ReservationStatus;
   address: string;
 };
 
@@ -30,8 +32,16 @@ export const parseHostReservations = (hostReservationsResponseRaw: HostReservati
         },
         rentPeriod: stringTupleToDateRange([reservation.rentDate, reservation.returnDate]),
         rentFee: reservation.fee,
-        rentStatus: reservation.status,
+        rentStatus: toReservationStatus(reservation.status),
       }) as ReservationData,
   );
+};
+
+const toReservationStatus = (status: string): ReservationStatus => {
+  const validStatuses: ReservationStatus[] = ['cancel', 'ready', 'using', 'terminated'];
+  if (validStatuses.includes(status as ReservationStatus)) {
+    return status as ReservationStatus;
+  }
+  return "disabled" as ReservationStatus;
 };
 

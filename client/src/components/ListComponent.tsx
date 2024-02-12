@@ -1,16 +1,41 @@
 import React, { useEffect } from 'react';
 import Button from './Button';
+import { ReservationStatus } from '@/fetches/reservations/fetchHostReservations';
 
+type ButtonType = "disabled" | "enabled" | "danger";
+type TargetType = 'host' | 'guest';
 type Props = {
-  target: { type: string; name: string; phoneNumber: string; image: string };
-  reservation: { startDate: Date; endDate: Date; status: string; price?: number; address: string };
+  target: { type: TargetType; name: string; phoneNumber: string; image: string };
+  reservation: { startDate: Date; endDate: Date; status: ReservationStatus; price: number; address: string };
   className?: string;
+};
+const dateFormatter = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+const buttonByReservationStatus: {
+  [key in ReservationStatus]: {
+      [key in TargetType]: { buttonText: string; buttonType: ButtonType };
+    }
+  } = {
+    cancel: {
+    host: { buttonText: '거절완료', buttonType: 'disabled' },
+    guest: { buttonText: '예약실패', buttonType: 'disabled' },
+  },
+  ready: {
+    host: { buttonText: '거절하기', buttonType: 'danger' },
+    guest: { buttonText: '대여시작', buttonType: 'enabled' },
+  },
+  using: {
+    host: { buttonText: '반납확인', buttonType: 'enabled' },
+    guest: { buttonText: '대여중', buttonType: 'disabled' },
+  },
+  terminated: {
+    host: { buttonText: '반납완료', buttonType: 'disabled' },
+    guest: { buttonText: '사용완료', buttonType: 'disabled' },
+  },
 };
 
 function ListComponent({ target, reservation, className }: Props) {
-  let buttonText;
-  let buttonType: 'disabled' | 'danger' | 'enabled' | undefined;
-
+  const { buttonText, buttonType } = buttonByReservationStatus[reservation.status][target.type];
   useEffect(() => {
     const handleResize = () => {
       const buttons = document.querySelectorAll('Button');
@@ -26,40 +51,6 @@ function ListComponent({ target, reservation, className }: Props) {
     handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-
-  if (reservation.status === 'cancel') {
-    if (target.type === 'host') {
-      buttonText = '거절완료';
-      buttonType = 'disabled';
-    } else {
-      buttonText = '예약실패';
-      buttonType = 'disabled';
-    }
-  } else if (reservation.status === 'ready') {
-    if (target.type === 'host') {
-      buttonText = '거절하기';
-      buttonType = 'danger';
-    } else {
-      buttonText = '대여시작';
-      buttonType = 'enabled';
-    }
-  } else if (reservation.status === 'using') {
-    if (target.type === 'host') {
-      buttonText = '반납확인';
-      buttonType = 'enabled';
-    } else {
-      buttonText = '대여중';
-      buttonType = 'disabled';
-    }
-  } else {
-    if (target.type === 'host') {
-      buttonText = '반납완료';
-      buttonType = 'disabled';
-    } else {
-      buttonText = '사용완료';
-      buttonType = 'disabled';
-    }
-  }
 
   return (
     <div
@@ -87,9 +78,8 @@ function ListComponent({ target, reservation, className }: Props) {
                     <>
                       <p className="truncate text-xs leading-5 text-background-500">{reservation.address}</p>
                       <p className="text-xs leading-6 text-background-500">
-                        {reservation.startDate?.getFullYear()}.{('0' + (reservation.startDate.getMonth() + 1)).slice(-2)}.
-                        {('0' + reservation.startDate.getDate()).slice(-2)} ~ {reservation.endDate.getFullYear()}.
-                        {('0' + (reservation.endDate?.getMonth() + 1)).slice(-2)}.{('0' + reservation.endDate.getDate()).slice(-2)}
+                        {`${dateFormatter.format(reservation.startDate).replace(/ /g, '').replace(/\.$/, '')} 
+                        ~ ${dateFormatter.format(reservation.endDate).replace(/ /g, '').replace(/\.$/, '')}`}
                       </p>
                     </>
                   )}
@@ -100,9 +90,8 @@ function ListComponent({ target, reservation, className }: Props) {
               <div className="w-1/2 mr-6 flex flex-col">
                 {target.type === 'host' && (
                   <p className="text-xs text-right leading-6 text-background-500">
-                    {reservation.startDate.getFullYear()}.{('0' + (reservation.startDate.getMonth() + 1)).slice(-2)}.
-                    {('0' + reservation.startDate.getDate()).slice(-2)} ~ {reservation.endDate.getFullYear()}.
-                    {('0' + (reservation.endDate.getMonth() + 1)).slice(-2)}.{('0' + reservation.endDate.getDate()).slice(-2)}
+                    {`${dateFormatter.format(reservation.startDate).replace(/ /g, '').replace(/\.$/, '')} 
+                    ~ ${dateFormatter.format(reservation.endDate).replace(/ /g, '').replace(/\.$/, '')}`}
                   </p>
                 )}
                 <p className={`truncate text-md font-semibold text-right leading-5 ${target.type === 'guest' ? 'mb-2' : ''}`}>
