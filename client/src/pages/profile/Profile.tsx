@@ -1,13 +1,13 @@
 import Button from '@/components/Button';
 import { useEffect } from 'react';
-import { UserInfo } from '@/pages/profile/profileRoutes';
-import { Reservation } from '@/types/Reservations';
+import { UserData } from '@/fetches/users/fetchUser';
+import { ReservationData } from '@/fetches/reservations/fetchHostReservations'
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
 import ListComponent from '@/components/ListComponent';
 
 function Profile() {
-  const data = useLoaderData() as { user: UserInfo; reservations: Reservation[] };
+  const data = useLoaderData() as { user: UserData; reservations: ReservationData[] };
   const navigator = useNavigate();
   useEffect(() => {
     if (!data.user) {
@@ -21,17 +21,17 @@ function Profile() {
   };
 
   const reservations = data.reservations.sort((a, b) => {
-    const dateA = a.startDate;
-    const dateB = b.startDate;
+    const dateA = a.rentPeriod[0];
+    const dateB = b.rentPeriod[0];
     if (dateA && dateB) {
       if (dateA < dateB) {
         return 1;
       } else if (dateA > dateB) {
         return -1;
-      } else if (a.status && b.status) {
+      } else if (a.rentStatus && b.rentStatus) {
         const statusOrder = ['using', 'ready', 'cancel', 'terminated'];
-        const statusIndexA = statusOrder.indexOf(a.status);
-        const statusIndexB = statusOrder.indexOf(b.status);
+        const statusIndexA = statusOrder.indexOf(a.rentStatus);
+        const statusIndexB = statusOrder.indexOf(b.rentStatus);
         if (statusIndexA < statusIndexB) {
           return -1;
         } else if (statusIndexA > statusIndexB) {
@@ -55,10 +55,10 @@ function Profile() {
             image: reservation.target.image ?? '',
           }}
           reservation={{
-            startDate: reservation.startDate ?? new Date(),
-            endDate: reservation.endDate ?? new Date(),
-            status: reservation.status ?? '',
-            price: reservation.fee ?? undefined,
+            startDate: reservation.rentPeriod[0] ?? new Date(),
+            endDate: reservation.rentPeriod[1] ?? new Date(),
+            status: reservation.rentStatus ?? '',
+            price: reservation.rentFee ?? undefined,
             address: reservation.address ?? '',
           }}
         />
