@@ -1,31 +1,36 @@
 package com.hexacore.tayo.test;
 
-import com.hexacore.tayo.common.DataResponseDto;
-import com.hexacore.tayo.common.PageInfoDto;
-import com.hexacore.tayo.common.PageResponseDto;
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.car.ModelRepository;
+import com.hexacore.tayo.car.model.ModelEntity;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.test.model.TestDto;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TestService {
 
-    public DataResponseDto<TestDto> testDataResponse() {
-        return DataResponseDto.of(new TestDto("hello World!"));
+    @Autowired
+    private ModelRepository modelRepository;
+
+    public String testDataResponse() {
+        return "hello World";
     }
 
-    public ResponseDto testResponse() {
-        return ResponseDto.success(HttpStatus.OK);
+    public boolean testResponse() {
+        return true;
     }
 
-    public DataResponseDto<TestDto> testException() {
+    public Page<ModelEntity> testException() {
         throw new GeneralException(ErrorCode.USER_UNAUTHORIZED);
     }
 
-    public PageResponseDto<TestDto> testPage() {
-        return PageResponseDto.of(new TestDto("pagination test!"), new PageInfoDto(1, 5, 10L, 2));
+    public Page<ModelEntity> testPage() {
+        Pageable pageable = PageRequest.of(0, 5);
+
+        return modelRepository.findAll(pageable);
     }
 }

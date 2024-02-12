@@ -1,10 +1,10 @@
 package com.hexacore.tayo.test;
 
-import com.hexacore.tayo.common.DataResponseDto;
-import com.hexacore.tayo.common.PageResponseDto;
-import com.hexacore.tayo.common.ResponseDto;
-import com.hexacore.tayo.test.model.TestDto;
+import com.hexacore.tayo.car.model.ModelEntity;
+import com.hexacore.tayo.common.errors.ErrorCode;
+import com.hexacore.tayo.common.CommonResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,26 +17,28 @@ public class TestController {
     private TestService testService;
 
     @GetMapping("/data")
-    public ResponseEntity<DataResponseDto<TestDto>> getDataTest() {
-        DataResponseDto<TestDto> response = testService.testDataResponse();
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+    public ResponseEntity<?> getDataTest() {
+        return CommonResponse.data(HttpStatus.OK, testService.testDataResponse());
     }
 
     @GetMapping("/response")
-    public ResponseEntity<ResponseDto> getResponseTest() {
-        ResponseDto response = testService.testResponse();
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+    public ResponseEntity<?> getResponseTest() {
+        boolean success = testService.testResponse();
+        if (success) {
+            return CommonResponse.response(HttpStatus.OK);
+        } else {
+            return CommonResponse.error(ErrorCode.SERVER_ERROR);
+        }
     }
 
     @GetMapping("/exception")
-    public ResponseEntity<ResponseDto> getException() {
-        ResponseDto response = testService.testException();
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+    public ResponseEntity<?> getException() {
+        return CommonResponse.data(HttpStatus.OK, testService.testException());
     }
 
     @GetMapping("/page")
-    public ResponseEntity<PageResponseDto<TestDto>> getPage() {
-        PageResponseDto<TestDto> response = testService.testPage();
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+    public ResponseEntity<?> getPage() {
+        Page<ModelEntity> page = testService.testPage();
+        return CommonResponse.pagination(HttpStatus.OK, page);
     }
 }
