@@ -22,4 +22,8 @@ public class ResponseDto {
     public static ResponseDto error(ErrorCode errorCode, Exception e) {
         return new ResponseDto(false, errorCode.getCode(), errorCode.getErrorMessage(e));
     }
+
+    public static ResponseDto error(ErrorCode errorCode, String message) {
+        return new ResponseDto(false, errorCode.getCode(), errorCode.getErrorMessage(message));
+    }
 }

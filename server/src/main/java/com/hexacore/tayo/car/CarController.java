@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car;
 
+import com.hexacore.tayo.car.model.CarUpdateDto;
 import com.hexacore.tayo.car.model.DateListDto;
 import com.hexacore.tayo.car.model.PostCarDto;
 import com.hexacore.tayo.common.ResponseDto;
@@ -38,6 +39,19 @@ public class CarController {
     @DeleteMapping("/{carId}")
     public ResponseEntity<ResponseDto> deleteCar(@PathVariable Long carId) {
         ResponseDto responseDto = carService.deleteCar(carId);
+        return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
+    }
+
+
+    @GetMapping("{carId}")
+    public ResponseEntity<ResponseDto> carDetail(@PathVariable Long carId) {
+        ResponseDto responseDto = carService.carDetail(carId);
+        return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
+    }
+
+    @PutMapping("{carId}")
+    public ResponseEntity<ResponseDto> carUpdate(@PathVariable Long carId, @ModelAttribute CarUpdateDto carUpdateDto) {
+        ResponseDto responseDto = carService.carUpdate(carId, carUpdateDto);
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
 

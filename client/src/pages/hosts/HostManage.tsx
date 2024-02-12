@@ -1,29 +1,30 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
-import { CarData } from './hostsRoutes';
-import { Reservation } from '@/types/Reservations';
 import Button from '@/components/Button';
 import ListComponent from '@/components/ListComponent';
+import HostCalendar from '@/components/calendar/hostCalendar/HostCalendar';
+import { DateRange } from '@/components/calendar/calendar.core';
+import { HostManageLoaderData } from './hostsRoutes';
+
+const TABS = ['calendar', 'reservation'] as const;
+type TabType = (typeof TABS)[number];
 
 function HostManage() {
   const navigate = useNavigate();
-  const data = useLoaderData() as { car: CarData; reservations: Reservation[] };
+  const { carDetail, hostReservations } = useLoaderData() as HostManageLoaderData;
   const [currentIdx, setCurrentIdx] = useState(0);
-
-  const TABS = ['calendar', 'reservation'] as const;
-  type TabType = (typeof TABS)[number];
-
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
+  const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.dates);
 
   // 다음 이미지 표시
   const showNextImage = () => {
-    setCurrentIdx((prevIdx) => (prevIdx + 1) % (data.car.imageUrls?.length ?? 1));
+    setCurrentIdx((prevIdx) => (prevIdx + 1) % carDetail.imageUrls.length);
   };
 
   // 이전 이미지 표시
   const showPrevImage = () => {
-    setCurrentIdx((prevIdx) => (prevIdx - 1 + (data.car.imageUrls?.length ?? 1)) % (data.car.imageUrls?.length ?? 1));
+    setCurrentIdx((prevIdx) => (prevIdx - 1 + carDetail.imageUrls.length) % carDetail.imageUrls.length);
   };
 
   const editCar = () => {
@@ -36,7 +37,7 @@ function HostManage() {
     location.reload();
   };
 
-  if (data.car === null) {
+  if (carDetail === null) {
     navigate('/hosts/register');
   }
 
@@ -47,23 +48,30 @@ function HostManage() {
 
   // 선택된 탭에 따라 해당 컴포넌트 렌더링
   const renderSelectedComponent = () => {
+    const reservations = hostReservations.map((reservation) => reservation.rentPeriod);
+
     switch (selectedTab) {
       case 'calendar':
-        return Calendar;
+        return (
+          <div className="rounded-xl bg-white p-8">
+            <div>
+              <HostCalendar size="large" availableDates={availableDates} onAvailableDatesChange={setAvailableDates} reservations={reservations} />
+            </div>
+          </div>
+        );
       case 'reservation':
-        return ReservationCard;
+        return ReservationCard; // TODO: reservations를 이용한 동적 컴포넌트로 변경
       default:
-        return Calendar;
+        return null;
     }
   };
-  const Calendar = <div className="flex h-full justify-center items-center bg-white rounded-3xl shadow-xl">달력</div>;
-  const reservations = data.reservations.sort((a, b) => {
-    const dateA = a.startDate;
-    const dateB = b.startDate;
-    if (a.status && b.status) {
+  const reservations = hostReservations.sort((a, b) => {
+    const dateA = a.rentPeriod[0];
+    const dateB = b.rentPeriod[0];
+    if (a.rentStatus && b.rentStatus) {
       const statusOrder = ['ready', 'using', 'cancel', 'terminated'];
-      const statusIndexA = statusOrder.indexOf(a.status);
-      const statusIndexB = statusOrder.indexOf(b.status);
+      const statusIndexA = statusOrder.indexOf(a.rentStatus);
+      const statusIndexB = statusOrder.indexOf(b.rentStatus);
       if (statusIndexA < statusIndexB) {
         return -1;
       } else if (statusIndexA > statusIndexB) {
@@ -78,8 +86,7 @@ function HostManage() {
     }
     return 0;
   });
-  const ReservationCard = data.reservations
-    ? reservations.map((reservation, index) => (
+  const ReservationCard = reservations.map((reservation, index) => (
         <ListComponent
           key={index}
           target={{
@@ -89,42 +96,42 @@ function HostManage() {
             image: reservation.target.image ?? '',
           }}
           reservation={{
-            startDate: reservation.startDate ?? new Date(),
-            endDate: reservation.endDate ?? new Date(),
-            status: reservation.status ?? '',
-            price: reservation.fee ?? undefined,
+            startDate: reservation.rentPeriod[0] ?? new Date(),
+            endDate: reservation.rentPeriod[1] ?? new Date(),
+            status: reservation.rentStatus ?? '',
+            price: reservation.rentFee ?? undefined,
             address: reservation.address ?? '',
           }}
         />
       ))
-    : null;
+
 
   return (
     <div className="flex flex-col gap-8 min-w-[768px]">
       <h2 className="mt-4 pl-3 text-3xl font-semibold">수현님, 등록한 차량을 관리해보세요!</h2>
-      <div className="flex gap-8 mb-10">
+      <div className="mb-10 flex gap-8">
         {/* Car Info Manage */}
         <div className="flex flex-col w-2/5 gap-3">
           <h3 className="pl-3 text-lg xl:text-xl font-medium">차량 정보</h3>
           <div className="flex flex-col w-full bg-white rounded-3xl shadow-xl overflow-hidden">
             {/* Image Gallery */}
-            <div className="flex w-full h-[300px] overflow-hidden relative">
-              <button onClick={showPrevImage} className="absolute top-1/2 left-3 transform -translate-y-1/2 hover:brightness-75">
+            <div className="relative flex h-[300px] w-full overflow-hidden">
+              <button onClick={showPrevImage} className="absolute left-3 top-1/2 -translate-y-1/2 transform hover:brightness-75">
                 <img src="/prev-button.svg" alt="Prev Button Image" />
               </button>
-              <img className="w-full object-cover" src={data.car.imageUrls?.[currentIdx]} alt="car-img" />
-              <button onClick={showNextImage} className="absolute top-1/2 right-3 transform -translate-y-1/2 hover:brightness-75">
+              <img className="w-full object-cover" src={carDetail.imageUrls[currentIdx]} alt="car-img" />
+              <button onClick={showNextImage} className="absolute right-3 top-1/2 -translate-y-1/2 transform hover:brightness-75">
                 <img src="/next-button.svg" alt="Next Button Image" />
               </button>
             </div>
 
-            <div className="flex flex-col justify-center p-6 gap-4">
+            <div className="flex flex-col justify-center gap-4 p-6">
               {/* Header : CarName, CarNumber, type, mileage, fuel */}
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between">
                   <div className="flex items-center gap-3">
-                    <h1 className="text-base lg:text-2xl font-bold">{data.car.name}</h1>
-                    <div className="text-background-700 font-semibold text-base">{data.car.number}</div>
+                    <h1 className="text-base lg:text-2xl font-bold">{carDetail.carName}</h1>
+                    <div className="text-background-700 font-semibold text-base">{carDetail.carNumber}</div>
                     {/* <Tag className="h-6 text-background-700 font-semibold text-base" text={data.car.carNumber} /> */}
                   </div>
                   <div className="flex gap-3">
@@ -133,11 +140,11 @@ function HostManage() {
                   </div>
                 </div>
                 <p className="text-background-500">
-                  차종 {data.car.type} &#183; 연비 {data.car.mileage?.toString()}km/L &#183; 연료 {data.car.fuel}
+                  차종 {carDetail.type} &#183; 연비 {carDetail.mileage.toString()}km/L &#183; 연료 {carDetail.fuel}
                 </p>
               </div>
               {/* Line */}
-              <div className="w-full h-0 border-[0.5px] border-background-300"></div>
+              <div className="h-0 w-full border-[0.5px] border-background-300"></div>
               {/* Car Info Detail */}
               <div className="flex flex-col gap-3">
                 {/* carNumber */}
@@ -147,7 +154,7 @@ function HostManage() {
                   </div>
                   <div className="flex flex-col">
                     <p className="font-semibold">위치</p>
-                    <p className="text-background-500 text-sm">{data.car.carAddress}</p>
+                    <p className="text-background-500 text-sm">{carDetail.carAddress}</p>
                   </div>
                 </div>
 
@@ -158,7 +165,7 @@ function HostManage() {
                   </div>
                   <div className="flex flex-col">
                     <p className="font-semibold">가격</p>
-                    <p className="text-background-500 text-sm">{data.car.feePerHour?.toString()}원 / 시간</p>
+                    <p className="text-background-500 text-sm">{carDetail.feePerHour?.toString()}원 / 시간</p>
                   </div>
                 </div>
 
@@ -169,24 +176,24 @@ function HostManage() {
                   </div>
                   <div className="flex flex-col">
                     <p className="font-semibold">연식</p>
-                    <p className="text-background-500 text-sm">{data.car.year?.toString()}년</p>
+                    <p className="text-background-500 text-sm">{carDetail.year?.toString()}년</p>
                   </div>
                 </div>
               </div>
 
               {/* Line */}
-              <div className="w-full h-0 border-[0.5px] border-background-300"></div>
+              <div className="h-0 w-full border-[0.5px] border-background-300"></div>
 
               {/* Description */}
               <div className="px-2">
-                <p className="whitespace-pre-line text-background-500 leading-8">{data.car.description}</p>
+                <p className="whitespace-pre-line leading-8 text-background-500">{carDetail.description}</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Calendar + Reservation */}
-        <div className="flex flex-col gap-3 w-3/5">
+        <div className="flex w-3/5 flex-col gap-3">
           {/* Button div */}
           <div className="flex gap-6">
             <button
@@ -212,3 +219,4 @@ function HostManage() {
 }
 
 export default HostManage;
+
