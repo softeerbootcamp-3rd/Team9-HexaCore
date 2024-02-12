@@ -1,6 +1,8 @@
 package com.hexacore.tayo.user;
 
 import com.hexacore.tayo.auth.JwtService;
+import com.hexacore.tayo.car.model.CarEntity;
+import com.hexacore.tayo.car.model.ImageEntity;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.image.S3Manager;
@@ -16,6 +18,8 @@ import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -70,6 +74,26 @@ public class UserService {
 
         // todo null 체크를 해줘야할지 클라이언트 상에서 확인 후 수정
         user.setPhoneNumber(updateRequestDto.getPhoneNumber());
+
+        return ResponseDto.success(HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseDto delete(Long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() ->
+                new GeneralException(ErrorCode.USER_NOT_FOUND));
+
+        // 유저 soft delete
+        user.setDeleted(true);
+
+        // 유저가 등록한 차 soft delete
+        CarEntity userCar = user.getCar();
+        userCar.setIsDeleted(true);
+
+        // 차의 image 들 soft delete
+        for (ImageEntity carImage : userCar.getImages()) {
+            carImage.setIsDeleted(true);
+        }
 
         return ResponseDto.success(HttpStatus.OK);
     }

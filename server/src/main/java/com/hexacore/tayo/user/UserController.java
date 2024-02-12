@@ -5,6 +5,7 @@ import com.hexacore.tayo.user.dto.LoginRequestDto;
 import com.hexacore.tayo.user.dto.LoginResponseDto;
 import com.hexacore.tayo.user.dto.SignUpRequestDto;
 import com.hexacore.tayo.user.dto.UserUpdateRequestDto;
+import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -50,6 +51,14 @@ public class UserController {
         response.addCookie(makeTokenCookie(refreshTokenCookieName, loginResponseDto.getRefreshToken(), "/refresh"));
 
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // 유저 정보 수정
+    @DeleteMapping("/users")
+    public ResponseEntity<ResponseDto> deleteUser(HttpServletRequest request) {
+        ResponseDto response = userService.delete(Long.valueOf((Integer) request.getAttribute("userId")));
+
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
     @GetMapping("/refresh")
