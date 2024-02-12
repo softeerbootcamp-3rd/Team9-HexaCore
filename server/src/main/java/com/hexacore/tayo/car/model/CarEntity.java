@@ -77,6 +77,6 @@ public class CarEntity extends BaseTime {
     @Builder.Default
     private Boolean isDeleted = false;
 
-    @OneToMany(mappedBy = "image")
+    @OneToMany(mappedBy = "car")
     private List<ImageEntity> images = new ArrayList<>();
 }
