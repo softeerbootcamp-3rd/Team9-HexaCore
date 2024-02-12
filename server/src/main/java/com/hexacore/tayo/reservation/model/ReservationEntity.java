@@ -12,9 +12,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "Reservation")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReservationEntity extends BaseTime {
 
     @Id
@@ -40,5 +49,6 @@ public class ReservationEntity extends BaseTime {
     private Date returnDate;
 
     @Column(name = "status", nullable = false)
+    @Setter
     private ReservationStatus status;
 }
