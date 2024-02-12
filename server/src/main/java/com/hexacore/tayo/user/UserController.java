@@ -38,11 +38,12 @@ public class UserController {
     // 유저 정보 수정
     @PutMapping("/users")
     public ResponseEntity<ResponseDto> updateUser(HttpServletRequest request, @ModelAttribute UserUpdateRequestDto updateRequestDto) {
-        ResponseDto response = userService.update(Long.valueOf((Integer) request.getAttribute("userId")), updateRequestDto);
+        ResponseDto response = userService.update((Long) request.getAttribute("userId"), updateRequestDto);
 
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
 
+    // 로그인
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
         LoginResponseDto loginResponseDto = userService.login(loginRequestDto);
@@ -53,12 +54,22 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // 유저 정보 수정
-    @DeleteMapping("/users")
-    public ResponseEntity<ResponseDto> deleteUser(HttpServletRequest request) {
-        ResponseDto response = userService.delete(Long.valueOf((Integer) request.getAttribute("userId")));
+    // 로그아웃
+    @GetMapping("/logout")
+    public ResponseEntity<Void> logOut(HttpServletRequest request, HttpServletResponse response) {
+        userService.logOut((Long) request.getAttribute("userId"));
+        resetCookie(response);
 
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+        return ResponseEntity.ok().build();
+    }
+
+    // 회원 탈퇴
+    @DeleteMapping("/users")
+    public ResponseEntity<ResponseDto> deleteUser(HttpServletRequest request, HttpServletResponse response) {
+        userService.delete((Long) request.getAttribute("userId"));
+        resetCookie(response);
+
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/refresh")
@@ -86,5 +97,15 @@ public class UserController {
         tokenCookie.setSecure(true);
 
         return tokenCookie;
+    }
+
+    private void resetCookie(HttpServletResponse response) {
+        Cookie accessToken = makeTokenCookie(accessTokenCookieName, "", "/");
+        accessToken.setMaxAge(0);
+        Cookie refreshToken = makeTokenCookie(refreshTokenCookieName, "", "/refresh");
+        refreshToken.setMaxAge(0);
+
+        response.addCookie(accessToken);
+        response.addCookie(refreshToken);
     }
 }

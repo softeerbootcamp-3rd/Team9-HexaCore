@@ -79,23 +79,31 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseDto delete(Long userId) {
+    public void logOut(Long userId) {
+        jwtService.deleteRefreshToken(userId);
+    }
+
+    @Transactional
+    public void delete(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         // 유저 soft delete
         user.setDeleted(true);
 
-        // 유저가 등록한 차 soft delete
+        // 유저가 등록한 차가 있는 경우, 차도 soft delete
         CarEntity userCar = user.getCar();
-        userCar.setIsDeleted(true);
+        if (userCar != null) {
+            userCar.setIsDeleted(true);
 
-        // 차의 image 들 soft delete
-        for (ImageEntity carImage : userCar.getImages()) {
-            carImage.setIsDeleted(true);
+            // 차의 image 들 soft delete
+            for (ImageEntity carImage : userCar.getImages()) {
+                carImage.setIsDeleted(true);
+            }
         }
 
-        return ResponseDto.success(HttpStatus.OK);
+        // 발급받은 리프레시 토큰 삭제
+        jwtService.deleteRefreshToken(userId);
     }
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
