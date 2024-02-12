@@ -3,7 +3,7 @@ export type Reservation = {
   target: { id: number | undefined; name: string | null; image: string | null; phoneNumber: string | null };
   fee: number | undefined;
   address: string | null;
-  startDate: string | null;
-  endDate: string | null;
+  startDate: Date | null;
+  endDate: Date | null;
   status: string | null;
 };

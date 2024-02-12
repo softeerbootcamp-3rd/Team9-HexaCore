@@ -56,10 +56,32 @@ function HostManage() {
         return Calendar;
     }
   };
-
   const Calendar = <div className="flex h-full justify-center items-center bg-white rounded-3xl shadow-xl">달력</div>;
+  const reservations = data.reservations.sort((a, b) => {
+    const dateA = a.startDate;
+    const dateB = b.startDate;
+    if (dateA && dateB) {
+      if (dateA < dateB) {
+        return 1;
+      } else if (dateA > dateB) {
+        return -1;
+      } else if (a.status && b.status) {
+        const statusOrder = ['ready', 'using', 'cancel', 'terminated'];
+        const statusIndexA = statusOrder.indexOf(a.status);
+        const statusIndexB = statusOrder.indexOf(b.status);
+        if (statusIndexA < statusIndexB) {
+          return -1;
+        } else if (statusIndexA > statusIndexB) {
+          return 1;
+        } else {
+          return 0;
+        }
+      }
+    }
+    return 0;
+  });
   const ReservationCard = data.reservations
-    ? data.reservations.map((reservation, index) => (
+    ? reservations.map((reservation, index) => (
         <ListComponent
           key={index}
           target={{
@@ -69,8 +91,8 @@ function HostManage() {
             image: reservation.target.image ?? '',
           }}
           reservation={{
-            startDate: reservation.startDate ?? '',
-            endDate: reservation.endDate ?? '',
+            startDate: reservation.startDate ?? new Date(),
+            endDate: reservation.endDate ?? new Date(),
             status: reservation.status ?? '',
             price: reservation.fee ?? undefined,
             address: reservation.address ?? '',
@@ -80,7 +102,7 @@ function HostManage() {
     : null;
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 min-w-[768px]">
       <h2 className="mt-4 pl-3 text-3xl font-semibold">수현님, 등록한 차량을 관리해보세요!</h2>
       <div className="flex gap-8 mb-10">
         {/* Car Info Manage */}
@@ -180,7 +202,7 @@ function HostManage() {
               내 차 예약 내역
             </button>
           </div>
-          <div className="flex flex-col max-h-screen gap-3 overflow-y-auto">{renderSelectedComponent()}</div>
+          <div className="flex flex-col max-h-screen gap-4 overflow-y-auto pr-6">{renderSelectedComponent()}</div>
         </div>
       </div>
     </div>

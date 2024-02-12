@@ -10,10 +10,10 @@
           "id": 1,
           "nickname": "김영경",
           "phoneNumber": "011-1234-5678",
-          "image": "filepath"
+          "image": "../public/car1.jpg"
         },
-        "rentDate": "2024-01-04 14:00",
-        "returnDate": "2024-01-05 20:00",
+        "rentDate": "2026-01-14 14:00",
+        "returnDate": "2026-01-15 20:00",
         "fee": 200000,
         "status": "cancel"
       },
@@ -25,8 +25,8 @@
           "phoneNumber": "011-1234-5678",
           "image": "filepath"
         },
-        "rentDate": "2024-01-04 14:00",
-        "returnDate": "2024-01-05 20:00",
+        "rentDate": "2026-02-06 14:00",
+        "returnDate": "2026-02-06 20:00",
         "fee": 200000,
         "status": "ready"
       },
@@ -38,8 +38,8 @@
           "phoneNumber": "011-1234-5678",
           "image": "filepath"
         },
-        "rentDate": "2024-11-04 14:00",
-        "returnDate": "2024-11-05 20:00",
+        "rentDate": "2026-01-14 14:00",
+        "returnDate": "2026-01-15 20:00",
         "fee": 200000,
         "status": "using"
       },
@@ -51,8 +51,8 @@
           "phoneNumber": "011-1234-5678",
           "image": "filepath"
         },
-        "rentDate": "2024-01-04 14:00",
-        "returnDate": "2024-01-05 20:00",
+        "rentDate": "2024-12-04 14:00",
+        "returnDate": "2024-12-05 20:00",
         "fee": 200000,
         "status": "terminated"
       },
@@ -64,8 +64,8 @@
           "phoneNumber": "011-1234-5678",
           "image": "filepath"
         },
-        "rentDate": "2024-01-04 14:00",
-        "returnDate": "2024-01-05 20:00",
+        "rentDate": "2025-01-04 14:00",
+        "returnDate": "2025-01-05 20:00",
         "fee": 200000,
         "status": "terminated"
       },
@@ -77,8 +77,8 @@
           "phoneNumber": "011-1234-5678",
           "image": "filepath"
         },
-        "rentDate": "2024-01-04 14:00",
-        "returnDate": "2024-01-05 20:00",
+        "rentDate": "2025-02-04 14:00",
+        "returnDate": "2025-02-05 20:00",
         "fee": 200000,
         "status": "terminated"
       },
@@ -90,8 +90,8 @@
           "phoneNumber": "011-1234-5678",
           "image": "filepath"
         },
-        "rentDate": "2024-01-04 14:00",
-        "returnDate": "2024-01-05 20:00",
+        "rentDate": "2025-03-04 14:00",
+        "returnDate": "2024-03-05 20:00",
         "fee": 200000,
         "status": "terminated"
       },
@@ -103,8 +103,8 @@
           "phoneNumber": "011-1234-5678",
           "image": "filepath"
         },
-        "rentDate": "2024-01-04 14:00",
-        "returnDate": "2024-01-05 20:00",
+        "rentDate": "2025-07-04 14:00",
+        "returnDate": "2025-07-05 20:00",
         "fee": 200000,
         "status": "terminated"
       },

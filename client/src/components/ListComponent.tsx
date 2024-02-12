@@ -2,15 +2,13 @@ import Button from './Button';
 
 type Props = {
   target: { type: string; name: string; phoneNumber: string; image: string };
-  reservation: { startDate: string; endDate: string; status: string; price?: number; address: string };
+  reservation: { startDate: Date; endDate: Date; status: string; price?: number; address: string };
   className?: string;
 };
 
 function ListComponent({ target, reservation, className }: Props) {
   let buttonText;
   let buttonType: 'disabled' | 'danger' | 'enabled' | undefined;
-  const startDate = new Date(reservation.startDate);
-  const endDate = new Date(reservation.endDate);
 
   if (reservation.status === 'cancel') {
     if (target.type === 'host') {
@@ -49,14 +47,14 @@ function ListComponent({ target, reservation, className }: Props) {
   return (
     <div
       className={`
-		flex flex-col bg-white rounded-3xl p-4 
+		flex flex-col bg-white rounded-3xl p-4 h-full shadow-md text-sm md:text-base
 		${className}`}>
-      <ul role="list" className="divide-y divide-gray-100">
-        <li key="person.email">
+      <ul role="list" className="divide-y divide-gray-100 min-h-20">
+        <li key="person.email" className="h-full">
           <div className="h-full w-full flex justify-between items-center">
-            <div className="flex min-w-0 gap-x-4">
+            <div className="h-full flex items-center min-w-0 gap-x-4">
               <img
-                className="h-12 w-12 flex-none rounded-full bg-gray-50"
+                className={`h-12 w-12 flex-none bg-gray-50 ${target.type === 'host' ? 'rounded-full ml-6' : 'min-h-24 min-w-24 rounded-lg'}`}
                 src={target.image}
                 alt=""
                 onError={(e) => {
@@ -64,21 +62,37 @@ function ListComponent({ target, reservation, className }: Props) {
                   imgElement.src = '../public/default-profile.png';
                 }}
               />
-              <div className="min-w-0 flex-auto">
+              <div className="flex flex-col justify-between">
                 <p className="text-md font-semibold leading-60">{target.name}</p>
-                <p className="truncate text-xs leading-5 text-background-500">{target.phoneNumber}</p>
-                {target.type === 'guest' && <p className="truncate text-xs leading-5 text-background-500">{reservation.address}</p>}
+                <div>
+                  <p className="text-xs leading-5 text-background-500 break-all">{target.phoneNumber}</p>
+                  {target.type === 'guest' && (
+                    <>
+                      <p className="truncate text-xs leading-5 text-background-500">{reservation.address}</p>
+                      <p className="text-xs leading-6 text-background-500">
+                        {reservation.startDate?.getFullYear()}.{('0' + (reservation.startDate.getMonth() + 1)).slice(-2)}.
+                        {('0' + reservation.startDate.getDate()).slice(-2)} ~ {reservation.endDate.getFullYear()}.
+                        {('0' + (reservation.endDate?.getMonth() + 1)).slice(-2)}.{('0' + reservation.endDate.getDate()).slice(-2)}
+                      </p>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
-            <div className="w-1/2 flex items-center justify-end">
+            <div className={`w-1/2 h-full flex justify-end ml-6 ${target.type == 'host' ? 'items-center' : 'items-end'}`}>
               <div className="w-1/2 mr-6 flex flex-col">
-                <p className="text-xs text-right leading-6 text-background-500">
-                  {startDate.getFullYear()}.{('0' + (startDate.getMonth() + 1)).slice(-2)}.{('0' + startDate.getDate()).slice(-2)} ~ {endDate.getFullYear()}.
-                  {('0' + (startDate.getMonth() + 1)).slice(-2)}.{('0' + startDate.getDate()).slice(-2)}
+                {target.type === 'host' && (
+                  <p className="text-xs text-right leading-6 text-background-500">
+                    {reservation.startDate.getFullYear()}.{('0' + (reservation.startDate.getMonth() + 1)).slice(-2)}.
+                    {('0' + reservation.startDate.getDate()).slice(-2)} ~ {reservation.endDate.getFullYear()}.
+                    {('0' + (reservation.endDate.getMonth() + 1)).slice(-2)}.{('0' + reservation.endDate.getDate()).slice(-2)}
+                  </p>
+                )}
+                <p className={`truncate text-md font-semibold text-right leading-5 ${target.type === 'guest' ? 'mb-2' : ''}`}>
+                  {reservation.price || undefined}원
                 </p>
-                <p className="truncate text-md font-semibold text-right leading-5">{reservation.price || undefined}원</p>
               </div>
-              <Button className="w-1/4 h-2/5 mr-6" type={buttonType} text={buttonText}></Button>
+              <Button className="w-1/4 min-w-14 h-auto mr-6 rounded-xl text-xs lg:text-sm break-all" type={buttonType} text={buttonText}></Button>
             </div>
           </div>
         </li>

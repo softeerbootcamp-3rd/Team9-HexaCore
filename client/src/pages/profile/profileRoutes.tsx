@@ -1,6 +1,8 @@
 import type { RouteObject } from 'react-router-dom';
 import Profile from '@/pages/profile/Profile';
-import response from './dummy.json';
+import { Reservation } from '@/types/Reservations';
+import userResponse from './dummy.json';
+import userReserationResponse from './UserReservationData.json';
 
 export type UserInfo = {
   name: string | null;
@@ -16,14 +18,33 @@ const profileRoutes: RouteObject[] = [
     loader: async ({ params }) => {
       const userId = params.userId ?? null;
       if (userId !== null) {
-        const data: UserInfo = {
-          name: response.data.name || null,
-          nickName: response.data.nickname || null,
-          email: response.data.email || null,
-          phoneNum: response.data.phoneNumber || null,
-          image: response.data.profileImg || null,
+        const userData: UserInfo = {
+          name: userResponse.data.name || null,
+          nickName: userResponse.data.nickname || null,
+          email: userResponse.data.email || null,
+          phoneNum: userResponse.data.phoneNumber || null,
+          image: userResponse.data.profileImg || null,
         };
-        return data;
+        const reservationData: Reservation[] = userReserationResponse.data.reservations.map((reservation: any) => {
+          return {
+            id: reservation.id || null,
+            target: {
+              id: reservation.car.id || null,
+              name: reservation.car.name || null,
+              image: reservation.car.imageUrl || null,
+              phoneNumber: reservation.hostPhoneNumber || null,
+            },
+            fee: reservation.fee || null,
+            address: reservation.carAddress || null,
+            startDate: new Date(reservation.rentDate) || null,
+            endDate: new Date(reservation.returnDate) || null,
+            status: reservation.status || null,
+          };
+        });
+        return {
+          user: userData,
+          reservations: reservationData,
+        };
       } else {
         return null;
       }
@@ -33,4 +54,3 @@ const profileRoutes: RouteObject[] = [
 ];
 
 export default profileRoutes;
-

@@ -33,4 +33,3 @@ function Button({ text, type = 'enabled', isRounded = false, onClick, className 
 }
 
 export default Button;
-
