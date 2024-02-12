@@ -1,4 +1,6 @@
-package com.hexacore.tayo.user.model;
+package com.hexacore.tayo.user.dto;
+
+import com.hexacore.tayo.user.model.UserEntity;
 import lombok.Getter;
 
 @Getter
