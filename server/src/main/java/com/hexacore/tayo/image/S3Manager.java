@@ -1,6 +1,7 @@
 package com.hexacore.tayo.image;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 @Component
@@ -37,5 +39,14 @@ public class S3Manager {
         }
 
         return amazonS3Client.getUrl(bucket, originalFilename).toString();
+    }
+
+    /* 이미지 파일을 S3에서 삭제 */
+    public void deleteImage(String imageUrl) {
+        // 이미지 url 로부터 S3에서 이미지를 식별하는 키 값을 추출
+        String[] urlParts = imageUrl.split("/");
+        String key = String.join("/", Arrays.copyOfRange(urlParts, 3, urlParts.length));
+
+        amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, key));
     }
 }
