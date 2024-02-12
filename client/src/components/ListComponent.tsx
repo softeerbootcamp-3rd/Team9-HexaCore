@@ -64,7 +64,7 @@ function ListComponent({ target, reservation, className }: Props) {
   return (
     <div
       className={`
-		flex flex-col bg-white rounded-3xl p-4 h-full shadow-md text-sm md:text-base
+		flex flex-col bg-white rounded-3xl p-4 shadow-md text-sm md:text-base
 		${className}`}>
       <ul role="list" className="divide-y divide-gray-100 min-h-20">
         <li key="person.email" className="h-full">
