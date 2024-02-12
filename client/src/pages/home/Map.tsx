@@ -86,7 +86,7 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
   };
 
   return (
-    <div className="absolute top-[68px] z-10 rounded-xl bg-white p-4">
+    <div>
       <div className="pb-2">
         <input
           ref={searchAddress}
