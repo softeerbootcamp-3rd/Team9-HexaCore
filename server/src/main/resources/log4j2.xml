@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+  <Properties>
+    <!--Property : xml 파일의 내부 변수-->
+    <Property name="logPath">./logs</Property>
+    <Property name="logPattern">%d{yyyy-MM-dd HH:mm:ss.SSS} [%highlight{%-4level}{FATAL=red, ERROR=red, WARN=yellow, INFO=green, DEBUG=blue, TRACE=blue}] %style{${sys:PID}}{magenta} --- [%20thread] %style{%-40file :%-3line}{cyan} - %m  %n</Property>
+    <Property name="serviceName">application</Property>
+  </Properties>
+  <Appenders>
+    <!--콘솔에 로그를 찍는 appender-->
+    <Console name="console">
+      <PatternLayout pattern="${logPattern}"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Root level="INFO">
+      <AppenderRef ref="console"/>
+    </Root>
+  </Loggers>
+</Configuration>
