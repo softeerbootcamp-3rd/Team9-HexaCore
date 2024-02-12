@@ -1,16 +1,15 @@
 package com.hexacore.tayo.user;
 
 import com.hexacore.tayo.auth.JwtService;
-import com.hexacore.tayo.auth.RefreshTokenRepository;
-import com.hexacore.tayo.auth.model.RefreshTokenEntity;
 import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.image.S3Manager;
-import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.dto.LoginRequestDto;
 import com.hexacore.tayo.user.dto.LoginResponseDto;
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.user.dto.SignUpRequestDto;
+import com.hexacore.tayo.user.dto.UserUpdateRequestDto;
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,8 +26,18 @@ public class UserService {
 
     @Transactional
     public ResponseDto signUp(SignUpRequestDto signUpRequestDto) {
+        // todo 회원탈퇴했던 사용자가 다시 회원가입한 경우 고려해보기
+
+        // 이메일 중복 확인
+        if(userRepository.findByEmail(signUpRequestDto.getEmail()).isPresent()) {
+            throw new GeneralException(ErrorCode.USER_EMAIL_DUPLICATED);
+        }
+
         // 프로필 사진 업로드
-        String profileUrl = s3Manager.uploadImage(signUpRequestDto.getProfileImg());
+        String profileUrl = null;
+        if (signUpRequestDto.getProfileImg() != null && !signUpRequestDto.getProfileImg().isEmpty()) {
+            profileUrl = s3Manager.uploadImage(signUpRequestDto.getProfileImg());
+        }
 
         UserEntity newUser = UserEntity.builder()
                 .email(signUpRequestDto.getEmail())
@@ -40,6 +49,29 @@ public class UserService {
 
         userRepository.save(newUser);
         return ResponseDto.success(HttpStatus.CREATED);
+    }
+
+    @Transactional
+    public ResponseDto update(Long userId, UserUpdateRequestDto updateRequestDto) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() ->
+                new GeneralException(ErrorCode.USER_NOT_FOUND));
+
+        // 시용자 프로필 이미지 수정시 - s3에서 원래 이미지 삭제 후 새로 업로드
+        if (updateRequestDto.getProfileImg()!= null && !updateRequestDto.getProfileImg().isEmpty()) {
+            s3Manager.deleteImage(user.getProfileImgUrl());
+            String newProfileImgUrl = s3Manager.uploadImage(updateRequestDto.getProfileImg());
+            user.setProfileImgUrl(newProfileImgUrl);
+        }
+
+        // 새로운 비밀번호를 입력한 경우
+        if (updateRequestDto.getPassword()!= null && !updateRequestDto.getPassword().isEmpty()) {
+            user.setPassword(encryptPwd(updateRequestDto.getPassword()));
+        }
+
+        // todo null 체크를 해줘야할지 클라이언트 상에서 확인 후 수정
+        user.setPhoneNumber(updateRequestDto.getPhoneNumber());
+
+        return ResponseDto.success(HttpStatus.OK);
     }
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {

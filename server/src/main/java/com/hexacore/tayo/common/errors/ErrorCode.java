@@ -18,7 +18,6 @@ public enum ErrorCode {
     EMPTY_USER_PASSWORD(HttpStatus.BAD_REQUEST, "유저 비밀번호를 입력해주세요."),
     EMPTY_USER_NAME(HttpStatus.BAD_REQUEST, "유저 이름을 입력해주세요."),
     EMPTY_USER_EMAIL(HttpStatus.BAD_REQUEST, "유저 이메일을 입력해주세요."),
-    USER_ID_DUPLICATED(HttpStatus.BAD_REQUEST, "중복되는 유저 id 입니다."),
     USER_EMAIL_DUPLICATED(HttpStatus.BAD_REQUEST, "중복되는 유저 이메일 입니다."),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "유저가 존재하지 않습니다."),
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스 입니다"),

@@ -4,6 +4,7 @@ import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.user.dto.LoginRequestDto;
 import com.hexacore.tayo.user.dto.LoginResponseDto;
 import com.hexacore.tayo.user.dto.SignUpRequestDto;
+import com.hexacore.tayo.user.dto.UserUpdateRequestDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,6 +30,14 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<ResponseDto> signUp(@ModelAttribute SignUpRequestDto signUpRequestDto) {
         ResponseDto response = userService.signUp(signUpRequestDto);
+
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+    }
+
+    // 유저 정보 수정
+    @PutMapping("/users")
+    public ResponseEntity<ResponseDto> updateUser(HttpServletRequest request, @ModelAttribute UserUpdateRequestDto updateRequestDto) {
+        ResponseDto response = userService.update(Long.valueOf((Integer) request.getAttribute("userId")), updateRequestDto);
 
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
     }
