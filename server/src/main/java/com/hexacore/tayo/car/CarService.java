@@ -1,8 +1,5 @@
 package com.hexacore.tayo.car;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.hexacore.tayo.car.model.CarDto;
 import com.hexacore.tayo.car.model.CarEntity;
 import com.hexacore.tayo.car.model.CarType;
@@ -18,9 +15,9 @@ import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.image.S3Manager;
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.transaction.Transactional;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -42,7 +39,7 @@ public class CarService {
     private final CarRepository carRepository;
     private final ImageRepository imageRepository;
     private final ModelRepository modelRepository;
-    private final AmazonS3 amazonS3Client;
+    private final S3Manager s3Manager;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -182,7 +179,6 @@ public class CarService {
         return DataResponseDto.of(new CategoryListDto(models));
     }
 
-
     /* 경도와 위도 값을 Point 객체로 변환 */
     private Point createPoint(PositionDto positionDto) {
         GeometryFactory geometryFactory = new GeometryFactory();
@@ -197,7 +193,7 @@ public class CarService {
         }
         List<Map<String, Object>> datas = IntStream.range(0, Math.min(indexes.size(), files.size()))
                 .mapToObj(i -> {
-                    String url = uploadImage(files.get(i));
+                    String url = s3Manager.uploadImage(files.get(i));
                     Object index = indexes.get(i);
                     return Map.of("index", index, "url", url);
                 })
@@ -225,23 +221,6 @@ public class CarService {
 
             imageRepository.save(imageEntity);
         }
-    }
-
-    /* 이미지 파일을 S3에 업로드하고 URL 반환 */
-    private String uploadImage(MultipartFile image) {
-        String originalFilename = image.getOriginalFilename();
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(image.getSize());
-        metadata.setContentType(image.getContentType());
-
-        try {
-            amazonS3Client.putObject(
-                    new PutObjectRequest(bucket, originalFilename, image.getInputStream(), metadata)
-            );
-        } catch (IOException e) {
-            throw new GeneralException(ErrorCode.S3_UPLOAD_FAILED);
-        }
-        return amazonS3Client.getUrl(bucket, originalFilename).toString();
     }
 
     /* 유저가 등록한 차량이 있는지 체크 */
