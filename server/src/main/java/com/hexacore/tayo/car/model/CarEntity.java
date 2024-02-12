@@ -2,15 +2,9 @@ package com.hexacore.tayo.car.model;
 
 import com.hexacore.tayo.common.BaseTime;
 import com.hexacore.tayo.user.model.UserEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -82,4 +76,7 @@ public class CarEntity extends BaseTime {
     @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private Boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "image")
+    private List<ImageEntity> images = new ArrayList<>();
 }
