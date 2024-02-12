@@ -36,6 +36,6 @@ public class UserEntity extends BaseTime {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "profile_img")
-    private String profileImg;
+    @Column(name = "profile_img_url", columnDefinition = "text")
+    private String profileImgUrl;
 }

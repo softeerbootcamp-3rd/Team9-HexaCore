@@ -1,7 +1,9 @@
 package com.hexacore.tayo.user;
 
+import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.user.dto.LoginRequestDto;
 import com.hexacore.tayo.user.dto.LoginResponseDto;
+import com.hexacore.tayo.user.dto.SignUpRequestDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,10 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +24,14 @@ public class UserController {
     private String accessTokenCookieName;
 
     private final UserService userService;
+
+    // 회원가입
+    @PostMapping("/signup")
+    public ResponseEntity<ResponseDto> signUp(@ModelAttribute SignUpRequestDto signUpRequestDto) {
+        ResponseDto response = userService.signUp(signUpRequestDto);
+
+        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
