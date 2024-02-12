@@ -1,28 +1,59 @@
 package com.hexacore.tayo.car;
 
-import com.hexacore.tayo.car.model.CarUpdateDto;
-import com.hexacore.tayo.car.model.DateListDto;
-import com.hexacore.tayo.car.model.PostCarDto;
+import com.hexacore.tayo.car.model.*;
+import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/cars")
 public class CarController {
 
     private final CarService carService;
+
+    @GetMapping()
+    public ResponseEntity<ResponseDto> getCars(
+        @RequestParam double distance,
+        @RequestParam double lat,
+        @RequestParam double lng,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime rentDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime returnDate,
+        @RequestParam int people,
+        @RequestParam(required = false) String type,
+        @RequestParam(required = false) String category, // TODO: categoryId
+        @RequestParam(required = false) int subCategoryId,
+        @RequestParam(required = false) Integer minPrice,
+        @RequestParam(required = false) Integer maxPrice,
+        Pageable pageable
+    ) {
+        SearchCarsDto searchCarsDto = SearchCarsDto.builder()
+                .distance(distance)
+                .position(new PositionDto(lat, lng))
+                .rentDate(rentDate)
+                .returnDate(returnDate)
+                .people(people)
+                .type(CarType.valueOf(type))
+                .category(category)
+                .subCategoryId(subCategoryId)
+                .minPrice(minPrice)
+                .maxPrice(maxPrice)
+                .build();
+
+        Page<CarEntity> carEntities = carService.searchCars(searchCarsDto, pageable);
+        DataResponseDto responseDto = DataResponseDto.of(carEntities);
+        return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
+    }
 
     @GetMapping("/categories")
     public ResponseEntity<ResponseDto> getCategories() {
@@ -41,7 +72,6 @@ public class CarController {
         ResponseDto responseDto = carService.deleteCar(carId);
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
-
 
     @GetMapping("{carId}")
     public ResponseEntity<ResponseDto> carDetail(@PathVariable Long carId) {

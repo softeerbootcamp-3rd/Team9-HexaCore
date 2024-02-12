@@ -3,17 +3,7 @@ package com.hexacore.tayo.car;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.hexacore.tayo.car.model.CarDto;
-import com.hexacore.tayo.car.model.CarEntity;
-import com.hexacore.tayo.car.model.CarType;
-import com.hexacore.tayo.car.model.CarUpdateDto;
-import com.hexacore.tayo.car.model.CategoryDto;
-import com.hexacore.tayo.car.model.CategoryListDto;
-import com.hexacore.tayo.car.model.DateListDto;
-import com.hexacore.tayo.car.model.ImageEntity;
-import com.hexacore.tayo.car.model.ModelEntity;
-import com.hexacore.tayo.car.model.PositionDto;
-import com.hexacore.tayo.car.model.PostCarDto;
+import com.hexacore.tayo.car.model.*;
 import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -31,6 +21,9 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -109,6 +102,12 @@ public class CarService {
         }
 
         return ResponseDto.success(HttpStatus.CREATED);
+    }
+
+    @Transactional
+    public Page<CarEntity> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
+        Specification<CarEntity> searchSpec = CarSpecifications.searchCars(searchCarsDto);
+        return carRepository.findAll(searchSpec, pageable);
     }
 
     /* 차량 정보 조회 */
