@@ -18,7 +18,7 @@ public class PositionDto {
 
     public Point toEntity() {
         GeometryFactory geometryFactory = new GeometryFactory();
-        Point position = geometryFactory.createPoint(new Coordinate(this.lng, this.lat));
+        Point position = geometryFactory.createPoint(new Coordinate(lat, lng));
         position.setSRID(SRID);
         return position;
     }
