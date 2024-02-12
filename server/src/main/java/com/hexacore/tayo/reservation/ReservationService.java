@@ -175,7 +175,7 @@ public class ReservationService {
 
         Calendar startDate = Calendar.getInstance();
         startDate.setTime(usingStartDateTime);
-        startDate.set(Calendar.DATE, startDate.get(Calendar.DATE) - 1);
+        startDate.add(Calendar.DATE, -1);
         startDate.set(Calendar.HOUR_OF_DAY, 0);
         startDate.set(Calendar.MINUTE, 0);
         startDate.set(Calendar.SECOND, 0);
@@ -184,7 +184,7 @@ public class ReservationService {
 
         Calendar endDate = Calendar.getInstance();
         endDate.setTime(usingEndDateTime);
-        endDate.set(Calendar.DATE, endDate.get(Calendar.DATE) + 1);
+        endDate.add(Calendar.DATE, 1);
         endDate.set(Calendar.HOUR_OF_DAY, 0);
         endDate.set(Calendar.MINUTE, 0);
         endDate.set(Calendar.SECOND, 0);
