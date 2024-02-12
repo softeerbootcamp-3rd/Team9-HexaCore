@@ -60,23 +60,21 @@ function HostManage() {
   const reservations = data.reservations.sort((a, b) => {
     const dateA = a.startDate;
     const dateB = b.startDate;
-    if (dateA && dateB) {
-      if (dateA < dateB) {
-        return 1;
-      } else if (dateA > dateB) {
+    if (a.status && b.status) {
+      const statusOrder = ['ready', 'using', 'cancel', 'terminated'];
+      const statusIndexA = statusOrder.indexOf(a.status);
+      const statusIndexB = statusOrder.indexOf(b.status);
+      if (statusIndexA < statusIndexB) {
         return -1;
-      } else if (a.status && b.status) {
-        const statusOrder = ['ready', 'using', 'cancel', 'terminated'];
-        const statusIndexA = statusOrder.indexOf(a.status);
-        const statusIndexB = statusOrder.indexOf(b.status);
-        if (statusIndexA < statusIndexB) {
-          return -1;
-        } else if (statusIndexA > statusIndexB) {
+      } else if (statusIndexA > statusIndexB) {
+        return 1;
+      } else if (dateA && dateB) {
+        if (dateA < dateB) {
           return 1;
-        } else {
-          return 0;
+        } else if (dateA > dateB) {
+          return -1;
         }
-      }
+      } else return 0;
     }
     return 0;
   });
