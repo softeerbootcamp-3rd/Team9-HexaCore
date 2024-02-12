@@ -96,7 +96,7 @@ function ListComponent({ target, reservation, className }: Props) {
                 </div>
               </div>
             </div>
-            <div className={`w-1/2 h-full flex justify-end ml-6 ${target.type == 'host' ? 'items-center' : 'items-end'}`}>
+            <div className={`w-1/2 h-full flex  ml-6 ${target.type === 'guest' ? 'flex-col justify-end items-end' : 'items-center justify-end'}`}>
               <div className="w-1/2 mr-6 flex flex-col">
                 {target.type === 'host' && (
                   <p className="text-xs text-right leading-6 text-background-500">
@@ -109,7 +109,15 @@ function ListComponent({ target, reservation, className }: Props) {
                   {reservation.price || undefined}원
                 </p>
               </div>
-              <Button className="w-1/4 h-auto mr-6 rounded-xl text-xs lg:text-sm" type={buttonType} text={buttonText}></Button>
+              <div className={`flex justify-end ${target.type === 'guest' ? 'w-full' : ''}`}>
+                {reservation.status === 'ready' && target.type === 'guest' && (
+                  <Button className="w-1/4 h-auto mr-6 rounded-xl text-xs lg:text-sm" type="danger" text="예약취소"></Button>
+                )}
+                <Button
+                  className={`h-auto mr-6 rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'w-1/4 ' : 'w-full'}`}
+                  type={buttonType}
+                  text={buttonText}></Button>
+              </div>
             </div>
           </div>
         </li>
