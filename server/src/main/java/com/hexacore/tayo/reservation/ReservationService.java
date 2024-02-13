@@ -20,13 +20,9 @@ import com.hexacore.tayo.reservation.model.ReservationEntity;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.transaction.Transactional;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -56,17 +52,12 @@ public class ReservationService {
         Date rentDate = createReservationDto.getRentDate();
         Date returnDate = createReservationDto.getReturnDate();
 
-        List<Date> usingDate = possibleRentDates.stream()
+        possibleRentDates.stream()
                 // date.get(0) ~ date.get(1) 사이의 날짜인지 검증
                 .filter(date -> date.get(0).before(rentDate))
                 .filter(date -> date.get(1).after(returnDate))
                 .findFirst()
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE));
-
-        carEntity.setDates(
-                splitPossibleDates(possibleRentDates, usingDate)
-        );
-        carRepository.save(carEntity);
 
         ReservationEntity reservationEntity = ReservationEntity.builder()
                 .guest(guestUser)
@@ -154,97 +145,10 @@ public class ReservationService {
     public ResponseDto cancelReservation(Long reservationId) {
         ReservationEntity reservationEntity = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
-        CarEntity carEntity = reservationEntity.getCar();
-
-        List<Date> canceledDate = List.of(reservationEntity.getRentDate(), reservationEntity.getReturnDate());
-
-        carEntity.setDates(
-                mergePossibleDates(carEntity.getDates(), canceledDate)
-        );
-        carRepository.save(carEntity);
 
         reservationEntity.setStatus(ReservationStatus.CANCEL);
         reservationRepository.save(reservationEntity);
 
         return ResponseDto.success(HttpStatus.OK);
-    }
-
-    private List<List<Date>> splitPossibleDates(List<List<Date>> possibleDates, List<Date> usingDateTime) {
-        // 예약 일시를 예약 일자로 변경한다.
-        Date usingStartDateTime = usingDateTime.get(0);
-
-        Calendar startDate = Calendar.getInstance();
-        startDate.setTime(usingStartDateTime);
-        startDate.add(Calendar.DATE, -1);
-        startDate.set(Calendar.HOUR_OF_DAY, 0);
-        startDate.set(Calendar.MINUTE, 0);
-        startDate.set(Calendar.SECOND, 0);
-
-        Date usingEndDateTime = usingDateTime.get(1);
-
-        Calendar endDate = Calendar.getInstance();
-        endDate.setTime(usingEndDateTime);
-        endDate.add(Calendar.DATE, 1);
-        endDate.set(Calendar.HOUR_OF_DAY, 0);
-        endDate.set(Calendar.MINUTE, 0);
-        endDate.set(Calendar.SECOND, 0);
-
-        // flatMap을 이용해서 예약 가능 일자에서 예약 신청을 한 일자를 제거하고 두 개의 요소로 나눈다.
-        // 예를 들어 02-09 ~ 02-20 까지 예약이 가능하고 02-11 ~ 02-13까지 예약을 한다고 하면
-        // [02-09 ~ 02-10, 02-14 ~ 02-20]로 나누고 이를 CarEntity에 저장한다.
-        return possibleDates.stream()
-                .flatMap(possibleDate -> {
-                    Date possibleStartDate = possibleDate.get(0);
-                    Date possibleEndDate = possibleDate.get(1);
-
-                    // 예약 범위에 맞는 구간의 경우 두 개의 요소로 나눈다.
-                    if (possibleStartDate.before(usingStartDateTime)
-                            && possibleEndDate.after(usingEndDateTime)) {
-
-                        List<Date> startSplit = possibleStartDate.before(startDate.getTime())
-                                ? List.of(possibleStartDate, startDate.getTime()) : List.of();
-                        List<Date> endSplit = possibleEndDate.after(endDate.getTime())
-                                ? List.of(endDate.getTime(), possibleEndDate) : List.of();
-
-                        return Stream.of(startSplit, endSplit).filter(dates -> !dates.isEmpty());
-                    }
-                    return Stream.of(possibleDate);
-                })
-                .collect(Collectors.toList());
-    }
-
-    private List<List<Date>> mergePossibleDates(List<List<Date>> possibleDates, List<Date> canceledDate) {
-        // 취소한 일자에 대해 나누었던 일자를 합친다.
-        // [02-09 ~ 02-10, 02-14 ~ 02-20, 02-23 ~ 03-10]인 예약 가능 일자가 있고
-        // 02-11 ~ 02-13 에 예약한 일자를 취소한다면 합쳐서
-        // [02-09 ~ 02-20, 02-23 ~ 03-10] 로 변경한다.
-        // 이때 possibleDates 리스트는 무조건 정렬이 되어있어야 한다.
-        LocalDate canceledStartDate = LocalDate.ofEpochDay(canceledDate.get(0).getTime());
-        LocalDate canceledEndDate = LocalDate.ofEpochDay(canceledDate.get(1).getTime());
-        List<List<Date>> result = new ArrayList<>();
-
-        for (int idx = 0; idx < possibleDates.size() - 1; idx++) {
-            List<Date> priorPossibleDate = possibleDates.get(idx);
-            List<Date> laterPossibleDate = possibleDates.get(idx + 1);
-
-            LocalDate priorPossibleStartDate = LocalDate.ofEpochDay(priorPossibleDate.get(0).getTime());
-            LocalDate priorPossibleEndDate = LocalDate.ofEpochDay(priorPossibleDate.get(1).getTime());
-
-            LocalDate laterPossibleStartDate = LocalDate.ofEpochDay(laterPossibleDate.get(0).getTime());
-            LocalDate laterPossibleEndDate = LocalDate.ofEpochDay(laterPossibleDate.get(1).getTime());
-
-            if (priorPossibleEndDate.plusDays(1).isEqual(canceledStartDate)
-                    && canceledEndDate.plusDays(1).isEqual(laterPossibleStartDate)) {
-                result.add(
-                        List.of(new Date(priorPossibleStartDate.toEpochDay()),
-                                new Date(laterPossibleEndDate.toEpochDay()))
-                );
-                idx++;
-            } else {
-                result.add(priorPossibleDate);
-            }
-        }
-
-        return result;
     }
 }
