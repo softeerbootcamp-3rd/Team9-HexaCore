@@ -1,4 +1,4 @@
-package com.hexacore.tayo.common;
+package com.hexacore.tayo.common.response;
 
 import com.hexacore.tayo.common.errors.ErrorCode;
 import lombok.Getter;

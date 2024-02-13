@@ -1,9 +1,9 @@
 package com.hexacore.tayo.config;
 
-import com.hexacore.tayo.auth.interceptor.AuthenticationInterceptor;
-import com.hexacore.tayo.auth.interceptor.RefreshAccessTokenInterceptor;
-import com.hexacore.tayo.auth.jwt.JwtParser;
-import com.hexacore.tayo.log.LoggingAspect;
+import com.hexacore.tayo.interceptor.AuthenticationInterceptor;
+import com.hexacore.tayo.interceptor.RefreshAccessTokenInterceptor;
+import com.hexacore.tayo.auth.jwt.util.JwtParser;
+import com.hexacore.tayo.interceptor.LoggingInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +13,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @RequiredArgsConstructor
 public class InterceptorConfig implements WebMvcConfigurer {
+
     private final JwtParser jwtParser;
 
     @Override
@@ -43,7 +44,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public LoggingAspect loggingAspect() {
-        return new LoggingAspect();
+    public LoggingInterceptor loggingAspect() {
+        return new LoggingInterceptor();
     }
 }

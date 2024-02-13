@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class UserInfoResponseDto {
+public class GetUserInfoResponseDto {
 
     private Long userId;
     private String name;

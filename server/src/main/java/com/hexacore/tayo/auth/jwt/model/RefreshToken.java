@@ -1,4 +1,4 @@
-package com.hexacore.tayo.auth.refresh;
+package com.hexacore.tayo.auth.jwt.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

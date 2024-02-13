@@ -1,20 +1,20 @@
 package com.hexacore.tayo.auth;
 
-import com.hexacore.tayo.auth.jwt.JwtProvider;
-import com.hexacore.tayo.auth.refresh.RefreshTokenService;
+import com.hexacore.tayo.auth.jwt.RefreshTokenService;
+import com.hexacore.tayo.auth.jwt.util.JwtProvider;
 import com.hexacore.tayo.util.Encryptor;
 import com.hexacore.tayo.car.model.Car;
-import com.hexacore.tayo.car.model.Image;
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.car.model.CarImage;
+import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.image.S3Manager;
+import com.hexacore.tayo.util.S3Manager;
 import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.dto.LoginRequestDto;
 import com.hexacore.tayo.user.dto.LoginResponseDto;
 import com.hexacore.tayo.user.dto.SignUpRequestDto;
-import com.hexacore.tayo.user.dto.UserInfoResponseDto;
+import com.hexacore.tayo.user.dto.GetUserInfoResponseDto;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -77,7 +77,7 @@ public class AuthService {
             userCar.setIsDeleted(true);
 
             // 차의 image 들 soft delete
-            for (Image carImage : userCar.getImages()) {
+            for (CarImage carImage : userCar.getCarImages()) {
                 carImage.setIsDeleted(true);
             }
         }
@@ -98,7 +98,7 @@ public class AuthService {
             throw new AuthException(ErrorCode.USER_WRONG_PASSWORD);
         }
 
-        UserInfoResponseDto loginUserInfo = getLoginUserInfo(loginUser);
+        GetUserInfoResponseDto loginUserInfo = getLoginUserInfo(loginUser);
 
         return LoginResponseDto.builder()
                 .accessToken(jwtProvider.createAccessToken(loginUser))
@@ -114,8 +114,8 @@ public class AuthService {
         return jwtProvider.createAccessToken(expiredUser);
     }
 
-    private UserInfoResponseDto getLoginUserInfo(User user) {
-        return UserInfoResponseDto.builder()
+    private GetUserInfoResponseDto getLoginUserInfo(User user) {
+        return GetUserInfoResponseDto.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())

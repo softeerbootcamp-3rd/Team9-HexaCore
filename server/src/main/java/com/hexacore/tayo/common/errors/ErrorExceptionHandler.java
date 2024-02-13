@@ -1,6 +1,6 @@
 package com.hexacore.tayo.common.errors;
 
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.common.response.ResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;

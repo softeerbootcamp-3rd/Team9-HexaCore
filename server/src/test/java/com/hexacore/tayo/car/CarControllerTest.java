@@ -1,10 +1,10 @@
 package com.hexacore.tayo.car;
 
-import com.hexacore.tayo.car.dto.GetSubCategoryResponseDto;
-import com.hexacore.tayo.car.dto.GetSubCategoryListResponseDto;
+import com.hexacore.tayo.category.dto.GetSubCategoryResponseDto;
+import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
-import com.hexacore.tayo.common.DataResponseDto;
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.common.response.DataResponseDto;
+import com.hexacore.tayo.common.response.ResponseDto;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

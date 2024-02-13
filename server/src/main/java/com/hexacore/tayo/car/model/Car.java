@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car.model;
 
+import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.BaseTime;
 import com.hexacore.tayo.user.model.User;
 import jakarta.persistence.Column;
@@ -85,5 +86,5 @@ public class Car extends BaseTime {
 
     @OneToMany(mappedBy = "car")
     @Builder.Default
-    private List<Image> images = new ArrayList<>();
+    private List<CarImage> carImages = new ArrayList<>();
 }

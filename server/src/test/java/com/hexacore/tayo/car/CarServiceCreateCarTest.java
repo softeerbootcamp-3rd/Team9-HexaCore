@@ -6,8 +6,10 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
-import com.hexacore.tayo.car.model.SubCategory;
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.category.CategoryRepository;
+import com.hexacore.tayo.category.SubCategoryRepository;
+import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import java.net.MalformedURLException;
@@ -33,7 +35,7 @@ public class CarServiceCreateCarTest {
     @Mock
     private AmazonS3 amazonS3Client;
     @Mock
-    private ImageRepository imageRepository;
+    private CarImageRepository carImageRepository;
     @Mock
     private CarRepository mockCarRepository;
     @Mock

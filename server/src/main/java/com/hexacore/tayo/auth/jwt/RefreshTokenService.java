@@ -1,7 +1,7 @@
-package com.hexacore.tayo.auth.refresh;
+package com.hexacore.tayo.auth.jwt;
 
-import com.hexacore.tayo.auth.refresh.RefreshTokenRepository;
-import com.hexacore.tayo.auth.refresh.RefreshToken;
+import com.hexacore.tayo.auth.jwt.RefreshTokenRepository;
+import com.hexacore.tayo.auth.jwt.model.RefreshToken;
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -11,10 +11,12 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
+
     private final RefreshTokenRepository refreshTokenRepository;
 
     /**
      * 디비에 리프레시 토큰 저장
+     *
      * @param userId
      * @param token
      */

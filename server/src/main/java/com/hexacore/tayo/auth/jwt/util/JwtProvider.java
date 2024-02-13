@@ -1,6 +1,6 @@
-package com.hexacore.tayo.auth.jwt;
+package com.hexacore.tayo.auth.jwt.util;
 
-import com.hexacore.tayo.auth.refresh.RefreshTokenService;
+import com.hexacore.tayo.auth.jwt.RefreshTokenService;
 import com.hexacore.tayo.user.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

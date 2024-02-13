@@ -1,4 +1,4 @@
-package com.hexacore.tayo.common;
+package com.hexacore.tayo.common.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class PageInfoDto {
+
     private Integer page;
     private Integer size;
     private Long totalElements;

@@ -1,7 +1,9 @@
 package com.hexacore.tayo.car;
 
-import com.hexacore.tayo.car.model.Category;
-import com.hexacore.tayo.car.model.SubCategory;
+import com.hexacore.tayo.category.CategoryRepository;
+import com.hexacore.tayo.category.SubCategoryRepository;
+import com.hexacore.tayo.category.model.Category;
+import com.hexacore.tayo.category.model.SubCategory;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;

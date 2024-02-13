@@ -1,4 +1,4 @@
-package com.hexacore.tayo.car.model;
+package com.hexacore.tayo.category.model;
 
 import com.hexacore.tayo.common.BaseTime;
 import jakarta.persistence.Column;

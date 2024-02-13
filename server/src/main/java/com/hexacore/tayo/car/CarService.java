@@ -1,27 +1,25 @@
 package com.hexacore.tayo.car;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
-import com.hexacore.tayo.car.dto.GetSubCategoryResponseDto;
+import com.hexacore.tayo.category.CategoryRepository;
+import com.hexacore.tayo.category.SubCategoryRepository;
+import com.hexacore.tayo.category.dto.GetSubCategoryResponseDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
-import com.hexacore.tayo.car.dto.GetSubCategoryListResponseDto;
+import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.car.dto.GetDateListRequestDto;
-import com.hexacore.tayo.car.model.Image;
+import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
-import com.hexacore.tayo.car.model.SubCategory;
-import com.hexacore.tayo.common.DataResponseDto;
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.common.response.DataResponseDto;
+import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.image.S3Manager;
+import com.hexacore.tayo.util.S3Manager;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class CarService {
 
     private final CarRepository carRepository;
-    private final ImageRepository imageRepository;
+    private final CarImageRepository carImageRepository;
     private final CategoryRepository categoryRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final S3Manager s3Manager;
@@ -151,9 +149,9 @@ public class CarService {
         carRepository.save(car);
 
         // 이미지 isDeleted = true
-        imageRepository.findByCar_Id(car.getId()).forEach((image) -> {
+        carImageRepository.findByCar_Id(car.getId()).forEach((image) -> {
             image.setIsDeleted(true);
-            imageRepository.save(image);
+            carImageRepository.save(image);
         });
 
         return ResponseDto.success(HttpStatus.NO_CONTENT);
@@ -161,9 +159,9 @@ public class CarService {
 
     /* 에약 가능 날짜 조회 */
     private List<String> carDateList(Long carId) {
-        return imageRepository.findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(carId)
+        return carImageRepository.findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(carId)
                 .stream()
-                .map(Image::getUrl)
+                .map(CarImage::getUrl)
                 .collect(Collectors.toList());
     }
 
@@ -207,7 +205,7 @@ public class CarService {
 
     /* 이미지 엔티티 저장 */
     private void saveImages(List<Integer> indexes, List<MultipartFile> files, Car car) {
-        if (!imageRepository.existsByCar_Id(car.getId()) && indexes.size() < 5) {
+        if (!carImageRepository.existsByCar_Id(car.getId()) && indexes.size() < 5) {
             throw new GeneralException(ErrorCode.CAR_IMAGE_INSUFFICIENT);
         }
         List<Map<String, Object>> datas = IntStream.range(0, Math.min(indexes.size(), files.size()))
@@ -222,23 +220,23 @@ public class CarService {
             int idx = (int) data.get("index");
             String url = (String) data.get("url");
 
-            Optional<Image> optionalImage = imageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(
+            Optional<CarImage> optionalImage = carImageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(
                     car.getId(), idx);
-            Image image;
+            CarImage carImage;
             // 인덱스가 idx인 image가 존재하면 soft delete
             if (optionalImage.isPresent()) {
-                image = optionalImage.get();
-                image.setIsDeleted(true);
-                imageRepository.save(image);
+                carImage = optionalImage.get();
+                carImage.setIsDeleted(true);
+                carImageRepository.save(carImage);
             }
             // 새로 만들어서 추가하기
-            image = Image.builder()
+            carImage = CarImage.builder()
                     .car(car)
                     .url(url)
                     .orderIdx(idx)
                     .build();
 
-            imageRepository.save(image);
+            carImageRepository.save(carImage);
         }
     }
 

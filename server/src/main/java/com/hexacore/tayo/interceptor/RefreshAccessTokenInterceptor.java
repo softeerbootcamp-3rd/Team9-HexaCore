@@ -1,6 +1,6 @@
-package com.hexacore.tayo.auth.interceptor;
+package com.hexacore.tayo.interceptor;
 
-import com.hexacore.tayo.auth.jwt.JwtParser;
+import com.hexacore.tayo.auth.jwt.util.JwtParser;
 import com.hexacore.tayo.util.RequestParser;
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -15,13 +15,15 @@ import java.util.Date;
 
 @RequiredArgsConstructor
 public class RefreshAccessTokenInterceptor implements HandlerInterceptor {
+
     private final JwtParser jwtParser;
 
     @Value("${jwt.refresh.cookie-name}")
     private String refreshTokenCookieName;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
 
         String clientRefreshToken = RequestParser.getToken(request, refreshTokenCookieName);
         Claims clientClaims = jwtParser.getClaims(clientRefreshToken);

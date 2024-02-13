@@ -1,8 +1,8 @@
 package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.model.Car;
-import com.hexacore.tayo.car.model.Image;
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.car.model.CarImage;
+import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import java.util.List;
@@ -24,7 +24,7 @@ public class CarServiceDeleteCarTest {
     @Mock
     private CarRepository carRepository;
     @Mock
-    private ImageRepository imageRepository;
+    private CarImageRepository carImageRepository;
     @InjectMocks
     private CarService carService;
 
@@ -34,15 +34,15 @@ public class CarServiceDeleteCarTest {
         // given
         Long carId = 0L;
         BDDMockito.given(carRepository.findById(carId)).willReturn(Optional.of(new Car()));
-        BDDMockito.given(imageRepository.findByCar_Id(Mockito.any()))
-                .willReturn(List.of(new Image(), new Image()));
+        BDDMockito.given(carImageRepository.findByCar_Id(Mockito.any()))
+                .willReturn(List.of(new CarImage(), new CarImage()));
 
         // when
         ResponseDto response = carService.deleteCar(carId);
 
         // then
         BDDMockito.verify(carRepository, Mockito.times(1)).save(Mockito.any(Car.class));
-        BDDMockito.verify(imageRepository, Mockito.times(2)).save(Mockito.any(Image.class));
+        BDDMockito.verify(carImageRepository, Mockito.times(2)).save(Mockito.any(CarImage.class));
         Assertions.assertThat(response.getSuccess()).isTrue();
         Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
     }

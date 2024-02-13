@@ -1,11 +1,11 @@
 package com.hexacore.tayo.user;
 
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.image.S3Manager;
+import com.hexacore.tayo.util.S3Manager;
 import com.hexacore.tayo.user.dto.UpdateUserRequestDto;
-import com.hexacore.tayo.user.dto.UserInfoResponseDto;
+import com.hexacore.tayo.user.dto.GetUserInfoResponseDto;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.Encryptor;
 import jakarta.transaction.Transactional;
@@ -44,15 +44,15 @@ public class UserService {
         return ResponseDto.success(HttpStatus.OK);
     }
 
-    public UserInfoResponseDto getUser(Long userId) {
+    public GetUserInfoResponseDto getUser(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         return getUserInfo(user);
     }
 
-    private UserInfoResponseDto getUserInfo(User user) {
-        return UserInfoResponseDto.builder()
+    private GetUserInfoResponseDto getUserInfo(User user) {
+        return GetUserInfoResponseDto.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())

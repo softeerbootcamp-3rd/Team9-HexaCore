@@ -21,8 +21,8 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Image")
-public class Image extends BaseTime {
+@Table(name = "car_image")
+public class CarImage extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

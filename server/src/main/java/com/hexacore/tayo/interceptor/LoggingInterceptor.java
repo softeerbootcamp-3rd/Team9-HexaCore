@@ -1,4 +1,4 @@
-package com.hexacore.tayo.log;
+package com.hexacore.tayo.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,10 +15,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Aspect
 @Component
 @RequiredArgsConstructor
-public class LoggingAspect implements HandlerInterceptor {
+public class LoggingInterceptor implements HandlerInterceptor {
 
     // Auth 성공 로깅
-    @AfterReturning(pointcut = "execution(* com.hexacore.tayo.auth.jwt.JwtParser.*(..))", returning = "result")
+    @AfterReturning(pointcut = "execution(* com.hexacore.tayo.auth.jwt.util.JwtParser.*(..))", returning = "result")
     public void logAuthSuccess(JoinPoint joinPoint, Object result) {
         Logger logger = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
         logger.info("[+] AUTH - Request: {}, Result: {}", joinPoint.getSignature().toShortString(), result);

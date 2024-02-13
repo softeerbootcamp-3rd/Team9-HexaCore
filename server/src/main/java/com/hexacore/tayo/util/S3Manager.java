@@ -1,4 +1,4 @@
-package com.hexacore.tayo.image;
+package com.hexacore.tayo.util;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;

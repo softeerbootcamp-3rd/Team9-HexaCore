@@ -1,6 +1,6 @@
-package com.hexacore.tayo.auth.interceptor;
+package com.hexacore.tayo.interceptor;
 
-import com.hexacore.tayo.auth.jwt.JwtParser;
+import com.hexacore.tayo.auth.jwt.util.JwtParser;
 import com.hexacore.tayo.util.RequestParser;
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -16,6 +16,7 @@ import java.util.Date;
 
 @RequiredArgsConstructor
 public class AuthenticationInterceptor implements HandlerInterceptor {
+
     private final JwtParser jwtParser;
 
     @Value("${jwt.secret-key}")
@@ -32,7 +33,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
      * @throws Exception
      */
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+            throws Exception {
         if (handler.getClass().equals(ResourceHttpRequestHandler.class)) {
             return true;
         }

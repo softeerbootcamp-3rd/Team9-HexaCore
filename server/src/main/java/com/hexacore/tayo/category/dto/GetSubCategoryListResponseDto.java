@@ -1,4 +1,4 @@
-package com.hexacore.tayo.car.dto;
+package com.hexacore.tayo.category.dto;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

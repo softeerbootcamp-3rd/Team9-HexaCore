@@ -2,8 +2,10 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
-import com.hexacore.tayo.car.model.Category;
-import com.hexacore.tayo.car.model.SubCategory;
+import com.hexacore.tayo.category.CategoryRepository;
+import com.hexacore.tayo.category.SubCategoryRepository;
+import com.hexacore.tayo.category.model.Category;
+import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.model.User;
 import java.util.List;

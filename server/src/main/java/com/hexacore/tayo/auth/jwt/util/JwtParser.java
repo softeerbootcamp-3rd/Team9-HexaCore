@@ -1,6 +1,6 @@
-package com.hexacore.tayo.auth.jwt;
+package com.hexacore.tayo.auth.jwt.util;
 
-import com.hexacore.tayo.auth.refresh.RefreshTokenService;
+import com.hexacore.tayo.auth.jwt.RefreshTokenService;
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import io.jsonwebtoken.Claims;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class JwtParser {
+
     private final RefreshTokenService refreshTokenService;
 
     @Value("${jwt.secret-key}")
@@ -39,6 +40,7 @@ public class JwtParser {
 
     /**
      * 디비에 저장된 유저의 리프레시 토큰 값을 가져온 후, 서명으로 리프레시 토큰의 유효성 검증 후 반환
+     *
      * @param userId 유저 아이디
      * @return 디비에 저장해 놓은 해당 유저의 리프레시 토큰
      */
