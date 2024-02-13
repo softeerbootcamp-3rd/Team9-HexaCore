@@ -1,7 +1,6 @@
 package com.hexacore.tayo.reservation;
 
 import com.hexacore.tayo.common.ResponseDto;
-import com.hexacore.tayo.reservation.dto.CreateReservationDto;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,13 +22,8 @@ public class ReservationController {
     @PostMapping()
     public ResponseEntity<ResponseDto> createReservation(
             @ModelAttribute CreateReservationRequestDto createReservationRequestDto) {
-        CreateReservationDto createReservationDto = CreateReservationDto.builder()
-                .carId(createReservationRequestDto.getCarId())
-                .rentDate(createReservationRequestDto.getRentDate())
-                .returnDate(createReservationRequestDto.getReturnDate())
-                .build();
 
-        ResponseDto responseDto = reservationService.createReservation(createReservationDto);
+        ResponseDto responseDto = reservationService.createReservation(createReservationRequestDto);
         return ResponseEntity
                 .status(responseDto.getCode())
                 .body(responseDto);

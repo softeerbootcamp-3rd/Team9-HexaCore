@@ -9,7 +9,7 @@ import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.reservation.dto.CreateReservationDto;
+import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.GetGuestReservationsResponseDto;
 import com.hexacore.tayo.reservation.dto.GetHostReservationsResponseDto;
 import com.hexacore.tayo.reservation.model.Guest;
@@ -36,22 +36,22 @@ public class ReservationService {
     private final ImageRepository imageRepository;
 
     @Transactional
-    public ResponseDto createReservation(CreateReservationDto createReservationDto) {
+    public ResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto) {
         long guestUserId = 13L; // TODO: JWT 토큰에서 userId를 추출하고 로그인한 상태에서만 실행되도록 추가
         // 현재 예시는 Guest 유저의 ID:13
 
         // TODO: userRepository에서 userEntity 제공받기
         UserEntity guestUser = UserEntity.builder().id(guestUserId).build();
 
-        CarEntity carEntity = carRepository.findById(createReservationDto.getCarId())
+        CarEntity carEntity = carRepository.findById(createReservationRequestDto.getCarId())
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         UserEntity hostUser = carEntity.getOwner();
 
         List<List<LocalDateTime>> possibleRentDates = carEntity.getDates();
 
-        LocalDateTime rentDate = createReservationDto.getRentDate();
-        LocalDateTime returnDate = createReservationDto.getReturnDate();
+        LocalDateTime rentDate = createReservationRequestDto.getRentDate();
+        LocalDateTime returnDate = createReservationRequestDto.getReturnDate();
 
         possibleRentDates.stream()
                 // date.get(0) ~ date.get(1) 사이의 날짜인지 검증
@@ -64,8 +64,8 @@ public class ReservationService {
                 .guest(guestUser)
                 .host(hostUser)
                 .car(carEntity)
-                .rentDate(createReservationDto.getRentDate())
-                .returnDate(createReservationDto.getReturnDate())
+                .rentDate(createReservationRequestDto.getRentDate())
+                .returnDate(createReservationRequestDto.getReturnDate())
                 .status(ReservationStatus.READY)
                 .build();
         reservationRepository.save(reservationEntity);
