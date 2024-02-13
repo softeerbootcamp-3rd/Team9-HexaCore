@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class PageInfoDto {
+public class PageInfo {
     private Integer page;
     private Integer size;
     private Long totalElements;
