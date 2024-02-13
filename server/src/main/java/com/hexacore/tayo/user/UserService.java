@@ -20,19 +20,19 @@ public class UserService {
     private final S3Manager s3Manager;
 
     @Transactional
-    public ResponseDto update(Long userId, UserUpdateRequestDto updateRequestDto) {
+    public ResponseDto update(Long userId, UpdateUserRequestDto updateRequestDto) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         // 시용자 프로필 이미지 수정시 - s3에서 원래 이미지 삭제 후 새로 업로드
-        if (updateRequestDto.getProfileImg()!= null && !updateRequestDto.getProfileImg().isEmpty()) {
+        if (updateRequestDto.getProfileImg() != null && !updateRequestDto.getProfileImg().isEmpty()) {
             s3Manager.deleteImage(user.getProfileImgUrl());
             String newProfileImgUrl = s3Manager.uploadImage(updateRequestDto.getProfileImg());
             user.setProfileImgUrl(newProfileImgUrl);
         }
 
         // 새로운 비밀번호를 입력한 경우
-        if (updateRequestDto.getPassword()!= null && !updateRequestDto.getPassword().isEmpty()) {
+        if (updateRequestDto.getPassword() != null && !updateRequestDto.getPassword().isEmpty()) {
             user.setPassword(Encryptor.encryptPwd(updateRequestDto.getPassword()));
         }
 

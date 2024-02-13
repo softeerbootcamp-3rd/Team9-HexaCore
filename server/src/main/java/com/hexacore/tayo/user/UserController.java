@@ -26,7 +26,7 @@ public class UserController {
 
     // 유저 정보 수정
     @PutMapping
-    public ResponseEntity<ResponseDto> updateUser(HttpServletRequest request, @ModelAttribute UserUpdateRequestDto updateRequestDto) {
+    public ResponseEntity<ResponseDto> updateUser(HttpServletRequest request, @ModelAttribute UpdateUserRequestDto updateRequestDto) {
         ResponseDto response = userService.update((Long) request.getAttribute("userId"), updateRequestDto);
 
         return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));

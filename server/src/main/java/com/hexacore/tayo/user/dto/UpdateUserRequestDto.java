@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @AllArgsConstructor
-public class UserUpdateRequestDto {
+public class UpdateUserRequestDto {
 
     private String password;
     private String phoneNumber;
