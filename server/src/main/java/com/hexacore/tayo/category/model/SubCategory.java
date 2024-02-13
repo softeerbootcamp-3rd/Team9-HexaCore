@@ -21,7 +21,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "SubCategory")
+@Table(name = "sub_category")
 public class SubCategory extends BaseTime {
 
     @Id

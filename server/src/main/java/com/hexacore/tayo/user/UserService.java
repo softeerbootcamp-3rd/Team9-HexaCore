@@ -1,6 +1,5 @@
 package com.hexacore.tayo.user;
 
-import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.util.S3Manager;
@@ -10,7 +9,6 @@ import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.Encryptor;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 
@@ -22,7 +20,7 @@ public class UserService {
     private final S3Manager s3Manager;
 
     @Transactional
-    public ResponseDto update(Long userId, UpdateUserRequestDto updateRequestDto) {
+    public void update(Long userId, UpdateUserRequestDto updateRequestDto) {
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
@@ -40,8 +38,6 @@ public class UserService {
 
         // todo null 체크를 해줘야할지 클라이언트 상에서 확인 후 수정
         user.setPhoneNumber(updateRequestDto.getPhoneNumber());
-
-        return ResponseDto.success(HttpStatus.OK);
     }
 
     public GetUserInfoResponseDto getUser(Long userId) {

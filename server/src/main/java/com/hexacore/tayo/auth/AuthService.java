@@ -5,7 +5,6 @@ import com.hexacore.tayo.auth.jwt.util.JwtProvider;
 import com.hexacore.tayo.util.Encryptor;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
@@ -19,7 +18,6 @@ import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,7 +30,7 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
 
     @Transactional
-    public ResponseDto signUp(SignUpRequestDto signUpRequestDto) {
+    public User signUp(SignUpRequestDto signUpRequestDto) {
         // todo 회원탈퇴했던 사용자가 다시 회원가입한 경우 고려해보기
 
         // 이메일 중복 확인
@@ -54,8 +52,7 @@ public class AuthService {
                 .profileImgUrl(profileUrl)
                 .build();
 
-        userRepository.save(newUser);
-        return ResponseDto.success(HttpStatus.CREATED);
+        return userRepository.save(newUser);
     }
 
     @Transactional
