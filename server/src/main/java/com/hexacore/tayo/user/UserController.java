@@ -1,7 +1,6 @@
 package com.hexacore.tayo.user;
 
-import com.hexacore.tayo.common.response.DataResponseDto;
-import com.hexacore.tayo.common.response.ResponseDto;
+import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.user.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +17,17 @@ public class UserController {
 
     // 유저 정보 조회
     @GetMapping("/{userId}")
-    public ResponseEntity<ResponseDto> getUserInfo(@PathVariable Long userId) {
+    public ResponseEntity<Response> getUserInfo(@PathVariable Long userId) {
         GetUserInfoResponseDto userInfoDto = userService.getUser(userId);
-
-        ResponseDto responseDto = DataResponseDto.of(userInfoDto);
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+        return Response.of(HttpStatus.OK, userInfoDto);
     }
 
     // 유저 정보 수정
     @PutMapping
-    public ResponseEntity<ResponseDto> updateUser(HttpServletRequest request,
+    public ResponseEntity<Response> updateUser(HttpServletRequest request,
             @ModelAttribute UpdateUserRequestDto updateRequestDto) {
-        ResponseDto response = userService.update((Long) request.getAttribute("userId"), updateRequestDto);
+        userService.update((Long) request.getAttribute("userId"), updateRequestDto);
 
-        return new ResponseEntity<>(response, HttpStatus.valueOf(response.getCode()));
+        return Response.of(HttpStatus.OK);
     }
 }
