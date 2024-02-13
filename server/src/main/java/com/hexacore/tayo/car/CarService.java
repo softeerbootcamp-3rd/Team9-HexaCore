@@ -14,8 +14,6 @@ import com.hexacore.tayo.car.model.ImageEntity;
 import com.hexacore.tayo.car.model.ModelEntity;
 import com.hexacore.tayo.car.model.PositionDto;
 import com.hexacore.tayo.car.model.PostCarDto;
-import com.hexacore.tayo.common.DataResponseDto;
-import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.model.UserEntity;
@@ -32,7 +30,6 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,7 +47,7 @@ public class CarService {
 
     /* 차량 등록 */
     @Transactional
-    public ResponseDto createCar(PostCarDto postCarDto) {
+    public boolean createCar(PostCarDto postCarDto) {
         // TODO: JWT 토큰에서 userId 가져와서 로그인한 경우에만 실행되도록
         Long userId = 1L;
 
@@ -109,21 +106,21 @@ public class CarService {
             saveImages(postCarDto.getImageIndexes(), postCarDto.getImageFiles(), carEntity);
         }
 
-        return ResponseDto.success(HttpStatus.CREATED);
+        return true;
     }
 
     /* 차량 정보 조회 */
-    public DataResponseDto carDetail(Long carId) {
+    public CarDto carDetail(Long carId) {
         CarEntity car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         List<String> images = carDateList(carId);
-        return DataResponseDto.of(new CarDto(car, images));
+        return new CarDto(car, images);
     }
 
     /* 차량 정보 수정 */
     @Transactional
-    public ResponseDto carUpdate(Long carId, CarUpdateDto carUpdateDto) {
+    public boolean carUpdate(Long carId, CarUpdateDto carUpdateDto) {
         CarEntity car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -134,12 +131,12 @@ public class CarService {
 
         saveImages(carUpdateDto.getImageIndexes(), carUpdateDto.getImageFiles(), car);
 
-        return ResponseDto.success(HttpStatus.OK);
+        return true;
     }
 
     /* 차량 삭제 */
     @Transactional
-    public ResponseDto deleteCar(Long carId) {
+    public boolean deleteCar(Long carId) {
         // 차량 isDeleted = true
         CarEntity car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -152,7 +149,7 @@ public class CarService {
             imageRepository.save(image);
         });
 
-        return ResponseDto.success(HttpStatus.OK);
+        return true;
     }
 
     /* 에약 가능 날짜 조회 */
@@ -164,7 +161,7 @@ public class CarService {
     }
 
     /* 예약 가능 날짜 수정 */
-    public ResponseDto updateDates(Long carId, DateListDto dateList) {
+    public boolean updateDates(Long carId, DateListDto dateList) {
         // 차량 조회가 안 되는 경우
         CarEntity car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -183,15 +180,15 @@ public class CarService {
         car.setDates(dateList.getDates());
         carRepository.save(car);
 
-        return ResponseDto.success(HttpStatus.ACCEPTED);
+        return true;
     }
 
     /* 모델, 세부 모델명 조회 */
-    public ResponseDto getCategories() {
+    public CategoryListDto getCategories() {
         List<CategoryDto> models = modelRepository.findAll().stream()
                 .map(CategoryDto::new)
                 .toList();
-        return DataResponseDto.of(new CategoryListDto(models));
+        return new CategoryListDto(models);
     }
 
 
