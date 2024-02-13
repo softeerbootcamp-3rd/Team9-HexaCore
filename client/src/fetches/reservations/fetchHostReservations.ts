@@ -4,34 +4,44 @@ import { stringTupleToDateRange } from '@/utils/converters';
 
 type HostReservationsResponseRaw = typeof HostReservationsDummy; // TODO: 응답 형식 타입 정의
 
-export type HostReservationData = {
+export type ReservationStatus = 'cancel' | 'ready' | 'using' | 'terminated';
+
+export type ReservationData = {
   id: number;
-  guestId: number;
-  guestNickname: string;
-  guestPhoneNumber: string;
-  guestImage: string;
+  target: { id: number; name: string; image: string; phoneNumber: string};
   rentPeriod: DateRange;
   rentFee: number;
-  rentStatus: string;
+  rentStatus: ReservationStatus;
+  address: string;
 };
 
 export const fetchHostReservations = async () => {
   return HostReservationsDummy;
 };
 
-export const parseHostReservations = (hostReservationsResponseRaw: HostReservationsResponseRaw): HostReservationData[] => {
+export const parseHostReservations = (hostReservationsResponseRaw: HostReservationsResponseRaw): ReservationData[] => {
   return hostReservationsResponseRaw.data.reservations.map(
     (reservation) =>
       ({
         id: reservation.id,
-        guestId: reservation.guest.id,
-        guestNickname: reservation.guest.nickname,
-        guestPhoneNumber: reservation.guest.phoneNumber,
-        guestImage: reservation.guest.image,
+        target: {
+          id: reservation.guest.id,
+          name: reservation.guest.nickname ,
+          image: reservation.guest.image,
+          phoneNumber: reservation.guest.phoneNumber,
+        },
         rentPeriod: stringTupleToDateRange([reservation.rentDate, reservation.returnDate]),
         rentFee: reservation.fee,
-        rentStatus: reservation.status,
-      }) as HostReservationData,
+        rentStatus: toReservationStatus(reservation.status),
+      }) as ReservationData,
   );
+};
+
+const toReservationStatus = (status: string): ReservationStatus => {
+  const validStatuses: ReservationStatus[] = ['cancel', 'ready', 'using', 'terminated'];
+  if (validStatuses.includes(status as ReservationStatus)) {
+    return status as ReservationStatus;
+  }
+  return "disabled" as ReservationStatus;
 };
 
