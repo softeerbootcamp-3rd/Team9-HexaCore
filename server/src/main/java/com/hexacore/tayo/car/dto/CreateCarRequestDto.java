@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car.dto;
 
+import com.hexacore.tayo.common.Position;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -29,7 +30,7 @@ public class CreateCarRequestDto {
     @NotNull
     private String address;
     @NotNull
-    private CreatePositionRequestDto position;
+    private Position position;
     private String description;
     @NotNull
     private List<MultipartFile> imageFiles;

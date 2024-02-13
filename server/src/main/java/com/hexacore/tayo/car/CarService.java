@@ -8,7 +8,7 @@ import com.hexacore.tayo.category.dto.GetSubCategoryResponseDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.car.dto.GetDateListRequestDto;
-import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
+import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -39,7 +39,6 @@ public class CarService {
 
     private final CarRepository carRepository;
     private final CarImageRepository carImageRepository;
-    private final CategoryRepository categoryRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final S3Manager s3Manager;
 
@@ -133,7 +132,7 @@ public class CarService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         car.setFeePerHour(updateCarRequestDto.getFeePerHour());
         car.setAddress(updateCarRequestDto.getAddress());
-        car.setPosition(updateCarRequestDto.getPosition().toEntity());
+        car.setPosition(updateCarRequestDto.getPosition().toPoint());
         car.setDescription(updateCarRequestDto.getDescription());
 
         saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles(), car);
@@ -193,7 +192,7 @@ public class CarService {
     }
 
     /* 경도와 위도 값을 Point 객체로 변환 */
-    private Point createPoint(CreatePositionRequestDto createPositionRequestDto) {
+    private Point createPoint(Position createPositionRequestDto) {
         GeometryFactory geometryFactory = new GeometryFactory();
         Coordinate coordinate = new Coordinate(createPositionRequestDto.getLng(), createPositionRequestDto.getLat());
         return geometryFactory.createPoint(coordinate);

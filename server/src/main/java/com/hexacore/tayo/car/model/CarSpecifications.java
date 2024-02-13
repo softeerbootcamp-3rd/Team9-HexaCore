@@ -10,14 +10,14 @@ import java.util.List;
 
 public class CarSpecifications {
 
-    public static Specification<CarEntity> searchCars(SearchCarsDto searchCarsDto) {
+    public static Specification<Car> searchCars(SearchCarsDto searchCarsDto) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             if (searchCarsDto.getPosition() != null && searchCarsDto.getDistance() > 0) {
                 var bufferExpression = criteriaBuilder.function("ST_Buffer",
                         Polygon.class,
-                        criteriaBuilder.literal(searchCarsDto.getPosition().toEntity()),
+                        criteriaBuilder.literal(searchCarsDto.getPosition().toPoint()),
                         criteriaBuilder.literal(searchCarsDto.getDistance())
                 );
 

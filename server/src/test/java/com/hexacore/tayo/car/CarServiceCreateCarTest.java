@@ -4,7 +4,7 @@ import static org.mockito.BDDMockito.given;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.hexacore.tayo.car.model.Car;
-import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
+import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.CategoryRepository;
 import com.hexacore.tayo.category.SubCategoryRepository;
@@ -52,7 +52,7 @@ public class CarServiceCreateCarTest {
         // given
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "모델명 서브모델명", 10.0, "가솔린", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
-                new CreatePositionRequestDto(10.0, 10.0), "설명",
+                new Position(10.0, 10.0), "설명",
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy".getBytes()),
                         new MockMultipartFile("image2", "filename2.png", "image/png", "dummy".getBytes()),
                         new MockMultipartFile("image3", "filename3.png", "image/png", "dummy".getBytes()),
@@ -83,7 +83,7 @@ public class CarServiceCreateCarTest {
         // given
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "모델명 서브모델명", 10.0, "가솔린", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
-                new CreatePositionRequestDto(10.0, 10.0), "설명",
+                new Position(10.0, 10.0), "설명",
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy".getBytes()),
                         new MockMultipartFile("image2", "filename2.png", "image/png", "dummy".getBytes()),
                         new MockMultipartFile("image3", "filename3.png", "image/png", "dummy".getBytes()),
@@ -115,7 +115,7 @@ public class CarServiceCreateCarTest {
         // given
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "모델명 서브모델명", 10.0, "가솔린", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
-                new CreatePositionRequestDto(10.0, 10.0), "설명",
+                new Position(10.0, 10.0), "설명",
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
                 List.of(1));
 
@@ -137,7 +137,7 @@ public class CarServiceCreateCarTest {
         // given
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "모델명 서브모델명", 10.0, "가솔린", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
-                new CreatePositionRequestDto(10.0, 10.0), "설명",
+                new Position(10.0, 10.0), "설명",
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
                 List.of(1));
 
@@ -156,7 +156,7 @@ public class CarServiceCreateCarTest {
         // given
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "가솔린", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
-                new CreatePositionRequestDto(10.0, 10.0), "설명",
+                new Position(10.0, 10.0), "설명",
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
                 List.of(1));
 
@@ -176,7 +176,7 @@ public class CarServiceCreateCarTest {
         // given: 이미지의 길이는 1, 인덱스의 길이는 3
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "가솔린", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
-                new CreatePositionRequestDto(10.0, 10.0), "설명",
+                new Position(10.0, 10.0), "설명",
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
                 List.of(1, 2, 3));
 
@@ -196,7 +196,7 @@ public class CarServiceCreateCarTest {
         // given
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "가솔린", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
-                new CreatePositionRequestDto(10.0, 10.0), "설명",
+                new Position(10.0, 10.0), "설명",
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
                 List.of(1));
 
@@ -220,7 +220,7 @@ public class CarServiceCreateCarTest {
         // given
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "가솔린", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
-                new CreatePositionRequestDto(10.0, 10.0), "설명",
+                new Position(10.0, 10.0), "설명",
                 List.of(new MockMultipartFile("image1", "filename1.txt", "text/plain", "dummy".getBytes()),
                         new MockMultipartFile("image2", "filename2.txt", "text/plain", "dummy".getBytes()),
                         new MockMultipartFile("image3", "filename3.txt", "text/plain", "dummy".getBytes()),

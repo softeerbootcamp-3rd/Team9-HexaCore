@@ -5,6 +5,7 @@ import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.SearchCarsDto;
 import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
+import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.common.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,7 @@ public class CarController {
     ) {
         SearchCarsDto searchCarsDto = SearchCarsDto.builder()
                 .distance(distance)
-                .position(new CreatePositionRequestDto(lat, lng))
+                .position(new Position(lat, lng))
                 .rentDate(rentDate)
                 .returnDate(returnDate)
                 .people(people)

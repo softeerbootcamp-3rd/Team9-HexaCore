@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car.model;
 
+import com.hexacore.tayo.common.Position;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 public class SearchCarsDto {
     double distance; // unit: meters
-    PositionDto position;
+    Position position;
     LocalDateTime rentDate;
     LocalDateTime returnDate;
     int people;
