@@ -2,7 +2,7 @@ package com.hexacore.tayo.test;
 
 import com.hexacore.tayo.car.model.ModelEntity;
 import com.hexacore.tayo.common.errors.ErrorCode;
-import com.hexacore.tayo.common.CommonResponse;
+import com.hexacore.tayo.common.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,27 +18,27 @@ public class TestController {
 
     @GetMapping("/data")
     public ResponseEntity<?> getDataTest() {
-        return CommonResponse.data(HttpStatus.OK, testService.testDataResponse());
+        return Response.of(HttpStatus.OK, testService.testDataResponse());
     }
 
     @GetMapping("/response")
     public ResponseEntity<?> getResponseTest() {
         boolean success = testService.testResponse();
         if (success) {
-            return CommonResponse.response(HttpStatus.OK);
+            return Response.of(HttpStatus.OK);
         } else {
-            return CommonResponse.error(ErrorCode.SERVER_ERROR);
+            return Response.of(ErrorCode.SERVER_ERROR);
         }
     }
 
     @GetMapping("/exception")
     public ResponseEntity<?> getException() {
-        return CommonResponse.data(HttpStatus.OK, testService.testException());
+        return Response.of(HttpStatus.OK, testService.testException());
     }
 
     @GetMapping("/page")
     public ResponseEntity<?> getPage() {
         Page<ModelEntity> page = testService.testPage();
-        return CommonResponse.pagination(HttpStatus.OK, page);
+        return Response.of(HttpStatus.OK, page);
     }
 }
