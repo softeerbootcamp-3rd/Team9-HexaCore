@@ -14,8 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Arrays;
 
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class S3Manager {
 
     private final AmazonS3 amazonS3Client;
