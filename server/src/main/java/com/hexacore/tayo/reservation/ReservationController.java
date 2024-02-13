@@ -1,6 +1,6 @@
 package com.hexacore.tayo.reservation;
 
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

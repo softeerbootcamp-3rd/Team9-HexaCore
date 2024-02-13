@@ -40,7 +40,7 @@ public class CarRepositoryTest {
     @BeforeEach
     void createUserAndModel() {
         User user = userRepository.save(
-                User.builder().email("test@test.com").name("테스트").nickname("테스트 유저").phoneNumber("010-0000-0000")
+                User.builder().email("test@test.com").name("테스트").phoneNumber("010-0000-0000")
                         .password("1234")
                         .build());
         Category category = categoryRepository.save(
