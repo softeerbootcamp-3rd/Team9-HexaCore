@@ -8,13 +8,14 @@ import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
-import com.hexacore.tayo.reservation.dto.GetGuestReservationListResponseDto;
-import com.hexacore.tayo.reservation.dto.GetHostReservationListResponseDto;
-import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.GetCarSimpleResponseDto;
+import com.hexacore.tayo.reservation.dto.GetGuestReservationListResponseDto;
+import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
+import com.hexacore.tayo.reservation.dto.GetHostReservationListResponseDto;
 import com.hexacore.tayo.reservation.dto.GetHostReservationResponseDto;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
+import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
@@ -30,15 +31,13 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final CarRepository carRepository;
-    private final CarImageRepository imageRepository;
+    private final CarImageRepository carImageRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public void createReservation(CreateReservationRequestDto createReservationRequestDto) {
-        long guestUserId = 13L; // TODO: JWT 토큰에서 userId를 추출하고 로그인한 상태에서만 실행되도록 추가
-        // 현재 예시는 Guest 유저의 ID:13
-
-        // TODO: userRepository에서 userEntity 제공받기
-        User guestUser = User.builder().id(guestUserId).build();
+    public void createReservation(CreateReservationRequestDto createReservationRequestDto, Long guestUserId) {
+        User guestUser = userRepository.findById(guestUserId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         Car car = carRepository.findById(createReservationRequestDto.getCarId())
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -68,16 +67,13 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
-    public GetGuestReservationListResponseDto getGuestReservations() {
-        // TODO: JWT 토큰에서 userId를 추출하고 로그인한 상태에서만 실행되도록 추가
-        long guestUserId = 13L;
-
+    public GetGuestReservationListResponseDto getGuestReservations(Long guestUserId) {
         List<Reservation> reservationEntities = reservationRepository.findAllByGuest_id(guestUserId);
         List<GetGuestReservationResponseDto> getGuestReservationResponseDtos = new ArrayList<>();
 
         for (Reservation reservation : reservationEntities) {
             Car car = reservation.getCar();
-            List<CarImage> imageEntities = imageRepository.findByCar_Id(car.getId());
+            List<CarImage> imageEntities = carImageRepository.findByCar_Id(car.getId());
             SubCategory subCategory = car.getSubCategory();
             User host = car.getOwner();
 
@@ -104,10 +100,7 @@ public class ReservationService {
         return new GetGuestReservationListResponseDto(getGuestReservationResponseDtos);
     }
 
-    public GetHostReservationListResponseDto getHostReservations() {
-        // TODO: JWT 토큰에서 userId를 추출하고 로그인한 상태에서만 실행되도록 추가
-        long hostUserId = 1L;
-
+    public GetHostReservationListResponseDto getHostReservations(Long hostUserId) {
         List<Reservation> reservationEntities = reservationRepository.findAllByHost_id(hostUserId);
         List<GetHostReservationResponseDto> getHostReservationResponseDtos = new ArrayList<>();
 
@@ -137,9 +130,16 @@ public class ReservationService {
     }
 
     @Transactional
-    public void cancelReservation(Long reservationId) {
+    public void cancelReservation(Long hostUserId, Long reservationId) {
+        User hostUser = userRepository.findById(hostUserId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
+
+        if (!reservation.getHost().equals(hostUser)) {
+            throw new GeneralException(ErrorCode.RESERVATION_CANCELED_BY_OTHERS);
+        }
 
         reservation.setStatus(ReservationStatus.CANCEL);
         reservationRepository.save(reservation);
