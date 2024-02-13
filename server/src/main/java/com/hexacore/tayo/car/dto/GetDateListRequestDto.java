@@ -1,4 +1,4 @@
-package com.hexacore.tayo.car.model;
+package com.hexacore.tayo.car.dto;
 
 import java.util.Date;
 import java.util.List;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DateListDto {
+public class GetDateListRequestDto {
 
     private List<List<Date>> dates;
 }

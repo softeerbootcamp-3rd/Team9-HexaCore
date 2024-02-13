@@ -1,7 +1,7 @@
 package com.hexacore.tayo.car.model;
 
 import com.hexacore.tayo.common.BaseTime;
-import com.hexacore.tayo.user.model.UserEntity;
+import com.hexacore.tayo.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,7 +29,7 @@ import org.locationtech.jts.geom.Point;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Car")
-public class CarEntity extends BaseTime {
+public class Car extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,11 +37,11 @@ public class CarEntity extends BaseTime {
 
     @OneToOne
     @JoinColumn(name = "owner_id", nullable = false)
-    private UserEntity owner;
+    private User owner;
 
     @ManyToOne
-    @JoinColumn(name = "model_id", nullable = false)
-    private ModelEntity model;
+    @JoinColumn(name = "subCategory_id", nullable = false)
+    private SubCategory subCategory;
 
     @Column(name = "car_number", nullable = false)
     private String carNumber;

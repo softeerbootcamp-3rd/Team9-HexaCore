@@ -1,4 +1,4 @@
-package com.hexacore.tayo.car.model;
+package com.hexacore.tayo.car.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import org.locationtech.jts.geom.Point;
 
 @Getter
 @AllArgsConstructor
-public class PositionDto {
+public class CreatePositionRequestDto {
 
     private Double lat;
     private Double lng;

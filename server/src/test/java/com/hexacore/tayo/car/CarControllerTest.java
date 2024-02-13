@@ -1,8 +1,8 @@
 package com.hexacore.tayo.car;
 
-import com.hexacore.tayo.car.model.CategoryDto;
-import com.hexacore.tayo.car.model.CategoryListDto;
-import com.hexacore.tayo.car.model.PostCarDto;
+import com.hexacore.tayo.car.dto.GetSubCategoryResponseDto;
+import com.hexacore.tayo.car.dto.GetSubCategoryListResponseDto;
+import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
 import java.util.List;
@@ -35,8 +35,9 @@ public class CarControllerTest {
     @DisplayName("GET /cars/categories 컨트롤러 테스트")
     void getCategoriesTest() throws Exception {
         // given
-        BDDMockito.given(carService.getCategories())
-                .willReturn(DataResponseDto.of(new CategoryListDto(List.of(new CategoryDto("모델명", "모델명 서브모델명")))));
+        BDDMockito.given(carService.getSubCategories())
+                .willReturn(DataResponseDto.of(
+                        new GetSubCategoryListResponseDto(List.of(new GetSubCategoryResponseDto("모델명 서브모델명")))));
 
         // when & then
         mockMvc.perform(MockMvcRequestBuilders.get("/cars/categories")
@@ -54,7 +55,7 @@ public class CarControllerTest {
         MockMultipartFile image1 = new MockMultipartFile("imageFiles", "filename1.png", "image/png",
                 "<<png data>>".getBytes());
 
-        BDDMockito.given(carService.createCar(Mockito.any(PostCarDto.class), Mockito.any()))
+        BDDMockito.given(carService.createCar(Mockito.any(CreateCarRequestDto.class), Mockito.any()))
                 .willReturn(ResponseDto.success(HttpStatus.CREATED));
 
         // when & then

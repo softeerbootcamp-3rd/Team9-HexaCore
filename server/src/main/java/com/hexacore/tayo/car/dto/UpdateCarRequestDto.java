@@ -1,14 +1,16 @@
-package com.hexacore.tayo.car.model;
+package com.hexacore.tayo.car.dto;
+
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @Getter
 @AllArgsConstructor
-public class CarUpdateDto {
+public class UpdateCarRequestDto {
+
     private Integer feePerHour;
     private String address;
-    private PositionDto position;
+    private CreatePositionRequestDto position;
     private String description;
     private List<MultipartFile> imageFiles;
     private List<Integer> imageIndexes;

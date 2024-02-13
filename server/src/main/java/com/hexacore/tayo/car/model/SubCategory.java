@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,16 +21,17 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Model")
-public class ModelEntity extends BaseTime {
+@Table(name = "SubCategory")
+public class SubCategory extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "category", nullable = false)
-    private String category;
+    @Column(name = "name", nullable = false, unique = true)
+    private String name;
 
-    @Column(name = "sub_category", unique = true)
-    private String subCategory;
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category categoryId;
 }

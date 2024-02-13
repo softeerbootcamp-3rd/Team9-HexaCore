@@ -1,4 +1,4 @@
-package com.hexacore.tayo.car.model;
+package com.hexacore.tayo.car.dto;
 
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @AllArgsConstructor
-public class PostCarDto {
+public class CreateCarRequestDto {
 
     @NotNull
     private String carNumber;
@@ -29,7 +29,7 @@ public class PostCarDto {
     @NotNull
     private String address;
     @NotNull
-    private PositionDto position;
+    private CreatePositionRequestDto position;
     private String description;
     @NotNull
     private List<MultipartFile> imageFiles;

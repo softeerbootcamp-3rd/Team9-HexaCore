@@ -3,22 +3,22 @@ package com.hexacore.tayo.car;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.hexacore.tayo.car.model.CarDto;
-import com.hexacore.tayo.car.model.CarEntity;
+import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.dto.GetSubCategoryResponseDto;
+import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
-import com.hexacore.tayo.car.model.CarUpdateDto;
-import com.hexacore.tayo.car.model.CategoryDto;
-import com.hexacore.tayo.car.model.CategoryListDto;
-import com.hexacore.tayo.car.model.DateListDto;
-import com.hexacore.tayo.car.model.ImageEntity;
-import com.hexacore.tayo.car.model.ModelEntity;
-import com.hexacore.tayo.car.model.PositionDto;
-import com.hexacore.tayo.car.model.PostCarDto;
+import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
+import com.hexacore.tayo.car.dto.GetSubCategoryListResponseDto;
+import com.hexacore.tayo.car.dto.GetDateListRequestDto;
+import com.hexacore.tayo.car.model.Image;
+import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
+import com.hexacore.tayo.car.dto.CreateCarRequestDto;
+import com.hexacore.tayo.car.model.SubCategory;
 import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.user.model.UserEntity;
+import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.util.List;
@@ -41,7 +41,8 @@ public class CarService {
 
     private final CarRepository carRepository;
     private final ImageRepository imageRepository;
-    private final ModelRepository modelRepository;
+    private final CategoryRepository categoryRepository;
+    private final SubCategoryRepository subCategoryRepository;
     private final AmazonS3 amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
@@ -49,66 +50,66 @@ public class CarService {
 
     /* 차량 등록 */
     @Transactional
-    public ResponseDto createCar(PostCarDto postCarDto, Long userId) {
+    public ResponseDto createCar(CreateCarRequestDto createCarRequestDto, Long userId) {
         // TODO: JWT 토큰에서 userId 가져와서 로그인한 경우에만 실행되도록
         if (checkUserHasCar(userId != null ? userId : 1L)) {
             // 유저가 이미 차량을 등록한 경우
             throw new GeneralException(ErrorCode.USER_ALREADY_HAS_CAR);
         }
-        if (checkDuplicateCarNumber(postCarDto.getCarNumber())) {
+        if (checkDuplicateCarNumber(createCarRequestDto.getCarNumber())) {
             // 중복되는 차량 번호가 있을 경우
             throw new GeneralException(ErrorCode.CAR_NUMBER_DUPLICATED);
         }
-        if (!isIndexSizeEqualsToImageSize(postCarDto.getImageIndexes(), postCarDto.getImageFiles())) {
+        if (!isIndexSizeEqualsToImageSize(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles())) {
             // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
             throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
         }
 
         // 등록에 필요한 정보 가져오기
-        ModelEntity model = modelRepository.findBySubCategory(postCarDto.getCarName())
+        SubCategory subCategory = subCategoryRepository.findByName(createCarRequestDto.getCarName())
                 // 존재하지 않는 모델인 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
-        Point position = createPoint(postCarDto.getPosition());
+        Point position = createPoint(createCarRequestDto.getPosition());
 
-        CarEntity car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId != null ? userId : 1L,
-                        postCarDto.getCarNumber())
+        Car car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId != null ? userId : 1L,
+                        createCarRequestDto.getCarNumber())
                 .orElse(null);
 
         if (car != null) {
             // 유저가 이전에 등록한 같은 번호의 차가 있는 경우 UPDATE
-            car.setModel(model);
-            car.setMileage(postCarDto.getMileage());
-            car.setFuel(postCarDto.getFuel());
-            car.setType(CarType.of(postCarDto.getType()));
-            car.setCapacity(postCarDto.getCapacity());
-            car.setYear(postCarDto.getYear());
-            car.setFeePerHour(postCarDto.getFeePerHour());
-            car.setAddress(postCarDto.getAddress());
+            car.setSubCategory(subCategory);
+            car.setMileage(createCarRequestDto.getMileage());
+            car.setFuel(createCarRequestDto.getFuel());
+            car.setType(CarType.of(createCarRequestDto.getType()));
+            car.setCapacity(createCarRequestDto.getCapacity());
+            car.setYear(createCarRequestDto.getYear());
+            car.setFeePerHour(createCarRequestDto.getFeePerHour());
+            car.setAddress(createCarRequestDto.getAddress());
             car.setPosition(position);
-            car.setDescription(postCarDto.getDescription());
+            car.setDescription(createCarRequestDto.getDescription());
             car.setIsDeleted(false);
             // 이미지 저장
-            saveImages(postCarDto.getImageIndexes(), postCarDto.getImageFiles(), car);
+            saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles(), car);
         } else {
             // 유저가 이전에 등록한 같은 번호의 차가 없는 경우 CREATE
-            CarEntity carEntity = CarEntity.builder()
-                    .owner(UserEntity.builder().id(userId != null ? userId : 1L).build())
-                    .model(model)
-                    .carNumber(postCarDto.getCarNumber())
-                    .mileage(postCarDto.getMileage())
-                    .fuel(postCarDto.getFuel())
-                    .type(CarType.of(postCarDto.getType()))
-                    .capacity(postCarDto.getCapacity())
-                    .year(postCarDto.getYear())
-                    .feePerHour(postCarDto.getFeePerHour())
-                    .address(postCarDto.getAddress())
-                    .position(createPoint(postCarDto.getPosition()))
-                    .description(postCarDto.getDescription())
+            Car carEntity = Car.builder()
+                    .owner(User.builder().id(userId != null ? userId : 1L).build())
+                    .subCategory(subCategory)
+                    .carNumber(createCarRequestDto.getCarNumber())
+                    .mileage(createCarRequestDto.getMileage())
+                    .fuel(createCarRequestDto.getFuel())
+                    .type(CarType.of(createCarRequestDto.getType()))
+                    .capacity(createCarRequestDto.getCapacity())
+                    .year(createCarRequestDto.getYear())
+                    .feePerHour(createCarRequestDto.getFeePerHour())
+                    .address(createCarRequestDto.getAddress())
+                    .position(createPoint(createCarRequestDto.getPosition()))
+                    .description(createCarRequestDto.getDescription())
                     .build();
 
             carRepository.save(carEntity);
             // 이미지 저장
-            saveImages(postCarDto.getImageIndexes(), postCarDto.getImageFiles(), carEntity);
+            saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles(), carEntity);
         }
 
         return ResponseDto.success(HttpStatus.CREATED);
@@ -116,25 +117,25 @@ public class CarService {
 
     /* 차량 정보 조회 */
     public DataResponseDto carDetail(Long carId) {
-        CarEntity car = carRepository.findById(carId)
+        Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         List<String> images = carDateList(carId);
-        return DataResponseDto.of(new CarDto(car, images));
+        return DataResponseDto.of(new GetCarResponseDto(car, images));
     }
 
     /* 차량 정보 수정 */
     @Transactional
-    public ResponseDto carUpdate(Long carId, CarUpdateDto carUpdateDto) {
-        CarEntity car = carRepository.findById(carId)
+    public ResponseDto carUpdate(Long carId, UpdateCarRequestDto updateCarRequestDto) {
+        Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-        car.setFeePerHour(carUpdateDto.getFeePerHour());
-        car.setAddress(carUpdateDto.getAddress());
-        car.setPosition(carUpdateDto.getPosition().toEntity());
-        car.setDescription(carUpdateDto.getDescription());
+        car.setFeePerHour(updateCarRequestDto.getFeePerHour());
+        car.setAddress(updateCarRequestDto.getAddress());
+        car.setPosition(updateCarRequestDto.getPosition().toEntity());
+        car.setDescription(updateCarRequestDto.getDescription());
 
-        saveImages(carUpdateDto.getImageIndexes(), carUpdateDto.getImageFiles(), car);
+        saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles(), car);
 
         return ResponseDto.success(HttpStatus.OK);
     }
@@ -143,7 +144,7 @@ public class CarService {
     @Transactional
     public ResponseDto deleteCar(Long carId) {
         // 차량 isDeleted = true
-        CarEntity car = carRepository.findById(carId)
+        Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         car.setIsDeleted(true);
         carRepository.save(car);
@@ -161,41 +162,41 @@ public class CarService {
     private List<String> carDateList(Long carId) {
         return imageRepository.findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(carId)
                 .stream()
-                .map(ImageEntity::getUrl)
+                .map(Image::getUrl)
                 .collect(Collectors.toList());
     }
 
     /* 예약 가능 날짜 수정 */
-    public ResponseDto updateDates(Long carId, DateListDto dateListDto) {
-        CarEntity car = carRepository.findById(carId)
+    public ResponseDto updateDates(Long carId, GetDateListRequestDto getDateListRequestDto) {
+        Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
-        car.setDates(dateListDto.getDates());
+        car.setDates(getDateListRequestDto.getDates());
         carRepository.save(car);
 
         return ResponseDto.success(HttpStatus.ACCEPTED);
     }
 
     /* 모델, 세부 모델명 조회 */
-    public ResponseDto getCategories() {
-        List<CategoryDto> models = modelRepository.findAll().stream()
-                .map(CategoryDto::new)
+    public ResponseDto getSubCategories() {
+        List<GetSubCategoryResponseDto> models = subCategoryRepository.findAll().stream()
+                .map(subCategory -> new GetSubCategoryResponseDto(subCategory.getName()))
                 .toList();
-        return DataResponseDto.of(new CategoryListDto(models));
+        return DataResponseDto.of(new GetSubCategoryListResponseDto(models));
     }
 
 
     /* 경도와 위도 값을 Point 객체로 변환 */
-    private Point createPoint(PositionDto positionDto) {
+    private Point createPoint(CreatePositionRequestDto createPositionRequestDto) {
         GeometryFactory geometryFactory = new GeometryFactory();
-        Coordinate coordinate = new Coordinate(positionDto.getLng(), positionDto.getLat());
+        Coordinate coordinate = new Coordinate(createPositionRequestDto.getLng(), createPositionRequestDto.getLat());
         return geometryFactory.createPoint(coordinate);
     }
 
     /* 이미지 엔티티 저장 */
-    private void saveImages(List<Integer> indexes, List<MultipartFile> files, CarEntity carEntity) {
-        if (!imageRepository.existsByCar_Id(carEntity.getId()) && indexes.size() < 5) {
+    private void saveImages(List<Integer> indexes, List<MultipartFile> files, Car car) {
+        if (!imageRepository.existsByCar_Id(car.getId()) && indexes.size() < 5) {
             throw new GeneralException(ErrorCode.CAR_IMAGE_INSUFFICIENT);
         }
         List<Map<String, Object>> datas = IntStream.range(0, Math.min(indexes.size(), files.size()))
@@ -210,23 +211,23 @@ public class CarService {
             int idx = (int) data.get("index");
             String url = (String) data.get("url");
 
-            Optional<ImageEntity> optionalImage = imageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(
-                    carEntity.getId(), idx);
-            ImageEntity imageEntity;
+            Optional<Image> optionalImage = imageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(
+                    car.getId(), idx);
+            Image image;
             //인덱스가 idx인 image가 존재하면 soft delete
             if (optionalImage.isPresent()) {
-                imageEntity = optionalImage.get();
-                imageEntity.setIsDeleted(true);
-                imageRepository.save(imageEntity);
+                image = optionalImage.get();
+                image.setIsDeleted(true);
+                imageRepository.save(image);
             }
             //새로 만들어서 추가하기
-            imageEntity = ImageEntity.builder()
-                    .car(carEntity)
+            image = Image.builder()
+                    .car(car)
                     .url(url)
                     .orderIdx(idx)
                     .build();
 
-            imageRepository.save(imageEntity);
+            imageRepository.save(image);
         }
     }
 

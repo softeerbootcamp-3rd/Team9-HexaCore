@@ -22,7 +22,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "Image")
-public class ImageEntity extends BaseTime {
+public class Image extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +30,7 @@ public class ImageEntity extends BaseTime {
 
     @ManyToOne
     @JoinColumn(name = "car_id", nullable = false)
-    private CarEntity car;
+    private Car car;
 
     @Column(name = "url", nullable = false, columnDefinition = "text")
     private String url;

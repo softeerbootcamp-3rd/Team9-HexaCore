@@ -1,13 +1,16 @@
-package com.hexacore.tayo.car.model;
+package com.hexacore.tayo.car.dto;
 
-import com.hexacore.tayo.user.model.UserSimpleDto;
+import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarType;
+import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import java.util.Date;
 import java.util.List;
 import lombok.Getter;
 
 @Getter
-public class CarDto {
-    private UserSimpleDto host;
+public class GetCarResponseDto {
+
+    private GetUserSimpleResponseDto host;
     private String carName;
     private String carNumber;
     private List<String> imageUrls;
@@ -21,8 +24,8 @@ public class CarDto {
     private String description;
     private List<List<Date>> dates;
 
-    public CarDto(CarEntity car, List<String> images) {
-        this.carName = car.getModel().getSubCategory();
+    public GetCarResponseDto(Car car, List<String> images) {
+        this.carName = car.getSubCategory().getName();
         this.carNumber = car.getCarNumber();
         this.imageUrls = images;
         this.mileage = car.getMileage();
@@ -34,6 +37,6 @@ public class CarDto {
         this.address = car.getAddress();
         this.description = car.getDescription();
         this.dates = car.getDates();
-        this.host = new UserSimpleDto(car.getOwner());
+        this.host = new GetUserSimpleResponseDto(car.getOwner());
     }
 }

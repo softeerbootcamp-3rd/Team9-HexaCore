@@ -3,16 +3,16 @@ package com.hexacore.tayo.car;
 import java.util.List;
 import java.util.Optional;
 
-import com.hexacore.tayo.car.model.ImageEntity;
+import com.hexacore.tayo.car.model.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ImageRepository extends JpaRepository<ImageEntity, Long> {
+public interface ImageRepository extends JpaRepository<Image, Long> {
 
-    List<ImageEntity> findByCar_Id(Long carId);
+    List<Image> findByCar_Id(Long carId);
 
-    List<ImageEntity> findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(Long carId);
+    List<Image> findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(Long carId);
 
-    Optional<ImageEntity> findByCar_IdAndOrderIdxAndIsDeletedFalse(Long carId, Integer orderIdx);
+    Optional<Image> findByCar_IdAndOrderIdxAndIsDeletedFalse(Long carId, Integer orderIdx);
 
     boolean existsByCar_Id(Long carId);
 

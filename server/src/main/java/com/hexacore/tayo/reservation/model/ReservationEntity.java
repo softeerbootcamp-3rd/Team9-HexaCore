@@ -1,8 +1,8 @@
 package com.hexacore.tayo.reservation.model;
 
-import com.hexacore.tayo.car.model.CarEntity;
+import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.BaseTime;
-import com.hexacore.tayo.user.model.UserEntity;
+import com.hexacore.tayo.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,15 +23,15 @@ public class ReservationEntity extends BaseTime {
 
     @ManyToOne
     @JoinColumn(name = "car_id", nullable = false)
-    private CarEntity car;
+    private Car car;
 
     @ManyToOne
     @JoinColumn(name = "guest_id", nullable = false)
-    private UserEntity guest;
+    private User guest;
 
     @ManyToOne
     @JoinColumn(name = "host_id", nullable = false)
-    private UserEntity host;
+    private User host;
 
     @Column(name = "rent_date", nullable = false)
     private Date rentDate;
