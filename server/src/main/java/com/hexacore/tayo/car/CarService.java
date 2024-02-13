@@ -18,8 +18,7 @@ import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.image.S3Manager;
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.transaction.Transactional;
-import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,6 +36,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class CarService {
+
     private final CarRepository carRepository;
     private final ImageRepository imageRepository;
     private final ModelRepository modelRepository;
@@ -169,12 +169,12 @@ public class CarService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         // dateListDto의 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
-        for (List<Date> dates : dateList.getDates()) {
+        for (List<LocalDateTime> dates : dateList.getDates()) {
             if (dates.size() != 2) {
                 throw new GeneralException(ErrorCode.DATE_SIZE_MISMATCH);
             }
 
-            if (dates.get(0).after(dates.get(1))) {
+            if (dates.get(0).isAfter(dates.get(1))) {
                 throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
             }
         }

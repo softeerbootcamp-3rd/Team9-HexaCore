@@ -122,9 +122,8 @@ public class ReservationService {
 
             Guest guest = Guest.builder()
                     .id(guestEntity.getId())
-                    .nickname(guestEntity.getNickname())
                     .phoneNumber(guestEntity.getPhoneNumber())
-                    .image(guestEntity.getProfileImg())
+                    .image(guestEntity.getProfileImgUrl())
                     .build();
 
             HostReservation hostReservation = HostReservation.builder()

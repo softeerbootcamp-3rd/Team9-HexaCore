@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 public class Guest {
 
     private final Long id;
-    private final String nickname;
     private final String phoneNumber;
     private final String image;
 }
