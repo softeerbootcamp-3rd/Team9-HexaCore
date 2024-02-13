@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/cars")
+@RequestMapping("/api/v1/cars")
 public class CarController {
 
     private final CarService carService;
@@ -35,7 +35,7 @@ public class CarController {
 
     @PostMapping
     public ResponseEntity<Response> createCar(HttpServletRequest request,
-            @ModelAttribute CreateCarRequestDto CreateCarRequestDto) {
+                                              @ModelAttribute CreateCarRequestDto CreateCarRequestDto) {
         Long userId = (Long) request.getAttribute("userId");
         carService.createCar(CreateCarRequestDto, userId);
 
@@ -57,14 +57,14 @@ public class CarController {
 
     @PutMapping("{carId}")
     public ResponseEntity<Response> carUpdate(@PathVariable Long carId,
-            @ModelAttribute UpdateCarRequestDto updateCarRequestDto) {
+                                              @ModelAttribute UpdateCarRequestDto updateCarRequestDto) {
         carService.carUpdate(carId, updateCarRequestDto);
         return Response.of(HttpStatus.OK);
     }
 
     @PutMapping("{carId}/date")
     public ResponseEntity<Response> updateDates(@PathVariable Long carId,
-            @RequestBody GetDateListRequestDto getDateListRequestDto) {
+                                                @RequestBody GetDateListRequestDto getDateListRequestDto) {
         carService.updateDates(carId, getDateListRequestDto);
         return Response.of(HttpStatus.ACCEPTED);
     }

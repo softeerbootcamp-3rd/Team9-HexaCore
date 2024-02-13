@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 public class AuthController {
 
     @Value("${jwt.refresh.cookie-name}")
@@ -27,8 +27,8 @@ public class AuthController {
     @Value("${jwt.access.cookie-name}")
     private String accessTokenCookieName;
 
-    private static final String accessTokenPath = "/";
-    private static final String refreshTokenPath = "/auth/refresh";
+    private static final String accessTokenPath = "/api/v1";
+    private static final String refreshTokenPath = "/api/v1/auth/refresh";
 
     private final AuthService authService;
 
@@ -47,7 +47,7 @@ public class AuthController {
     // 로그인
     @PostMapping("/login")
     public ResponseEntity<Response> login(@RequestBody LoginRequestDto loginRequestDto,
-            HttpServletResponse response) {
+                                          HttpServletResponse response) {
         LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
 
         response.addCookie(makeTokenCookie(accessTokenCookieName, loginResponseDto.getAccessToken(), accessTokenPath));
