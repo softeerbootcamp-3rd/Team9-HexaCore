@@ -20,8 +20,8 @@ import com.hexacore.tayo.reservation.model.ReservationEntity;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.model.UserEntity;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,14 +48,15 @@ public class ReservationService {
 
         UserEntity hostUser = carEntity.getOwner();
 
-        List<List<Date>> possibleRentDates = carEntity.getDates();
-        Date rentDate = createReservationDto.getRentDate();
-        Date returnDate = createReservationDto.getReturnDate();
+        List<List<LocalDateTime>> possibleRentDates = carEntity.getDates();
+
+        LocalDateTime rentDate = createReservationDto.getRentDate();
+        LocalDateTime returnDate = createReservationDto.getReturnDate();
 
         possibleRentDates.stream()
                 // date.get(0) ~ date.get(1) 사이의 날짜인지 검증
-                .filter(date -> date.get(0).before(rentDate))
-                .filter(date -> date.get(1).after(returnDate))
+                .filter(date -> date.get(0).isBefore(rentDate))
+                .filter(date -> date.get(1).isAfter(returnDate))
                 .findFirst()
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE));
 
