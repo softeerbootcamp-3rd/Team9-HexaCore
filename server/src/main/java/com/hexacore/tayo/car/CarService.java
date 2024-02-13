@@ -47,17 +47,19 @@ public class CarService {
 
     /* 차량 등록 */
     @Transactional
-    public boolean createCar(PostCarDto postCarDto) {
+    public boolean createCar(PostCarDto postCarDto, Long userId) {
         // TODO: JWT 토큰에서 userId 가져와서 로그인한 경우에만 실행되도록
-        Long userId = 1L;
-
-        if (checkUserHasCar(userId)) {
+        if (checkUserHasCar(userId != null ? userId : 1L)) {
             // 유저가 이미 차량을 등록한 경우
             throw new GeneralException(ErrorCode.USER_ALREADY_HAS_CAR);
         }
         if (checkDuplicateCarNumber(postCarDto.getCarNumber())) {
             // 중복되는 차량 번호가 있을 경우
             throw new GeneralException(ErrorCode.CAR_NUMBER_DUPLICATED);
+        }
+        if (!isIndexSizeEqualsToImageSize(postCarDto.getImageIndexes(), postCarDto.getImageFiles())) {
+            // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
+            throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
         }
 
         // 등록에 필요한 정보 가져오기
@@ -66,7 +68,8 @@ public class CarService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
         Point position = createPoint(postCarDto.getPosition());
 
-        CarEntity car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId, postCarDto.getCarNumber())
+        CarEntity car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId != null ? userId : 1L,
+                        postCarDto.getCarNumber())
                 .orElse(null);
 
         if (car != null) {
@@ -87,7 +90,7 @@ public class CarService {
         } else {
             // 유저가 이전에 등록한 같은 번호의 차가 없는 경우 CREATE
             CarEntity carEntity = CarEntity.builder()
-                    .owner(UserEntity.builder().id(userId).build())
+                    .owner(UserEntity.builder().id(userId != null ? userId : 1L).build())
                     .model(model)
                     .carNumber(postCarDto.getCarNumber())
                     .mileage(postCarDto.getMileage())
@@ -191,7 +194,6 @@ public class CarService {
         return new CategoryListDto(models);
     }
 
-
     /* 경도와 위도 값을 Point 객체로 변환 */
     private Point createPoint(PositionDto positionDto) {
         GeometryFactory geometryFactory = new GeometryFactory();
@@ -238,6 +240,10 @@ public class CarService {
 
     /* 이미지 파일을 S3에 업로드하고 URL 반환 */
     private String uploadImage(MultipartFile image) {
+        if (image.getContentType() == null || !image.getContentType().startsWith("image/")) {
+            // Content-Type이 이미지 파일이 아닌 경우
+            throw new GeneralException(ErrorCode.INVALID_IMAGE_TYPE);
+        }
         String originalFilename = image.getOriginalFilename();
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(image.getSize());
@@ -261,5 +267,9 @@ public class CarService {
     /* 중복된 차량 번호가 있는지 체크 */
     private Boolean checkDuplicateCarNumber(String carNumber) {
         return !carRepository.findByCarNumberAndIsDeletedFalse(carNumber).isEmpty();
+    }
+
+    private Boolean isIndexSizeEqualsToImageSize(List<Integer> imageIndexes, List<MultipartFile> imageFiles) {
+        return imageIndexes.size() == imageFiles.size();
     }
 }

@@ -4,6 +4,7 @@ import com.hexacore.tayo.car.model.CarUpdateDto;
 import com.hexacore.tayo.car.model.DateListDto;
 import com.hexacore.tayo.car.model.PostCarDto;
 import com.hexacore.tayo.common.Response;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,8 @@ public class CarController {
     }
 
     @PostMapping()
-    public ResponseEntity<Response> createCar(@ModelAttribute PostCarDto postCarDto) {
-        if (!carService.createCar(postCarDto)) {
+    public ResponseEntity<Response> createCar(@Valid @ModelAttribute PostCarDto postCarDto) {
+        if (!carService.createCar(postCarDto, null)) {
             return Response.of(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -44,7 +45,7 @@ public class CarController {
             return Response.of(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        return Response.of(HttpStatus.OK);
+        return Response.of(HttpStatus.NO_CONTENT);
     }
 
 
