@@ -12,15 +12,15 @@ import lombok.RequiredArgsConstructor;
 public class GuestReservationDto {
 
     private final Long id;
-
     private final HostCarDto car;
-
     private final Integer fee;
     private final String carAddress;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private final Date rentDate;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    private final Date returnDate;
     private final ReservationStatus status;
     private final String hostPhoneNumber;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private final Date rentDate;
+    
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private final Date returnDate;
 }

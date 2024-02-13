@@ -15,6 +15,7 @@ public class CreateReservationDto {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final Date rentDate;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private final Date returnDate;
 }
