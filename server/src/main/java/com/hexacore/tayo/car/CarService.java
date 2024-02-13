@@ -2,13 +2,11 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.model.*;
-import com.hexacore.tayo.category.CategoryRepository;
 import com.hexacore.tayo.category.SubCategoryRepository;
 import com.hexacore.tayo.category.dto.GetSubCategoryResponseDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.car.dto.GetDateListRequestDto;
-import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -23,8 +21,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -65,7 +61,7 @@ public class CarService {
         SubCategory subCategory = subCategoryRepository.findByName(createCarRequestDto.getCarName())
                 // 존재하지 않는 모델인 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
-        Point position = createPoint(createCarRequestDto.getPosition());
+        Point position = createCarRequestDto.getPosition().toPoint();
 
         Car car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId != null ? userId : 1L,
                 createCarRequestDto.getCarNumber())
@@ -99,7 +95,7 @@ public class CarService {
                     .year(createCarRequestDto.getYear())
                     .feePerHour(createCarRequestDto.getFeePerHour())
                     .address(createCarRequestDto.getAddress())
-                    .position(createPoint(createCarRequestDto.getPosition()))
+                    .position(createCarRequestDto.getPosition().toPoint())
                     .description(createCarRequestDto.getDescription())
                     .build();
 
@@ -189,13 +185,6 @@ public class CarService {
                 .map(subCategory -> new GetSubCategoryResponseDto(subCategory.getName()))
                 .toList();
         return new GetSubCategoryListResponseDto(models);
-    }
-
-    /* 경도와 위도 값을 Point 객체로 변환 */
-    private Point createPoint(Position createPositionRequestDto) {
-        GeometryFactory geometryFactory = new GeometryFactory();
-        Coordinate coordinate = new Coordinate(createPositionRequestDto.getLng(), createPositionRequestDto.getLat());
-        return geometryFactory.createPoint(coordinate);
     }
 
     /* 이미지 엔티티 저장 */
