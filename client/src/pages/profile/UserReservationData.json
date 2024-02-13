@@ -1,0 +1,149 @@
+{
+  "success": true,
+  "code": 200,
+  "message": "예약 내역 조회 성공",
+  "data": {
+    "reservations": [
+      {
+        "id": 1,
+        "car": {
+          "id": 1,
+          "name": "제네시스 G80",
+          "imageUrl": "../public/car1.jpg"
+        },
+        "fee": 100000,
+        "carAddress": "경기도 오산시 밀머리로 1번길 3",
+        "rentDate": "2024-02-02 12:00:00",
+        "returnDate": "2024-02-02 18:00:00",
+        "status": "cancel",
+        "hostPhoneNumber": "010-0000-0000"
+      },
+      {
+        "id": 1,
+        "car": {
+          "id": 1,
+          "name": "제네시스 G80",
+          "imageUrl": "https://s3.."
+        },
+        "fee": 100000,
+        "carAddress": "경기도 오산시 밀머리로 1번길 3",
+        "rentDate": "2024-02-02 12:00:00",
+        "returnDate": "2024-02-02 18:00:00",
+        "status": "ready",
+        "hostPhoneNumber": "010-0000-0000"
+      },
+      {
+        "id": 1,
+        "car": {
+          "id": 1,
+          "name": "제네시스 G80",
+          "imageUrl": "https://s3.."
+        },
+        "fee": 100000,
+        "carAddress": "경기도 오산시 밀머리로 1번길 3",
+        "rentDate": "2024-02-02 12:00:00",
+        "returnDate": "2024-02-02 18:00:00",
+        "status": "using",
+        "hostPhoneNumber": "010-0000-0000"
+      },
+      {
+        "id": 1,
+        "car": {
+          "id": 1,
+          "name": "제네시스 G80",
+          "imageUrl": "https://s3.."
+        },
+        "fee": 100000,
+        "carAddress": "경기도 오산시 밀머리로 1번길 3",
+        "rentDate": "2024-02-02 12:00:00",
+        "returnDate": "2024-02-02 18:00:00",
+        "status": "terminated",
+        "hostPhoneNumber": "010-0000-0000"
+      },
+      {
+        "id": 1,
+        "car": {
+          "id": 1,
+          "name": "제네시스 G80",
+          "imageUrl": "https://s3.."
+        },
+        "fee": 100000,
+        "carAddress": "경기도 오산시 밀머리로 1번길 3",
+        "rentDate": "2024-02-02 12:00:00",
+        "returnDate": "2024-02-02 18:00:00",
+        "status": "ready",
+        "hostPhoneNumber": "010-0000-0000"
+      },
+      {
+        "id": 1,
+        "car": {
+          "id": 1,
+          "name": "제네시스 G80",
+          "imageUrl": "https://s3.."
+        },
+        "fee": 100000,
+        "carAddress": "경기도 오산시 밀머리로 1번길 3",
+        "rentDate": "2024-02-02 12:00:00",
+        "returnDate": "2024-02-02 18:00:00",
+        "status": "ready",
+        "hostPhoneNumber": "010-0000-0000"
+      },
+      {
+        "id": 1,
+        "car": {
+          "id": 1,
+          "name": "제네시스 G80",
+          "imageUrl": "https://s3.."
+        },
+        "fee": 100000,
+        "carAddress": "경기도 오산시 밀머리로 1번길 3",
+        "rentDate": "2024-02-02 12:00:00",
+        "returnDate": "2024-02-02 18:00:00",
+        "status": "ready",
+        "hostPhoneNumber": "010-0000-0000"
+      },
+      {
+        "id": 1,
+        "car": {
+          "id": 1,
+          "name": "제네시스 G80",
+          "imageUrl": "https://s3.."
+        },
+        "fee": 100000,
+        "carAddress": "경기도 오산시 밀머리로 1번길 3",
+        "rentDate": "2024-02-02 12:00:00",
+        "returnDate": "2024-02-02 18:00:00",
+        "status": "ready",
+        "hostPhoneNumber": "010-0000-0000"
+      },
+      {
+        "id": 1,
+        "car": {
+          "id": 1,
+          "name": "제네시스 G80",
+          "imageUrl": "https://s3.."
+        },
+        "fee": 100000,
+        "carAddress": "경기도 오산시 밀머리로 1번길 3",
+        "rentDate": "2024-02-02 12:00:00",
+        "returnDate": "2024-02-02 18:00:00",
+        "status": "ready",
+        "hostPhoneNumber": "010-0000-0000"
+      },
+      {
+        "id": 1,
+        "car": {
+          "id": 1,
+          "name": "제네시스 G80",
+          "imageUrl": "https://s3.."
+        },
+        "fee": 100000,
+        "carAddress": "경기도 오산시 밀머리로 1번길 3",
+        "rentDate": "2024-02-02 12:00:00",
+        "returnDate": "2024-02-02 18:00:00",
+        "status": "ready",
+        "hostPhoneNumber": "010-0000-0000"
+      }
+    ]
+  }
+}

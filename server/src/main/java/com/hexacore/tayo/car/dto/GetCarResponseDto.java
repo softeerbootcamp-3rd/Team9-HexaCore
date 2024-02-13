@@ -5,6 +5,7 @@ import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import java.util.Date;
 import java.util.List;
+
 import lombok.Getter;
 
 @Getter
