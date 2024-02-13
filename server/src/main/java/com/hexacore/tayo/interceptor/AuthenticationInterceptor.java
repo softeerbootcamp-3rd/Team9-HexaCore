@@ -42,13 +42,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         String accessToken = RequestParser.getToken(request, accessTokenCookieName);
         Claims claims = jwtParser.getClaims(accessToken);
 
-        // 엑세스 토큰의 만료여부를 확인
-        if (claims.getExpiration().after(new Date())) { // 만료되지 않은 토큰인 경우
-            request.setAttribute("userId", Long.valueOf((Integer) claims.get("userId")));
-            request.setAttribute("userName", claims.get("userName"));
-            return true;
-        } else { // 만료된 토큰인 경우
-            throw new AuthException(ErrorCode.EXPIRED_ACCESS_TOKEN);
-        }
+        request.setAttribute("userId", Long.valueOf((Integer) claims.get("userId")));
+        request.setAttribute("userName", claims.get("userName"));
+        return true;
     }
 }
