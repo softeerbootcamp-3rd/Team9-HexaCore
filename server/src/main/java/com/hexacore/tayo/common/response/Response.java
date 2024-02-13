@@ -24,7 +24,10 @@ public class Response {
 
     // HttpStatus에 대한 응답
     public static ResponseEntity<Response> of(HttpStatus status) {
-        return of(status, null);
+        return new ResponseEntity<>(
+                new Response(true, status.value(), status.getReasonPhrase(), null, null),
+                status
+        );
     }
 
     // ErrorCode에 대한 응답
