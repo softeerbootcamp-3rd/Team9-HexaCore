@@ -1,7 +1,7 @@
 package com.hexacore.tayo.auth;
 
-import com.hexacore.tayo.common.DataResponseDto;
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.common.response.DataResponseDto;
+import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.user.dto.LoginRequestDto;
 import com.hexacore.tayo.user.dto.LoginResponseDto;
 import com.hexacore.tayo.user.dto.SignUpRequestDto;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 public class AuthController {
+
     @Value("${jwt.refresh.cookie-name}")
     private String refreshTokenCookieName;
 
@@ -40,11 +41,13 @@ public class AuthController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<ResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<ResponseDto> login(@RequestBody LoginRequestDto loginRequestDto,
+            HttpServletResponse response) {
         LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
 
         response.addCookie(makeTokenCookie(accessTokenCookieName, loginResponseDto.getAccessToken(), accessTokenPath));
-        response.addCookie(makeTokenCookie(refreshTokenCookieName, loginResponseDto.getRefreshToken(), refreshTokenPath));
+        response.addCookie(
+                makeTokenCookie(refreshTokenCookieName, loginResponseDto.getRefreshToken(), refreshTokenPath));
 
         ResponseDto responseDto = DataResponseDto.of(loginResponseDto.getLoginUserInfo());
         return new ResponseEntity<>(responseDto, HttpStatus.OK);

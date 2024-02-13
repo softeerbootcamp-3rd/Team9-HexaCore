@@ -1,24 +1,24 @@
 package com.hexacore.tayo.reservation;
 
+import com.hexacore.tayo.car.CarImageRepository;
 import com.hexacore.tayo.car.CarRepository;
-import com.hexacore.tayo.car.ImageRepository;
-import com.hexacore.tayo.car.model.CarEntity;
-import com.hexacore.tayo.car.model.ImageEntity;
-import com.hexacore.tayo.car.model.ModelEntity;
-import com.hexacore.tayo.common.DataResponseDto;
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarImage;
+import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.common.response.DataResponseDto;
+import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
-import com.hexacore.tayo.reservation.dto.GetGuestReservationsResponseDto;
-import com.hexacore.tayo.reservation.dto.GetHostReservationsResponseDto;
-import com.hexacore.tayo.reservation.model.Guest;
-import com.hexacore.tayo.reservation.model.GuestReservation;
-import com.hexacore.tayo.reservation.model.HostCar;
-import com.hexacore.tayo.reservation.model.HostReservation;
-import com.hexacore.tayo.reservation.model.ReservationEntity;
+import com.hexacore.tayo.reservation.dto.GetGuestReservationListResponseDto;
+import com.hexacore.tayo.reservation.dto.GetHostReservationListResponseDto;
+import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
+import com.hexacore.tayo.reservation.dto.GetCarSimpleResponseDto;
+import com.hexacore.tayo.reservation.dto.GetHostReservationResponseDto;
+import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
-import com.hexacore.tayo.user.model.UserEntity;
+import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
+import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final CarRepository carRepository;
-    private final ImageRepository imageRepository;
+    private final CarImageRepository imageRepository;
 
     @Transactional
     public ResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto) {
@@ -41,14 +41,14 @@ public class ReservationService {
         // 현재 예시는 Guest 유저의 ID:13
 
         // TODO: userRepository에서 userEntity 제공받기
-        UserEntity guestUser = UserEntity.builder().id(guestUserId).build();
+        User guestUser = User.builder().id(guestUserId).build();
 
-        CarEntity carEntity = carRepository.findById(createReservationRequestDto.getCarId())
+        Car car = carRepository.findById(createReservationRequestDto.getCarId())
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
-        UserEntity hostUser = carEntity.getOwner();
+        User hostUser = car.getOwner();
 
-        List<List<LocalDateTime>> possibleRentDates = carEntity.getDates();
+        List<List<LocalDateTime>> possibleRentDates = car.getDates();
 
         LocalDateTime rentDate = createReservationRequestDto.getRentDate();
         LocalDateTime returnDate = createReservationRequestDto.getReturnDate();
@@ -60,15 +60,15 @@ public class ReservationService {
                 .findFirst()
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE));
 
-        ReservationEntity reservationEntity = ReservationEntity.builder()
+        Reservation reservation = Reservation.builder()
                 .guest(guestUser)
                 .host(hostUser)
-                .car(carEntity)
+                .car(car)
                 .rentDate(createReservationRequestDto.getRentDate())
                 .returnDate(createReservationRequestDto.getReturnDate())
                 .status(ReservationStatus.READY)
                 .build();
-        reservationRepository.save(reservationEntity);
+        reservationRepository.save(reservation);
 
         return ResponseDto.success(HttpStatus.OK);
     }
@@ -77,77 +77,77 @@ public class ReservationService {
         // TODO: JWT 토큰에서 userId를 추출하고 로그인한 상태에서만 실행되도록 추가
         long guestUserId = 13L;
 
-        List<ReservationEntity> reservationEntities = reservationRepository.findAllByGuest_id(guestUserId);
-        List<GuestReservation> guestReservations = new ArrayList<>();
+        List<Reservation> reservationEntities = reservationRepository.findAllByGuest_id(guestUserId);
+        List<GetGuestReservationResponseDto> getGuestReservationResponseDtos = new ArrayList<>();
 
-        for (ReservationEntity reservationEntity : reservationEntities) {
-            CarEntity carEntity = reservationEntity.getCar();
-            List<ImageEntity> imageEntities = imageRepository.findByCar_Id(carEntity.getId());
-            ModelEntity modelEntity = carEntity.getModel();
-            UserEntity hostEntity = carEntity.getOwner();
+        for (Reservation reservation : reservationEntities) {
+            Car car = reservation.getCar();
+            List<CarImage> imageEntities = imageRepository.findByCar_Id(car.getId());
+            SubCategory subCategory = car.getSubCategory();
+            User host = car.getOwner();
 
-            HostCar car = HostCar.builder()
-                    .id(carEntity.getId())
-                    .name(modelEntity.getCategory())
+            GetCarSimpleResponseDto getCarSimpleResponseDto = GetCarSimpleResponseDto.builder()
+                    .id(car.getId())
+                    .name(subCategory.getName())
                     .imageUrl(imageEntities.get(0).getUrl()) // 대표 이미지 1장
                     .build();
 
-            GuestReservation guestReservation = GuestReservation.builder()
-                    .id(reservationEntity.getId())
-                    .car(car)
-                    .fee(carEntity.getFeePerHour())
-                    .carAddress(carEntity.getAddress())
-                    .rentDate(reservationEntity.getRentDate())
-                    .returnDate(reservationEntity.getReturnDate())
-                    .status(reservationEntity.getStatus())
-                    .hostPhoneNumber(hostEntity.getPhoneNumber())
+            GetGuestReservationResponseDto getGuestReservationResponseDto = GetGuestReservationResponseDto.builder()
+                    .id(reservation.getId())
+                    .car(getCarSimpleResponseDto)
+                    .fee(car.getFeePerHour())
+                    .carAddress(car.getAddress())
+                    .rentDate(reservation.getRentDate())
+                    .returnDate(reservation.getReturnDate())
+                    .status(reservation.getStatus())
+                    .hostPhoneNumber(host.getPhoneNumber())
                     .build();
 
-            guestReservations.add(guestReservation);
+            getGuestReservationResponseDtos.add(getGuestReservationResponseDto);
         }
 
-        return DataResponseDto.of(new GetGuestReservationsResponseDto(guestReservations));
+        return DataResponseDto.of(new GetGuestReservationListResponseDto(getGuestReservationResponseDtos));
     }
 
     public ResponseDto getHostReservations() {
         // TODO: JWT 토큰에서 userId를 추출하고 로그인한 상태에서만 실행되도록 추가
         long hostUserId = 1L;
 
-        List<ReservationEntity> reservationEntities = reservationRepository.findAllByHost_id(hostUserId);
-        List<HostReservation> hostReservations = new ArrayList<>();
+        List<Reservation> reservationEntities = reservationRepository.findAllByHost_id(hostUserId);
+        List<GetHostReservationResponseDto> getHostReservationResponseDtos = new ArrayList<>();
 
-        for (ReservationEntity reservationEntity : reservationEntities) {
-            CarEntity carEntity = reservationEntity.getCar();
-            UserEntity guestEntity = reservationEntity.getGuest();
+        for (Reservation reservation : reservationEntities) {
+            Car car = reservation.getCar();
+            User guest = reservation.getGuest();
 
-            Guest guest = Guest.builder()
-                    .id(guestEntity.getId())
-                    .phoneNumber(guestEntity.getPhoneNumber())
-                    .image(guestEntity.getProfileImgUrl())
+            GetUserSimpleResponseDto userSimpleResponseDto = GetUserSimpleResponseDto.builder()
+                    .id(guest.getId())
+                    .phoneNumber(guest.getPhoneNumber())
+                    .profileImgUrl(guest.getProfileImgUrl())
                     .build();
 
-            HostReservation hostReservation = HostReservation.builder()
-                    .id(reservationEntity.getId())
-                    .guest(guest)
-                    .rentDate(reservationEntity.getRentDate())
-                    .returnDate(reservationEntity.getReturnDate())
-                    .fee(carEntity.getFeePerHour())
-                    .status(reservationEntity.getStatus())
+            GetHostReservationResponseDto getHostReservationResponseDto = GetHostReservationResponseDto.builder()
+                    .id(reservation.getId())
+                    .guest(userSimpleResponseDto)
+                    .rentDate(reservation.getRentDate())
+                    .returnDate(reservation.getReturnDate())
+                    .fee(car.getFeePerHour())
+                    .status(reservation.getStatus())
                     .build();
 
-            hostReservations.add(hostReservation);
+            getHostReservationResponseDtos.add(getHostReservationResponseDto);
         }
 
-        return DataResponseDto.of(new GetHostReservationsResponseDto(hostReservations));
+        return DataResponseDto.of(new GetHostReservationListResponseDto(getHostReservationResponseDtos));
     }
 
     @Transactional
     public ResponseDto cancelReservation(Long reservationId) {
-        ReservationEntity reservationEntity = reservationRepository.findById(reservationId)
+        Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        reservationEntity.setStatus(ReservationStatus.CANCEL);
-        reservationRepository.save(reservationEntity);
+        reservation.setStatus(ReservationStatus.CANCEL);
+        reservationRepository.save(reservation);
 
         return ResponseDto.success(HttpStatus.OK);
     }

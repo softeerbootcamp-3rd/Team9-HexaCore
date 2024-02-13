@@ -3,8 +3,8 @@ package com.hexacore.tayo.car;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
-import com.hexacore.tayo.car.model.CarEntity;
-import com.hexacore.tayo.car.model.DateListDto;
+import com.hexacore.tayo.car.dto.GetDateListRequestDto;
+import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import jakarta.transaction.Transactional;
@@ -49,13 +49,13 @@ class CarServiceUpdateDatesTest {
         secondInterval.add(dateFormat.parse("2024-02-20T23:59:59"));
         dates.add(secondInterval);
 
-        DateListDto dateListDto = new DateListDto(dates);
+        GetDateListRequestDto dateListDto = new GetDateListRequestDto(dates);
 
         // when
         carService.updateDates(carId, dateListDto);
 
         // then
-        CarEntity updatedCar = carRepository.findById(carId).orElse(new CarEntity());
+        Car updatedCar = carRepository.findById(carId).orElse(new Car());
         assertThat(dates).isEqualTo(updatedCar.getDates());
     }
 
@@ -80,7 +80,7 @@ class CarServiceUpdateDatesTest {
         secondInterval.add(dateFormat.parse("2024-02-20T23:59:59"));
         dates.add(secondInterval);
 
-        DateListDto dateListDto = new DateListDto(dates);
+        GetDateListRequestDto dateListDto = new GetDateListRequestDto(dates);
 
         // when
         Throwable thrown = catchThrowable(() -> carService.updateDates(carId, dateListDto));
@@ -113,7 +113,7 @@ class CarServiceUpdateDatesTest {
         secondInterval.add(dateFormat.parse("2024-02-15T00:00:00"));
         dates.add(secondInterval);
 
-        DateListDto dateListDto = new DateListDto(dates);
+        GetDateListRequestDto dateListDto = new GetDateListRequestDto(dates);
 
         // when
         Throwable thrown = catchThrowable(() -> carService.updateDates(carId, dateListDto));
@@ -147,7 +147,7 @@ class CarServiceUpdateDatesTest {
         secondInterval.add(dateFormat.parse("2024-02-20T23:59:59"));
         dates.add(secondInterval);
 
-        DateListDto dateListDto = new DateListDto(dates);
+        GetDateListRequestDto dateListDto = new GetDateListRequestDto(dates);
 
         // when
         Throwable thrown = catchThrowable(() -> carService.updateDates(carId, dateListDto));

@@ -1,12 +1,13 @@
 package com.hexacore.tayo.user;
 
-import com.hexacore.tayo.util.Encryptor;
-import com.hexacore.tayo.common.ResponseDto;
-import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.image.S3Manager;
-import com.hexacore.tayo.user.dto.*;
+import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
-import com.hexacore.tayo.user.model.UserEntity;
+import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.util.S3Manager;
+import com.hexacore.tayo.user.dto.UpdateUserRequestDto;
+import com.hexacore.tayo.user.dto.GetUserInfoResponseDto;
+import com.hexacore.tayo.user.model.User;
+import com.hexacore.tayo.util.Encryptor;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,12 +17,13 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+
     private final UserRepository userRepository;
     private final S3Manager s3Manager;
 
     @Transactional
     public ResponseDto update(Long userId, UpdateUserRequestDto updateRequestDto) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() ->
+        User user = userRepository.findById(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         // 시용자 프로필 이미지 수정시 - s3에서 원래 이미지 삭제 후 새로 업로드
@@ -42,15 +44,15 @@ public class UserService {
         return ResponseDto.success(HttpStatus.OK);
     }
 
-    public UserInfoResponseDto getUser(Long userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() ->
+    public GetUserInfoResponseDto getUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         return getUserInfo(user);
     }
 
-    private UserInfoResponseDto getUserInfo(UserEntity user) {
-        return UserInfoResponseDto.builder()
+    private GetUserInfoResponseDto getUserInfo(User user) {
+        return GetUserInfoResponseDto.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())

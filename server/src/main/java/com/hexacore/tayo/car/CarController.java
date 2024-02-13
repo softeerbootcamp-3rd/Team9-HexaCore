@@ -1,11 +1,10 @@
 package com.hexacore.tayo.car;
 
-import com.hexacore.tayo.car.model.CarUpdateDto;
-import com.hexacore.tayo.car.model.DateListDto;
-import com.hexacore.tayo.car.model.PostCarDto;
-import com.hexacore.tayo.common.ResponseDto;
+import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
+import com.hexacore.tayo.car.dto.GetDateListRequestDto;
+import com.hexacore.tayo.car.dto.CreateCarRequestDto;
+import com.hexacore.tayo.common.response.ResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -28,14 +27,15 @@ public class CarController {
 
     @GetMapping("/categories")
     public ResponseEntity<ResponseDto> getCategories() {
-        ResponseDto responseDto = carService.getCategories();
+        ResponseDto responseDto = carService.getSubCategories();
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto> createCar(HttpServletRequest request, @ModelAttribute PostCarDto postCarDto) {
+    public ResponseEntity<ResponseDto> createCar(HttpServletRequest request,
+            @ModelAttribute CreateCarRequestDto CreateCarRequestDto) {
         Long userId = (Long) request.getAttribute("userId");
-        ResponseDto responseDto = carService.createCar(postCarDto, userId);
+        ResponseDto responseDto = carService.createCar(CreateCarRequestDto, userId);
 
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
@@ -54,14 +54,16 @@ public class CarController {
     }
 
     @PutMapping("{carId}")
-    public ResponseEntity<ResponseDto> carUpdate(@PathVariable Long carId, @ModelAttribute CarUpdateDto carUpdateDto) {
-        ResponseDto responseDto = carService.carUpdate(carId, carUpdateDto);
+    public ResponseEntity<ResponseDto> carUpdate(@PathVariable Long carId,
+            @ModelAttribute UpdateCarRequestDto updateCarRequestDto) {
+        ResponseDto responseDto = carService.carUpdate(carId, updateCarRequestDto);
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
 
     @PutMapping("{carId}/date")
-    public ResponseEntity<ResponseDto> updateDates(@PathVariable Long carId, @RequestBody DateListDto dateListDto) {
-        ResponseDto responseDto = carService.updateDates(carId, dateListDto);
+    public ResponseEntity<ResponseDto> updateDates(@PathVariable Long carId,
+            @RequestBody GetDateListRequestDto getDateListRequestDto) {
+        ResponseDto responseDto = carService.updateDates(carId, getDateListRequestDto);
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
 }
