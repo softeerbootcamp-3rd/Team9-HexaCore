@@ -35,7 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class CarService {
-
     private final CarRepository carRepository;
     private final ImageRepository imageRepository;
     private final ModelRepository modelRepository;
@@ -46,7 +45,7 @@ public class CarService {
 
     /* 차량 등록 */
     @Transactional
-    public ResponseDto createCar(Long userId, PostCarDto postCarDto) {
+    public ResponseDto createCar(PostCarDto postCarDto, Long userId) {
         if (checkUserHasCar(userId)) {
             // 유저가 이미 차량을 등록한 경우
             throw new GeneralException(ErrorCode.USER_ALREADY_HAS_CAR);
@@ -55,6 +54,10 @@ public class CarService {
             // 중복되는 차량 번호가 있을 경우
             throw new GeneralException(ErrorCode.CAR_NUMBER_DUPLICATED);
         }
+        if (!isIndexSizeEqualsToImageSize(postCarDto.getImageIndexes(), postCarDto.getImageFiles())) {
+            // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
+            throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
+        }
 
         // 등록에 필요한 정보 가져오기
         ModelEntity model = modelRepository.findBySubCategory(postCarDto.getCarName())
@@ -62,7 +65,8 @@ public class CarService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
         Point position = createPoint(postCarDto.getPosition());
 
-        CarEntity car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId, postCarDto.getCarNumber())
+        CarEntity car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId != null ? userId : 1L,
+                        postCarDto.getCarNumber())
                 .orElse(null);
 
         if (car != null) {
@@ -83,7 +87,7 @@ public class CarService {
         } else {
             // 유저가 이전에 등록한 같은 번호의 차가 없는 경우 CREATE
             CarEntity carEntity = CarEntity.builder()
-                    .owner(UserEntity.builder().id(userId).build())
+                    .owner(UserEntity.builder().id(userId != null ? userId : 1L).build())
                     .model(model)
                     .carNumber(postCarDto.getCarNumber())
                     .mileage(postCarDto.getMileage())
@@ -145,7 +149,7 @@ public class CarService {
             imageRepository.save(image);
         });
 
-        return ResponseDto.success(HttpStatus.OK);
+        return ResponseDto.success(HttpStatus.NO_CONTENT);
     }
 
     /* 에약 가능 날짜 조회 */
@@ -228,5 +232,9 @@ public class CarService {
     /* 중복된 차량 번호가 있는지 체크 */
     private Boolean checkDuplicateCarNumber(String carNumber) {
         return !carRepository.findByCarNumberAndIsDeletedFalse(carNumber).isEmpty();
+    }
+
+    private Boolean isIndexSizeEqualsToImageSize(List<Integer> imageIndexes, List<MultipartFile> imageFiles) {
+        return imageIndexes.size() == imageFiles.size();
     }
 }
