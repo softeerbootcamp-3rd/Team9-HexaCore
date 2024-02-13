@@ -1,18 +1,12 @@
 package com.hexacore.tayo.user.model;
 
+import com.hexacore.tayo.car.model.CarEntity;
 import com.hexacore.tayo.common.BaseTime;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Getter
+@Setter
 @Entity
 @Builder
 @AllArgsConstructor
@@ -36,6 +30,12 @@ public class User extends BaseTime {
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
-    @Column(name = "profile_img")
-    private String profileImg;
+    @Column(name = "profile_img_url", columnDefinition = "text")
+    private String profileImgUrl;
+
+    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private CarEntity car;
+
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
+    private boolean isDeleted;
 }

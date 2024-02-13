@@ -6,11 +6,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @AllArgsConstructor
-public class SignUpRequestDto {
+public class UpdateUserRequestDto {
 
-    private String email;
     private String password;
-    private String name;
     private String phoneNumber;
     private MultipartFile profileImg;
 

@@ -7,11 +7,11 @@ import lombok.Getter;
 public class GetUserSimpleResponseDto {
 
     private String name;
-    private String profileImg;
+    private String profileImgUrl;
 
     public GetUserSimpleResponseDto(User user) {
         this.name = user.getName();
-        this.profileImg = user.getProfileImg();
+        this.profileImgUrl = user.getProfileImgUrl();
     }
 
 }

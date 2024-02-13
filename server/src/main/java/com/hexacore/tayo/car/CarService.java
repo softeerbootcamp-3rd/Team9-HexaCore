@@ -18,9 +18,9 @@ import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.image.S3Manager;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,12 +38,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class CarService {
-
     private final CarRepository carRepository;
     private final ImageRepository imageRepository;
     private final CategoryRepository categoryRepository;
     private final SubCategoryRepository subCategoryRepository;
-    private final AmazonS3 amazonS3Client;
+    private final S3Manager s3Manager;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -51,8 +50,7 @@ public class CarService {
     /* 차량 등록 */
     @Transactional
     public ResponseDto createCar(CreateCarRequestDto createCarRequestDto, Long userId) {
-        // TODO: JWT 토큰에서 userId 가져와서 로그인한 경우에만 실행되도록
-        if (checkUserHasCar(userId != null ? userId : 1L)) {
+        if (checkUserHasCar(userId)) {
             // 유저가 이미 차량을 등록한 경우
             throw new GeneralException(ErrorCode.USER_ALREADY_HAS_CAR);
         }
@@ -186,7 +184,6 @@ public class CarService {
         return DataResponseDto.of(new GetSubCategoryListResponseDto(models));
     }
 
-
     /* 경도와 위도 값을 Point 객체로 변환 */
     private Point createPoint(CreatePositionRequestDto createPositionRequestDto) {
         GeometryFactory geometryFactory = new GeometryFactory();
@@ -201,7 +198,7 @@ public class CarService {
         }
         List<Map<String, Object>> datas = IntStream.range(0, Math.min(indexes.size(), files.size()))
                 .mapToObj(i -> {
-                    String url = uploadImage(files.get(i));
+                    String url = s3Manager.uploadImage(files.get(i));
                     Object index = indexes.get(i);
                     return Map.of("index", index, "url", url);
                 })
@@ -229,27 +226,6 @@ public class CarService {
 
             imageRepository.save(image);
         }
-    }
-
-    /* 이미지 파일을 S3에 업로드하고 URL 반환 */
-    private String uploadImage(MultipartFile image) {
-        if (image.getContentType() == null || !image.getContentType().startsWith("image/")) {
-            // Content-Type이 이미지 파일이 아닌 경우
-            throw new GeneralException(ErrorCode.INVALID_IMAGE_TYPE);
-        }
-        String originalFilename = image.getOriginalFilename();
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(image.getSize());
-        metadata.setContentType(image.getContentType());
-
-        try {
-            amazonS3Client.putObject(
-                    new PutObjectRequest(bucket, originalFilename, image.getInputStream(), metadata)
-            );
-        } catch (IOException e) {
-            throw new GeneralException(ErrorCode.S3_UPLOAD_FAILED);
-        }
-        return amazonS3Client.getUrl(bucket, originalFilename).toString();
     }
 
     /* 유저가 등록한 차량이 있는지 체크 */

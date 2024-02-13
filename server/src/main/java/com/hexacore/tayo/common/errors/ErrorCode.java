@@ -18,11 +18,11 @@ public enum ErrorCode {
     EMPTY_USER_PASSWORD(HttpStatus.BAD_REQUEST, "유저 비밀번호를 입력해주세요."),
     EMPTY_USER_NAME(HttpStatus.BAD_REQUEST, "유저 이름을 입력해주세요."),
     EMPTY_USER_EMAIL(HttpStatus.BAD_REQUEST, "유저 이메일을 입력해주세요."),
-    USER_ID_DUPLICATED(HttpStatus.BAD_REQUEST, "중복되는 유저 id 입니다."),
     USER_EMAIL_DUPLICATED(HttpStatus.BAD_REQUEST, "중복되는 유저 이메일 입니다."),
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "유저가 존재하지 않습니다."),
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스 입니다"),
     USER_WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 틀렸습니다."),
+    USER_DELETED(HttpStatus.BAD_REQUEST, "탈퇴한 사용자입니다."),
 
     CAR_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 차량입니다."),
     CAR_IMAGE_INSUFFICIENT(HttpStatus.BAD_REQUEST, "이미지를 5개 이상 등록해야 합니다."),
@@ -35,7 +35,6 @@ public enum ErrorCode {
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 이미지 타입입니다."),
 
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
-    
     SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 문제 발생, 다음에 시도해주세요.");
 
     public final HttpStatus httpStatus;
