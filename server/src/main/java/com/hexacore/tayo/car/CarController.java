@@ -4,6 +4,7 @@ import com.hexacore.tayo.car.model.CarUpdateDto;
 import com.hexacore.tayo.car.model.DateListDto;
 import com.hexacore.tayo.car.model.PostCarDto;
 import com.hexacore.tayo.common.ResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
@@ -31,10 +32,11 @@ public class CarController {
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
 
-    @PostMapping()
-    public ResponseEntity<ResponseDto> createCar(@Valid @ModelAttribute PostCarDto postCarDto) {
-        // TODO: JWT 토큰에서 userId 가져와서 로그인한 경우에만 실행되도록
-        ResponseDto responseDto = carService.createCar(postCarDto, null);
+    @PostMapping
+    public ResponseEntity<ResponseDto> createCar(HttpServletRequest request, @ModelAttribute PostCarDto postCarDto) {
+        Long userId = (Long) request.getAttribute("userId");
+        ResponseDto responseDto = carService.createCar(postCarDto, userId);
+
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
 

@@ -1,4 +1,4 @@
-package com.hexacore.tayo.auth.model;
+package com.hexacore.tayo.auth.refresh;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -11,12 +11,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Token")
-public class RefreshTokenEntity {
+@Table(name = "refresh_token")
+public class RefreshToken {
 
     @Id
     private Long id;
 
-    @Column(name = "refresh_token", nullable = false, unique = true)
-    private String refreshToken;
+    @Column(name = "token", nullable = false, unique = true)
+    private String token;
 }
