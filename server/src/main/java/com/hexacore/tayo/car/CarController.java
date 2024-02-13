@@ -4,7 +4,6 @@ import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetDateListRequestDto;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
-import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.common.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +25,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class CarController {
 
     private final CarService carService;
-
-    @GetMapping("/categories")
-    public ResponseEntity<Response> getCategories() {
-        GetSubCategoryListResponseDto getSubCategoryListResponseDto = carService.getSubCategories();
-        return Response.of(HttpStatus.OK, getSubCategoryListResponseDto);
-    }
 
     @PostMapping
     public ResponseEntity<Response> createCar(HttpServletRequest request,
