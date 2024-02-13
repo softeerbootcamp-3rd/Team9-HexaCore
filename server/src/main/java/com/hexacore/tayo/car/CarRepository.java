@@ -13,6 +13,5 @@ public interface CarRepository extends JpaRepository<CarEntity, Long> {
 
     List<CarEntity> findByOwner_IdAndIsDeletedFalse(Long ownerId);
 
-
     List<CarEntity> findByCarNumberAndIsDeletedFalse(String carNumber);
 }

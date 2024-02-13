@@ -1,6 +1,6 @@
 package com.hexacore.tayo.car.model;
 
-import com.hexacore.tayo.user.model.UserSimpleDto;
+import com.hexacore.tayo.user.dto.UserSimpleDto;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Getter;

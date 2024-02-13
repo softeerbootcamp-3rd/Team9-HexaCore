@@ -14,14 +14,14 @@ function Button({ text, type = 'enabled', isRounded = false, onClick, className 
   return (
     <button
       className={`
-			text-sm px-4 py-2
+			px-4 py-2 text-sm
       ${isRounded ? 'rounded-full' : 'rounded-lg'}
 			${
         type === 'enabled'
           ? 'bg-primary text-white hover:bg-primary-600'
           : type === 'danger'
-          ? 'bg-danger text-white hover:bg-danger-500'
-          : 'bg-background-300 text-background-700 cursor-not-allowed'
+            ? 'bg-danger text-white hover:bg-danger-500'
+            : 'cursor-not-allowed bg-background-300 text-background-700'
       }
 			${className}
 		`}
@@ -33,4 +33,3 @@ function Button({ text, type = 'enabled', isRounded = false, onClick, className 
 }
 
 export default Button;
-

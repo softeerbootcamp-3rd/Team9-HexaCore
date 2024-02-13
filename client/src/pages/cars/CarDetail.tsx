@@ -5,7 +5,7 @@ import Tag from '@/components/Tag';
 import Button from '@/components/Button';
 import TimePicker from '@/components/TimePicker';
 
-function CarDetailTest() {
+function CarDetail() {
   const navigator = useNavigate();
   const data = useLoaderData() as CarData;
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -29,7 +29,7 @@ function CarDetailTest() {
     setStartDateTime((prevDate: Date) => {
       const newDate = new Date(prevDate);
       newDate.setHours(parseInt(time));
-      
+
       return newDate;
     });
   };
@@ -39,15 +39,15 @@ function CarDetailTest() {
     setEndDateTime((prevDate: Date) => {
       const newDate = new Date(prevDate);
       newDate.setHours(parseInt(time));
-      
+
       return newDate;
     });
   };
 
   // 가격 계산 함수
   const calculatePrice = () => {
-    console.log("endDateTime: " + endDateTime);
-    console.log("startDateTime: " + startDateTime);
+    console.log('endDateTime: ' + endDateTime);
+    console.log('startDateTime: ' + startDateTime);
 
     // 시간 간격 계산 (밀리초 단위)
     const timeDiff = endDateTime.getTime() - startDateTime.getTime();
@@ -84,46 +84,48 @@ function CarDetailTest() {
     const reservationData = {
       carId: data.carId,
       rentDate: rentDate,
-      returnDate: returnDate
+      returnDate: returnDate,
     };
     console.log(reservationData);
 
     // 마이페이지로 이동
-    navigator("/profile/1");
+    navigator('/profile/1');
   };
 
   return (
     <div className="flex flex-col gap-8 px-40">
       {/* Image Gallery */}
-      <div className="flex h-[500px] mx-10 rounded-lg overflow-hidden relative">
-        <button onClick={showPrevImage} className="absolute top-1/2 left-5 transform -translate-y-1/2 hover:brightness-75">
+      <div className="relative mx-10 flex h-[500px] overflow-hidden rounded-lg">
+        <button onClick={showPrevImage} className="absolute left-5 top-1/2 -translate-y-1/2 transform hover:brightness-75">
           <img src="/prev-button.svg" alt="Prev Button Image" />
         </button>
-        <img className="rounded-lg w-full object-cover" src={data.imageUrls[currentIdx]} alt="car-img" />
-        <button onClick={showNextImage} className="absolute top-1/2 right-5 transform -translate-y-1/2 hover:brightness-75">
+        <img className="w-full rounded-lg object-cover" src={data.imageUrls[currentIdx]} alt="car-img" />
+        <button onClick={showNextImage} className="absolute right-5 top-1/2 -translate-y-1/2 transform hover:brightness-75">
           <img src="/next-button.svg" alt="Next Button Image" />
         </button>
       </div>
 
       {/* Car Detail + Reservation */}
-      <div className="flex gap-9 mx-10 mb-10">
+      <div className="mx-10 mb-10 flex gap-9">
         {/* Car Detail */}
-        <div className="flex flex-col w-3/5 gap-4 bg-white rounded-3xl shadow-xl p-6">
+        <div className="flex w-3/5 flex-col gap-4 rounded-3xl bg-white p-6 shadow-xl">
           {/* Header : CarName, capacity(tag), type, mileage, fuel */}
           <div className="">
-            <div className="flex items-center mb-2">
-              <h1 className="text-xl font-bold pr-4">{data.carName}</h1>
+            <div className="mb-2 flex items-center">
+              <h1 className="pr-4 text-xl font-bold">{data.carName}</h1>
               <Tag className="h-6" text={`${data.capacity}인승`} />
             </div>
-            <p className="text-background-500">차종 {data.type} &#183; 연비 {data.mileage}km/l &#183; 연료 {data.fuel}</p>
+            <p className="text-background-500">
+              차종 {data.type} &#183; 연비 {data.mileage}km/l &#183; 연료 {data.fuel}
+            </p>
           </div>
 
           {/* Line */}
-          <div className="w-full h-0 border-[0.5px] border-background-300"></div>
+          <div className="h-0 w-full border-[0.5px] border-background-300"></div>
 
           {/* Host Info */}
-          <div className="flex gap-4 items-center">
-            <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+          <div className="flex items-center gap-4">
+            <div className="bg-gray-300 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full">
               <img src={data.host.profileImg} alt="host-profile" />
             </div>
             <div className="flex flex-col">
@@ -133,86 +135,89 @@ function CarDetailTest() {
           </div>
 
           {/* Line */}
-          <div className="w-full h-0 border-[0.5px] border-background-300"></div>
+          <div className="h-0 w-full border-[0.5px] border-background-300"></div>
 
           {/* Car Info year, carAddress */}
           <div className="flex flex-col gap-3">
             {/* carNumber */}
-            <div className="flex gap-4 items-center">
-              <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+            <div className="flex items-center gap-4">
+              <div className="bg-gray-300 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full">
                 <img src={data.host.profileImg} alt="host-profile" />
               </div>
               <div className="flex flex-col">
                 <p className="font-semibold">차량 번호</p>
-                <p className="text-background-500 text-sm">{data.carNumber}</p>
+                <p className="text-sm text-background-500">{data.carNumber}</p>
               </div>
             </div>
 
             {/* Year */}
-            <div className="flex gap-4 items-center">
-              <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+            <div className="flex items-center gap-4">
+              <div className="bg-gray-300 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full">
                 <img src={data.host.profileImg} alt="host-profile" />
               </div>
               <div className="flex flex-col">
                 <p className="font-semibold">연식</p>
-                <p className="text-background-500 text-sm">{data.year}년</p>
+                <p className="text-sm text-background-500">{data.year}년</p>
               </div>
             </div>
 
             {/* Address */}
-            <div className="flex gap-4 items-center">
-              <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+            <div className="flex items-center gap-4">
+              <div className="bg-gray-300 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full">
                 <img src={data.host.profileImg} alt="host-profile" />
               </div>
               <div className="flex flex-col">
                 <p className="font-semibold">픽업 위치</p>
-                <p className="text-background-500 text-sm">{data.carAddress}</p>
+                <p className="text-sm text-background-500">{data.carAddress}</p>
               </div>
             </div>
           </div>
 
           {/* Line */}
-          <div className="w-full h-0 border-[0.5px] border-background-300"></div>
+          <div className="h-0 w-full border-[0.5px] border-background-300"></div>
 
           {/* Description */}
           <div className="">
-            <p className="whitespace-pre-line text-background-500 leading-8">{data.description}</p>
+            <p className="whitespace-pre-line leading-8 text-background-500">{data.description}</p>
           </div>
         </div>
 
         {/* Reservation */}
-        <div className="flex flex-col h-fit w-2/5 rounded-3xl shadow-xl bg-white justify-center p-6 gap-4">
+        <div className="flex h-fit w-2/5 flex-col justify-center gap-4 rounded-3xl bg-white p-6 shadow-xl">
           {/* Total Fee */}
-          <p className="text-3xl tracking-tight text-gray-900">
-            ₩ {totalFee}
-          </p>
+          <p className="text-gray-900 text-3xl tracking-tight">₩ {totalFee}</p>
           <div>캘린더</div>
           {/* Date + Time Info */}
-          <div className="grid grid-cols-2 gap-0 rounded-xl border-[1px] border-background-300 overflow-hidden">
-            <label className="flex flex-col border-b-[0.5px] border-r-[0.5px] border-background-300 p-3 gap-1" htmlFor="rentHourSelect">
-              <p className="font-medium text-xs">대여일</p>
-              <p className="text-background-500">{startDateTime.getFullYear()}-{(startDateTime.getMonth() + 1).toString().padStart(2, '0')}-{startDateTime.getDate().toString().padStart(2, '0')}</p>
+          <div className="grid grid-cols-2 gap-0 overflow-hidden rounded-xl border-[1px] border-background-300">
+            <label className="flex flex-col gap-1 border-b-[0.5px] border-r-[0.5px] border-background-300 p-3" htmlFor="rentHourSelect">
+              <p className="text-xs font-medium">대여일</p>
+              <p className="text-background-500">
+                {startDateTime.getFullYear()}-{(startDateTime.getMonth() + 1).toString().padStart(2, '0')}-{startDateTime.getDate().toString().padStart(2, '0')}
+              </p>
             </label>
-            <label className="flex flex-col border-b-[0.5px] border-l-[0.5px] border-background-300 p-3 gap-1" htmlFor="rentHourSelect">
-              <p className="font-medium text-xs">반납일</p>
-              <p className="text-background-500">{endDateTime.getFullYear()}-{(endDateTime.getMonth() + 1).toString().padStart(2, '0')}-{endDateTime.getDate().toString().padStart(2, '0')}</p>
+            <label className="flex flex-col gap-1 border-b-[0.5px] border-l-[0.5px] border-background-300 p-3" htmlFor="rentHourSelect">
+              <p className="text-xs font-medium">반납일</p>
+              <p className="text-background-500">
+                {endDateTime.getFullYear()}-{(endDateTime.getMonth() + 1).toString().padStart(2, '0')}-{endDateTime.getDate().toString().padStart(2, '0')}
+              </p>
             </label>
-            <div className="border-t-[0.5px] border-r-[0.5px] border-background-300 p-3 gap-1">
-              <p className="font-medium text-xs">대여 시각</p>
-              <TimePicker className="text-background-500 w-full" id={"rentHourSelect"} onTimeChange={updateStartDateTime} />
+            <div className="gap-1 border-r-[0.5px] border-t-[0.5px] border-background-300 p-3">
+              <p className="text-xs font-medium">대여 시각</p>
+              <TimePicker className="w-full text-background-500" id={'rentHourSelect'} onTimeChange={updateStartDateTime} />
             </div>
-            <div className="border-t-[0.5px] border-l-[0.5px] border-background-300 p-3 gap-1">
-              <p className="font-medium text-xs">반납 시각</p>
-              <TimePicker className="text-background-500 w-full" id={"returnHourSelect"} onTimeChange={updateEndDateTime} />
+            <div className="gap-1 border-l-[0.5px] border-t-[0.5px] border-background-300 p-3">
+              <p className="text-xs font-medium">반납 시각</p>
+              <TimePicker className="w-full text-background-500" id={'returnHourSelect'} onTimeChange={updateEndDateTime} />
             </div>
           </div>
 
           {/* Reservation Button */}
-          <Button text="예약하기" type="enabled" className="w-full h-[45px]" onClick={handleReservation} />
+          <Button text="예약하기" type="enabled" className="h-[45px] w-full" onClick={handleReservation} />
         </div>
       </div>
     </div>
   );
 }
 
-export default CarDetailTest;
+export default CarDetail;
+
