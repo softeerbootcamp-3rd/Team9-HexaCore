@@ -3,8 +3,8 @@ package com.hexacore.tayo.auth;
 import com.hexacore.tayo.auth.jwt.JwtProvider;
 import com.hexacore.tayo.auth.refresh.RefreshTokenService;
 import com.hexacore.tayo.util.Encryptor;
-import com.hexacore.tayo.car.model.CarEntity;
-import com.hexacore.tayo.car.model.ImageEntity;
+import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.Image;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -15,7 +15,7 @@ import com.hexacore.tayo.user.dto.LoginRequestDto;
 import com.hexacore.tayo.user.dto.LoginResponseDto;
 import com.hexacore.tayo.user.dto.SignUpRequestDto;
 import com.hexacore.tayo.user.dto.UserInfoResponseDto;
-import com.hexacore.tayo.user.model.UserEntity;
+import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
     private final UserRepository userRepository;
     private final S3Manager s3Manager;
     private final JwtProvider jwtProvider;
@@ -35,7 +36,7 @@ public class AuthService {
         // todo 회원탈퇴했던 사용자가 다시 회원가입한 경우 고려해보기
 
         // 이메일 중복 확인
-        if(userRepository.findByEmail(signUpRequestDto.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(signUpRequestDto.getEmail()).isPresent()) {
             throw new GeneralException(ErrorCode.USER_EMAIL_DUPLICATED);
         }
 
@@ -45,7 +46,7 @@ public class AuthService {
             profileUrl = s3Manager.uploadImage(signUpRequestDto.getProfileImg());
         }
 
-        UserEntity newUser = UserEntity.builder()
+        User newUser = User.builder()
                 .email(signUpRequestDto.getEmail())
                 .name(signUpRequestDto.getName())
                 .password(Encryptor.encryptPwd(signUpRequestDto.getPassword()))
@@ -64,19 +65,19 @@ public class AuthService {
 
     @Transactional
     public void delete(Long userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() ->
+        User user = userRepository.findById(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         // 유저 soft delete
         user.setDeleted(true);
 
         // 유저가 등록한 차가 있는 경우, 차도 soft delete
-        CarEntity userCar = user.getCar();
+        Car userCar = user.getCar();
         if (userCar != null) {
             userCar.setIsDeleted(true);
 
             // 차의 image 들 soft delete
-            for (ImageEntity carImage : userCar.getImages()) {
+            for (Image carImage : userCar.getImages()) {
                 carImage.setIsDeleted(true);
             }
         }
@@ -86,7 +87,7 @@ public class AuthService {
     }
 
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        UserEntity loginUser = userRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(() ->
+        User loginUser = userRepository.findByEmail(loginRequestDto.getEmail()).orElseThrow(() ->
                 new AuthException(ErrorCode.USER_NOT_FOUND));
 
         if (loginUser.isDeleted()) {
@@ -107,13 +108,13 @@ public class AuthService {
     }
 
     public String refresh(Long userId) {
-        UserEntity expiredUser = userRepository.findById(userId).orElseThrow(() ->
+        User expiredUser = userRepository.findById(userId).orElseThrow(() ->
                 new AuthException(ErrorCode.USER_NOT_FOUND));
 
         return jwtProvider.createAccessToken(expiredUser);
     }
 
-    private UserInfoResponseDto getLoginUserInfo(UserEntity user) {
+    private UserInfoResponseDto getLoginUserInfo(User user) {
         return UserInfoResponseDto.builder()
                 .userId(user.getId())
                 .email(user.getEmail())

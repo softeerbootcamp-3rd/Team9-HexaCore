@@ -1,6 +1,6 @@
 package com.hexacore.tayo.user.model;
 
-import com.hexacore.tayo.car.model.CarEntity;
+import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.BaseTime;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,7 +34,7 @@ public class User extends BaseTime {
     private String profileImgUrl;
 
     @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private CarEntity car;
+    private Car car;
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;

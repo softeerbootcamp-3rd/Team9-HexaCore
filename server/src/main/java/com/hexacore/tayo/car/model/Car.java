@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.util.ArrayList;
@@ -83,5 +84,6 @@ public class Car extends BaseTime {
     private Boolean isDeleted = false;
 
     @OneToMany(mappedBy = "car")
-    private List<ImageEntity> images = new ArrayList<>();
+    @Builder.Default
+    private List<Image> images = new ArrayList<>();
 }

@@ -1,7 +1,7 @@
 package com.hexacore.tayo.auth.jwt;
 
 import com.hexacore.tayo.auth.refresh.RefreshTokenService;
-import com.hexacore.tayo.user.model.UserEntity;
+import com.hexacore.tayo.user.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,6 +16,7 @@ import java.util.Date;
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
+
     private final RefreshTokenService refreshTokenService;
 
     @Value("${jwt.secret-key}")
@@ -33,7 +34,7 @@ public class JwtProvider {
      * @param user 엑세스 토큰을 요청한 user
      * @return 발급한 엑세스 토큰
      */
-    public String createAccessToken(UserEntity user) {
+    public String createAccessToken(User user) {
         Claims claims = Jwts.claims();
         claims.put("userId", user.getId());
         claims.put("userName", user.getName());

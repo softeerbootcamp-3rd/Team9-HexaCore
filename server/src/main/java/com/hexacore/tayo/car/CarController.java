@@ -33,9 +33,10 @@ public class CarController {
     }
 
     @PostMapping
-    public ResponseEntity<ResponseDto> createCar(HttpServletRequest request, @ModelAttribute PostCarDto postCarDto) {
+    public ResponseEntity<ResponseDto> createCar(HttpServletRequest request,
+            @ModelAttribute CreateCarRequestDto CreateCarRequestDto) {
         Long userId = (Long) request.getAttribute("userId");
-        ResponseDto responseDto = carService.createCar(postCarDto, userId);
+        ResponseDto responseDto = carService.createCar(CreateCarRequestDto, userId);
 
         return new ResponseEntity<>(responseDto, HttpStatusCode.valueOf(responseDto.getCode()));
     }
