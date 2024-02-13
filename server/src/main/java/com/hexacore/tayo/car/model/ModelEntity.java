@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import lombok.Setter;
 @Entity
 @Setter
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "Model")
@@ -27,6 +29,6 @@ public class ModelEntity extends BaseTime {
     @Column(name = "category", nullable = false)
     private String category;
 
-    @Column(name = "sub_category")
+    @Column(name = "sub_category", unique = true)
     private String subCategory;
 }

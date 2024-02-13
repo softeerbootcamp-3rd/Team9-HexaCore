@@ -1,14 +1,16 @@
-package com.hexacore.tayo.user.model;
+package com.hexacore.tayo.user.dto;
+
+import com.hexacore.tayo.user.model.UserEntity;
 import lombok.Getter;
 
 @Getter
 public class UserSimpleDto {
     private String name;
-    private String profileImg;
+    private String profileImgUrl;
 
     public UserSimpleDto(UserEntity user) {
         this.name = user.getName();
-        this.profileImg = user.getProfileImg();
+        this.profileImgUrl = user.getProfileImgUrl();
     }
 
 }

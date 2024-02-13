@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+  <Properties>
+    <!-- Property : xml 파일의 내부 변수 -->
+    <Property name="charset-UTF-8">UTF-8</Property>
+    <Property name="logPattern">%style{%d{yyyy-MM-dd HH:mm:ss.SSS}}{white} %highlight{%-5level} [%style{%-20t}{bright,blue}] %style{%-40c{1}}{bright,magenta}: %msg%n%throwable</Property>
+  </Properties>
+
+  <Appenders>
+    <!-- 콘솔에 로그를 찍는 appender -->
+    <Console name="console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${logPattern}"/>
+    </Console>
+  </Appenders>
+
+  <Loggers>
+    <!-- 루트 로거 설정 -->
+    <Root level="INFO">
+      <AppenderRef ref="console"/>
+    </Root>
+
+    <!-- 비동기 로거 설정 -->
+    <AsyncLogger name="com.hexacore.tayo" level="INFO" additivity="false">
+      <AppenderRef ref="console"/>
+    </AsyncLogger>
+
+    <!-- 동기 로거 설정 -->
+    <Logger name="logger" level="DEBUG" additivity="false">
+      <AppenderRef ref="console" />
+    </Logger>
+  </Loggers>
+</Configuration>

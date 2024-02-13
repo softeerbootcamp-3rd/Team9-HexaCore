@@ -40,4 +40,3 @@ const hostsRoutes: RouteObject[] = [
 ];
 
 export default hostsRoutes;
-
