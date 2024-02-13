@@ -1,6 +1,7 @@
 package com.hexacore.tayo.car.dto;
 
 import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import java.time.LocalDateTime;
@@ -24,6 +25,27 @@ public class GetCarResponseDto {
     private String description;
     private List<List<LocalDateTime>> dates;
 
+    private GetCarResponseDto(Car car) {
+        this.carName = car.getSubCategory().getName();
+        this.carNumber = car.getCarNumber();
+        this.imageUrls = car.getCarImages().stream().map(CarImage::getUrl).toList();
+        this.mileage = car.getMileage();
+        this.fuel = car.getFuel();
+        this.type = car.getType();
+        this.capacity = car.getCapacity();
+        this.year = car.getYear();
+        this.feePerHour = car.getFeePerHour();
+        this.address = car.getAddress();
+        this.description = car.getDescription();
+        this.dates = car.getDates();
+        this.host = new GetUserSimpleResponseDto(car.getOwner());
+    }
+
+    public static GetCarResponseDto of(Car car) {
+        return new GetCarResponseDto(car);
+    }
+
+    // FIXME: duplicate method
     public GetCarResponseDto(Car car, List<String> images) {
         this.carName = car.getSubCategory().getName();
         this.carNumber = car.getCarNumber();

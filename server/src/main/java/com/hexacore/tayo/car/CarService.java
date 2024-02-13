@@ -1,15 +1,13 @@
 package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.model.*;
 import com.hexacore.tayo.category.CategoryRepository;
 import com.hexacore.tayo.category.SubCategoryRepository;
 import com.hexacore.tayo.category.dto.GetSubCategoryResponseDto;
-import com.hexacore.tayo.car.model.Car;
-import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.car.dto.GetDateListRequestDto;
-import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.model.SubCategory;
@@ -29,6 +27,9 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -107,6 +108,12 @@ public class CarService {
             // 이미지 저장
             saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles(), carEntity);
         }
+    }
+
+    @Transactional
+    public Page<Car> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
+        Specification<Car> searchSpec = CarSpecifications.searchCars(searchCarsDto);
+        return carRepository.findAll(searchSpec, pageable);
     }
 
     /* 차량 정보 조회 */

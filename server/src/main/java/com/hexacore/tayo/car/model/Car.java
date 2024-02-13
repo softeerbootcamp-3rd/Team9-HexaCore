@@ -3,16 +3,8 @@ package com.hexacore.tayo.car.model;
 import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.BaseTime;
 import com.hexacore.tayo.user.model.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +23,9 @@ import org.locationtech.jts.geom.Point;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "car")
+@Table(name = "car", indexes = {
+        @Index(name = "car_position_idx", columnList = "position", unique = false),
+})
 public class Car extends BaseTime {
 
     @Id
@@ -70,7 +64,7 @@ public class Car extends BaseTime {
     @Column(name = "address", nullable = false)
     private String address;
 
-    @Column(name = "position", nullable = false)
+    @Column(name = "position", nullable = false, columnDefinition = "POINT SRID 4326")
     private Point position;
 
     @Column(name = "description")
