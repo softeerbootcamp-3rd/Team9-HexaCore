@@ -6,6 +6,7 @@ import com.hexacore.tayo.car.dto.GetDateListRequestDto;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.common.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,9 @@ public class CarController {
 
     @PostMapping
     public ResponseEntity<Response> createCar(HttpServletRequest request,
-            @ModelAttribute CreateCarRequestDto CreateCarRequestDto) {
+            @Valid @ModelAttribute CreateCarRequestDto createCarRequestDto) {
         Long userId = (Long) request.getAttribute("userId");
-        carService.createCar(CreateCarRequestDto, userId);
+        carService.createCar(createCarRequestDto, userId);
 
         return Response.of(HttpStatus.CREATED);
     }

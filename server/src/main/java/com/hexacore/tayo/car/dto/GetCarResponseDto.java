@@ -2,6 +2,7 @@ package com.hexacore.tayo.car.dto;
 
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
+import com.hexacore.tayo.car.model.FuelType;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +16,7 @@ public class GetCarResponseDto {
     private String carNumber;
     private List<String> imageUrls;
     private Double mileage;
-    private String fuel;
+    private FuelType fuel;
     private CarType type;
     private Integer capacity;
     private Integer year;
