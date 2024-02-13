@@ -76,7 +76,7 @@ function Profile() {
             </p>
             <p className="mt-2 text-sm text-background-400">{data.user?.email}</p>
             <p className="text-sm text-background-400">{data.user?.phoneNum}</p>
-            <Button text="수정" className="h-8 m-4 ml-0 w-1/5 text-xs xl:text-sm whitespace-nowrap" onClick={editProfile}></Button>
+            <Button text="수정" className="h-8 m-4 ml-0 w-1/5 text-xs xl:text-sm whitespace-nowrap flex justify-center items-center" onClick={editProfile}></Button>
           </div>
         </div>
       </div>
