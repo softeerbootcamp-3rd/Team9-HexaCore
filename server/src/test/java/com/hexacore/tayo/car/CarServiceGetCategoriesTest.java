@@ -1,6 +1,7 @@
 package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.category.CategoryRepository;
+import com.hexacore.tayo.category.CategoryService;
 import com.hexacore.tayo.category.SubCategoryRepository;
 import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.category.model.SubCategory;
@@ -26,6 +27,9 @@ public class CarServiceGetCategoriesTest {
     @InjectMocks
     private CarService carService;
 
+    @InjectMocks
+    private CategoryService categoryService;
+
     @Test
     @DisplayName("getCategories(): Model 테이블에 존재하는 모든 모델, 세부모델명을 조회한다.")
     void getCategoriesTest() {
@@ -33,7 +37,7 @@ public class CarServiceGetCategoriesTest {
         BDDMockito.given(subCategoryRepository.findAll())
                 .willReturn(List.of(SubCategory.builder().name("세부모델명").build()));
         // when
-        DataResponseDto response = (DataResponseDto) carService.getSubCategories();
+        DataResponseDto response = (DataResponseDto) categoryService.getSubCategories();
 
         // then
         Assertions.assertThat(response.getSuccess()).isTrue();

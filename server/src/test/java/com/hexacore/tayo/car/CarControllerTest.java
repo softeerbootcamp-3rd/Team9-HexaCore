@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car;
 
+import com.hexacore.tayo.category.CategoryService;
 import com.hexacore.tayo.category.dto.GetSubCategoryResponseDto;
 import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
@@ -31,11 +32,14 @@ public class CarControllerTest {
     @MockBean
     private CarService carService;
 
+    @MockBean
+    private CategoryService categoryService;
+
     @Test
     @DisplayName("GET /cars/categories 컨트롤러 테스트")
     void getCategoriesTest() throws Exception {
         // given
-        BDDMockito.given(carService.getSubCategories())
+        BDDMockito.given(categoryService.getSubCategories())
                 .willReturn(DataResponseDto.of(
                         new GetSubCategoryListResponseDto(List.of(new GetSubCategoryResponseDto("모델명 서브모델명")))));
 

@@ -27,12 +27,6 @@ public class CarController {
 
     private final CarService carService;
 
-    @GetMapping("/categories")
-    public ResponseEntity<Response> getCategories() {
-        GetSubCategoryListResponseDto getSubCategoryListResponseDto = carService.getSubCategories();
-        return Response.of(HttpStatus.OK, getSubCategoryListResponseDto);
-    }
-
     @PostMapping
     public ResponseEntity<Response> createCar(HttpServletRequest request,
             @ModelAttribute CreateCarRequestDto CreateCarRequestDto) {

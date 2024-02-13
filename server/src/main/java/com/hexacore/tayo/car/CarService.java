@@ -38,7 +38,6 @@ public class CarService {
 
     private final CarRepository carRepository;
     private final CarImageRepository carImageRepository;
-    private final CategoryRepository categoryRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final S3Manager s3Manager;
 
@@ -68,7 +67,7 @@ public class CarService {
         Point position = createPoint(createCarRequestDto.getPosition());
 
         Car car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId != null ? userId : 1L,
-                createCarRequestDto.getCarNumber())
+                        createCarRequestDto.getCarNumber())
                 .orElse(null);
 
         if (car != null) {
@@ -175,14 +174,6 @@ public class CarService {
 
         car.setDates(dateList.getDates());
         carRepository.save(car);
-    }
-
-    /* 모델, 세부 모델명 조회 */
-    public GetSubCategoryListResponseDto getSubCategories() {
-        List<GetSubCategoryResponseDto> models = subCategoryRepository.findAll().stream()
-                .map(subCategory -> new GetSubCategoryResponseDto(subCategory.getName()))
-                .toList();
-        return new GetSubCategoryListResponseDto(models);
     }
 
     /* 경도와 위도 값을 Point 객체로 변환 */
