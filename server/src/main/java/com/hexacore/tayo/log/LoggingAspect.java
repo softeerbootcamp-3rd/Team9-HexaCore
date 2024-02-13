@@ -18,7 +18,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class LoggingAspect implements HandlerInterceptor {
 
     // Auth 성공 로깅
-    @AfterReturning(pointcut = "execution(* com.hexacore.tayo.auth.JwtService.*(..))", returning = "result")
+    @AfterReturning(pointcut = "execution(* com.hexacore.tayo.auth.jwt.JwtParser.*(..))", returning = "result")
     public void logAuthSuccess(JoinPoint joinPoint, Object result) {
         Logger logger = LoggerFactory.getLogger(joinPoint.getTarget().getClass());
         logger.info("[+] AUTH - Request: {}, Result: {}", joinPoint.getSignature().toShortString(), result);
@@ -37,8 +37,8 @@ public class LoggingAspect implements HandlerInterceptor {
         // 예외 메시지 가져오기
         String errorMessage = ex.getMessage();
 
-        logger.error("[-] ERROR - File: {}, Line: {}, Method: {}, Error Message: {}" ,fileName, lineNumber,
-                joinPoint.getSignature().toShortString() ,errorMessage);
+        logger.error("[-] ERROR - File: {}, Line: {}, Method: {}, Error Message: {}", fileName, lineNumber,
+                joinPoint.getSignature().toShortString(), errorMessage);
     }
 
     // 들어온 요청 로깅
