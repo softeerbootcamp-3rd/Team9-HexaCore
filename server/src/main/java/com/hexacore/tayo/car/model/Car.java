@@ -31,7 +31,7 @@ import org.locationtech.jts.geom.Point;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Car")
+@Table(name = "car")
 public class Car extends BaseTime {
 
     @Id

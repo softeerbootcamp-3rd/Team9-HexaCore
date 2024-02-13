@@ -19,7 +19,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "Category")
+@Table(name = "category")
 public class Category extends BaseTime {
 
     @Id
