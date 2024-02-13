@@ -1,14 +1,13 @@
 package com.hexacore.tayo.car.model;
 
 import com.hexacore.tayo.user.dto.UserSimpleDto;
-
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.Getter;
 
 @Getter
 public class CarDto {
+
     private UserSimpleDto host;
     private String carName;
     private String carNumber;
@@ -21,7 +20,7 @@ public class CarDto {
     private Integer feePerHour;
     private String address;
     private String description;
-    private List<List<Date>> dates;
+    private List<List<LocalDateTime>> dates;
 
     public CarDto(CarEntity car, List<String> images) {
         this.carName = car.getModel().getSubCategory();
