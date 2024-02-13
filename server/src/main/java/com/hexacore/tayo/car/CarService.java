@@ -40,6 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class CarService {
+
     private final CarRepository carRepository;
     private final ImageRepository imageRepository;
     private final CategoryRepository categoryRepository;
@@ -72,7 +73,7 @@ public class CarService {
         Point position = createPoint(createCarRequestDto.getPosition());
 
         Car car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId != null ? userId : 1L,
-                createCarRequestDto.getCarNumber())
+                        createCarRequestDto.getCarNumber())
                 .orElse(null);
 
         if (car != null) {
@@ -167,9 +168,9 @@ public class CarService {
     }
 
     /* 예약 가능 날짜 수정 */
-    public ResponseDto updateDates(Long carId, DateListDto dateList) {
+    public ResponseDto updateDates(Long carId, GetDateListRequestDto dateList) {
         // 차량 조회가 안 되는 경우
-        CarEntity car = carRepository.findById(carId)
+        Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         // dateListDto의 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
