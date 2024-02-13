@@ -11,10 +11,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.util.Date;
+import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "Reservation")
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReservationEntity extends BaseTime {
 
     @Id
@@ -34,11 +43,12 @@ public class ReservationEntity extends BaseTime {
     private User host;
 
     @Column(name = "rent_date", nullable = false)
-    private Date rentDate;
+    private LocalDateTime rentDate;
 
     @Column(name = "return_date", nullable = false)
-    private Date returnDate;
+    private LocalDateTime returnDate;
 
     @Column(name = "status", nullable = false)
+    @Setter
     private ReservationStatus status;
 }

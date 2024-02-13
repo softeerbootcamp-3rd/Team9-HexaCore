@@ -35,6 +35,9 @@ public enum ErrorCode {
     DATE_FORMAT_MISMATCH(HttpStatus.BAD_REQUEST, "날짜 형식이 맞지 않습니다."),
     START_DATE_AFTER_END_DATE(HttpStatus.BAD_REQUEST, "예약 시작 날짜가 끝 날짜보다 뒤에 있을 수 없습니다."),
 
+    RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 예약입니다."),
+    RESERVATION_DATE_NOT_IN_RANGE(HttpStatus.BAD_REQUEST, "예약 가능 날짜의 범위에 맞지 않는 대여일시/반납일시입니다."),
+
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드에 실패했습니다."),
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 이미지 타입입니다."),
 

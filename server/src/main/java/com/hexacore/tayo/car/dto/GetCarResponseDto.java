@@ -3,9 +3,8 @@ package com.hexacore.tayo.car.dto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.Getter;
 
 @Getter
@@ -23,7 +22,7 @@ public class GetCarResponseDto {
     private Integer feePerHour;
     private String address;
     private String description;
-    private List<List<Date>> dates;
+    private List<List<LocalDateTime>> dates;
 
     public GetCarResponseDto(Car car, List<String> images) {
         this.carName = car.getSubCategory().getName();
