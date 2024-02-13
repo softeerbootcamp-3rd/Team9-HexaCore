@@ -31,6 +31,10 @@ public enum ErrorCode {
     USER_ALREADY_HAS_CAR(HttpStatus.BAD_REQUEST, "유저가 이미 차량을 등록했습니다."),
     IMAGE_INDEX_MISMATCH(HttpStatus.BAD_REQUEST, "이미지 개수와 인덱스 개수가 일치하지 않습니다."),
 
+    DATE_SIZE_MISMATCH(HttpStatus.BAD_REQUEST, "날짜 구간이 맞지 않습니다."),
+    DATE_FORMAT_MISMATCH(HttpStatus.BAD_REQUEST, "날짜 형식이 맞지 않습니다."),
+    START_DATE_AFTER_END_DATE(HttpStatus.BAD_REQUEST, "예약 시작 날짜가 끝 날짜보다 뒤에 있을 수 없습니다."),
+
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드에 실패했습니다."),
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 이미지 타입입니다."),
 

@@ -21,6 +21,8 @@ import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.image.S3Manager;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,7 +72,7 @@ public class CarService {
         Point position = createPoint(createCarRequestDto.getPosition());
 
         Car car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId != null ? userId : 1L,
-                        createCarRequestDto.getCarNumber())
+                createCarRequestDto.getCarNumber())
                 .orElse(null);
 
         if (car != null) {
@@ -165,12 +167,23 @@ public class CarService {
     }
 
     /* 예약 가능 날짜 수정 */
-    public ResponseDto updateDates(Long carId, GetDateListRequestDto getDateListRequestDto) {
-        Car car = carRepository.findById(carId)
-                // 차량 조회가 안 되는 경우
+    public ResponseDto updateDates(Long carId, DateListDto dateList) {
+        // 차량 조회가 안 되는 경우
+        CarEntity car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
-        car.setDates(getDateListRequestDto.getDates());
+        // dateListDto의 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
+        for (List<Date> dates : dateList.getDates()) {
+            if (dates.size() != 2) {
+                throw new GeneralException(ErrorCode.DATE_SIZE_MISMATCH);
+            }
+
+            if (dates.get(0).after(dates.get(1))) {
+                throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
+            }
+        }
+
+        car.setDates(dateList.getDates());
         carRepository.save(car);
 
         return ResponseDto.success(HttpStatus.ACCEPTED);
@@ -211,13 +224,13 @@ public class CarService {
             Optional<Image> optionalImage = imageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(
                     car.getId(), idx);
             Image image;
-            //인덱스가 idx인 image가 존재하면 soft delete
+            // 인덱스가 idx인 image가 존재하면 soft delete
             if (optionalImage.isPresent()) {
                 image = optionalImage.get();
                 image.setIsDeleted(true);
                 imageRepository.save(image);
             }
-            //새로 만들어서 추가하기
+            // 새로 만들어서 추가하기
             image = Image.builder()
                     .car(car)
                     .url(url)
