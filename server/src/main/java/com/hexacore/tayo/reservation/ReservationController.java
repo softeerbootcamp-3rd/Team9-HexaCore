@@ -1,7 +1,8 @@
 package com.hexacore.tayo.reservation;
 
 import com.hexacore.tayo.common.ResponseDto;
-import com.hexacore.tayo.reservation.model.CreateReservationDto;
+import com.hexacore.tayo.reservation.dto.CreateReservationDto;
+import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,7 +21,14 @@ public class ReservationController {
     private final ReservationService reservationService;
 
     @PostMapping()
-    public ResponseEntity<ResponseDto> createReservation(@ModelAttribute CreateReservationDto createReservationDto) {
+    public ResponseEntity<ResponseDto> createReservation(
+            @ModelAttribute CreateReservationRequestDto createReservationRequestDto) {
+        CreateReservationDto createReservationDto = CreateReservationDto.builder()
+                .carId(createReservationRequestDto.getCarId())
+                .rentDate(createReservationRequestDto.getRentDate())
+                .returnDate(createReservationRequestDto.getReturnDate())
+                .build();
+
         ResponseDto responseDto = reservationService.createReservation(createReservationDto);
         return ResponseEntity
                 .status(responseDto.getCode())
@@ -45,7 +53,7 @@ public class ReservationController {
 
     @DeleteMapping("/{reservationId}")
     public ResponseEntity<ResponseDto> cancelReservation(@PathVariable Long reservationId) {
-        ResponseDto responseDto = reservationService.cancelReservations(reservationId);
+        ResponseDto responseDto = reservationService.cancelReservation(reservationId);
         return ResponseEntity
                 .status(responseDto.getCode())
                 .body(responseDto);

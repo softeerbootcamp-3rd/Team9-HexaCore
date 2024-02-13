@@ -9,13 +9,13 @@ import com.hexacore.tayo.common.DataResponseDto;
 import com.hexacore.tayo.common.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.reservation.model.CreateReservationDto;
-import com.hexacore.tayo.reservation.model.GuestDto;
-import com.hexacore.tayo.reservation.model.GuestReservationDto;
-import com.hexacore.tayo.reservation.model.GuestReservationListDto;
-import com.hexacore.tayo.reservation.model.HostCarDto;
-import com.hexacore.tayo.reservation.model.HostReservationDto;
-import com.hexacore.tayo.reservation.model.HostReservationListDto;
+import com.hexacore.tayo.reservation.dto.CreateReservationDto;
+import com.hexacore.tayo.reservation.dto.GetGuestReservationsResponseDto;
+import com.hexacore.tayo.reservation.dto.GetHostReservationsResponseDto;
+import com.hexacore.tayo.reservation.model.Guest;
+import com.hexacore.tayo.reservation.model.GuestReservation;
+import com.hexacore.tayo.reservation.model.HostCar;
+import com.hexacore.tayo.reservation.model.HostReservation;
 import com.hexacore.tayo.reservation.model.ReservationEntity;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.model.UserEntity;
@@ -86,7 +86,7 @@ public class ReservationService {
         long guestUserId = 13L;
 
         List<ReservationEntity> reservationEntities = reservationRepository.findAllByGuest_id(guestUserId);
-        List<GuestReservationDto> guestReservations = new ArrayList<>();
+        List<GuestReservation> guestReservations = new ArrayList<>();
 
         for (ReservationEntity reservationEntity : reservationEntities) {
             CarEntity carEntity = reservationEntity.getCar();
@@ -94,13 +94,13 @@ public class ReservationService {
             ModelEntity modelEntity = carEntity.getModel();
             UserEntity hostEntity = carEntity.getOwner();
 
-            HostCarDto car = HostCarDto.builder()
+            HostCar car = HostCar.builder()
                     .id(carEntity.getId())
                     .name(modelEntity.getCategory())
                     .imageUrl(imageEntities.get(0).getUrl()) // 대표 이미지 1장
                     .build();
 
-            GuestReservationDto guestReservation = GuestReservationDto.builder()
+            GuestReservation guestReservation = GuestReservation.builder()
                     .id(reservationEntity.getId())
                     .car(car)
                     .fee(carEntity.getFeePerHour())
@@ -114,7 +114,7 @@ public class ReservationService {
             guestReservations.add(guestReservation);
         }
 
-        return DataResponseDto.of(new GuestReservationListDto(guestReservations));
+        return DataResponseDto.of(new GetGuestReservationsResponseDto(guestReservations));
     }
 
     public ResponseDto getHostReservations() {
@@ -122,20 +122,20 @@ public class ReservationService {
         long hostUserId = 1L;
 
         List<ReservationEntity> reservationEntities = reservationRepository.findAllByHost_id(hostUserId);
-        List<HostReservationDto> hostReservations = new ArrayList<>();
+        List<HostReservation> hostReservations = new ArrayList<>();
 
         for (ReservationEntity reservationEntity : reservationEntities) {
             CarEntity carEntity = reservationEntity.getCar();
             UserEntity guestEntity = reservationEntity.getGuest();
 
-            GuestDto guest = GuestDto.builder()
+            Guest guest = Guest.builder()
                     .id(guestEntity.getId())
                     .nickname(guestEntity.getNickname())
                     .phoneNumber(guestEntity.getPhoneNumber())
                     .image(guestEntity.getProfileImg())
                     .build();
 
-            HostReservationDto hostReservation = HostReservationDto.builder()
+            HostReservation hostReservation = HostReservation.builder()
                     .id(reservationEntity.getId())
                     .guest(guest)
                     .rentDate(reservationEntity.getRentDate())
@@ -147,11 +147,11 @@ public class ReservationService {
             hostReservations.add(hostReservation);
         }
 
-        return DataResponseDto.of(new HostReservationListDto(hostReservations));
+        return DataResponseDto.of(new GetHostReservationsResponseDto(hostReservations));
     }
 
     @Transactional
-    public ResponseDto cancelReservations(Long reservationId) {
+    public ResponseDto cancelReservation(Long reservationId) {
         ReservationEntity reservationEntity = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
         CarEntity carEntity = reservationEntity.getCar();

@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 @Builder
-public class GuestDto {
+public class Guest {
 
     private final Long id;
     private final String nickname;

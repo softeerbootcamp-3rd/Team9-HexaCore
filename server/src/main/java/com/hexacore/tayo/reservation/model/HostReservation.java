@@ -9,18 +9,16 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 @Builder
-public class GuestReservationDto {
+public class HostReservation {
 
     private final Long id;
-    private final HostCarDto car;
+    private final Guest guest;
     private final Integer fee;
-    private final String carAddress;
     private final ReservationStatus status;
-    private final String hostPhoneNumber;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private final Date rentDate;
-    
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private final Date returnDate;
 }

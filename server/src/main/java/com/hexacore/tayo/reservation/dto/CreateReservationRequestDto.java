@@ -1,4 +1,4 @@
-package com.hexacore.tayo.reservation.model;
+package com.hexacore.tayo.reservation.dto;
 
 import java.util.Date;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 @Getter
 @RequiredArgsConstructor
 @Builder
-public class CreateReservationDto {
+public class CreateReservationRequestDto {
 
     private final Long carId;
 
