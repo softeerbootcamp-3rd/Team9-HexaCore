@@ -13,8 +13,6 @@ import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.model.SubCategory;
-import com.hexacore.tayo.common.response.DataResponseDto;
-import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.util.S3Manager;
@@ -31,7 +29,6 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,7 +47,7 @@ public class CarService {
 
     /* 차량 등록 */
     @Transactional
-    public ResponseDto createCar(CreateCarRequestDto createCarRequestDto, Long userId) {
+    public void createCar(CreateCarRequestDto createCarRequestDto, Long userId) {
         if (checkUserHasCar(userId)) {
             // 유저가 이미 차량을 등록한 경우
             throw new GeneralException(ErrorCode.USER_ALREADY_HAS_CAR);
@@ -106,26 +103,24 @@ public class CarService {
                     .description(createCarRequestDto.getDescription())
                     .build();
 
-            carRepository.save(carEntity);
+            Car savedCar = carRepository.save(carEntity);
             // 이미지 저장
             saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles(), carEntity);
         }
-
-        return ResponseDto.success(HttpStatus.CREATED);
     }
 
     /* 차량 정보 조회 */
-    public DataResponseDto carDetail(Long carId) {
+    public GetCarResponseDto carDetail(Long carId) {
         Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         List<String> images = carDateList(carId);
-        return DataResponseDto.of(new GetCarResponseDto(car, images));
+        return new GetCarResponseDto(car, images);
     }
 
     /* 차량 정보 수정 */
     @Transactional
-    public ResponseDto carUpdate(Long carId, UpdateCarRequestDto updateCarRequestDto) {
+    public void carUpdate(Long carId, UpdateCarRequestDto updateCarRequestDto) {
         Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -135,13 +130,11 @@ public class CarService {
         car.setDescription(updateCarRequestDto.getDescription());
 
         saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles(), car);
-
-        return ResponseDto.success(HttpStatus.OK);
     }
 
     /* 차량 삭제 */
     @Transactional
-    public ResponseDto deleteCar(Long carId) {
+    public void deleteCar(Long carId) {
         // 차량 isDeleted = true
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -153,8 +146,6 @@ public class CarService {
             image.setIsDeleted(true);
             carImageRepository.save(image);
         });
-
-        return ResponseDto.success(HttpStatus.NO_CONTENT);
     }
 
     /* 에약 가능 날짜 조회 */
@@ -166,7 +157,7 @@ public class CarService {
     }
 
     /* 예약 가능 날짜 수정 */
-    public ResponseDto updateDates(Long carId, GetDateListRequestDto dateList) {
+    public void updateDates(Long carId, GetDateListRequestDto dateList) {
         // 차량 조회가 안 되는 경우
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -184,16 +175,14 @@ public class CarService {
 
         car.setDates(dateList.getDates());
         carRepository.save(car);
-
-        return ResponseDto.success(HttpStatus.ACCEPTED);
     }
 
     /* 모델, 세부 모델명 조회 */
-    public ResponseDto getSubCategories() {
+    public GetSubCategoryListResponseDto getSubCategories() {
         List<GetSubCategoryResponseDto> models = subCategoryRepository.findAll().stream()
                 .map(subCategory -> new GetSubCategoryResponseDto(subCategory.getName()))
                 .toList();
-        return DataResponseDto.of(new GetSubCategoryListResponseDto(models));
+        return new GetSubCategoryListResponseDto(models);
     }
 
     /* 경도와 위도 값을 Point 객체로 변환 */
