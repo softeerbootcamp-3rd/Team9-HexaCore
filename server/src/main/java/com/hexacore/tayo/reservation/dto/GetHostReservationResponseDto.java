@@ -19,8 +19,8 @@ public class GetHostReservationResponseDto {
     private final ReservationStatus status;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private final LocalDateTime rentDate;
+    private final LocalDateTime rentDateTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private final LocalDateTime returnDate;
+    private final LocalDateTime returnDateTime;
 }
