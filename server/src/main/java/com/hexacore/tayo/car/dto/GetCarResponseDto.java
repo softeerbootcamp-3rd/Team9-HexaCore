@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car.dto;
 
+import com.hexacore.tayo.car.dto.GetCarDateRangeResponseDto.CarDateRangeListDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarType;
@@ -15,8 +16,8 @@ import lombok.Getter;
 @Getter
 public class GetCarResponseDto {
 
-        @NotNull
-        private final GetUserSimpleResponseDto host;
+    @NotNull
+    private final GetUserSimpleResponseDto host;
 
         @NotNull
         private final String carName;
@@ -48,22 +49,24 @@ public class GetCarResponseDto {
         @NotNull
         private final String address;
 
-        private final String description;
-        private final List<List<LocalDateTime>> dates = new ArrayList<>();
+    @NotNull
+    private final List<List<String>> carDateRanges = new ArrayList<>();
 
-        public GetCarResponseDto(Car car, List<String> images) {
-                this.carName = car.getSubCategory().getName();
-                this.carNumber = car.getCarNumber();
-                this.imageUrls = images;
-                this.mileage = car.getMileage();
-                this.fuel = car.getFuel().getType();
-                this.type = car.getType().getType();
-                this.capacity = car.getCapacity();
-                this.year = car.getYear();
-                this.feePerHour = car.getFeePerHour();
-                this.address = car.getAddress();
-                this.description = car.getDescription();
-                Optional.ofNullable(car.getDates()).ifPresent(this.dates::addAll);
-                this.host = new GetUserSimpleResponseDto(car.getOwner());
-        }
+    private final String description;
+
+    public GetCarResponseDto(Car car, List<String> images) {
+        this.carName = car.getSubCategory().getName();
+        this.carNumber = car.getCarNumber();
+        this.imageUrls = images;
+        this.mileage = car.getMileage();
+        this.type = car.getType().getType();
+        this.fuel = car.getFuel().getType();
+        this.capacity = car.getCapacity();
+        this.year = car.getYear();
+        this.feePerHour = car.getFeePerHour();
+        this.address = car.getAddress();
+        this.description = car.getDescription();
+        this.carDateRanges.addAll(new CarDateRangeListDto(car.getCarDateRanges()).getDateRanges());
+        this.host = new GetUserSimpleResponseDto(car.getOwner());
+    }
 }
