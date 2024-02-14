@@ -1,9 +1,9 @@
 package com.hexacore.tayo.car;
 
+import com.hexacore.tayo.car.dto.CreateCarRequestDto;
+import com.hexacore.tayo.car.dto.GetCarDateRangeRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
-import com.hexacore.tayo.car.dto.GetDateListRequestDto;
-import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.common.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,9 +63,9 @@ public class CarController {
     }
 
     @PutMapping("{carId}/date")
-    public ResponseEntity<Response> updateDates(@PathVariable Long carId,
-            @RequestBody GetDateListRequestDto getDateListRequestDto) {
-        carService.updateDates(carId, getDateListRequestDto);
+    public ResponseEntity<Response> updateDateRanges(@PathVariable Long carId,
+            @RequestBody GetCarDateRangeRequestDto getCarDateRangeRequestDto) {
+        carService.updateDateRanges(carId, getCarDateRangeRequestDto);
         return Response.of(HttpStatus.ACCEPTED);
     }
 }

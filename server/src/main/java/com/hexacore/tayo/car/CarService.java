@@ -1,22 +1,23 @@
 package com.hexacore.tayo.car;
 
+import com.hexacore.tayo.car.dto.CreateCarRequestDto;
+import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
+import com.hexacore.tayo.car.dto.GetCarDateRangeRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
+import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarDateRange;
+import com.hexacore.tayo.car.model.CarImage;
+import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.category.CategoryRepository;
 import com.hexacore.tayo.category.SubCategoryRepository;
-import com.hexacore.tayo.category.dto.GetSubCategoryResponseDto;
-import com.hexacore.tayo.car.model.Car;
-import com.hexacore.tayo.car.model.CarType;
-import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
-import com.hexacore.tayo.car.dto.GetDateListRequestDto;
-import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
-import com.hexacore.tayo.car.dto.CreateCarRequestDto;
+import com.hexacore.tayo.category.dto.GetSubCategoryResponseDto;
 import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.util.S3Manager;
 import com.hexacore.tayo.user.model.User;
+import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -68,7 +69,7 @@ public class CarService {
         Point position = createPoint(createCarRequestDto.getPosition());
 
         Car car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId != null ? userId : 1L,
-                createCarRequestDto.getCarNumber())
+                        createCarRequestDto.getCarNumber())
                 .orElse(null);
 
         if (car != null) {
@@ -157,23 +158,22 @@ public class CarService {
     }
 
     /* 예약 가능 날짜 수정 */
-    public void updateDates(Long carId, GetDateListRequestDto dateList) {
+    public void updateDateRanges(Long carId, GetCarDateRangeRequestDto dateList) {
         // 차량 조회가 안 되는 경우
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         // dateListDto의 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
-        for (List<LocalDateTime> dates : dateList.getDates()) {
-            if (dates.size() != 2) {
-                throw new GeneralException(ErrorCode.DATE_SIZE_MISMATCH);
-            }
+        for (CarDateRange dateRange : dateList.getCarDateRanges()) {
+            LocalDateTime startDate = dateRange.getStartDate();
+            LocalDateTime endDate = dateRange.getEndDate();
 
-            if (dates.get(0).isAfter(dates.get(1))) {
+            if (startDate.isAfter(endDate)) {
                 throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
             }
         }
 
-        car.setDates(dateList.getDates());
+        car.setCarDateRanges(dateList.getCarDateRanges());
         carRepository.save(car);
     }
 
