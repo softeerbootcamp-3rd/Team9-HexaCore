@@ -16,7 +16,7 @@ public class GetCarResponseDto {
     private String carNumber;
     private List<String> imageUrls;
     private Double mileage;
-    private FuelType fuel;
+    private String fuel;
     private CarType type;
     private Integer capacity;
     private Integer year;
@@ -30,7 +30,7 @@ public class GetCarResponseDto {
         this.carNumber = car.getCarNumber();
         this.imageUrls = images;
         this.mileage = car.getMileage();
-        this.fuel = car.getFuel();
+        this.fuel = car.getFuel().getType();
         this.type = car.getType();
         this.capacity = car.getCapacity();
         this.year = car.getYear();

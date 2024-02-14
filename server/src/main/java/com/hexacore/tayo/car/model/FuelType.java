@@ -15,6 +15,10 @@ public enum FuelType {
         this.type = type;
     }
 
+    public String getType() {
+        return type;
+    }
+
     public static FuelType of(String fuelType) {
         for (FuelType f : values()) {
             if (f.type.equals(fuelType)) {
