@@ -7,6 +7,7 @@ import com.hexacore.tayo.interceptor.LoggingInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -26,7 +27,6 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .order(2)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/auth/signup", "/auth/login", "/auth/refresh"); // 로그인 인증 필요없는 요청
-
         // 엑세스 토큰 재발급 요청인 경우
         registry.addInterceptor(refreshAccessTokenInterceptor())
                 .order(3)
