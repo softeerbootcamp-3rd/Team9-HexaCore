@@ -16,12 +16,10 @@ public class GetUserSimpleResponseDto {
     private String profileImgUrl;
     private String phoneNumber;
 
-    @SuppressWarnings("checkstyle:NeedBraces")
     public GetUserSimpleResponseDto(User user) {
         this.id = user.getId();
         this.name = user.getName();
-        this.profileImgUrl = (user.getProfileImgUrl() != null) ? user.getProfileImgUrl()
-                : "https://hexacore-bucket.s3.ap-northeast-2.amazonaws.com/defaultProfile.png";
+        this.profileImgUrl = user.getProfileImgUrl();
         this.phoneNumber = user.getPhoneNumber();
     }
 
