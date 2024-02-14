@@ -13,7 +13,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -21,8 +20,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.locationtech.jts.geom.Point;
 
 @Entity
@@ -53,7 +50,7 @@ public class Car extends BaseTime {
     private Double mileage;
 
     @Column(name = "fuel")
-    private String fuel;
+    private FuelType fuel;
 
     @Column(name = "type", nullable = false)
     private CarType type;
@@ -76,10 +73,6 @@ public class Car extends BaseTime {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "dates", columnDefinition = "json")
-    @JdbcTypeCode(SqlTypes.JSON)
-    private List<List<LocalDateTime>> dates;
-
     @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
     @Builder.Default
     private Boolean isDeleted = false;
@@ -87,4 +80,8 @@ public class Car extends BaseTime {
     @OneToMany(mappedBy = "car")
     @Builder.Default
     private List<CarImage> carImages = new ArrayList<>();
+
+    @OneToMany(mappedBy = "car")
+    @Builder.Default
+    private List<CarDateRange> carDateRanges = new ArrayList<>();
 }

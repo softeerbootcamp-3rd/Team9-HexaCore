@@ -2,7 +2,6 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.common.response.ResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 
@@ -18,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
 public class CarServiceDeleteCarTest {
@@ -40,13 +38,11 @@ public class CarServiceDeleteCarTest {
                 .willReturn(List.of(new CarImage(), new CarImage()));
 
         // when
-        ResponseDto response = carService.deleteCar(carId);
+        carService.deleteCar(carId);
 
         // then
         BDDMockito.verify(carRepository, Mockito.times(1)).save(Mockito.any(Car.class));
         BDDMockito.verify(carImageRepository, Mockito.times(2)).save(Mockito.any(CarImage.class));
-        Assertions.assertThat(response.getSuccess()).isTrue();
-        Assertions.assertThat(response.getCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
     }
 
     @Test
