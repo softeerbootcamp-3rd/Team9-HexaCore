@@ -7,22 +7,23 @@ public enum CarType {
     MIDDLE("중형차"),
     HEAVY("대형차"),
     SUV("SUV"),
+
     RV("캠핑카"),
     VAN("VAN"),
     NOT_FOUND("not found");
-    private final String type;
+    private final String value;
 
-    CarType(String type) {
-        this.type = type;
+    CarType(String value) {
+        this.value = value;
     }
 
     public String getType() {
-        return type;
+        return value;
     }
 
     public static CarType of(String carType) {
         for (CarType c : values()) {
-            if (c.type.equals(carType)) {
+            if (c.value.equals(carType)) {
                 return c;
             }
         }
