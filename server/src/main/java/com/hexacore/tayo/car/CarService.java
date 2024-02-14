@@ -1,15 +1,15 @@
 package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
-import com.hexacore.tayo.car.dto.GetCarDateRangeRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
-import com.hexacore.tayo.car.model.FuelType;
-import com.hexacore.tayo.category.SubCategoryRepository;
+import com.hexacore.tayo.car.dto.UpdateCarDateRangeDto;
+import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.model.CarType;
-import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
+import com.hexacore.tayo.car.model.FuelType;
+import com.hexacore.tayo.category.SubCategoryRepository;
 import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
@@ -17,6 +17,7 @@ import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +33,7 @@ public class CarService {
 
     private final CarRepository carRepository;
     private final CarImageRepository carImageRepository;
+    private final CarDateRangeRepository carDateRangeRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final S3Manager s3Manager;
 
@@ -111,7 +113,10 @@ public class CarService {
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         List<String> images = carDateList(carId);
-        return new GetCarResponseDto(car, images);
+        List<UpdateCarDateRangeDto.CarDateRangeDto> carDateRanges = car.getCarDateRanges().stream()
+                .map(UpdateCarDateRangeDto.CarDateRangeDto::new)
+                .collect(Collectors.toList());
+        return new GetCarResponseDto(car, carDateRanges, images);
     }
 
     /* 차량 정보 수정 */
@@ -153,7 +158,9 @@ public class CarService {
     }
 
     /* 예약 가능 날짜 수정 */
-    public void updateDateRanges(Long hostUserId, Long carId, GetCarDateRangeRequestDto dateList) {
+    @Transactional
+    public void updateDateRanges(Long hostUserId, Long carId,
+            UpdateCarDateRangeDto.CarDateRangeListDto carDateRangeListDto) {
         // 차량 조회가 안 되는 경우
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -164,16 +171,23 @@ public class CarService {
         }
 
         // dateListDto의 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
-        for (CarDateRange dateRange : dateList.getCarDateRanges()) {
-            LocalDate startDate = dateRange.getStartDate();
-            LocalDate endDate = dateRange.getEndDate();
+        List<CarDateRange> carDateRanges = new ArrayList<>();
+        for (UpdateCarDateRangeDto.CarDateRangeDto carDateRangeDto : carDateRangeListDto.getCarDateRanges()) {
+            LocalDate startDate = carDateRangeDto.getStartDate();
+            LocalDate endDate = carDateRangeDto.getEndDate();
 
             if (startDate.isAfter(endDate)) {
                 throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
             }
+
+            // TODO: carDateRange 업데이트 할때 소속된 예약의 상태가 Ready, Using일 때 지우지 않도록
+            //  그리고 carDateRanges 전체를 수정하는 로직 구성
+            CarDateRange carDateRange = carDateRangeDto.toEntity(car);
+            carDateRangeRepository.save(carDateRange);
+            carDateRanges.add(carDateRange);
         }
 
-        car.setCarDateRanges(dateList.getCarDateRanges());
+        car.setCarDateRanges(carDateRanges);
         carRepository.save(car);
     }
 

@@ -21,6 +21,7 @@ import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -55,6 +56,7 @@ public class ReservationService {
         Reservation reservation = Reservation.builder()
                 .guest(guestUser)
                 .host(hostUser)
+                .fee(car.getFeePerHour() * (int) rentDateTime.until(returnDateTime, ChronoUnit.HOURS))
                 .carDateRange(validCarDateRange)
                 .rentDateTime(createReservationRequestDto.getRentDateTime())
                 .returnDateTime(createReservationRequestDto.getReturnDateTime())
@@ -82,7 +84,7 @@ public class ReservationService {
             GetGuestReservationResponseDto getGuestReservationResponseDto = GetGuestReservationResponseDto.builder()
                     .id(reservation.getId())
                     .car(getCarSimpleResponseDto)
-                    .fee(car.getFeePerHour())
+                    .fee(reservation.getFee())
                     .carAddress(car.getAddress())
                     .rentDateTime(reservation.getRentDateTime())
                     .returnDateTime(reservation.getReturnDateTime())
@@ -101,11 +103,11 @@ public class ReservationService {
         List<GetHostReservationResponseDto> getHostReservationResponseDtos = new ArrayList<>();
 
         for (Reservation reservation : reservations) {
-            Car car = reservation.getCarDateRange().getCar();
             User guest = reservation.getGuest();
 
             GetUserSimpleResponseDto userSimpleResponseDto = GetUserSimpleResponseDto.builder()
                     .id(guest.getId())
+                    .name(guest.getName())
                     .phoneNumber(guest.getPhoneNumber())
                     .profileImgUrl(guest.getProfileImgUrl())
                     .build();
@@ -115,7 +117,7 @@ public class ReservationService {
                     .guest(userSimpleResponseDto)
                     .rentDateTime(reservation.getRentDateTime())
                     .returnDateTime(reservation.getReturnDateTime())
-                    .fee(car.getFeePerHour())
+                    .fee(reservation.getFee())
                     .status(reservation.getStatus())
                     .build();
 

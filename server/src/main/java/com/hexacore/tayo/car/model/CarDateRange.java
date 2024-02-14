@@ -17,6 +17,7 @@ import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,10 +33,8 @@ public class CarDateRange {
     private Car car;
 
     @Column(name = "start_date", nullable = false)
-    @Setter
     private LocalDate startDate;
 
     @Column(name = "end_date", nullable = false)
-    @Setter
     private LocalDate endDate;
 }

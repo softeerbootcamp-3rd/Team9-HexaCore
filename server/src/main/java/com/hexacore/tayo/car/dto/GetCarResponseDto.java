@@ -1,9 +1,8 @@
 package com.hexacore.tayo.car.dto;
 
+import com.hexacore.tayo.car.dto.UpdateCarDateRangeDto.CarDateRangeDto;
 import com.hexacore.tayo.car.model.Car;
-import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarType;
-import com.hexacore.tayo.car.model.FuelType;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import java.util.List;
 import lombok.Getter;
@@ -23,9 +22,9 @@ public class GetCarResponseDto {
     private Integer feePerHour;
     private String address;
     private String description;
-    private List<CarDateRange> carDateRanges;
+    private List<CarDateRangeDto> carDateRanges;
 
-    public GetCarResponseDto(Car car, List<String> images) {
+    public GetCarResponseDto(Car car, List<CarDateRangeDto> carDateRanges, List<String> images) {
         this.carName = car.getSubCategory().getName();
         this.carNumber = car.getCarNumber();
         this.imageUrls = images;
@@ -37,7 +36,7 @@ public class GetCarResponseDto {
         this.feePerHour = car.getFeePerHour();
         this.address = car.getAddress();
         this.description = car.getDescription();
-        this.carDateRanges = car.getCarDateRanges();
+        this.carDateRanges = carDateRanges;
         this.host = new GetUserSimpleResponseDto(car.getOwner());
     }
 }
