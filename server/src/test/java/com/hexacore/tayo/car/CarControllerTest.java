@@ -29,9 +29,6 @@ public class CarControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private WebApplicationContext context;
-
     @MockBean
     private CarService carService;
 
@@ -117,7 +114,7 @@ public class CarControllerTest {
     }
 
     @Test
-    @DisplayName("GEt /cars 성공")
+    @DisplayName("GET /cars 성공")
     void getCarTest() throws Exception {
         // given
         MockMultipartFile image1 = new MockMultipartFile("imageFiles", "filename1.png", "image/png",
