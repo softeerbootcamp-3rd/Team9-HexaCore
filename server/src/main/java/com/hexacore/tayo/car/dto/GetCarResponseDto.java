@@ -1,6 +1,7 @@
 package com.hexacore.tayo.car.dto;
 
 import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.FuelType;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;

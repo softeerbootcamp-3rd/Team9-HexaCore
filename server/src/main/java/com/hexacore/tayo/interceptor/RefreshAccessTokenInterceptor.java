@@ -28,11 +28,7 @@ public class RefreshAccessTokenInterceptor implements HandlerInterceptor {
         String clientRefreshToken = RequestParser.getToken(request, refreshTokenCookieName);
         Claims clientClaims = jwtParser.getClaims(clientRefreshToken);
 
-        // 리프레시 토큰 만료 여부를 확인
-        if (clientClaims.getExpiration().before(new Date())) {
-            throw new AuthException(ErrorCode.EXPIRED_REFRESH_TOKEN);
-        }
-
+        // userId로 서버에 저장된 리프레시 토큰 조회 후 검증
         Long userId = Long.valueOf(clientClaims.getSubject());
         String serverRefreshToken = jwtParser.getValidRefreshToken(userId);
 
