@@ -1,6 +1,8 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import InputBox from '@/pages/auth/InputBox';
 import Button from '@/components/Button';
+import type { ResponseWithoutData } from "@/fetches/common/response.type";
+import { server } from "@/fetches/common/axios";
 
 const emailPattern: RegExp = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
 // const passwordPattern: RegExp = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
@@ -26,7 +28,7 @@ function SignUp() {
   const [phoneErr, setPhoneErr] = useState("");
   const [isWrongPhoneNum, setIsWrongPhoneNum] = useState(false);
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     const email: string = emailInputRef.current?.value || '';
     const password: string = pwdInputRef.current?.value || '';
     const name: string = nameInputRef.current?.value || '';
@@ -34,9 +36,36 @@ function SignUp() {
     const profileImg: File | null = fileInputRef.current?.files?.[0] || null;
 
     if (checkEmail(email) && checkPwd(password) && checkName(name) && checkPhoneNum(phoneNumber)) {
-      
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('name', name);
+      formData.append('phoneNumber', phoneNumber);
+      if (profileImg !== null) {
+        formData.append('profileImg', profileImg);
+      }
+
+      const response = await server.post<ResponseWithoutData>('/auth/signup', {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        },
+        data: formData
+      });
+
+      if (response.success) {
+        // 회원가입 성공시 로그인 페이지로
+        window.location.href = '/auth/login';
+      } else {
+        // 에러 메세지 띄우기
+        setEmailInputErr(response.message);
+      }
     }
   };
+
+  const setEmailInputErr = (errorMsg: string): void => {
+    setIsWrongEmail(true)
+    setEmailErr(errorMsg);
+  }
 
   // 이메일 형식에 맞는지 확인
   const checkEmail = (email: string): boolean => {
