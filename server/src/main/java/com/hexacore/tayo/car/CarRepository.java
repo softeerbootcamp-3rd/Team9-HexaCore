@@ -1,18 +1,17 @@
 package com.hexacore.tayo.car;
 
-import com.hexacore.tayo.car.model.CarEntity;
+import com.hexacore.tayo.car.model.Car;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CarRepository extends JpaRepository<CarEntity, Long> {
+public interface CarRepository extends JpaRepository<Car, Long> {
 
-    Optional<CarEntity> findByOwner_IdAndCarNumberAndIsDeletedTrue(Long ownerId, String carNumber);
+    Optional<Car> findByOwner_IdAndCarNumberAndIsDeletedTrue(Long ownerId, String carNumber);
 
-    List<CarEntity> findByOwner_IdAndIsDeletedFalse(Long ownerId);
+    List<Car> findByOwner_IdAndIsDeletedFalse(Long ownerId);
 
-
-    List<CarEntity> findByCarNumberAndIsDeletedFalse(String carNumber);
+    List<Car> findByCarNumberAndIsDeletedFalse(String carNumber);
 }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
 import Button from '@/components/Button';
+import ListComponent from '@/components/ListComponent';
 import HostCalendar from '@/components/calendar/hostCalendar/HostCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
 import { HostManageLoaderData } from './hostsRoutes';
@@ -36,7 +37,6 @@ function HostManage() {
     location.reload();
   };
 
-  console.log(carDetail);
   if (carDetail === null) {
     navigate('/hosts/register');
   }
@@ -65,34 +65,55 @@ function HostManage() {
         return null;
     }
   };
+  const reservations = hostReservations.sort((a, b) => {
+    const dateA = a.rentPeriod[0];
+    const dateB = b.rentPeriod[0];
+    if (a.rentStatus && b.rentStatus) {
+      const statusOrder = ['ready', 'using', 'cancel', 'terminated'];
+      const statusIndexA = statusOrder.indexOf(a.rentStatus);
+      const statusIndexB = statusOrder.indexOf(b.rentStatus);
+      if (statusIndexA < statusIndexB) {
+        return -1;
+      } else if (statusIndexA > statusIndexB) {
+        return 1;
+      } else if (dateA && dateB) {
+        if (dateA < dateB) {
+          return 1;
+        } else if (dateA > dateB) {
+          return -1;
+        }
+      } else return 0;
+    }
+    return 0;
+  });
+  const ReservationCard = reservations.map((reservation, index) => (
+        <ListComponent
+          key={index}
+          target={{
+            type: 'host',
+            name: reservation.target.name ?? '',
+            phoneNumber: reservation.target.phoneNumber ?? '',
+            image: reservation.target.image ?? '',
+          }}
+          reservation={{
+            startDate: reservation.rentPeriod[0] ?? new Date(),
+            endDate: reservation.rentPeriod[1] ?? new Date(),
+            status: reservation.rentStatus ?? '',
+            price: reservation.rentFee ?? undefined,
+            address: reservation.address ?? '',
+          }}
+        />
+      ))
 
-  const ReservationCard = (
-    <div className="flex flex-col rounded-3xl bg-white p-4">
-      <ul role="list" className="divide-gray-100 divide-y">
-        <li key="person.email" className="flex justify-between gap-x-6 py-5">
-          <div className="flex min-w-0 gap-x-4">
-            <img className="bg-gray-50 h-12 w-12 flex-none rounded-full" src="/default-profile.png" alt="" />
-            <div className="min-w-0 flex-auto">
-              <p className="text-gray-900 text-sm font-semibold leading-6">name</p>
-              <p className="text-gray-500 mt-1 truncate text-xs leading-5">email</p>
-            </div>
-          </div>
-          <div className="hidden shrink-0 justify-center sm:flex sm:flex-col sm:items-end">
-            <p className="text-gray-900 mr-5 text-sm leading-6">role</p>
-          </div>
-        </li>
-      </ul>
-    </div>
-  );
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 min-w-[768px]">
       <h2 className="mt-4 pl-3 text-3xl font-semibold">수현님, 등록한 차량을 관리해보세요!</h2>
       <div className="mb-10 flex gap-8">
         {/* Car Info Manage */}
-        <div className="flex w-2/5 flex-col gap-3">
-          <h3 className="pl-3 text-[22px] font-medium">차량 정보</h3>
-          <div className="flex w-full flex-col overflow-hidden rounded-3xl bg-white shadow-xl">
+        <div className="flex flex-col w-2/5 gap-3">
+          <h3 className="pl-3 text-lg xl:text-xl font-medium">차량 정보</h3>
+          <div className="flex flex-col w-full bg-white rounded-3xl shadow-xl overflow-hidden">
             {/* Image Gallery */}
             <div className="relative flex h-[300px] w-full overflow-hidden">
               <button onClick={showPrevImage} className="absolute left-3 top-1/2 -translate-y-1/2 transform hover:brightness-75">
@@ -109,17 +130,17 @@ function HostManage() {
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between">
                   <div className="flex items-center gap-3">
-                    <h1 className="text-2xl font-bold">{carDetail.carName}</h1>
-                    <div className="text-base font-semibold text-background-700">{carDetail.carNumber}</div>
-                    {/* <Tag className="h-6 text-background-700 font-semibold text-base" text={carDetail.carNumber} /> */}
+                    <h1 className="text-base lg:text-2xl font-bold">{carDetail.carName}</h1>
+                    <div className="text-background-700 font-semibold text-base">{carDetail.carNumber}</div>
+                    {/* <Tag className="h-6 text-background-700 font-semibold text-base" text={data.car.carNumber} /> */}
                   </div>
                   <div className="flex gap-3">
-                    <Button className="h-8" text="수정" onClick={editCar}></Button>
-                    <Button className="h-8" text="삭제" type="danger" onClick={deleteCar}></Button>
+                    <Button className="h-8 text-xs xl:text-sm whitespace-nowrap" text="수정" onClick={editCar}></Button>
+                    <Button className="h-8 text-xs xl:text-sm whitespace-nowrap" text="삭제" type="danger" onClick={deleteCar}></Button>
                   </div>
                 </div>
                 <p className="text-background-500">
-                  차종 {carDetail.type} &#183; 연비 {carDetail.mileage.toString()}km/l &#183; 연료 {carDetail.fuel}
+                  차종 {carDetail.type} &#183; 연비 {carDetail.mileage.toString()}km/L &#183; 연료 {carDetail.fuel}
                 </p>
               </div>
               {/* Line */}
@@ -127,35 +148,35 @@ function HostManage() {
               {/* Car Info Detail */}
               <div className="flex flex-col gap-3">
                 {/* carNumber */}
-                <div className="flex items-center gap-4">
-                  <div className="bg-gray-300 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full">
-                    <img src="/default-profile.png" alt="host-profile" />
+                <div className="flex gap-4 items-center">
+                  <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                    <img src="../public/default-profile.png" alt="host-profile" />
                   </div>
                   <div className="flex flex-col">
                     <p className="font-semibold">위치</p>
-                    <p className="text-sm text-background-500">{carDetail.carAddress}</p>
+                    <p className="text-background-500 text-sm">{carDetail.carAddress}</p>
                   </div>
                 </div>
 
                 {/* Year */}
-                <div className="flex items-center gap-4">
-                  <div className="bg-gray-300 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full">
-                    <img src="/default-profile.png" alt="host-profile" />
+                <div className="flex gap-4 items-center">
+                  <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                    <img src="../public/default-profile.png" alt="host-profile" />
                   </div>
                   <div className="flex flex-col">
                     <p className="font-semibold">가격</p>
-                    <p className="text-sm text-background-500">₩{carDetail.feePerHour.toString()} /시간</p>
+                    <p className="text-background-500 text-sm">{carDetail.feePerHour?.toString()}원 / 시간</p>
                   </div>
                 </div>
 
                 {/* Address */}
-                <div className="flex items-center gap-4">
-                  <div className="bg-gray-300 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full">
-                    <img src="/default-profile.png" alt="host-profile" />
+                <div className="flex gap-4 items-center">
+                  <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                    <img src="../public/default-profile.png" alt="host-profile" />
                   </div>
                   <div className="flex flex-col">
                     <p className="font-semibold">연식</p>
-                    <p className="text-sm text-background-500">{carDetail.year.toString()}년</p>
+                    <p className="text-background-500 text-sm">{carDetail.year?.toString()}년</p>
                   </div>
                 </div>
               </div>
@@ -176,17 +197,21 @@ function HostManage() {
           {/* Button div */}
           <div className="flex gap-6">
             <button
-              className={`bg-gray-200 ${selectedTab === 'calendar' ? 'font-bold text-black' : 'text-background-300'} pl-3 text-[20px] font-medium`}
+              className={`bg-gray-200 w-fit text-lg xl:text-xl whitespace-nowrap ${
+                selectedTab === 'calendar' ? 'text-black font-bold' : 'text-background-300'
+              } pl-3 text-[20px] font-medium`}
               onClick={() => handleTabSelect('calendar')}>
               예약 가능 일자
             </button>
             <button
-              className={`bg-gray-200 ${selectedTab === 'reservation' ? 'font-bold text-black' : 'text-background-300'} pl-3 text-[20px] font-medium`}
+              className={`bg-gray-200 w-fit text-lg xl:text-xl whitespace-nowrap ${
+                selectedTab === 'reservation' ? 'text-black font-bold' : 'text-background-300'
+              } pl-3 text-[20px] font-medium`}
               onClick={() => handleTabSelect('reservation')}>
               내 차 예약 내역
             </button>
           </div>
-          {renderSelectedComponent()}
+          <div className="flex flex-col max-h-screen gap-4 overflow-y-auto pr-6">{renderSelectedComponent()}</div>
         </div>
       </div>
     </div>
