@@ -1,5 +1,6 @@
 package com.hexacore.tayo.auth;
 
+import com.hexacore.tayo.common.UriPath;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.common.response.Response;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth")
 public class AuthController {
 
     @Value("${jwt.refresh.cookie-name}")
@@ -27,10 +28,10 @@ public class AuthController {
     @Value("${jwt.access.cookie-name}")
     private String accessTokenCookieName;
 
-    private static final String accessTokenPath = "/api/v1";
-    private static final String refreshTokenPath = "/api/v1/auth/refresh";
-
     private final AuthService authService;
+
+    private static final String USER_ID = "userId";
+    private static final String USER_NAME = "userName";
 
     // 회원가입
     @PostMapping("/signup")
@@ -50,9 +51,9 @@ public class AuthController {
                                           HttpServletResponse response) {
         LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
 
-        response.addCookie(makeTokenCookie(accessTokenCookieName, loginResponseDto.getAccessToken(), accessTokenPath));
+        response.addCookie(makeTokenCookie(accessTokenCookieName, loginResponseDto.getAccessToken(), UriPath.PREFIX));
         response.addCookie(
-                makeTokenCookie(refreshTokenCookieName, loginResponseDto.getRefreshToken(), refreshTokenPath));
+                makeTokenCookie(refreshTokenCookieName, loginResponseDto.getRefreshToken(), UriPath.REFRESH_TOKEN_PATH));
 
         return Response.of(HttpStatus.OK, loginResponseDto.getLoginUserInfo());
     }
@@ -60,7 +61,7 @@ public class AuthController {
     // 로그아웃
     @GetMapping("/logout")
     public ResponseEntity<Response> logOut(HttpServletRequest request, HttpServletResponse response) {
-        authService.logOut((Long) request.getAttribute("userId"));
+        authService.logOut((Long) request.getAttribute(USER_ID));
         resetCookie(response);
 
         return Response.of(HttpStatus.OK);
@@ -69,7 +70,7 @@ public class AuthController {
     // 회원 탈퇴
     @DeleteMapping("/users")
     public ResponseEntity<Response> deleteUser(HttpServletRequest request, HttpServletResponse response) {
-        authService.delete((Long) request.getAttribute("userId"));
+        authService.delete((Long) request.getAttribute(USER_ID));
         resetCookie(response);
 
         return Response.of(HttpStatus.OK);
@@ -79,8 +80,8 @@ public class AuthController {
     @GetMapping("/refresh")
     public ResponseEntity<Response> refresh(HttpServletRequest request, HttpServletResponse response) {
 
-        String newAccessToken = authService.refresh((Long) request.getAttribute("userId"));
-        response.addCookie(makeTokenCookie(accessTokenCookieName, newAccessToken, accessTokenPath));
+        String newAccessToken = authService.refresh((Long) request.getAttribute(USER_ID));
+        response.addCookie(makeTokenCookie(accessTokenCookieName, newAccessToken, UriPath.PREFIX));
 
         return Response.of(HttpStatus.OK);
     }
@@ -88,8 +89,8 @@ public class AuthController {
     @GetMapping("/login/test")
     public ResponseEntity<Response> loginTest(HttpServletRequest request) {
         String[] arr = new String[2];
-        arr[0] = String.valueOf(request.getAttribute("userId"));
-        arr[1] = (String) request.getAttribute("userName");
+        arr[0] = String.valueOf(request.getAttribute(USER_ID));
+        arr[1] = (String) request.getAttribute(USER_NAME);
 
         return Response.of(HttpStatus.OK, arr);
     }
@@ -104,9 +105,9 @@ public class AuthController {
     }
 
     private void resetCookie(HttpServletResponse response) {
-        Cookie accessToken = makeTokenCookie(accessTokenCookieName, "", accessTokenPath);
+        Cookie accessToken = makeTokenCookie(accessTokenCookieName, "", UriPath.PREFIX);
         accessToken.setMaxAge(0);
-        Cookie refreshToken = makeTokenCookie(refreshTokenCookieName, "", refreshTokenPath);
+        Cookie refreshToken = makeTokenCookie(refreshTokenCookieName, "", UriPath.REFRESH_TOKEN_PATH);
         refreshToken.setMaxAge(0);
 
         response.addCookie(accessToken);
