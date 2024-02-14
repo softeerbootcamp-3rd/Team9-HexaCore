@@ -9,10 +9,10 @@ function Login() {
   const emailInputRef = useRef<HTMLInputElement | null>(null);
   const pwdInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [wrongEmail, setWrongEmail] = useState(false);
+  const [isWrongEmail, setWrongEmail] = useState(false);
   const [emailErr, setEmailErr] = useState("");
 
-  const [wrongPwd, setWrongPwd] = useState(false);
+  const [isWrongPwd, setWrongPwd] = useState(false);
   const [pwdErr, setPwdErr] = useState("");
 
   const handleLogin = async () => {
@@ -74,7 +74,7 @@ function Login() {
           title="이메일" 
           placeHolder="이메일을 입력해주세요." 
           type="email" 
-          isWrong={wrongEmail}
+          isWrong={isWrongEmail}
           errorMsg={emailErr}
         />
         <InputBox 
@@ -82,7 +82,7 @@ function Login() {
           title="비밀번호" 
           placeHolder="비밀번호를 입력해주세요." 
           type="password" 
-          isWrong={wrongPwd}
+          isWrong={isWrongPwd}
           errorMsg={pwdErr}
         />
 
