@@ -50,7 +50,7 @@ public class Car extends BaseTime {
     private Double mileage;
 
     @Column(name = "fuel")
-    private String fuel;
+    private FuelType fuel;
 
     @Column(name = "type", nullable = false)
     private CarType type;

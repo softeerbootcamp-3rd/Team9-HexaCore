@@ -33,5 +33,5 @@ public class SubCategory extends BaseTime {
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
-    private Category categoryId;
+    private Category category;
 }
