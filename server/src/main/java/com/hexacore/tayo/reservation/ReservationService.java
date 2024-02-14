@@ -56,8 +56,8 @@ public class ReservationService {
                 .guest(guestUser)
                 .host(hostUser)
                 .carDateRange(validCarDateRange)
-                .rentDate(createReservationRequestDto.getRentDateTime())
-                .returnDate(createReservationRequestDto.getReturnDateTime())
+                .rentDateTime(createReservationRequestDto.getRentDateTime())
+                .returnDateTime(createReservationRequestDto.getReturnDateTime())
                 .status(ReservationStatus.READY)
                 .build();
         reservationRepository.save(reservation);
@@ -84,8 +84,8 @@ public class ReservationService {
                     .car(getCarSimpleResponseDto)
                     .fee(car.getFeePerHour())
                     .carAddress(car.getAddress())
-                    .rentDate(reservation.getRentDate())
-                    .returnDate(reservation.getReturnDate())
+                    .rentDateTime(reservation.getRentDateTime())
+                    .returnDateTime(reservation.getReturnDateTime())
                     .status(reservation.getStatus())
                     .hostPhoneNumber(host.getPhoneNumber())
                     .build();
@@ -113,8 +113,8 @@ public class ReservationService {
             GetHostReservationResponseDto getHostReservationResponseDto = GetHostReservationResponseDto.builder()
                     .id(reservation.getId())
                     .guest(userSimpleResponseDto)
-                    .rentDate(reservation.getRentDate())
-                    .returnDate(reservation.getReturnDate())
+                    .rentDateTime(reservation.getRentDateTime())
+                    .returnDateTime(reservation.getReturnDateTime())
                     .fee(car.getFeePerHour())
                     .status(reservation.getStatus())
                     .build();
