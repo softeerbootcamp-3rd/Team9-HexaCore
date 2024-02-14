@@ -1,6 +1,8 @@
 package com.hexacore.tayo.car;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
 
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.model.Car;
@@ -9,6 +11,8 @@ import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.FuelType;
 import com.hexacore.tayo.category.model.Category;
 import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.common.errors.ErrorCode;
+import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.model.User;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,21 +47,17 @@ public class CarServiceRetrieveTest {
     GeometryFactory geometryFactory = new GeometryFactory();
     Coordinate coordinate = new Coordinate(120.0, 30.0);
     Point point = geometryFactory.createPoint(coordinate);
-
-    @BeforeEach
-    private void createCar() {
-        Car car = new Car(1L, user, subCategory, "11가 1111", 14.3, FuelType.DIESEL, CarType.RV, 5, 2024, 10000,
-                "경기도 용인시 기흥구 신정로", point, "설명", null, null, null);
-        List<CarImage> images = new ArrayList<>();
-        when(carRepository.findById(1L)).thenReturn(Optional.of(car));
-        when(carImageRepository.findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(1L)).thenReturn(images);
-    }
+    Car car = new Car(1L, user, subCategory, "11가 1111", 14.3, FuelType.DIESEL, CarType.RV, 5, 2024, 10000,
+            "경기도 용인시 기흥구 신정로", point, "설명", null, null, null);
+    List<CarImage> images = new ArrayList<>();
 
     @Test
     @DisplayName("차량 상세 조회 성공")
     public void carDetailSuccessTest() {
         //given
         Long carId = 1L;
+        when(carRepository.findById(1L)).thenReturn(Optional.of(car));
+        when(carImageRepository.findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(1L)).thenReturn(images);
         //when
         GetCarResponseDto getCarResponseDto = carService.carDetail(carId);
         //then
@@ -79,10 +79,10 @@ public class CarServiceRetrieveTest {
     @DisplayName("차량 조회가 안되는 경우")
     public void carDetailNotFoundTest() {
         //given
-        Long carId = 1L;
-        //when
-        GetCarResponseDto getCarResponseDto = carService.carDetail(carId);
-        //then
-        Assertions.assertThat(getCarResponseDto.getHost()).isNotNull();
+        Long carId = 2L;
+        //when & then
+        assertThrows(GeneralException.class, () -> {
+            carService.carDetail(carId);
+        }, "Car not found should throw GeneralException with ErrorCode.CAR_NOT_FOUND");
     }
 }
