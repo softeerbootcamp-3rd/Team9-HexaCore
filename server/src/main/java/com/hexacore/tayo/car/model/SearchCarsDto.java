@@ -11,9 +11,9 @@ import java.time.LocalDate;
 public class SearchCarsDto {
     Double distance; // unit: meters
     Position position;
-    LocalDate rentDate;
-    LocalDate returnDate;
-    Integer people;
+    LocalDate startDate;
+    LocalDate endDate;
+    Integer party;
     CarType type;
     Integer categoryId;
     Integer subcategoryId;
