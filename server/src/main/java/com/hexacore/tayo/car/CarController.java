@@ -1,13 +1,16 @@
 package com.hexacore.tayo.car;
 
-import com.hexacore.tayo.car.dto.*;
+import com.hexacore.tayo.car.dto.CreateCarRequestDto;
+import com.hexacore.tayo.car.dto.GetCarDateRangeRequestDto;
+import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.SearchCarsDto;
-import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.common.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -57,17 +60,11 @@ public class CarController {
         return Response.of(HttpStatus.OK, cars);
     }
 
-    @GetMapping("/categories")
-    public ResponseEntity<Response> getCategories() {
-        GetSubCategoryListResponseDto getSubCategoryListResponseDto = carService.getSubCategories();
-        return Response.of(HttpStatus.OK, getSubCategoryListResponseDto);
-    }
-
     @PostMapping
     public ResponseEntity<Response> createCar(HttpServletRequest request,
-            @ModelAttribute CreateCarRequestDto CreateCarRequestDto) {
+            @Valid @ModelAttribute CreateCarRequestDto createCarRequestDto) {
         Long userId = (Long) request.getAttribute("userId");
-        carService.createCar(CreateCarRequestDto, userId);
+        carService.createCar(createCarRequestDto, userId);
 
         return Response.of(HttpStatus.CREATED);
     }
@@ -93,9 +90,11 @@ public class CarController {
     }
 
     @PutMapping("{carId}/date")
-    public ResponseEntity<Response> updateDates(@PathVariable Long carId,
-            @RequestBody GetDateListRequestDto getDateListRequestDto) {
-        carService.updateDates(carId, getDateListRequestDto);
+    public ResponseEntity<Response> updateDateRanges(@PathVariable Long carId,
+            HttpServletRequest request,
+            @RequestBody GetCarDateRangeRequestDto getCarDateRangeRequestDto) {
+        Long hostUserId = (Long) request.getAttribute("userId");
+        carService.updateDateRanges(hostUserId, carId, getCarDateRangeRequestDto);
         return Response.of(HttpStatus.ACCEPTED);
     }
 }
