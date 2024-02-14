@@ -7,6 +7,7 @@ import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.common.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -48,7 +49,6 @@ public class CarController {
         return Response.of(HttpStatus.NO_CONTENT);
     }
 
-
     @GetMapping("{carId}")
     public ResponseEntity<Response> carDetail(@PathVariable Long carId) {
         GetCarResponseDto getCarResponseDto = carService.carDetail(carId);
@@ -56,8 +56,8 @@ public class CarController {
     }
 
     @PutMapping("{carId}")
-    public ResponseEntity<Response> carUpdate(@PathVariable Long carId,
-            @ModelAttribute UpdateCarRequestDto updateCarRequestDto) {
+    public ResponseEntity<Response> updateCar(@PathVariable Long carId,
+            @Valid @ModelAttribute UpdateCarRequestDto updateCarRequestDto) {
         carService.carUpdate(carId, updateCarRequestDto);
         return Response.of(HttpStatus.OK);
     }
