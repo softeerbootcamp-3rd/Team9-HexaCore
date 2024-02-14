@@ -34,7 +34,6 @@ public class CarRepositoryTest {
     private SubCategoryRepository subCategoryRepository;
 
     private User user;
-    private Category category;
     private SubCategory subCategory;
 
     @BeforeEach
@@ -46,9 +45,8 @@ public class CarRepositoryTest {
         Category category = categoryRepository.save(
                 Category.builder().name("모델명").build());
         SubCategory subCategory = subCategoryRepository.save(
-                SubCategory.builder().name("세부모델명").build());
+                SubCategory.builder().name("모델명 세부모델명").category(category).build());
         this.user = user;
-        this.category = category;
         this.subCategory = subCategory;
     }
 

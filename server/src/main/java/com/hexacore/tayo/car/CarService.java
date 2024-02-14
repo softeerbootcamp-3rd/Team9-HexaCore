@@ -1,16 +1,13 @@
 package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
-import com.hexacore.tayo.category.CategoryRepository;
+import com.hexacore.tayo.car.model.FuelType;
 import com.hexacore.tayo.category.SubCategoryRepository;
-import com.hexacore.tayo.category.dto.GetSubCategoryResponseDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
-import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
 import com.hexacore.tayo.car.dto.GetDateListRequestDto;
 import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -25,10 +22,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -38,23 +31,27 @@ public class CarService {
 
     private final CarRepository carRepository;
     private final CarImageRepository carImageRepository;
-    private final CategoryRepository categoryRepository;
     private final SubCategoryRepository subCategoryRepository;
     private final S3Manager s3Manager;
-
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
 
     /* 차량 등록 */
     @Transactional
     public void createCar(CreateCarRequestDto createCarRequestDto, Long userId) {
-        if (checkUserHasCar(userId)) {
+        if (isUserHavingCar(userId)) {
             // 유저가 이미 차량을 등록한 경우
             throw new GeneralException(ErrorCode.USER_ALREADY_HAS_CAR);
         }
-        if (checkDuplicateCarNumber(createCarRequestDto.getCarNumber())) {
+        if (isCarNumberDuplicated(createCarRequestDto.getCarNumber())) {
             // 중복되는 차량 번호가 있을 경우
             throw new GeneralException(ErrorCode.CAR_NUMBER_DUPLICATED);
+        }
+        if (!isSupportedCarType(createCarRequestDto.getType())) {
+            // 지원하는 않는 차량 타입인 경우
+            throw new GeneralException(ErrorCode.INAVALID_CAR_TYPE);
+        }
+        if (!isSupportedFuelType(createCarRequestDto.getFuel())) {
+            // 지원하지 않는 연료 타입인 경우
+            throw new GeneralException(ErrorCode.INVALID_FUEL_TYPE);
         }
         if (!isIndexSizeEqualsToImageSize(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles())) {
             // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
@@ -65,23 +62,21 @@ public class CarService {
         SubCategory subCategory = subCategoryRepository.findByName(createCarRequestDto.getCarName())
                 // 존재하지 않는 모델인 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
-        Point position = createPoint(createCarRequestDto.getPosition());
 
-        Car car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId != null ? userId : 1L,
-                createCarRequestDto.getCarNumber())
+        Car car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId, createCarRequestDto.getCarNumber())
                 .orElse(null);
 
         if (car != null) {
             // 유저가 이전에 등록한 같은 번호의 차가 있는 경우 UPDATE
             car.setSubCategory(subCategory);
             car.setMileage(createCarRequestDto.getMileage());
-            car.setFuel(createCarRequestDto.getFuel());
+            car.setFuel(FuelType.of(createCarRequestDto.getFuel()));
             car.setType(CarType.of(createCarRequestDto.getType()));
             car.setCapacity(createCarRequestDto.getCapacity());
             car.setYear(createCarRequestDto.getYear());
             car.setFeePerHour(createCarRequestDto.getFeePerHour());
             car.setAddress(createCarRequestDto.getAddress());
-            car.setPosition(position);
+            car.setPosition(createCarRequestDto.getPosition().toEntity());
             car.setDescription(createCarRequestDto.getDescription());
             car.setIsDeleted(false);
             // 이미지 저장
@@ -89,21 +84,21 @@ public class CarService {
         } else {
             // 유저가 이전에 등록한 같은 번호의 차가 없는 경우 CREATE
             Car carEntity = Car.builder()
-                    .owner(User.builder().id(userId != null ? userId : 1L).build())
+                    .owner(User.builder().id(userId).build())
                     .subCategory(subCategory)
                     .carNumber(createCarRequestDto.getCarNumber())
                     .mileage(createCarRequestDto.getMileage())
-                    .fuel(createCarRequestDto.getFuel())
+                    .fuel(FuelType.of(createCarRequestDto.getFuel()))
                     .type(CarType.of(createCarRequestDto.getType()))
                     .capacity(createCarRequestDto.getCapacity())
                     .year(createCarRequestDto.getYear())
                     .feePerHour(createCarRequestDto.getFeePerHour())
                     .address(createCarRequestDto.getAddress())
-                    .position(createPoint(createCarRequestDto.getPosition()))
+                    .position(createCarRequestDto.getPosition().toEntity())
                     .description(createCarRequestDto.getDescription())
                     .build();
 
-            Car savedCar = carRepository.save(carEntity);
+            carRepository.save(carEntity);
             // 이미지 저장
             saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles(), carEntity);
         }
@@ -177,21 +172,6 @@ public class CarService {
         carRepository.save(car);
     }
 
-    /* 모델, 세부 모델명 조회 */
-    public GetSubCategoryListResponseDto getSubCategories() {
-        List<GetSubCategoryResponseDto> models = subCategoryRepository.findAll().stream()
-                .map(subCategory -> new GetSubCategoryResponseDto(subCategory.getName()))
-                .toList();
-        return new GetSubCategoryListResponseDto(models);
-    }
-
-    /* 경도와 위도 값을 Point 객체로 변환 */
-    private Point createPoint(CreatePositionRequestDto createPositionRequestDto) {
-        GeometryFactory geometryFactory = new GeometryFactory();
-        Coordinate coordinate = new Coordinate(createPositionRequestDto.getLng(), createPositionRequestDto.getLat());
-        return geometryFactory.createPoint(coordinate);
-    }
-
     /* 이미지 엔티티 저장 */
     private void saveImages(List<Integer> indexes, List<MultipartFile> files, Car car) {
         if (!carImageRepository.existsByCar_Id(car.getId()) && indexes.size() < 5) {
@@ -230,16 +210,27 @@ public class CarService {
     }
 
     /* 유저가 등록한 차량이 있는지 체크 */
-    private Boolean checkUserHasCar(Long userId) {
+    private Boolean isUserHavingCar(Long userId) {
         return !carRepository.findByOwner_IdAndIsDeletedFalse(userId).isEmpty();
     }
 
     /* 중복된 차량 번호가 있는지 체크 */
-    private Boolean checkDuplicateCarNumber(String carNumber) {
+    private Boolean isCarNumberDuplicated(String carNumber) {
         return !carRepository.findByCarNumberAndIsDeletedFalse(carNumber).isEmpty();
     }
 
+    /* 인덱스 리스트와 이미지 리스트의 사이즈가 같은지 체크 */
     private Boolean isIndexSizeEqualsToImageSize(List<Integer> imageIndexes, List<MultipartFile> imageFiles) {
         return imageIndexes.size() == imageFiles.size();
+    }
+
+    /* CarType이 지원하는 형식인지 체크 */
+    private Boolean isSupportedCarType(String carType) {
+        return CarType.of(carType) != CarType.NOT_FOUND;
+    }
+
+    /* FuelType이 지원하는 형식인지 체크 */
+    private Boolean isSupportedFuelType(String fuelType) {
+        return FuelType.of(fuelType) != FuelType.NOT_FOUND;
     }
 }

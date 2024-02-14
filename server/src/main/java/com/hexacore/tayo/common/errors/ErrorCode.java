@@ -30,6 +30,8 @@ public enum ErrorCode {
     CAR_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST, "중복된 차량 번호입니다."),
     USER_ALREADY_HAS_CAR(HttpStatus.BAD_REQUEST, "유저가 이미 차량을 등록했습니다."),
     IMAGE_INDEX_MISMATCH(HttpStatus.BAD_REQUEST, "이미지 개수와 인덱스 개수가 일치하지 않습니다."),
+    INAVALID_CAR_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 차량 타입입니다."),
+    INVALID_FUEL_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 연료 타입입니다."),
 
     DATE_SIZE_MISMATCH(HttpStatus.BAD_REQUEST, "날짜 구간이 맞지 않습니다."),
     DATE_FORMAT_MISMATCH(HttpStatus.BAD_REQUEST, "날짜 형식이 맞지 않습니다."),
