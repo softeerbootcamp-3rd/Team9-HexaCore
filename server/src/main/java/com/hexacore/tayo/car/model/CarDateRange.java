@@ -1,14 +1,12 @@
 package com.hexacore.tayo.car.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import com.hexacore.tayo.reservation.model.Reservation;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,4 +36,7 @@ public class CarDateRange {
     @Column(name = "end_date", nullable = false)
     @Setter
     private LocalDate endDate;
+
+    @OneToMany(mappedBy = "carDateRange")
+    private List<Reservation> reservations = new ArrayList<>();
 }
