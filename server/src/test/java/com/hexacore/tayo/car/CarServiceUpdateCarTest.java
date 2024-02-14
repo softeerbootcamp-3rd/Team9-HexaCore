@@ -80,7 +80,7 @@ public class CarServiceUpdateCarTest {
         when(s3Manager.uploadImage(Mockito.any())).thenReturn("/filename");
 
         //when
-        carService.updateCar(1L, updateCarRequestDto);
+        carService.updateCar(1L, updateCarRequestDto, 1L);
 
         //then
         BDDMockito.verify(carRepository, Mockito.times(1)).save(Mockito.any(Car.class));
@@ -100,17 +100,36 @@ public class CarServiceUpdateCarTest {
                 List.of(1, 2, 3, 4, 5));
 
         //when & then
-        Assertions.assertThatThrownBy(() -> carService.updateCar(2L, updateCarRequestDto))
+        Assertions.assertThatThrownBy(() -> carService.updateCar(2L, updateCarRequestDto, 1L))
                 .isInstanceOf(GeneralException.class)
                 .hasMessage(ErrorCode.CAR_NOT_FOUND.getErrorMessage());
     }
 
     @Test
-    @DisplayName("필수 입력값 누락")
+    @DisplayName("이미지 인덱스 리스트와 이미지 파일 리스트의 길이가 다를때")
     void UpdateCarEmptyFieldTest() {
         //given
         Long carId = 1L;
-        UpdateCarRequestDto updateCarRequestDto = new UpdateCarRequestDto(null, "경기도 어쩌고 저쩌고", position, "설명 수정",
+        UpdateCarRequestDto updateCarRequestDto = new UpdateCarRequestDto(12000, "경기도 어쩌고 저쩌고", position, "설명 수정",
+                List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy".getBytes()),
+                        new MockMultipartFile("image2", "fileChangename2.png", "image/png", "dummy".getBytes()),
+                        new MockMultipartFile("image3", "fileChangename3.png", "image/png", "dummy".getBytes()),
+                        new MockMultipartFile("image4", "fileChangename4.png", "image/png", "dummy".getBytes()),
+                        new MockMultipartFile("image5", "fileChangename5.png", "image/png", "dummy".getBytes())),
+                List.of(1, 2, 3, 4));
+
+        //when & then
+        Assertions.assertThatThrownBy(() -> carService.updateCar(1L, updateCarRequestDto, 1L))
+                .isInstanceOf(GeneralException.class)
+                .hasMessage(ErrorCode.IMAGE_INDEX_MISMATCH.getErrorMessage());
+    }
+
+    @Test
+    @DisplayName("차량 소유주와 유저가 불일치 할떄")
+    void UpdateCarUserNotHostTest() {
+        //given
+        Long carId = 1L;
+        UpdateCarRequestDto updateCarRequestDto = new UpdateCarRequestDto(120000, "경기도 어쩌고 저쩌고", position, "설명 수정",
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy".getBytes()),
                         new MockMultipartFile("image2", "fileChangename2.png", "image/png", "dummy".getBytes()),
                         new MockMultipartFile("image3", "fileChangename3.png", "image/png", "dummy".getBytes()),
@@ -119,12 +138,10 @@ public class CarServiceUpdateCarTest {
                 List.of(1, 2, 3, 4, 5));
 
         when(carRepository.findById(1L)).thenReturn(Optional.of(car));
-        when(carImageRepository.existsByCar_Id(1L)).thenReturn(Boolean.TRUE);
-        when(s3Manager.uploadImage(Mockito.any())).thenReturn("/filename");
 
         //when & then
-        Assertions.assertThatThrownBy(() -> carService.updateCar(1L, updateCarRequestDto))
+        Assertions.assertThatThrownBy(() -> carService.updateCar(1L, updateCarRequestDto, 2L))
                 .isInstanceOf(GeneralException.class)
-                .hasMessage(ErrorCode.CAR_MODEL_NOT_FOUND.getErrorMessage());
+                .hasMessage(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS.getErrorMessage());
     }
 }
