@@ -1,8 +1,8 @@
 package com.hexacore.tayo.reservation;
 
-import com.hexacore.tayo.car.CarImageRepository;
 import com.hexacore.tayo.car.CarRepository;
 import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -31,7 +31,6 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final CarRepository carRepository;
-    private final CarImageRepository carImageRepository;
     private final UserRepository userRepository;
 
     @Transactional
@@ -43,23 +42,19 @@ public class ReservationService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         User hostUser = car.getOwner();
-
-        List<List<LocalDateTime>> possibleRentDates = car.getDates();
+        List<CarDateRange> carDateRanges = car.getCarDateRanges();
 
         LocalDateTime rentDate = createReservationRequestDto.getRentDate();
         LocalDateTime returnDate = createReservationRequestDto.getReturnDate();
 
-        possibleRentDates.stream()
-                // date.get(0) ~ date.get(1) 사이의 날짜인지 검증
-                .filter(date -> date.get(0).isBefore(rentDate))
-                .filter(date -> date.get(1).isAfter(returnDate))
-                .findFirst()
-                .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE));
+        // rentDate, returnDate가 범위안에 있는지 검증
+        // 없으면 GeneralException.RESERVATION_DATE_NOT_IN_RANGE 예외 발생
+        CarDateRange validCarDateRange = getCarDateInRangeElseThrow(carDateRanges, rentDate, returnDate);
 
         Reservation reservation = Reservation.builder()
                 .guest(guestUser)
                 .host(hostUser)
-                .car(car)
+                .carDateRange(validCarDateRange)
                 .rentDate(createReservationRequestDto.getRentDate())
                 .returnDate(createReservationRequestDto.getReturnDate())
                 .status(ReservationStatus.READY)
@@ -68,19 +63,19 @@ public class ReservationService {
     }
 
     public GetGuestReservationListResponseDto getGuestReservations(Long guestUserId) {
-        List<Reservation> reservationEntities = reservationRepository.findAllByGuest_id(guestUserId);
+        List<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId);
         List<GetGuestReservationResponseDto> getGuestReservationResponseDtos = new ArrayList<>();
 
-        for (Reservation reservation : reservationEntities) {
-            Car car = reservation.getCar();
-            List<CarImage> imageEntities = carImageRepository.findByCar_Id(car.getId());
+        for (Reservation reservation : reservations) {
+            Car car = reservation.getCarDateRange().getCar();
+            List<CarImage> images = car.getCarImages();
             SubCategory subCategory = car.getSubCategory();
             User host = car.getOwner();
 
             GetCarSimpleResponseDto getCarSimpleResponseDto = GetCarSimpleResponseDto.builder()
                     .id(car.getId())
                     .name(subCategory.getName())
-                    .imageUrl(imageEntities.get(0).getUrl()) // 대표 이미지 1장
+                    .imageUrl(images.get(0).getUrl()) // 대표 이미지 1장
                     .build();
 
             GetGuestReservationResponseDto getGuestReservationResponseDto = GetGuestReservationResponseDto.builder()
@@ -101,11 +96,11 @@ public class ReservationService {
     }
 
     public GetHostReservationListResponseDto getHostReservations(Long hostUserId) {
-        List<Reservation> reservationEntities = reservationRepository.findAllByHost_id(hostUserId);
+        List<Reservation> reservations = reservationRepository.findAllByHost_id(hostUserId);
         List<GetHostReservationResponseDto> getHostReservationResponseDtos = new ArrayList<>();
 
-        for (Reservation reservation : reservationEntities) {
-            Car car = reservation.getCar();
+        for (Reservation reservation : reservations) {
+            Car car = reservation.getCarDateRange().getCar();
             User guest = reservation.getGuest();
 
             GetUserSimpleResponseDto userSimpleResponseDto = GetUserSimpleResponseDto.builder()
@@ -143,5 +138,28 @@ public class ReservationService {
 
         reservation.setStatus(ReservationStatus.CANCEL);
         reservationRepository.save(reservation);
+    }
+
+    private CarDateRange getCarDateInRangeElseThrow(List<CarDateRange> carDateRanges,
+            LocalDateTime rentDate,
+            LocalDateTime returnDate) throws GeneralException {
+
+        if (carDateRanges.isEmpty()) {
+            throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
+        }
+
+        for (CarDateRange carDateRange : carDateRanges) {
+            LocalDateTime startDate = carDateRange.getStartDate();
+            LocalDateTime endDate = carDateRange.getEndDate();
+
+            if (startDate.isBefore(rentDate)) {
+                if (endDate.isAfter(returnDate)) {
+                    return carDateRange;
+                }
+                continue;
+            }
+            break;
+        }
+        throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
     }
 }

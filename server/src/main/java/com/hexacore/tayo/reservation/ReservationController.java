@@ -29,7 +29,7 @@ public class ReservationController {
         Long guestUserId = (Long) request.getAttribute("userId");
 
         reservationService.createReservation(createReservationRequestDto, guestUserId);
-        return Response.of(HttpStatus.OK);
+        return Response.of(HttpStatus.CREATED);
     }
 
     @GetMapping("/guest")
@@ -55,6 +55,6 @@ public class ReservationController {
         Long hostUserId = (Long) request.getAttribute("userId");
 
         reservationService.cancelReservation(hostUserId, reservationId);
-        return Response.of(HttpStatus.OK);
+        return Response.of(HttpStatus.NO_CONTENT);
     }
 }
