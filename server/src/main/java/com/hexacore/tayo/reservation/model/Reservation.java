@@ -42,10 +42,10 @@ public class Reservation extends BaseTime {
     @JoinColumn(name = "car_date_range_id", nullable = false)
     private CarDateRange carDateRange;
 
-    @Column(name = "rent_date", nullable = false)
+    @Column(name = "rent_date_time", nullable = false)
     private LocalDateTime rentDateTime;
 
-    @Column(name = "return_date", nullable = false)
+    @Column(name = "return_date_time", nullable = false)
     private LocalDateTime returnDateTime;
 
     @Column(name = "fee", nullable = false)
