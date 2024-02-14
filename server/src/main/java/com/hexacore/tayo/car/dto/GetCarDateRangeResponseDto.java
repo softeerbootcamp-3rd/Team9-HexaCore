@@ -1,12 +1,9 @@
 package com.hexacore.tayo.car.dto;
 
 import com.hexacore.tayo.car.model.CarDateRange;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
 public class GetCarDateRangeResponseDto {
