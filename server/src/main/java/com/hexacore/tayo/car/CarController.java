@@ -64,8 +64,10 @@ public class CarController {
 
     @PutMapping("{carId}/date")
     public ResponseEntity<Response> updateDateRanges(@PathVariable Long carId,
+            HttpServletRequest request,
             @RequestBody GetCarDateRangeRequestDto getCarDateRangeRequestDto) {
-        carService.updateDateRanges(carId, getCarDateRangeRequestDto);
+        Long hostUserId = (Long) request.getAttribute("userId");
+        carService.updateDateRanges(hostUserId, carId, getCarDateRangeRequestDto);
         return Response.of(HttpStatus.ACCEPTED);
     }
 }

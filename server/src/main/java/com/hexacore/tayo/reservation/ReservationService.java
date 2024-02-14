@@ -19,6 +19,7 @@ import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,19 +45,19 @@ public class ReservationService {
         User hostUser = car.getOwner();
         List<CarDateRange> carDateRanges = car.getCarDateRanges();
 
-        LocalDateTime rentDate = createReservationRequestDto.getRentDate();
-        LocalDateTime returnDate = createReservationRequestDto.getReturnDate();
+        LocalDateTime rentDateTime = createReservationRequestDto.getRentDateTime();
+        LocalDateTime returnDateTime = createReservationRequestDto.getReturnDateTime();
 
-        // rentDate, returnDate가 범위안에 있는지 검증
+        // rentDateTime, returnDateTime이 범위안에 있는지 검증
         // 없으면 GeneralException.RESERVATION_DATE_NOT_IN_RANGE 예외 발생
-        CarDateRange validCarDateRange = getCarDateInRangeElseThrow(carDateRanges, rentDate, returnDate);
+        CarDateRange validCarDateRange = getCarDateInRangeElseThrow(carDateRanges, rentDateTime, returnDateTime);
 
         Reservation reservation = Reservation.builder()
                 .guest(guestUser)
                 .host(hostUser)
                 .carDateRange(validCarDateRange)
-                .rentDate(createReservationRequestDto.getRentDate())
-                .returnDate(createReservationRequestDto.getReturnDate())
+                .rentDate(createReservationRequestDto.getRentDateTime())
+                .returnDate(createReservationRequestDto.getReturnDateTime())
                 .status(ReservationStatus.READY)
                 .build();
         reservationRepository.save(reservation);
@@ -141,19 +142,19 @@ public class ReservationService {
     }
 
     private CarDateRange getCarDateInRangeElseThrow(List<CarDateRange> carDateRanges,
-            LocalDateTime rentDate,
-            LocalDateTime returnDate) throws GeneralException {
+            LocalDateTime rentDateTime,
+            LocalDateTime returnDateTime) throws GeneralException {
 
         if (carDateRanges.isEmpty()) {
             throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
         }
 
         for (CarDateRange carDateRange : carDateRanges) {
-            LocalDateTime startDate = carDateRange.getStartDate();
-            LocalDateTime endDate = carDateRange.getEndDate();
+            LocalDate startDate = carDateRange.getStartDate();
+            LocalDate endDate = carDateRange.getEndDate();
 
-            if (startDate.isBefore(rentDate)) {
-                if (endDate.isAfter(returnDate)) {
+            if (localDateInclusiveBefore(startDate, rentDateTime.toLocalDate())) {
+                if (localDateInclusiveAfter(endDate, returnDateTime.toLocalDate())) {
                     return carDateRange;
                 }
                 continue;
@@ -161,5 +162,13 @@ public class ReservationService {
             break;
         }
         throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
+    }
+
+    private boolean localDateInclusiveBefore(LocalDate startDate, LocalDate rentDate) {
+        return startDate.isEqual(rentDate) || startDate.isBefore(rentDate);
+    }
+
+    private boolean localDateInclusiveAfter(LocalDate endDate, LocalDate returnDate) {
+        return endDate.isEqual(returnDate) || endDate.isAfter(returnDate);
     }
 }

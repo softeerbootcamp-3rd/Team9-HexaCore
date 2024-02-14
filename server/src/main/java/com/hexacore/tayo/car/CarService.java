@@ -19,7 +19,7 @@ import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -158,15 +158,20 @@ public class CarService {
     }
 
     /* 예약 가능 날짜 수정 */
-    public void updateDateRanges(Long carId, GetCarDateRangeRequestDto dateList) {
+    public void updateDateRanges(Long hostUserId, Long carId, GetCarDateRangeRequestDto dateList) {
         // 차량 조회가 안 되는 경우
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
+        // 차량 소유자와 일치하지 않을 경우
+        if (car.getOwner().getId() != hostUserId) {
+            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
+        }
+
         // dateListDto의 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
         for (CarDateRange dateRange : dateList.getCarDateRanges()) {
-            LocalDateTime startDate = dateRange.getStartDate();
-            LocalDateTime endDate = dateRange.getEndDate();
+            LocalDate startDate = dateRange.getStartDate();
+            LocalDate endDate = dateRange.getEndDate();
 
             if (startDate.isAfter(endDate)) {
                 throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
