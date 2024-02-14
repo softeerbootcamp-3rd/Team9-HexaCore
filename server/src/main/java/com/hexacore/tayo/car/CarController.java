@@ -51,7 +51,7 @@ public class CarController {
     @PutMapping("{carId}")
     public ResponseEntity<Response> updateCar(@PathVariable Long carId,
             @Valid @ModelAttribute UpdateCarRequestDto updateCarRequestDto) {
-        carService.carUpdate(carId, updateCarRequestDto);
+        carService.updateCar(carId, updateCarRequestDto);
         return Response.of(HttpStatus.OK);
     }
 

@@ -115,7 +115,7 @@ public class CarService {
 
     /* 차량 정보 수정 */
     @Transactional
-    public void carUpdate(Long carId, UpdateCarRequestDto updateCarRequestDto) {
+    public void updateCar(Long carId, UpdateCarRequestDto updateCarRequestDto) {
         Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -123,8 +123,8 @@ public class CarService {
         car.setAddress(updateCarRequestDto.getAddress());
         car.setPosition(updateCarRequestDto.getPosition().toEntity());
         car.setDescription(updateCarRequestDto.getDescription());
-
         saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles(), car);
+        carRepository.save(car);
     }
 
     /* 차량 삭제 */
