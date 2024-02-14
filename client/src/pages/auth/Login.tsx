@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import InputBox from '@/pages/auth/InputBox';
 import Button from '@/components/Button';
-import type { ResponseWithoutData, ResponseWithData, ResponseWithPagination } from "@/fetches/common/response.type";
+import type { ResponseWithoutData } from "@/fetches/common/response.type";
 import { server } from "@/fetches/common/axios";
 
 function Login() {
