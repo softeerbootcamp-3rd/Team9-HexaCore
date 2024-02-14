@@ -1,6 +1,9 @@
 package com.hexacore.tayo.car.dto;
 
 import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarDateRange;
+import com.hexacore.tayo.car.model.CarType;
+import com.hexacore.tayo.car.model.FuelType;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -53,14 +56,14 @@ public class GetCarResponseDto {
         this.carNumber = car.getCarNumber();
         this.imageUrls = images;
         this.mileage = car.getMileage();
-        this.fuel = car.getFuel();
         this.type = car.getType().getType();
+        this.fuel = car.getFuel().getType();
         this.capacity = car.getCapacity();
         this.year = car.getYear();
         this.feePerHour = car.getFeePerHour();
         this.address = car.getAddress();
         this.description = car.getDescription();
-        Optional.ofNullable(car.getDates()).ifPresent(this.dates::addAll);
+        this.carDateRanges = car.getCarDateRanges();
         this.host = new GetUserSimpleResponseDto(car.getOwner());
     }
 }

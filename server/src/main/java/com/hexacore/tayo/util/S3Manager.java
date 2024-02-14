@@ -25,6 +25,10 @@ public class S3Manager {
 
     /* 이미지 파일을 S3에 업로드하고 URL 반환 */
     public String uploadImage(MultipartFile image) {
+        if (image.getContentType() == null || !image.getContentType().startsWith("image/")) {
+            // Content-Type이 이미지 파일이 아닌 경우
+            throw new GeneralException(ErrorCode.INVALID_IMAGE_TYPE);
+        }
         String originalFilename = image.getOriginalFilename();
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(image.getSize());
