@@ -30,15 +30,15 @@ public class CarController {
 
     @GetMapping()
     public ResponseEntity<Response> getCars(
-        @RequestParam double distance,
-        @RequestParam double lat,
-        @RequestParam double lng,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate rentDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate returnDate,
-        @RequestParam int people,
+        @RequestParam Double distance,
+        @RequestParam Double lat,
+        @RequestParam Double lng,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate startDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate endDate,
+        @RequestParam Integer party,
         @RequestParam(required = false) String type,
-        @RequestParam(required = false) int categoryId,
-        @RequestParam(required = false) int subcategoryId,
+        @RequestParam(required = false) Integer categoryId,
+        @RequestParam(required = false) Integer subcategoryId,
         @RequestParam(required = false) Integer minPrice,
         @RequestParam(required = false) Integer maxPrice,
         Pageable pageable
@@ -46,10 +46,10 @@ public class CarController {
         SearchCarsDto searchCarsDto = SearchCarsDto.builder()
                 .distance(distance)
                 .position(new Position(lat, lng))
-                .rentDate(rentDate)
-                .returnDate(returnDate)
-                .people(people)
-                .type(CarType.valueOf(type))
+                .startDate(startDate)
+                .endDate(endDate)
+                .party(party)
+                .type(CarType.of(type))
                 .categoryId(categoryId)
                 .subcategoryId(subcategoryId)
                 .minPrice(minPrice)

@@ -76,7 +76,7 @@ public class CarSpecifications {
             if (searchCarsDto.getSubcategoryId() != null && searchCarsDto.getSubcategoryId() > 0) {
                 predicates.add(criteriaBuilder.equal(root.get("subcategory").get("id"), searchCarsDto.getSubcategoryId()));
             }
-            else if (searchCarsDto.getCategoryId() > 0) {
+            else if (searchCarsDto.getSubcategoryId() != null && searchCarsDto.getCategoryId() > 0) {
                 Join<Car, Subcategory> subcategoryJoin = root.join("subcategory");
                 Join<Subcategory, Category> categoryJoin = subcategoryJoin.join("category");
                 predicates.add(criteriaBuilder.equal(categoryJoin.get("id"), searchCarsDto.getCategoryId()));
