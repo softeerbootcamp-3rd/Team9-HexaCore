@@ -21,8 +21,8 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "sub_category")
-public class SubCategory extends BaseTime {
+@Table(name = "subcategory")
+public class Subcategory extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

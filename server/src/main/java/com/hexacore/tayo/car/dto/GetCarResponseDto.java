@@ -26,7 +26,7 @@ public class GetCarResponseDto {
     private List<CarDateRange> carDateRanges;
 
     private GetCarResponseDto(Car car) {
-        this.carName = car.getSubCategory().getName();
+        this.carName = car.getSubcategory().getName();
         this.carNumber = car.getCarNumber();
         this.imageUrls = car.getCarImages().stream().map(CarImage::getUrl).toList();
         this.mileage = car.getMileage();
@@ -47,7 +47,7 @@ public class GetCarResponseDto {
 
     // FIXME: duplicate method
     public GetCarResponseDto(Car car, List<String> images) {
-        this.carName = car.getSubCategory().getName();
+        this.carName = car.getSubcategory().getName();
         this.carNumber = car.getCarNumber();
         this.imageUrls = images;
         this.mileage = car.getMileage();

@@ -4,20 +4,19 @@ import com.hexacore.tayo.common.Position;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Builder
 @Getter
 public class SearchCarsDto {
-    double distance; // unit: meters
+    Double distance; // unit: meters
     Position position;
-    LocalDateTime rentDate;
-    LocalDateTime returnDate;
-    int people;
+    LocalDate rentDate;
+    LocalDate returnDate;
+    Integer people;
     CarType type;
-    String model;
-    String category; // TODO: categoryId
-    int subCategoryId;
-    int minPrice;
-    int maxPrice;
+    Integer categoryId;
+    Integer subcategoryId;
+    Integer minPrice;
+    Integer maxPrice;
 }

@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,12 +33,12 @@ public class CarController {
         @RequestParam double distance,
         @RequestParam double lat,
         @RequestParam double lng,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime rentDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime returnDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate rentDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDate returnDate,
         @RequestParam int people,
         @RequestParam(required = false) String type,
-        @RequestParam(required = false) String category, // TODO: categoryId
-        @RequestParam(required = false) int subCategoryId,
+        @RequestParam(required = false) int categoryId,
+        @RequestParam(required = false) int subcategoryId,
         @RequestParam(required = false) Integer minPrice,
         @RequestParam(required = false) Integer maxPrice,
         Pageable pageable
@@ -50,8 +50,8 @@ public class CarController {
                 .returnDate(returnDate)
                 .people(people)
                 .type(CarType.valueOf(type))
-                .category(category)
-                .subCategoryId(subCategoryId)
+                .categoryId(categoryId)
+                .subcategoryId(subcategoryId)
                 .minPrice(minPrice)
                 .maxPrice(maxPrice)
                 .build();

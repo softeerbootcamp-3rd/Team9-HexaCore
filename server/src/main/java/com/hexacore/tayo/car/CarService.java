@@ -4,9 +4,9 @@ import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarDateRangeRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.model.*;
-import com.hexacore.tayo.category.SubCategoryRepository;
+import com.hexacore.tayo.category.SubcategoryRepository;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.model.User;
@@ -31,7 +31,7 @@ public class CarService {
 
     private final CarRepository carRepository;
     private final CarImageRepository carImageRepository;
-    private final SubCategoryRepository subCategoryRepository;
+    private final SubcategoryRepository subcategoryRepository;
     private final S3Manager s3Manager;
 
     /* 차량 등록 */
@@ -59,7 +59,7 @@ public class CarService {
         }
 
         // 등록에 필요한 정보 가져오기
-        SubCategory subCategory = subCategoryRepository.findByName(createCarRequestDto.getCarName())
+        Subcategory subcategory = subcategoryRepository.findByName(createCarRequestDto.getCarName())
                 // 존재하지 않는 모델인 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
 
@@ -68,7 +68,7 @@ public class CarService {
 
         if (car != null) {
             // 유저가 이전에 등록한 같은 번호의 차가 있는 경우 UPDATE
-            car.setSubCategory(subCategory);
+            car.setSubcategory(subcategory);
             car.setMileage(createCarRequestDto.getMileage());
             car.setFuel(FuelType.of(createCarRequestDto.getFuel()));
             car.setType(CarType.of(createCarRequestDto.getType()));
@@ -85,7 +85,7 @@ public class CarService {
             // 유저가 이전에 등록한 같은 번호의 차가 없는 경우 CREATE
             Car carEntity = Car.builder()
                     .owner(User.builder().id(userId).build())
-                    .subCategory(subCategory)
+                    .subcategory(subcategory)
                     .carNumber(createCarRequestDto.getCarNumber())
                     .mileage(createCarRequestDto.getMileage())
                     .fuel(FuelType.of(createCarRequestDto.getFuel()))
@@ -104,7 +104,6 @@ public class CarService {
         }
     }
 
-    @Transactional
     public Page<Car> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
         Specification<Car> searchSpec = CarSpecifications.searchCars(searchCarsDto);
         return carRepository.findAll(searchSpec, pageable);

@@ -4,7 +4,7 @@ import com.hexacore.tayo.car.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
@@ -70,12 +70,12 @@ public class ReservationService {
         for (Reservation reservation : reservations) {
             Car car = reservation.getCarDateRange().getCar();
             List<CarImage> images = car.getCarImages();
-            SubCategory subCategory = car.getSubCategory();
+            Subcategory subcategory = car.getSubcategory();
             User host = car.getOwner();
 
             GetCarSimpleResponseDto getCarSimpleResponseDto = GetCarSimpleResponseDto.builder()
                     .id(car.getId())
-                    .name(subCategory.getName())
+                    .name(subcategory.getName())
                     .imageUrl(images.get(0).getUrl()) // 대표 이미지 1장
                     .build();
 
