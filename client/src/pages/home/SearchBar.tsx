@@ -151,7 +151,7 @@ function SearchBar({ setCarDataList, setClickSearch, /*rentDate, returnDate, */ 
           </div>
         )}
         {isOpenCalendar && (
-          <div ref={calendarRef} className="absolute left-1/4 top-[68px] w-1/2 rounded-xl bg-white p-4">
+          <div ref={calendarRef} className="absolute left-1/4 top-[68px] z-10 w-1/2 rounded-xl bg-white p-4">
             <GuestCalendar onReservationChange={onReservationChange} />
           </div>
         )}

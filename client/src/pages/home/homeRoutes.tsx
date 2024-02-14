@@ -1,17 +1,13 @@
 import type { RouteObject } from 'react-router-dom';
 import Home from '@/pages/home/Home';
-import response from './dummy/category.json';
-
-export type Category = {
-  category: string;
-  subCategory: string;
-};
+import type { Category } from '@/fetches/categories/categories.type';
+import { fetchCategories } from '@/fetches/categories/fetchCategories';
 
 const homeRoutes: RouteObject[] = [
   {
     index: true,
     loader: async () => {
-      const data: Category[] = response.data.models;
+      const data: Category[] = await fetchCategories();
       return data;
     },
     element: <Home />,
@@ -19,3 +15,4 @@ const homeRoutes: RouteObject[] = [
 ];
 
 export default homeRoutes;
+
