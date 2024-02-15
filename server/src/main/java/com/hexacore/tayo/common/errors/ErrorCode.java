@@ -39,6 +39,7 @@ public enum ErrorCode {
     RESERVATION_CANCELED_BY_OTHERS(HttpStatus.BAD_REQUEST, "예약을 등록한 호스트만 예약을 취소할 수 있습니다."),
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 이미지 타입입니다."),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),
+    INVALID_POSITION(HttpStatus.BAD_REQUEST, "위치 정보가 올바르지 않습니다."),
 
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스 입니다"),
     EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다."),

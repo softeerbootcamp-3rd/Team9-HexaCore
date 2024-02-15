@@ -13,6 +13,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -33,9 +34,13 @@ public class CarSpecifications {
 
             // 위경도 기반 거리 검색
             if (searchCarsParamsDto.getPosition() != null && searchCarsParamsDto.getDistance() > 0) {
+                Point point = searchCarsParamsDto.getPosition().toPointForSpec();
+                if (point.getX() < -90 || point.getX() > 90 || point.getY() <= -180 || point.getY() > 180)
+                    throw new GeneralException(ErrorCode.INVALID_POSITION);
+
                 var bufferExpression = criteriaBuilder.function("ST_Buffer",
                         Polygon.class,
-                        criteriaBuilder.literal(searchCarsParamsDto.getPosition().toPoint()),
+                        criteriaBuilder.literal(point),
                         criteriaBuilder.literal(searchCarsParamsDto.getDistance())
                 );
 
