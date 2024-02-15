@@ -142,6 +142,6 @@ public class CarServiceUpdateCarTest {
         //when & then
         Assertions.assertThatThrownBy(() -> carService.updateCar(1L, updateCarRequestDto, 2L))
                 .isInstanceOf(GeneralException.class)
-                .hasMessage(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS.getErrorMessage());
+                .hasMessage(ErrorCode.CAR_UPDATED_BY_OTHERS.getErrorMessage());
     }
 }
