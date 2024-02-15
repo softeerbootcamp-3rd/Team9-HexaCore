@@ -1,4 +1,4 @@
-import { Navigate, useLoaderData, useNavigate } from 'react-router-dom';
+import { Navigate, useLoaderData, useLocation, useNavigate } from 'react-router-dom';
 import { CarData } from './carRoutes';
 import { useEffect, useState } from 'react';
 import Tag from '@/components/Tag';
@@ -20,7 +20,9 @@ function CarDetail() {
   
   const [totalFee, setTotalFee] = useState(0);
 
-  const params = new URLSearchParams(window.location.search);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  
   const startDate = params.get('startDate') || dateToString(new Date());
   const endDate = params.get('endDate') || dateToString(new Date());
 
