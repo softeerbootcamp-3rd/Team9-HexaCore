@@ -126,8 +126,8 @@ function CarDetail() {
 
     const reservationData = {
       carId: data.carId,
-      rentDate: rentDate,
-      returnDate: returnDate,
+      rentDateTime: rentDate,
+      returnDateTime: returnDate,
     };
 
     // 예약하기 api 호출
