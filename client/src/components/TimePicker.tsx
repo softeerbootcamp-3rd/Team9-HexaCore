@@ -1,7 +1,7 @@
 import React from 'react';
 
 type Props = {
-  onTimeChange: (time: string) => void;
+  onTimeChange: (time: number) => void;
   id: string;
   className?: string;
   time: string;
@@ -10,7 +10,7 @@ type Props = {
 function TimePicker({ onTimeChange, id, className, time }: Props) {
 
   const handleHourChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    onTimeChange(event.target.value);
+    onTimeChange(parseInt(event.target.value));
   };
 
   return (

@@ -22,14 +22,14 @@ function CarDetail() {
 
   // DateTime을 string으로 변환
   const dateTimeToString = (dateTime: Date) => {
-    const date = dateTimeToDate(dateTime);
+    const date = dateToString(dateTime);
     const hours = dateTime.getHours().toString().padStart(2, '0');
     const time = `${hours}:00:00`
     return `${date}T${time}`;
   };
 
   // DateTime에서 Date parsing
-  const dateTimeToDate = (date: Date) => {
+  const dateToString = (date: Date) => {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
@@ -37,8 +37,8 @@ function CarDetail() {
   };
 
   const params = new URLSearchParams(window.location.search);
-  const startDate = params.get('startDate') || dateTimeToDate(new Date());
-  const endDate = params.get('endDate') || dateTimeToDate(new Date());
+  const startDate = params.get('startDate') || dateToString(new Date());
+  const endDate = params.get('endDate') || dateToString(new Date());
 
   const [dateRange, setDateRange] = useState<DateRange>(stringTupleToDateRange([startDate, endDate]));
 
@@ -243,13 +243,13 @@ function CarDetail() {
             <label className="flex flex-col gap-1 border-b-[0.5px] border-r-[0.5px] border-background-300 p-3" htmlFor="rentHourSelect">
               <p className="text-xs font-medium">대여일</p>
               <p className="text-background-500">
-                {dateTimeToDate(dateRange[0])}
+                {dateToString(dateRange[0])}
               </p>
             </label>
             <label className="flex flex-col gap-1 border-b-[0.5px] border-l-[0.5px] border-background-300 p-3" htmlFor="rentHourSelect">
               <p className="text-xs font-medium">반납일</p>
               <p className="text-background-500">
-                {dateTimeToDate(dateRange[1])}
+                {dateToString(dateRange[1])}
               </p>
             </label>
             <div className="gap-1 border-r-[0.5px] border-t-[0.5px] border-background-300 p-3">

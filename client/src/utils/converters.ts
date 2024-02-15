@@ -1,6 +1,6 @@
 import { DateRange } from '@/components/calendar/calendar.core';
 
-const stringToDate = (date: string) => {
+export const stringToDate = (date: string) => {
   const [year, month, day] = date.split('-').map((str) => parseInt(str, 10));
   return new Date(year, month - 1, day, 0, 0, 0, 0);
 };
