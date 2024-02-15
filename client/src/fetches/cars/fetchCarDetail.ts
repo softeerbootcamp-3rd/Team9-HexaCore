@@ -6,14 +6,13 @@ import { CarDetailData, CarDetailJsonData } from './cars.type';
 export const fetchCarDetail = async (carId: number) => {
   // 차량 세부 정보 조회 api 호출
   const response = await server.get<ResponseWithData<CarDetailJsonData>>(`/cars/${carId}`);
-  console.log(response);
 
   return response;
 };
 
 export const parseCarDetail = (carDetailJsonData: CarDetailJsonData): CarDetailData => {
   const carData = carDetailJsonData;
-  console.log(carData);
+
   return {
     categoryName: carData.carName,
     carNumber: carData.carNumber,

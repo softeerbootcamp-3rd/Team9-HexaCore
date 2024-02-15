@@ -15,7 +15,6 @@ const carRoutes: RouteObject[] = [
     loader: async ({ params } : { params : Params}) => {
       const carId = parseInt(params.carId ?? '');
       const response = await server.get<ResponseWithData<CarDetailJsonData>>(`/cars/${carId}`);
-      console.log(response);
       
       if(!response.success) {
         return null;

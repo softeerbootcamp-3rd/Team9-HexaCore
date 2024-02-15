@@ -130,8 +130,6 @@ function CarDetail() {
       returnDate: returnDate,
     };
 
-    console.log(reservationData);
-
     // 예약하기 api 호출
     const response = await server.post<ResponseWithoutData>('/reservations', {
       data: reservationData
