@@ -1,5 +1,5 @@
 import { useState, useRef, ChangeEvent } from 'react';
-import InputBox from '@/pages/auth/InputBox';
+import InputBox from '@/components/InputBox';
 import Button from '@/components/Button';
 import type { ResponseWithoutData } from "@/fetches/common/response.type";
 import { server } from "@/fetches/common/axios";
@@ -121,7 +121,7 @@ function SignUp() {
     return false;
   }
 
-  const phoneNumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const phoneNumChange = () => {
     if (phoneNumInputRef.current) {
       const phoneNumber = phoneNumInputRef.current.value;
 
@@ -134,12 +134,6 @@ function SignUp() {
       } else if (phonePattern2.test(phoneNumber)) {
         phoneNumInputRef.current.value = phoneNumber.replace(/(\d{3})-(\d{4})(\d)/, '$1-$2-$3');
       }
-
-      // if (phonePattern1.test(phoneNumber)) {
-      //   phoneNumInputRef.current.value = phoneNumber + '-';
-      // } else if (phonePattern2.test(phoneNumber)) {
-      //   phoneNumInputRef.current.value = phoneNumber + '-';
-      // }
 
       // 마지막 문자가 숫자가 아니면 제거
       if (!/\d$/.test(phoneNumber.slice(-1)) || phonePattern3.test(phoneNumber)) {
@@ -171,7 +165,7 @@ function SignUp() {
   return (
     <div className="flex justify-center">
       <div className="flex w-5/12 flex-col">
-        <div className="pl-8 pt-10 text-[21px] text-background-600 font-semibold">회원가입</div>
+        <div className="pl-8 pt-6 text-[21px] text-background-600 font-semibold">회원가입</div>
 
         <div className="flex justify-between pb-4">
           <div className="w-44"></div>
@@ -180,7 +174,7 @@ function SignUp() {
           ) : (
             <img src={profilePicture} className="h-32 w-32 rounded-full shadow-md" onClick={handleImgButtonClick} />
           )}
-          <div className="flex flex-col justify-end pb-2 pr-5">
+          <div className="flex flex-col justify-end pb-1 pr-4">
             {profilePicture === null ? (
               <button onClick={handleImgButtonClick} className="h-10 w-24 rounded-full text-sm font-semibold text-primary-500 ring-2 ring-primary-500">
                 사진 등록
@@ -225,7 +219,7 @@ function SignUp() {
           onChange={phoneNumChange}
         />
 
-        <div className="flex justify-end pb-10 pr-5 pt-5">
+        <div className="flex justify-end pb-10 pr-3 pt-7">
           <Button text="회원가입" className="h-12 w-36" isRounded onClick={handleSignUp} />
         </div>
       </div>

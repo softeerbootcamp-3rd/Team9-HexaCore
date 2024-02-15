@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import InputBox from '@/pages/auth/InputBox';
+import InputBox from '@/components/InputBox';
 import Button from '@/components/Button';
 import type { ResponseWithData } from "@/fetches/common/response.type";
 import { server } from "@/fetches/common/axios";

@@ -27,7 +27,9 @@ const InputBox = forwardRef<HTMLInputElement, Props>(({ title, placeHolder, type
         />
       </div>
 
-      <div className='text-danger-400 h-4 text-[12px] text-end text-top pr-5'>{errorMsg}</div>
+      <div className='text-danger-400 h-3 text-[12px] text-end text-top pr-5'>
+        {errorMsg}
+      </div>
     </div>
   );
 });
