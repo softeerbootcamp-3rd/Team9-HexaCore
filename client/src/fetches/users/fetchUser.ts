@@ -1,4 +1,4 @@
-import UserDummy from './UserData.dummy.json';
+import UserDummy from './userData.dummy.json';
 
 type UserResponseRaw = typeof UserDummy; // TODO: 응답 형식 타입 정의
 
