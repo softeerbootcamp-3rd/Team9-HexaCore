@@ -49,7 +49,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             return true;
         }
 
-        String accessToken = RequestParser.getToken(request, accessTokenCookieName);
+        String accessToken = RequestParser.getAuthorizationToken(request);
         Claims claims = jwtParser.getClaims(accessToken);
 
         request.setAttribute(USER_ID, Long.valueOf((Integer) claims.get(USER_ID)));
