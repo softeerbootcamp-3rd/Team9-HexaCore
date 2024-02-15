@@ -167,8 +167,8 @@ public class ReservationService {
             for (Reservation reservation : carDateRange.getReservations()) {
                 if (reservation.getStatus() == ReservationStatus.READY
                         || reservation.getStatus() == ReservationStatus.USING) {
-                    if (!(reservation.getRentDateTime().isAfter(returnDateTime)
-                            || reservation.getReturnDateTime().isBefore(rentDateTime))) {
+                    if (!(reservation.getRentDateTime().toLocalDate().isAfter(returnDateTime.toLocalDate())
+                            || reservation.getReturnDateTime().toLocalDate().isBefore(rentDateTime.toLocalDate()))) {
                         throw new GeneralException(ErrorCode.RESERVATION_ALREADY_READY_OR_USING);
                     }
                 }
