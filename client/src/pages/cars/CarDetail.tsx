@@ -97,8 +97,6 @@ function CarDetail() {
   const updateDateRange = (dateRange : DateRange) => {
     setDateRange(() => {
       const newDateRange = dateRange;
-      newDateRange[0].setHours(rentTime);
-      newDateRange[1].setHours(returnTime);
 
       return newDateRange;
     })
