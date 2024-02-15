@@ -18,7 +18,7 @@ const InputBox = forwardRef<HTMLInputElement, Props>(({ title, placeHolder, type
         <input
           className={`
           ${isWrong ? 'ring-2 ring-danger-300' : 'focus:ring-2 focus:ring-primary-300'}
-          focus:outline-none w-4/5 h-12 text-sm py-2 pl-5 shadow-md rounded-3xl
+          focus:outline-none w-4/5 h-12 text-sm py-2 pl-5 shadow-md rounded-xl
           ${className}`}
           type={type}
           placeholder={placeHolder}

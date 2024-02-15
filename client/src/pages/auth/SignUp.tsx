@@ -121,19 +121,25 @@ function SignUp() {
     return false;
   }
 
-  const phoneNumChange = () => {
+  const phoneNumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (phoneNumInputRef.current) {
       const phoneNumber = phoneNumInputRef.current.value;
 
-      const phonePattern1: RegExp = /^\d{3}$/;
-      const phonePattern2: RegExp = /^\d{3}-\d{4}$/;
+      const phonePattern1: RegExp = /^\d{4}$/;
+      const phonePattern2: RegExp = /^\d{3}-\d{5}$/;
       const phonePattern3: RegExp = /^\d{3}-\d{4}-\d{4}\d/;
 
       if (phonePattern1.test(phoneNumber)) {
-        phoneNumInputRef.current.value = phoneNumber + '-';
+        phoneNumInputRef.current.value = phoneNumber.replace(/(\d{3})(\d{1})/, '$1-$2');
       } else if (phonePattern2.test(phoneNumber)) {
-        phoneNumInputRef.current.value = phoneNumber + '-';
+        phoneNumInputRef.current.value = phoneNumber.replace(/(\d{3})-(\d{4})(\d)/, '$1-$2-$3');
       }
+
+      // if (phonePattern1.test(phoneNumber)) {
+      //   phoneNumInputRef.current.value = phoneNumber + '-';
+      // } else if (phonePattern2.test(phoneNumber)) {
+      //   phoneNumInputRef.current.value = phoneNumber + '-';
+      // }
 
       // 마지막 문자가 숫자가 아니면 제거
       if (!/\d$/.test(phoneNumber.slice(-1)) || phonePattern3.test(phoneNumber)) {
@@ -165,7 +171,7 @@ function SignUp() {
   return (
     <div className="flex justify-center">
       <div className="flex w-5/12 flex-col">
-        <div className="p pl-8 pt-5 text-2xl">회원가입</div>
+        <div className="pl-8 pt-10 text-[21px] text-background-600 font-semibold">회원가입</div>
 
         <div className="flex justify-between pb-4">
           <div className="w-44"></div>
@@ -174,7 +180,7 @@ function SignUp() {
           ) : (
             <img src={profilePicture} className="h-32 w-32 rounded-full shadow-md" onClick={handleImgButtonClick} />
           )}
-          <div className="flex flex-col justify-end pb-2 pr-10">
+          <div className="flex flex-col justify-end pb-2 pr-5">
             {profilePicture === null ? (
               <button onClick={handleImgButtonClick} className="h-10 w-24 rounded-full text-sm font-semibold text-primary-500 ring-2 ring-primary-500">
                 사진 등록
@@ -219,8 +225,8 @@ function SignUp() {
           onChange={phoneNumChange}
         />
 
-        <div className="flex justify-end pb-10 pr-14 pt-8">
-          <Button text="회원가입" className="h-12 w-44" isRounded onClick={handleSignUp} />
+        <div className="flex justify-end pb-10 pr-5 pt-5">
+          <Button text="회원가입" className="h-12 w-36" isRounded onClick={handleSignUp} />
         </div>
       </div>
     </div>
