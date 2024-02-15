@@ -7,6 +7,9 @@ const apiPrefix = import.meta.env.VITE_API_PREFIX ?? '/';
 
 const axiosInstance = axios.create({
   baseURL: `${baseURL}${apiPrefix}`,
+  headers: {
+    'Authorization': 'Bearer ' + localStorage.getItem("accessToken"),
+  },
 });
 
 axiosInstance.interceptors.response.use(
