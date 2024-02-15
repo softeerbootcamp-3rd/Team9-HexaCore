@@ -108,11 +108,15 @@ public class AuthService {
                 .build();
     }
 
-    public String refresh(Long userId) {
+    public GetTokenResponseDto refresh(Long userId) {
         User expiredUser = userRepository.findById(userId).orElseThrow(() ->
                 new AuthException(ErrorCode.USER_NOT_FOUND));
 
-        return jwtProvider.createAccessToken(expiredUser);
+        GetTokenResponseDto tokenResponseDto = GetTokenResponseDto.builder()
+                .accessToken(jwtProvider.createAccessToken(expiredUser))
+                .build();
+
+        return tokenResponseDto;
     }
 
     private GetUserInfoResponseDto getLoginUserInfo(User user) {

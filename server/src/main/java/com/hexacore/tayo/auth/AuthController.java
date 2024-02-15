@@ -1,5 +1,6 @@
 package com.hexacore.tayo.auth;
 
+import com.hexacore.tayo.auth.jwt.dto.GetTokenResponseDto;
 import com.hexacore.tayo.common.UriPath;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
@@ -65,11 +66,10 @@ public class AuthController {
 
     // 엑세스 토큰 재발급
     @GetMapping("/refresh")
-    public ResponseEntity<Response> refresh(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Response> refresh(HttpServletRequest request, HttpServletResponse response) {dd
+        GetTokenResponseDto tokenResponseDto = authService.refresh((Long) request.getAttribute(USER_ID));
 
-        String newAccessToken = authService.refresh((Long) request.getAttribute(USER_ID));
-
-        return Response.of(HttpStatus.OK, newAccessToken);
+        return Response.of(HttpStatus.OK, tokenResponseDto);
     }
 
     @GetMapping("/login/test")
