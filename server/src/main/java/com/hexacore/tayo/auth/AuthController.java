@@ -22,12 +22,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    @Value("${jwt.refresh.cookie-name}")
-    private String refreshTokenCookieName;
-
-    @Value("${jwt.access.cookie-name}")
-    private String accessTokenCookieName;
-
     private final AuthService authService;
 
     private static final String USER_ID = "userId";
@@ -47,22 +41,16 @@ public class AuthController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Response> login(@RequestBody LoginRequestDto loginRequestDto,
-                                          HttpServletResponse response) {
+    public ResponseEntity<Response> login(@RequestBody LoginRequestDto loginRequestDto) {
         LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
 
-        response.addCookie(makeTokenCookie(accessTokenCookieName, loginResponseDto.getAccessToken(), UriPath.PREFIX));
-        response.addCookie(
-                makeTokenCookie(refreshTokenCookieName, loginResponseDto.getRefreshToken(), UriPath.REFRESH_TOKEN_PATH));
-
-        return Response.of(HttpStatus.OK, loginResponseDto.getLoginUserInfo());
+        return Response.of(HttpStatus.OK, loginResponseDto);
     }
 
     // 로그아웃
     @GetMapping("/logout")
     public ResponseEntity<Response> logOut(HttpServletRequest request, HttpServletResponse response) {
         authService.logOut((Long) request.getAttribute(USER_ID));
-        resetCookie(response);
 
         return Response.of(HttpStatus.OK);
     }
@@ -71,7 +59,6 @@ public class AuthController {
     @DeleteMapping("/users")
     public ResponseEntity<Response> deleteUser(HttpServletRequest request, HttpServletResponse response) {
         authService.delete((Long) request.getAttribute(USER_ID));
-        resetCookie(response);
 
         return Response.of(HttpStatus.OK);
     }
@@ -81,9 +68,8 @@ public class AuthController {
     public ResponseEntity<Response> refresh(HttpServletRequest request, HttpServletResponse response) {
 
         String newAccessToken = authService.refresh((Long) request.getAttribute(USER_ID));
-        response.addCookie(makeTokenCookie(accessTokenCookieName, newAccessToken, UriPath.PREFIX));
 
-        return Response.of(HttpStatus.OK);
+        return Response.of(HttpStatus.OK, newAccessToken);
     }
 
     @GetMapping("/login/test")
@@ -93,24 +79,5 @@ public class AuthController {
         arr[1] = (String) request.getAttribute(USER_NAME);
 
         return Response.of(HttpStatus.OK, arr);
-    }
-
-    private Cookie makeTokenCookie(String cookieName, String token, String path) {
-        Cookie tokenCookie = new Cookie(cookieName, token);
-        tokenCookie.setPath(path);
-        tokenCookie.setHttpOnly(true);
-        tokenCookie.setSecure(true);
-
-        return tokenCookie;
-    }
-
-    private void resetCookie(HttpServletResponse response) {
-        Cookie accessToken = makeTokenCookie(accessTokenCookieName, "", UriPath.PREFIX);
-        accessToken.setMaxAge(0);
-        Cookie refreshToken = makeTokenCookie(refreshTokenCookieName, "", UriPath.REFRESH_TOKEN_PATH);
-        refreshToken.setMaxAge(0);
-
-        response.addCookie(accessToken);
-        response.addCookie(refreshToken);
     }
 }

@@ -1,6 +1,7 @@
 package com.hexacore.tayo.auth;
 
 import com.hexacore.tayo.auth.jwt.RefreshTokenService;
+import com.hexacore.tayo.auth.jwt.dto.GetTokenResponseDto;
 import com.hexacore.tayo.auth.jwt.util.JwtProvider;
 import com.hexacore.tayo.util.Encryptor;
 import com.hexacore.tayo.car.model.Car;
@@ -96,10 +97,13 @@ public class AuthService {
         }
 
         GetUserInfoResponseDto loginUserInfo = getLoginUserInfo(loginUser);
-
-        return LoginResponseDto.builder()
+        GetTokenResponseDto tokenResponseDto = GetTokenResponseDto.builder()
                 .accessToken(jwtProvider.createAccessToken(loginUser))
                 .refreshToken(jwtProvider.createRefreshToken(loginUser.getId()))
+                .build();
+
+        return LoginResponseDto.builder()
+                .tokenResponseDto(tokenResponseDto)
                 .loginUserInfo(loginUserInfo)
                 .build();
     }

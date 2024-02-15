@@ -1,5 +1,6 @@
 package com.hexacore.tayo.user.dto;
 
+import com.hexacore.tayo.auth.jwt.dto.GetTokenResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -7,8 +8,7 @@ import lombok.Getter;
 @Builder
 public class LoginResponseDto {
 
-    private String accessToken;
-    private String refreshToken;
+    private GetTokenResponseDto tokenResponseDto;
     private GetUserInfoResponseDto loginUserInfo;
 
 }
