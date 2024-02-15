@@ -1,16 +1,16 @@
-import { forwardRef, type FocusEventHandler, type HTMLInputTypeAttribute } from 'react';
+import { forwardRef, type HTMLInputTypeAttribute, ChangeEventHandler } from 'react';
 
 type Props = {
   title?: string;
   placeHolder: string;
   type?: HTMLInputTypeAttribute;
-  onBlur?: FocusEventHandler<HTMLInputElement>;
+  onChange?: ChangeEventHandler<HTMLInputElement>;
   isWrong?: boolean;
   className?: string;
   errorMsg?: string;
 };
 
-const InputBox = forwardRef<HTMLInputElement, Props>(({ title, placeHolder, type = 'text', onBlur, isWrong = false, className, errorMsg }, ref) => {
+const InputBox = forwardRef<HTMLInputElement, Props>(({ title, placeHolder, type = 'text', onChange, isWrong = false, className, errorMsg }, ref) => {
   return (
     <div className='flex flex-col'>
       <div className="w-full pt-4 pb-2 flex">
@@ -22,8 +22,8 @@ const InputBox = forwardRef<HTMLInputElement, Props>(({ title, placeHolder, type
           ${className}`}
           type={type}
           placeholder={placeHolder}
-          onBlur={onBlur}
           ref={ref}
+          onChange={onChange}
         />
       </div>
 

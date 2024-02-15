@@ -3,12 +3,15 @@ import InputBox from '@/pages/auth/InputBox';
 import Button from '@/components/Button';
 import type { ResponseWithoutData } from "@/fetches/common/response.type";
 import { server } from "@/fetches/common/axios";
+import { useNavigate } from 'react-router-dom';
 
 const emailPattern: RegExp = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
 // const passwordPattern: RegExp = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
 const phoneNumberPattern: RegExp = /^\d{3}-\d{4}-\d{4}$/;
 
 function SignUp() {
+  const navigate = useNavigate();
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
 
@@ -54,7 +57,8 @@ function SignUp() {
 
       if (response.success) {
         // 회원가입 성공시 로그인 페이지로
-        window.location.href = '/auth/login';
+        navigate("/auth/login");
+        
       } else {
         // 에러 메세지 띄우기
         setEmailInputErr(response.message);
@@ -116,6 +120,27 @@ function SignUp() {
     setPhoneErr("000-0000-0000 형식으로 입력해주세요.");
     return false;
   }
+
+  const phoneNumChange = () => {
+    if (phoneNumInputRef.current) {
+      const phoneNumber = phoneNumInputRef.current.value;
+
+      const phonePattern1: RegExp = /^\d{3}$/;
+      const phonePattern2: RegExp = /^\d{3}-\d{4}$/;
+      const phonePattern3: RegExp = /^\d{3}-\d{4}-\d{4}\d/;
+
+      if (phonePattern1.test(phoneNumber)) {
+        phoneNumInputRef.current.value = phoneNumber + '-';
+      } else if (phonePattern2.test(phoneNumber)) {
+        phoneNumInputRef.current.value = phoneNumber + '-';
+      }
+
+      // 마지막 문자가 숫자가 아니면 제거
+      if (!/\d$/.test(phoneNumber.slice(-1)) || phonePattern3.test(phoneNumber)) {
+        phoneNumInputRef.current.value = phoneNumber.slice(0, -1);
+      }
+    }
+  } 
 
   const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -191,6 +216,7 @@ function SignUp() {
           placeHolder="010-1234-5678"
           isWrong={isWrongPhoneNum}
           errorMsg={phoneErr}
+          onChange={phoneNumChange}
         />
 
         <div className="flex justify-end pb-10 pr-14 pt-8">
