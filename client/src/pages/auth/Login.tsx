@@ -4,8 +4,11 @@ import InputBox from '@/pages/auth/InputBox';
 import Button from '@/components/Button';
 import type { ResponseWithoutData } from "@/fetches/common/response.type";
 import { server } from "@/fetches/common/axios";
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
+  const navigate = useNavigate();
+
   const emailInputRef = useRef<HTMLInputElement | null>(null);
   const pwdInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -27,7 +30,7 @@ function Login() {
         }
       });
       if (response.success) {
-        window.location.href = '/';
+        navigate("/");
       } else {
         setPwdInputErr("올바른 이메일과 비밀번호를 입력해주세요.");
       }
