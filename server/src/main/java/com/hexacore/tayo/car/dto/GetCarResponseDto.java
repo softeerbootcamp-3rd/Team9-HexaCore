@@ -4,6 +4,7 @@ import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.reservation.model.Reservation;
+import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -79,6 +80,7 @@ public class GetCarResponseDto {
             LocalDate start = carDateRange.getStartDate();
             LocalDate end;
             List<Reservation> sortedReservations = carDateRange.getReservations().stream()
+                    .filter((reservation -> reservation.getStatus() != ReservationStatus.CANCEL))
                     .sorted(Comparator.comparing(Reservation::getRentDateTime))
                     .toList();
             for (Reservation reservation : sortedReservations) {
