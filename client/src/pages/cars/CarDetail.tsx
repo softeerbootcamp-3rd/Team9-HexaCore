@@ -156,7 +156,7 @@ function CarDetail() {
           {/* Header : CarName, capacity(tag), type, mileage, fuel */}
           <div className="">
             <div className="mb-2 flex items-center">
-              <h1 className="pr-4 text-xl font-bold">{data.carName}</h1>
+              <h1 className="pr-4 text-xl font-bold">{data.categoryName}</h1>
               <Tag className="h-6" text={`${data.capacity}인승`} />
             </div>
             <p className="text-background-500">

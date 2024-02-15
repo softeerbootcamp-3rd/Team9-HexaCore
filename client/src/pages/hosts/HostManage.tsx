@@ -112,7 +112,7 @@ function HostManage() {
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between">
                   <div className="flex items-center gap-3">
-                    <h1 className="text-base lg:text-2xl font-bold">{carDetail.carName}</h1>
+                    <h1 className="text-base lg:text-2xl font-bold">{carDetail.categoryName}</h1>
                     <div className="text-background-700 font-semibold text-base">{carDetail.carNumber}</div>
                     {/* <Tag className="h-6 text-background-700 font-semibold text-base" text={data.car.carNumber} /> */}
                   </div>

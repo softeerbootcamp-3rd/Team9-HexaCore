@@ -15,7 +15,7 @@ export const parseCarDetail = (carDetailJsonData: CarDetailJsonData): CarDetailD
   const carData = carDetailJsonData;
   console.log(carData);
   return {
-    carName: carData.carName,
+    categoryName: carData.carName,
     carNumber: carData.carNumber,
     imageUrls: carData.imageUrls,
     mileage: carData.mileage,

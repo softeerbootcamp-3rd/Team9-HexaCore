@@ -6,7 +6,7 @@ export type HostData = {
 }
 
 export type CarDetailData = {
-  carName: string;
+  categoryName: string;
   carNumber: string;
   imageUrls: string[];
   mileage: number;
