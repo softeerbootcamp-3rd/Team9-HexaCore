@@ -6,7 +6,7 @@ import Button from '@/components/Button';
 import TimePicker from '@/components/TimePicker';
 import GuestCalendar from '@/components/calendar/guestCalendar/GuestCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
-import { stringTupleToDateRange } from '@/utils/converters';
+import { dateTimeToString, dateToString, stringTupleToDateRange } from '@/utils/converters';
 import { server } from '@/fetches/common/axios';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
 import ImageGallery from './ImageGallery';
@@ -19,22 +19,6 @@ function CarDetail() {
   const [returnTime, setReturnTime] = useState(9);
   
   const [totalFee, setTotalFee] = useState(0);
-
-  // DateTime을 string으로 변환
-  const dateTimeToString = (dateTime: Date) => {
-    const date = dateToString(dateTime);
-    const hours = dateTime.getHours().toString().padStart(2, '0');
-    const time = `${hours}:00:00`
-    return `${date}T${time}`;
-  };
-
-  // DateTime에서 Date parsing
-  const dateToString = (date: Date) => {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
 
   const params = new URLSearchParams(window.location.search);
   const startDate = params.get('startDate') || dateToString(new Date());
