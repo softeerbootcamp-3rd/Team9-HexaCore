@@ -1,6 +1,12 @@
-import UserDummy from './userData.dummy.json';
+import { server } from '@/fetches/common/axios';
+import type { ResponseWithData } from '@/fetches/common/response.type';
 
-type UserResponseRaw = typeof UserDummy; // TODO: 응답 형식 타입 정의
+type UserResponse = {
+  name: string;
+  phoneNumber: string;
+  email: string ;
+  profileImgUrl: string;
+};
 
 export type UserData = {
   name: string;
@@ -11,16 +17,21 @@ export type UserData = {
 };
 
 export const fetchUser = async (userId: number) => {
-  return UserDummy;
+	console.log(userId)
+	const path = !isNaN(userId) ? `/users/${userId}` : '/users';
+  const response = await server.get<ResponseWithData<UserResponse>>(path, {
+  });
+  if (response.success) {
+    return response;
+  }
 };
 
-export const parseUser = (userResponseRaw: UserResponseRaw): UserData => {
-	const userResponse = userResponseRaw.data;
+export const parseUser = (userResponseRaw: UserResponse): UserData => {
+	const userResponse = userResponseRaw;
   return {
 		name: userResponse.name,
-		nickName: userResponse.nickname,
 		email: userResponse.email,
 		phoneNum: userResponse.phoneNumber,
-		image: userResponse.profileImg,
-	};
+		image: userResponse.profileImgUrl,
+	} as UserData;
 };
