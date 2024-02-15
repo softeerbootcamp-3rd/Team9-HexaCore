@@ -44,6 +44,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
+        System.out.println("interceptor");
         String httpMethod = request.getMethod();
         String url = request.getRequestURI();
         if (handler.getClass().equals(ResourceHttpRequestHandler.class) ||
@@ -53,6 +54,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         }
 
         String accessToken = RequestParser.getAuthorizationToken(request);
+
         Claims claims = jwtParser.getClaims(accessToken);
 
         request.setAttribute(USER_ID, Long.valueOf((Integer) claims.get(USER_ID)));
@@ -64,6 +66,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         for (String possibleUrl : whiteUrlList) {
             Pattern pattern = Pattern.compile(UriPath.PREFIX + possibleUrl);
             Matcher matcher = pattern.matcher(url);
+
+            System.out.println(url);
 
             if (matcher.matches()) {
                 return true;
