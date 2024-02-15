@@ -4,7 +4,9 @@ import com.hexacore.tayo.car.dto.SearchCarsParamsDto;
 import com.hexacore.tayo.category.model.Category;
 import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.reservation.model.Reservation;
+import com.hexacore.tayo.reservation.model.ReservationStatus;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 
 import org.locationtech.jts.geom.Polygon;
@@ -47,7 +49,14 @@ public class CarSpecifications {
                 LocalDate endDate = searchCarsParamsDto.getEndDate();
 
                 Join<Car, CarDateRange> carDateRangeJoin = root.join("carDateRanges");
-                Join<CarDateRange, Reservation> reservationJoin = carDateRangeJoin.join("reservations");
+                Join<CarDateRange, Reservation> reservationJoin = carDateRangeJoin.join("reservations", JoinType.LEFT);
+
+                Predicate reservationStatusPredicate = criteriaBuilder.not(
+                        criteriaBuilder.or(
+                                criteriaBuilder.equal(reservationJoin.get("status"), ReservationStatus.READY.ordinal()),
+                                criteriaBuilder.equal(reservationJoin.get("status"), ReservationStatus.USING.ordinal())
+                        )
+                );
 
                 Predicate dateRangePredicate = criteriaBuilder.and(
                         criteriaBuilder.lessThanOrEqualTo(carDateRangeJoin.get("startDate"), startDate),
@@ -60,12 +69,16 @@ public class CarSpecifications {
                         criteriaBuilder.lessThan(reservationJoin.get("returnDateTime"), startDate)
                 );
 
-                predicates.add(criteriaBuilder.and(dateRangePredicate, reservationPredicate));
+                predicates.add(criteriaBuilder.and(
+                        reservationStatusPredicate,
+                        dateRangePredicate,
+                        reservationPredicate
+                ));
             }
 
             // 인원수 기반 차량 검색
             if (searchCarsParamsDto.getParty() != null && searchCarsParamsDto.getParty() > 0) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("capacity"), searchCarsParamsDto.getParty()));
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("capacity"), searchCarsParamsDto.getParty()));
             }
 
             // 차량 타입 기반 차량 검색
