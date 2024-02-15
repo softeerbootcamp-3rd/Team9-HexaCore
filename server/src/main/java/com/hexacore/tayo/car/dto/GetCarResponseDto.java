@@ -1,10 +1,14 @@
 package com.hexacore.tayo.car.dto;
 
 import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
+import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import lombok.Getter;
 
@@ -61,14 +65,32 @@ public class GetCarResponseDto {
         this.feePerHour = car.getFeePerHour();
         this.address = car.getAddress();
         this.description = car.getDescription();
-        this.carDateRanges = car.getCarDateRanges().stream().reduce(new ArrayList<>(), (acc, carDateRange) -> {
-            acc.add(List.of(carDateRange.getStartDate().toString(), carDateRange.getEndDate().toString()));
-            return acc;
-        }, (acc, carDateRange) -> acc);
+        this.carDateRanges = getCarAvailableDates(car.getCarDateRanges());
         this.host = new GetUserSimpleResponseDto(car.getOwner());
     }
 
     public static GetCarResponseDto of(Car car) {
         return new GetCarResponseDto(car);
     }
+
+    private List<List<String>> getCarAvailableDates(List<CarDateRange> CarDateRanges) {
+        List<List<String>> carAvailableDates = new ArrayList<>();
+        for (CarDateRange carDateRange : CarDateRanges) {
+            LocalDate start = carDateRange.getStartDate();
+            LocalDate end;
+            List<Reservation> sortedReservations = carDateRange.getReservations().stream()
+                    .sorted(Comparator.comparing(Reservation::getRentDateTime))
+                    .toList();
+            for (Reservation reservation : sortedReservations) {
+                end = reservation.getRentDateTime().toLocalDate().minusDays(1);
+                if (start.isBefore(end)) {
+                    carAvailableDates.add(List.of(start.toString(), end.toString()));
+                }
+                start = reservation.getReturnDateTime().toLocalDate().plusDays(1);
+            }
+            carAvailableDates.add(List.of(start.toString(), carDateRange.getEndDate().toString()));
+        }
+        return carAvailableDates;
+    }
+
 }
