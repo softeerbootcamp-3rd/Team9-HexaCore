@@ -95,11 +95,7 @@ function CarDetail() {
 
   // 예약 날짜 정보 업데이트
   const updateDateRange = (dateRange : DateRange) => {
-    setDateRange(() => {
-      const newDateRange = dateRange;
-
-      return newDateRange;
-    })
+    setDateRange(dateRange)
   }
 
   // TimePicker 값 변경 시 가격 재계산
