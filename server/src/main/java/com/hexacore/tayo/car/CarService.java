@@ -124,7 +124,7 @@ public class CarService {
         Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-        if (car.getOwner().getId() != userId) {
+        if (!car.getOwner().getId().equals(userId)) {
             throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
         }
         car.setFeePerHour(updateCarRequestDto.getFeePerHour());
@@ -151,14 +151,6 @@ public class CarService {
         });
     }
 
-    /* 에약 가능 날짜 조회 */
-    private List<String> carDateList(Long carId) {
-        return carImageRepository.findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(carId)
-                .stream()
-                .map(CarImage::getUrl)
-                .collect(Collectors.toList());
-    }
-
     /* 예약 가능 날짜 수정 */
     public void updateDateRanges(Long hostUserId, Long carId, GetCarDateRangeRequestDto dateList) {
         // 차량 조회가 안 되는 경우
@@ -166,7 +158,7 @@ public class CarService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         // 차량 소유자와 일치하지 않을 경우
-        if (car.getOwner().getId() != hostUserId) {
+        if (!car.getOwner().getId().equals(hostUserId)) {
             throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
         }
 
