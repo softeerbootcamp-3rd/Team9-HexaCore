@@ -2,9 +2,10 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import InputBox from '@/pages/auth/InputBox';
 import Button from '@/components/Button';
-import type { ResponseWithoutData } from "@/fetches/common/response.type";
+import type { ResponseWithData } from "@/fetches/common/response.type";
 import { server } from "@/fetches/common/axios";
 import { useNavigate } from 'react-router-dom';
+import { LoginResponse } from '@/fetches/auth/auth.type';
 
 function Login() {
   const navigate = useNavigate();
@@ -19,24 +20,26 @@ function Login() {
   const [pwdErr, setPwdErr] = useState("");
 
   const handleLogin = async () => {
-    const userEmail: string = emailInputRef.current?.value || '';
-    const userPwd: string = pwdInputRef.current?.value || '';
+    const userEmail: string = emailInputRef.current?.value ?? '';
+    const userPwd: string = pwdInputRef.current?.value ?? '';
 
     if (!checkEmailEmpty(userEmail) && !checkPwdEmpty(userPwd)) {
-      const response = await server.post<ResponseWithoutData>('/auth/login', {
+      const response = await server.post<ResponseWithData<LoginResponse>>('/auth/login', {
         data: {
           email: userEmail,
           password: userPwd,
         }
       });
       if (response.success) {
+        localStorage.setItem("accessToken", response.data.tokens.accessToken);
+        localStorage.setItem("refreshToken", response.data.tokens.refreshToken);
         navigate("/");
       } else {
         setPwdInputErr("올바른 이메일과 비밀번호를 입력해주세요.");
       }
     }
   };
-
+  
   // 이메일 입력란 비어있는지 확인
   const checkEmailEmpty = (email: string): boolean => {
     if (email === '') {
