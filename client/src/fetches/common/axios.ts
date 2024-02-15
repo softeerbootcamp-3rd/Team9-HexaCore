@@ -9,10 +9,21 @@ const axiosInstance = axios.create({
   baseURL: `${baseURL}${apiPrefix}`,
 });
 
-axiosInstance.interceptors.request.use(function (config) {
-  config.headers.Authorization = `Bearer ${localStorage.getItem("accessToken")}`;
-  return config;
-});
+// 요청 인터셉터 추가
+axiosInstance.interceptors.request.use(
+  function (config) {
+    // 헤더에 Authorization 설정
+    const accessToken = localStorage.getItem('accessToken');
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  function (error) {
+    // 요청이 실패한 경우에 대한 처리
+    return Promise.reject(error);
+  }
+);
 
 axiosInstance.interceptors.response.use(
   (response) => response.data,

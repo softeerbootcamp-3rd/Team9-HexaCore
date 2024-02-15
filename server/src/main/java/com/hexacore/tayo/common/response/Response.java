@@ -54,7 +54,7 @@ public class Response {
     public static ResponseEntity<Response> of(HttpStatus status, Page<?> page) {
         return new ResponseEntity<>(
                 new Response(true, status.value(), status.getReasonPhrase(),
-                        new PageInfo(page.getNumber() + 1, page.getSize(), page.getTotalElements(),
+                        new PageInfo(page.getNumber(), page.getSize(), page.getTotalElements(),
                                 page.getTotalPages()), page.getContent()),
                 status
         );
