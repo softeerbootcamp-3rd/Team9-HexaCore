@@ -18,7 +18,7 @@ type HostReservationResponse = {
   status: string;
 };
 
-export type ReservationStatus = 'cancel' | 'ready' | 'using' | 'terminated';
+export type ReservationStatus = 'CANCEL' | 'READY' | 'USING' | 'TERMINATED';
 
 export type ReservationData = {
   id: number;
@@ -57,8 +57,8 @@ export const parseHostReservations = (hostReservationsResponseRaw: HostReservati
 };
 
 const toReservationStatus = (status: string): ReservationStatus => {
-  const validStatuses: ReservationStatus[] = ['cancel', 'ready', 'using', 'terminated'];
-  if (validStatuses.includes(status as ReservationStatus)) {
+  const validStatuses: ReservationStatus[] = ['CANCEL', 'READY', 'USING', 'TERMINATED'];
+  if (validStatuses.includes(status as ReservationStatus)) {      
     return status as ReservationStatus;
   }
   return "disabled" as ReservationStatus;

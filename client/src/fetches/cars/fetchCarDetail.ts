@@ -1,8 +1,22 @@
 import { DateRange } from '@/components/calendar/calendar.core';
-import carDetailDummy from './CarDetail.dummy.json';
 import { stringTuplesToDateRanges } from '@/utils/converters';
+import { server } from '@/fetches/common/axios';
+import type { ResponseWithData } from '@/fetches/common/response.type';
 
-type CarDetailResponseRaw = typeof carDetailDummy; // TODO: 응답 형식 타입 정의
+type CarDetailResponse = {
+  carName: string;
+  carNumber: string;
+  imageUrls: string[];
+  mileage: number;
+  fuel: string;
+  type: string;
+  capacity: number;
+  year: number;
+  feePerHour: number;
+  carAddress: string;
+  description: string;
+  carDateRanges: string[][];
+};
 
 export type CarData = {
   carName: string;
@@ -16,15 +30,18 @@ export type CarData = {
   feePerHour: number;
   carAddress: string;
   description: string;
-  dates: DateRange[];
+  carDateRanges: DateRange[];
 };
 
-export const fetchCarDetail = async (carId: number) => {
-  return carDetailDummy; // TODO: api 호출
+export const fetchCarDetail = async () => {
+  const response = await server.get<ResponseWithData<CarDetailResponse>>('/users/cars', {
+  });
+  if (response.success) {
+    return response;
+  }
 };
 
-export const parseCarDetail = (carDataResponseRaw: CarDetailResponseRaw): CarData => {
-  const carData = carDataResponseRaw.data.car;
+export const parseCarDetail = (carData: CarDetailResponse): CarData => {
   return {
     carName: carData.carName,
     carNumber: carData.carNumber,
@@ -37,7 +54,7 @@ export const parseCarDetail = (carDataResponseRaw: CarDetailResponseRaw): CarDat
     feePerHour: carData.feePerHour,
     carAddress: carData.carAddress,
     description: carData.description,
-    dates: stringTuplesToDateRanges(carData.dates),
+    carDateRanges: stringTuplesToDateRanges(carData.carDateRanges),
   };
 };
 
