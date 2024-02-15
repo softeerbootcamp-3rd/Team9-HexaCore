@@ -2,7 +2,7 @@ package com.hexacore.tayo.category;
 
 import com.hexacore.tayo.category.dto.GetCategoriesResponseDto;
 import com.hexacore.tayo.category.model.Category;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import java.util.List;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class CategoryServiceTest {
 
     @Mock
-    private SubCategoryRepository subCategoryRepository;
+    private SubcategoryRepository subCategoryRepository;
     @InjectMocks
     private CategoryService categoryService;
 
@@ -27,7 +27,7 @@ public class CategoryServiceTest {
         // given
         BDDMockito.given(subCategoryRepository.findAll())
                 .willReturn(
-                        List.of(SubCategory.builder().name("모델명 세부모델명").category(Category.builder().name("모델명").build())
+                        List.of(Subcategory.builder().name("모델명 세부모델명").category(Category.builder().name("모델명").build())
                                 .build()));
         // when
         GetCategoriesResponseDto.CategoryListDto response = categoryService.getSubCategories();

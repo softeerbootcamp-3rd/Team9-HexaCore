@@ -3,9 +3,9 @@ package com.hexacore.tayo.car;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.category.CategoryRepository;
-import com.hexacore.tayo.category.SubCategoryRepository;
+import com.hexacore.tayo.category.SubcategoryRepository;
 import com.hexacore.tayo.category.model.Category;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.model.User;
 import java.util.List;
@@ -31,10 +31,10 @@ public class CarRepositoryTest {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
-    private SubCategoryRepository subCategoryRepository;
+    private SubcategoryRepository subCategoryRepository;
 
     private User user;
-    private SubCategory subCategory;
+    private Subcategory subCategory;
 
     @BeforeEach
     void createUserAndModel() {
@@ -44,8 +44,8 @@ public class CarRepositoryTest {
                         .build());
         Category category = categoryRepository.save(
                 Category.builder().name("모델명").build());
-        SubCategory subCategory = subCategoryRepository.save(
-                SubCategory.builder().name("모델명 세부모델명").category(category).build());
+        Subcategory subCategory = subCategoryRepository.save(
+                Subcategory.builder().name("모델명 세부모델명").category(category).build());
         this.user = user;
         this.subCategory = subCategory;
     }

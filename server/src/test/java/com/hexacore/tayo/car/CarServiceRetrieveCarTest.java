@@ -9,7 +9,7 @@ import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.FuelType;
 import com.hexacore.tayo.category.model.Category;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.model.User;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class CarServiceRetrieveCarTest {
 
     User user = new User(1L, "jomualgy988@gmail.com", "1234", "김지훈", "010-4825-9803", null, null, false);
     Category category = new Category(1L, "i30");
-    SubCategory subCategory = new SubCategory(1L, "i30 (PD)", category);
+    Subcategory subCategory = new Subcategory(1L, "i30 (PD)", category);
     GeometryFactory geometryFactory = new GeometryFactory();
     Coordinate coordinate = new Coordinate(120.0, 30.0);
     Point point = geometryFactory.createPoint(coordinate);

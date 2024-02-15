@@ -1,6 +1,6 @@
 package com.hexacore.tayo.category.dto;
 
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,7 +21,7 @@ public class GetCategoriesResponseDto {
         private String category;
         private String subcategory;
 
-        public CategoryDto(SubCategory subcategory) {
+        public CategoryDto(Subcategory subcategory) {
             this.category = subcategory.getCategory().getName();
             this.subcategory = subcategory.getName();
         }

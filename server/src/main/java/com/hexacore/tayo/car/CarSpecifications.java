@@ -4,7 +4,7 @@ import com.hexacore.tayo.car.dto.SearchCarsParamsDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.category.model.Category;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.reservation.model.Reservation;
@@ -101,8 +101,8 @@ public class CarSpecifications {
                 predicates.add(criteriaBuilder.equal(root.get("subcategory").get("id"),
                         searchCarsParamsDto.getSubcategoryId()));
             } else if (searchCarsParamsDto.getSubcategoryId() != null && searchCarsParamsDto.getCategoryId() > 0) {
-                Join<Car, SubCategory> subcategoryJoin = root.join("subcategory");
-                Join<SubCategory, Category> categoryJoin = subcategoryJoin.join("category");
+                Join<Car, Subcategory> subcategoryJoin = root.join("subcategory");
+                Join<Subcategory, Category> categoryJoin = subcategoryJoin.join("category");
                 predicates.add(criteriaBuilder.equal(categoryJoin.get("id"), searchCarsParamsDto.getCategoryId()));
             }
 

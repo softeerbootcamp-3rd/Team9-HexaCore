@@ -1,6 +1,5 @@
 package com.hexacore.tayo.car;
 
-import static org.awaitility.Awaitility.given;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
@@ -11,12 +10,11 @@ import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.FuelType;
 import com.hexacore.tayo.category.model.Category;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
@@ -49,7 +47,7 @@ public class CarServiceUpdateCarTest {
 
     User user = new User(1L, "jomualgy988@gmail.com", "1234", "김지훈", "010-4825-9803", null, null, false);
     Category category = new Category(1L, "i30");
-    SubCategory subCategory = new SubCategory(1L, "i30 (PD)", category);
+    Subcategory subCategory = new Subcategory(1L, "i30 (PD)", category);
     GeometryFactory geometryFactory = new GeometryFactory();
     Coordinate coordinate = new Coordinate(120.0, 30.0);
     Point point = geometryFactory.createPoint(coordinate);

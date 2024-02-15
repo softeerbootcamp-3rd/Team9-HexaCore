@@ -2,13 +2,12 @@ package com.hexacore.tayo.car;
 
 import static org.mockito.BDDMockito.given;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.CategoryRepository;
-import com.hexacore.tayo.category.SubCategoryRepository;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.SubcategoryRepository;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.util.S3Manager;
@@ -41,7 +40,7 @@ public class CarServiceCreateCarTest {
     @Mock
     private CategoryRepository mockCategoryRepository;
     @Mock
-    private SubCategoryRepository mockSubCategoryRepository;
+    private SubcategoryRepository mockSubcategoryRepository;
     @InjectMocks
     private CarService carService;
 
@@ -61,8 +60,8 @@ public class CarServiceCreateCarTest {
                 List.of(1, 2, 3, 4, 5));
 
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
-        given(mockSubCategoryRepository.findByName(createCarRequestDto.getCarName()))
-                .willReturn(Optional.of(SubCategory.builder().name("서브모델명").build()));
+        given(mockSubcategoryRepository.findByName(createCarRequestDto.getCarName()))
+                .willReturn(Optional.of(Subcategory.builder().name("서브모델명").build()));
         given(mockCarRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(0L, createCarRequestDto.getCarNumber()))
                 .willReturn(Optional.empty());
         given(mockS3Manager.uploadImage(Mockito.any())).willReturn("url");
@@ -92,8 +91,8 @@ public class CarServiceCreateCarTest {
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
         given(mockCarRepository.findByCarNumberAndIsDeletedFalse(createCarRequestDto.getCarNumber()))
                 .willReturn(Collections.emptyList());
-        given(mockSubCategoryRepository.findByName(createCarRequestDto.getCarName()))
-                .willReturn(Optional.of(SubCategory.builder().name("모델명").build()));
+        given(mockSubcategoryRepository.findByName(createCarRequestDto.getCarName()))
+                .willReturn(Optional.of(Subcategory.builder().name("모델명").build()));
         given(mockCarRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(0L, createCarRequestDto.getCarNumber()))
                 .willReturn(Optional.of(new Car())); //
         given(mockS3Manager.uploadImage(Mockito.any())).willReturn("url");
@@ -118,7 +117,7 @@ public class CarServiceCreateCarTest {
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
         given(mockCarRepository.findByCarNumberAndIsDeletedFalse(createCarRequestDto.getCarNumber()))
                 .willReturn(Collections.emptyList());
-        given(mockSubCategoryRepository.findByName(createCarRequestDto.getCarName()))
+        given(mockSubcategoryRepository.findByName(createCarRequestDto.getCarName()))
                 .willReturn(Optional.empty());
 
         // when & then
@@ -199,8 +198,8 @@ public class CarServiceCreateCarTest {
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
         given(mockCarRepository.findByCarNumberAndIsDeletedFalse(createCarRequestDto.getCarNumber()))
                 .willReturn(Collections.emptyList());
-        given(mockSubCategoryRepository.findByName(createCarRequestDto.getCarName()))
-                .willReturn(Optional.of(SubCategory.builder().name("세부모델명").build()));
+        given(mockSubcategoryRepository.findByName(createCarRequestDto.getCarName()))
+                .willReturn(Optional.of(Subcategory.builder().name("세부모델명").build()));
         given(mockCarRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(0L, createCarRequestDto.getCarNumber()))
                 .willReturn(Optional.of(new Car())); //
 

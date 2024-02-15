@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CategoryService {
 
-    private final SubCategoryRepository subcategoryRepository;
+    private final SubcategoryRepository subcategoryRepository;
 
     /* 모델, 세부 모델명 조회 */
     public GetCategoriesResponseDto.CategoryListDto getSubCategories() {

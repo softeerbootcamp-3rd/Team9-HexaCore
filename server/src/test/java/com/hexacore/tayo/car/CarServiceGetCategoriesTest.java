@@ -1,9 +1,9 @@
 package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.category.CategoryRepository;
-import com.hexacore.tayo.category.SubCategoryRepository;
+import com.hexacore.tayo.category.SubcategoryRepository;
 import com.hexacore.tayo.category.dto.GetSubCategoryListResponseDto;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.response.DataResponseDto;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class CarServiceGetCategoriesTest {
     @Mock
     private CategoryRepository categoryRepository;
     @Mock
-    private SubCategoryRepository subCategoryRepository;
+    private SubcategoryRepository subCategoryRepository;
     @InjectMocks
     private CarService carService;
 
@@ -33,7 +33,7 @@ public class CarServiceGetCategoriesTest {
     void getCategoriesTest() {
         // given
         BDDMockito.given(subCategoryRepository.findAll())
-                .willReturn(List.of(SubCategory.builder().name("세부모델명").build()));
+                .willReturn(List.of(Subcategory.builder().name("세부모델명").build()));
         // when
         DataResponseDto response = (DataResponseDto) carService.getSubCategories();
 

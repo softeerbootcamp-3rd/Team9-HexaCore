@@ -1,6 +1,6 @@
 package com.hexacore.tayo.car.model;
 
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.BaseTime;
 import com.hexacore.tayo.user.model.User;
 import jakarta.persistence.*;
@@ -35,7 +35,7 @@ public class Car extends BaseTime {
 
     @ManyToOne
     @JoinColumn(name = "subcategory_id", nullable = false)
-    private SubCategory subcategory;
+    private Subcategory subcategory;
 
     @Column(name = "car_number", nullable = false)
     private String carNumber;
