@@ -32,17 +32,13 @@ function Login() {
         }
       });
       if (response.success) {
-        setCookie("accessToken", response.data.tokens.accessToken, "/");
-        setCookie("refreshToken", response.data.tokens.refreshToken, "/");
+        localStorage.setItem("accessToken", response.data.tokens.accessToken);
+        localStorage.setItem("refreshToken", response.data.tokens.refreshToken);
         navigate("/");
       } else {
         setPwdInputErr("올바른 이메일과 비밀번호를 입력해주세요.");
       }
     }
-  };
-
-  const setCookie = (name: string, value: string, path: string): void => {
-    document.cookie = `${name}=${value}; path=${path};`;
   };
   
   // 이메일 입력란 비어있는지 확인

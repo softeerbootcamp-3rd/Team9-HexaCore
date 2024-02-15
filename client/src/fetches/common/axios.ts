@@ -8,7 +8,7 @@ const apiPrefix = import.meta.env.VITE_API_PREFIX ?? '/';
 const axiosInstance = axios.create({
   baseURL: `${baseURL}${apiPrefix}`,
   headers: {
-    'Authorization': 'Bearer ' + localStorage.getItem("accessToken"), // 필요에 따라 인증 토큰 추가
+    'Authorization': 'Bearer ' + localStorage.getItem("accessToken"),
   },
 });
 
