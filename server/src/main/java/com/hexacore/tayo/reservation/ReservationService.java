@@ -159,13 +159,20 @@ public class ReservationService {
             LocalDate startDate = carDateRange.getStartDate();
             LocalDate endDate = carDateRange.getEndDate();
 
-            if (localDateInclusiveBefore(startDate, rentDateTime.toLocalDate())) {
-                if (localDateInclusiveAfter(endDate, returnDateTime.toLocalDate())) {
-                    return carDateRange;
-                }
+            if (!localDateInclusiveAfter(endDate, returnDateTime.toLocalDate()) ||
+                    !localDateInclusiveBefore(startDate, rentDateTime.toLocalDate())) {
                 continue;
             }
-            break;
+            for (Reservation reservation : carDateRange.getReservations()) {
+                if (reservation.getStatus() == ReservationStatus.READY ||
+                        reservation.getStatus() == ReservationStatus.USING) {
+                    if (!reservation.getReturnDateTime().isBefore(rentDateTime)
+                            || !reservation.getRentDateTime().isAfter(returnDateTime)) {
+                        throw new GeneralException(ErrorCode.RESERVATION_ALREADY_READY_OR_USING);
+                    }
+                }
+            }
+            return carDateRange;
         }
         throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
     }

@@ -40,6 +40,7 @@ public enum ErrorCode {
     RESERVATION_HOST_EQUALS_GUEST(HttpStatus.BAD_REQUEST, "호스트와 게스트가 일치하는 예약입니다."),
     RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 예약입니다."),
     RESERVATION_DATE_NOT_IN_RANGE(HttpStatus.BAD_REQUEST, "예약 가능 날짜의 범위에 맞지 않는 대여/반납일시입니다."),
+    RESERVATION_ALREADY_READY_OR_USING(HttpStatus.BAD_REQUEST, "해당 예약일시 구간에 이미 예약대기 혹은 사용중인 예약이 있습니다."),
     RESERVATION_CANCELED_BY_OTHERS(HttpStatus.BAD_REQUEST, "예약을 등록한 호스트만 예약을 취소할 수 있습니다."),
 
     S3_UPLOAD_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "S3 업로드에 실패했습니다."),
