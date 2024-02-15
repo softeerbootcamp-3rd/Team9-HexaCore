@@ -30,7 +30,7 @@ public class CarController {
 
     @PostMapping
     public ResponseEntity<Response> createCar(HttpServletRequest request,
-                                              @Valid @ModelAttribute CreateCarRequestDto createCarRequestDto) {
+            @Valid @ModelAttribute CreateCarRequestDto createCarRequestDto) {
         Long userId = (Long) request.getAttribute("userId");
         carService.createCar(createCarRequestDto, userId);
 
@@ -51,15 +51,16 @@ public class CarController {
 
     @PutMapping("{carId}")
     public ResponseEntity<Response> updateCar(@PathVariable Long carId,
-            @Valid @ModelAttribute UpdateCarRequestDto updateCarRequestDto) {
-        carService.carUpdate(carId, updateCarRequestDto);
+            @Valid @ModelAttribute UpdateCarRequestDto updateCarRequestDto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        carService.updateCar(carId, updateCarRequestDto, userId);
         return Response.of(HttpStatus.OK);
     }
 
     @PutMapping("{carId}/date")
     public ResponseEntity<Response> updateDateRanges(@PathVariable Long carId,
-                                                     HttpServletRequest request,
-                                                     @RequestBody GetCarDateRangeRequestDto getCarDateRangeRequestDto) {
+            HttpServletRequest request,
+            @RequestBody GetCarDateRangeRequestDto getCarDateRangeRequestDto) {
         Long hostUserId = (Long) request.getAttribute("userId");
         carService.updateDateRanges(hostUserId, carId, getCarDateRangeRequestDto);
         return Response.of(HttpStatus.ACCEPTED);

@@ -116,16 +116,23 @@ public class CarService {
 
     /* 차량 정보 수정 */
     @Transactional
-    public void carUpdate(Long carId, UpdateCarRequestDto updateCarRequestDto) {
+    public void updateCar(Long carId, UpdateCarRequestDto updateCarRequestDto, Long userId) {
+        if (!isIndexSizeEqualsToImageSize(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles())) {
+            // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
+            throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
+        }
         Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
+        if (car.getOwner().getId() != userId) {
+            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
+        }
         car.setFeePerHour(updateCarRequestDto.getFeePerHour());
         car.setAddress(updateCarRequestDto.getAddress());
         car.setPosition(updateCarRequestDto.getPosition().toEntity());
         car.setDescription(updateCarRequestDto.getDescription());
-
         saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles(), car);
+        carRepository.save(car);
     }
 
     /* 차량 삭제 */
