@@ -9,19 +9,19 @@ public enum FuelType {
     GASOLINE("휘발유"),
     NOT_FOUND("not found");
 
-    private final String type;
+    private final String value;
 
-    FuelType(String type) {
-        this.type = type;
+    FuelType(String value) {
+        this.value = value;
     }
 
-    public String getType() {
-        return type;
+    public String getValue() {
+        return value;
     }
 
     public static FuelType of(String fuelType) {
         for (FuelType f : values()) {
-            if (f.type.equals(fuelType)) {
+            if (f.value.equals(fuelType)) {
                 return f;
             }
         }
