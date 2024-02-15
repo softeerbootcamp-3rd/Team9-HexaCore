@@ -1,14 +1,13 @@
 package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
-import com.hexacore.tayo.car.dto.GetCarDateRangeRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.common.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -60,7 +59,7 @@ public class CarController {
     @PutMapping("{carId}/date")
     public ResponseEntity<Response> updateDateRanges(@PathVariable Long carId,
             HttpServletRequest request,
-            @RequestBody GetCarDateRangeRequestDto getCarDateRangeRequestDto) {
+            @RequestBody CarDateRangesDto getCarDateRangeRequestDto) {
         Long hostUserId = (Long) request.getAttribute("userId");
         carService.updateDateRanges(hostUserId, carId, getCarDateRangeRequestDto);
         return Response.of(HttpStatus.ACCEPTED);
