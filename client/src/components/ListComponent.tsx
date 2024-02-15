@@ -42,7 +42,7 @@ function ListComponent({ target, reservation, className }: Props) {
     const handleResize = () => {
       const buttons = document.querySelectorAll('Button');
       buttons.forEach((button) => {
-        if (window.innerWidth <= 1520) {
+        if (window.innerWidth <= 1000) {
           button.classList.add('w-[9ch]', 'min-w-[9ch]');
         } else {
           button.classList.remove('w-[9ch]', 'min-w-[9ch]');

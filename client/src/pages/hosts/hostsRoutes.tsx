@@ -16,13 +16,12 @@ const hostsRoutes: RouteObject[] = [
     loader: async () => {
       const [carDetailResult, HostReservationResult] = await Promise.allSettled([fetchCarDetail(), fetchHostReservations()]);
 
-      if (carDetailResult.status === 'rejected') {
-        throw new Error('차량 정보를 불러오는데 실패했습니다'); // TODO: retry and default value
-      } else if (carDetailResult.value === undefined) {
-        alert('등록된 차량 정보가 없습니다.');
-        Navigate('/');
+      if (carDetailResult.status === 'rejected' || carDetailResult.value === undefined) {
+        alert('차량 정보를 불러오는데 실패했습니다');
+        location.reload();
       } else if (HostReservationResult.status === 'rejected' || HostReservationResult.value === undefined) {
-        throw new Error('예약 정보를 불러오는데 실패했습니다');
+        alert('예약 정보를 불러오는데 실패했습니다');
+        location.reload();
       } else {
         const carDetail = parseCarDetail(carDetailResult.value.data);
         const hostReservations = parseHostReservations(HostReservationResult.value.data);
