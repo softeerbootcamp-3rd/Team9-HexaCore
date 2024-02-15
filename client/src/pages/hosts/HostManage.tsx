@@ -18,7 +18,7 @@ function HostManage() {
   const { carDetail, hostReservations } = useLoaderData() as HostManageLoaderData;
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
-  const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.dates);
+  const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
 
   // 다음 이미지 표시
   const showNextImage = () => {
@@ -31,18 +31,17 @@ function HostManage() {
   };
 
   const editCar = () => {
-    const response = await server.get<ResponseWithoutData>('/cars/' + carDetail.id, {});
-    if (response.success) {
-      alert('수정이 완료되었습니다.');
-      location.reload();
-    } else {
-      console.error('dd');
-    }
+    navigate('/hosts/register');
   };
 
-  const deleteCar = () => {
-    alert('삭제가 완료되었습니다.');
-    location.reload();
+  const deleteCar = async () => {
+    const response = await server.delete<ResponseWithoutData>('/cars/' + carDetail.id, {});
+    if (response.success) {
+      alert('차량 삭제가 완료되었습니다.');
+      location.reload();
+    } else {
+      alert('차량 삭제를 실패했습니다.');
+    }
   };
 
   if (carDetail === null) {
@@ -63,7 +62,7 @@ function HostManage() {
         return (
           <div className='rounded-xl bg-white p-8'>
             <div>
-              {/* <HostCalendar size="large" availableDates={availableDates} onAvailableDatesChange={setAvailableDates} reservations={reservations} /> */}
+              <HostCalendar size='large' availableDates={availableDates} onAvailableDatesChange={setAvailableDates} reservations={reservations} />
             </div>
           </div>
         );

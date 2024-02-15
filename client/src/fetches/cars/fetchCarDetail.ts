@@ -4,6 +4,7 @@ import { server } from '@/fetches/common/axios';
 import type { ResponseWithData } from '@/fetches/common/response.type';
 
 type CarDetailResponse = {
+  id: number;
   carName: string;
   carNumber: string;
   imageUrls: string[];
@@ -19,6 +20,7 @@ type CarDetailResponse = {
 };
 
 export type CarData = {
+  id: number;
   carName: string;
   carNumber: string;
   imageUrls: string[];
@@ -43,6 +45,7 @@ export const fetchCarDetail = async () => {
 
 export const parseCarDetail = (carData: CarDetailResponse): CarData => {
   return {
+    id: carData.id,
     carName: carData.carName,
     carNumber: carData.carNumber,
     imageUrls: carData.imageUrls,
