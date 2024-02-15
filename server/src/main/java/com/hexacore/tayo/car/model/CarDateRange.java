@@ -4,8 +4,8 @@ import com.hexacore.tayo.reservation.model.Reservation;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +15,7 @@ import lombok.Setter;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,6 +30,10 @@ public class CarDateRange {
     @JoinColumn(name = "car_id", nullable = false)
     private Car car;
 
+    @OneToMany(mappedBy = "carDateRange")
+    @Builder.Default
+    private List<Reservation> reservations = new ArrayList<>();
+
     @Column(name = "start_date", nullable = false)
     @Setter
     private LocalDate startDate;
@@ -36,7 +41,4 @@ public class CarDateRange {
     @Column(name = "end_date", nullable = false)
     @Setter
     private LocalDate endDate;
-
-    @OneToMany(mappedBy = "carDateRange")
-    private List<Reservation> reservations = new ArrayList<>();
 }
