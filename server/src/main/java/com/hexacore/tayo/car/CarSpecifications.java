@@ -4,7 +4,7 @@ import com.hexacore.tayo.car.dto.SearchCarsParamsDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.category.model.Category;
-import com.hexacore.tayo.category.model.Subcategory;
+import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.reservation.model.Reservation;
@@ -23,8 +23,9 @@ import java.util.List;
 public class CarSpecifications {
 
     public static Specification<Car> searchCars(SearchCarsParamsDto searchCarsParamsDto) {
-        if (searchCarsParamsDto == null || !searchCarsParamsDto.isValid())
+        if (searchCarsParamsDto == null || !searchCarsParamsDto.isValid()) {
             throw new GeneralException(ErrorCode.VALIDATION_ERROR);
+        }
 
         return (root, query, criteriaBuilder) -> {
             query.distinct(true);
@@ -51,7 +52,8 @@ public class CarSpecifications {
             }
 
             // 날짜 기반 예약 가능 차량 검색
-            if (searchCarsParamsDto.getStartDate() != null && searchCarsParamsDto.getEndDate() != null && searchCarsParamsDto.getStartDate().isBefore(searchCarsParamsDto.getEndDate())) {
+            if (searchCarsParamsDto.getStartDate() != null && searchCarsParamsDto.getEndDate() != null
+                    && searchCarsParamsDto.getStartDate().isBefore(searchCarsParamsDto.getEndDate())) {
                 LocalDate startDate = searchCarsParamsDto.getStartDate();
                 LocalDate endDate = searchCarsParamsDto.getEndDate();
 
@@ -85,7 +87,8 @@ public class CarSpecifications {
 
             // 인원수 기반 차량 검색
             if (searchCarsParamsDto.getParty() != null && searchCarsParamsDto.getParty() > 0) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("capacity"), searchCarsParamsDto.getParty()));
+                predicates.add(
+                        criteriaBuilder.greaterThanOrEqualTo(root.get("capacity"), searchCarsParamsDto.getParty()));
             }
 
             // 차량 타입 기반 차량 검색
@@ -95,20 +98,22 @@ public class CarSpecifications {
 
             // 카테고리 기반 차량 검색(하위 카테고리가 있을 경우 하위 카테고리 기반 검색, 없을 경우 상위 카테고리 기반 검색)
             if (searchCarsParamsDto.getSubcategoryId() != null && searchCarsParamsDto.getSubcategoryId() > 0) {
-                predicates.add(criteriaBuilder.equal(root.get("subcategory").get("id"), searchCarsParamsDto.getSubcategoryId()));
-            }
-            else if (searchCarsParamsDto.getSubcategoryId() != null && searchCarsParamsDto.getCategoryId() > 0) {
-                Join<Car, Subcategory> subcategoryJoin = root.join("subcategory");
-                Join<Subcategory, Category> categoryJoin = subcategoryJoin.join("category");
+                predicates.add(criteriaBuilder.equal(root.get("subcategory").get("id"),
+                        searchCarsParamsDto.getSubcategoryId()));
+            } else if (searchCarsParamsDto.getSubcategoryId() != null && searchCarsParamsDto.getCategoryId() > 0) {
+                Join<Car, SubCategory> subcategoryJoin = root.join("subcategory");
+                Join<SubCategory, Category> categoryJoin = subcategoryJoin.join("category");
                 predicates.add(criteriaBuilder.equal(categoryJoin.get("id"), searchCarsParamsDto.getCategoryId()));
             }
 
             // 가격 기반 차량 검색
             if (searchCarsParamsDto.getMinPrice() != null && searchCarsParamsDto.getMinPrice() > 0) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("feePerHour"), searchCarsParamsDto.getMinPrice()));
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("feePerHour"),
+                        searchCarsParamsDto.getMinPrice()));
             }
             if (searchCarsParamsDto.getMaxPrice() != null && searchCarsParamsDto.getMaxPrice() > 0) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("feePerHour"), searchCarsParamsDto.getMaxPrice()));
+                predicates.add(
+                        criteriaBuilder.lessThanOrEqualTo(root.get("feePerHour"), searchCarsParamsDto.getMaxPrice()));
             }
 
             predicates.add(criteriaBuilder.isFalse(root.get("isDeleted")));

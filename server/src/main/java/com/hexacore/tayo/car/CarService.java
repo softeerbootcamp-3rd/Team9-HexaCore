@@ -7,8 +7,8 @@ import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.car.model.*;
-import com.hexacore.tayo.category.SubcategoryRepository;
-import com.hexacore.tayo.category.model.Subcategory;
+import com.hexacore.tayo.category.SubCategoryRepository;
+import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.model.User;
@@ -33,7 +33,7 @@ public class CarService {
     private final CarRepository carRepository;
     private final CarImageRepository carImageRepository;
     private final CarDateRangeRepository carDateRangeRepository;
-    private final SubcategoryRepository subcategoryRepository;
+    private final SubCategoryRepository subcategoryRepository;
     private final S3Manager s3Manager;
 
     /* 차량 등록 */
@@ -61,7 +61,7 @@ public class CarService {
         }
 
         // 등록에 필요한 정보 가져오기
-        Subcategory subcategory = subcategoryRepository.findByName(createCarRequestDto.getCarName())
+        SubCategory subcategory = subcategoryRepository.findByName(createCarRequestDto.getCarName())
                 // 존재하지 않는 모델인 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
 
