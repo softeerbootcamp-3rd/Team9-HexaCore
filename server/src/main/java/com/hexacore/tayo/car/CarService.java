@@ -49,7 +49,7 @@ public class CarService {
         }
         if (!isSupportedCarType(createCarRequestDto.getType())) {
             // 지원하는 않는 차량 타입인 경우
-            throw new GeneralException(ErrorCode.INAVALID_CAR_TYPE);
+            throw new GeneralException(ErrorCode.INVALID_CAR_TYPE);
         }
         if (!isSupportedFuelType(createCarRequestDto.getFuel())) {
             // 지원하지 않는 연료 타입인 경우
