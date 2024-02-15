@@ -12,14 +12,14 @@ import lombok.RequiredArgsConstructor;
 @Builder
 public class CreateReservationRequestDto {
 
-    @NotNull
+    @NotNull(message = "carId가 null이어서는 안됩니다.")
     private final Long carId;
 
-    @NotNull
+    @NotNull(message = "rentDateTime이 null이어서는 안됩니다.")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private final LocalDateTime rentDateTime;
 
-    @NotNull
+    @NotNull(message = "returnDateTime이 null이어서는 안됩니다.")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private final LocalDateTime returnDateTime;
 }
