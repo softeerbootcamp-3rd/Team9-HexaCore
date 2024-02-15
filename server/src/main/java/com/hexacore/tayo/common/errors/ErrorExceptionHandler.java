@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class ErrorExceptionHandler {
@@ -14,6 +15,11 @@ public class ErrorExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Response> handleException(Exception e) {
         return Response.of(ErrorCode.SERVER_ERROR);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Response> handleNoResourceFoundException(NoResourceFoundException e) {
+        return Response.of(ErrorCode.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

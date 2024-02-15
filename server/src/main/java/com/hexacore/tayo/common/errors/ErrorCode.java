@@ -11,7 +11,7 @@ public enum ErrorCode {
     EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 엑세스 토큰입니다."),
     EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 리프레시 토큰입니다."),
 
-    PAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 페이지를 찾을 수 없습니다."),
+    NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 URL입니다."),
 
     EMPTY_USER_ID(HttpStatus.BAD_REQUEST, "유저 아이디를 입력해주세요."),
     EMPTY_USER_PASSWORD(HttpStatus.BAD_REQUEST, "유저 비밀번호를 입력해주세요."),
