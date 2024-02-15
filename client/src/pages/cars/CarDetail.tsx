@@ -5,7 +5,6 @@ import Tag from '@/components/Tag';
 import Button from '@/components/Button';
 import TimePicker from '@/components/TimePicker';
 import GuestCalendar from '@/components/calendar/guestCalendar/GuestCalendar';
-import { generateDateRange } from '@/components/calendar/guestCalendar/calendar.guest';
 import { DateRange } from '@/components/calendar/calendar.core';
 import { stringTupleToDateRange } from '@/utils/converters';
 import { server } from '@/fetches/common/axios';
@@ -66,41 +65,32 @@ function CarDetail() {
   };
 
   // 대여 시간 정보 업데이트
-  const updateStartDateTime = (time: string) => {
-    setRentTime((prevTime: number) => {
-      const newTime = parseInt(time);
+  const updateStartDateTime = (time: number) => {
 
-      const startDateTime = new Date(dateRange[0]);
-      startDateTime.setHours(newTime);
+    const startDateTime = new Date(dateRange[0]);
+    startDateTime.setHours(time);
+    const endDateTime = new Date(dateRange[1]);
+    endDateTime.setHours(returnTime);
 
-      const endDateTime = new Date(dateRange[1]);
-      endDateTime.setHours(returnTime);
+    if (startDateTime > endDateTime) {
+      setReturnTime(time);
+    }
 
-      if(startDateTime > endDateTime) {
-        return prevTime;
-      }
-
-      return newTime;
-    });
+    setRentTime(time);
   };
 
   // 반납 시간 정보 업데이트
-  const updateEndDateTime = (time: string) => {
-    setReturnTime((prevTime: number) => {
-      const newTime = parseInt(time);
+  const updateEndDateTime = (time: number) => {
+    const startDateTime = new Date(dateRange[0]);
+    startDateTime.setHours(rentTime);
+    const endDateTime = new Date(dateRange[1]);
+    endDateTime.setHours(time);
 
-      const startDateTime = new Date(dateRange[0]);
-      startDateTime.setHours(rentTime);
-
-      const endDateTime = new Date(dateRange[1]);
-      endDateTime.setHours(newTime);
-
-      if(startDateTime > endDateTime) {
-        return prevTime;
-      }
-
-      return newTime;
-    });
+    if (startDateTime > endDateTime) {
+      setRentTime(time);
+    }
+    
+    setReturnTime(time);
   };
 
   // 예약 날짜 정보 업데이트
@@ -244,7 +234,7 @@ function CarDetail() {
           <p className="text-gray-900 text-3xl tracking-tight">₩ {totalFee}</p>
           <div>
             <GuestCalendar 
-              availableDates={[generateDateRange({ from: new Date(), years: 5 })]}
+              availableDates={data.carDateRanges}
               onReservationChange={updateDateRange}
               reservation={dateRange}/>
           </div>
