@@ -2,11 +2,13 @@ import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import InputBox from '@/pages/auth/InputBox';
 import Button from '@/components/Button';
-import type { ResponseWithoutData } from "@/fetches/common/response.type";
+import type { ResponseWithData } from "@/fetches/common/response.type";
 import { server } from "@/fetches/common/axios";
 import { useNavigate } from 'react-router-dom';
+import { LoginResponse } from '@/fetches/auth/auth.type';
 
 function Login() {
+  document.cookie = `a=bbbb; path=/;`;
   const navigate = useNavigate();
 
   const emailInputRef = useRef<HTMLInputElement | null>(null);
@@ -19,17 +21,19 @@ function Login() {
   const [pwdErr, setPwdErr] = useState("");
 
   const handleLogin = async () => {
-    const userEmail: string = emailInputRef.current?.value || '';
-    const userPwd: string = pwdInputRef.current?.value || '';
+    const userEmail: string = emailInputRef.current?.value ?? '';
+    const userPwd: string = pwdInputRef.current?.value ?? '';
 
     if (!checkEmailEmpty(userEmail) && !checkPwdEmpty(userPwd)) {
-      const response = await server.post<ResponseWithoutData>('/auth/login', {
+      const response = await server.post<ResponseWithData<LoginResponse>>('/auth/login', {
         data: {
           email: userEmail,
           password: userPwd,
         }
       });
       if (response.success) {
+        setCookie("accessToken", response.data.tokens.accessToken, "/");
+        setCookie("refreshToken", response.data.tokens.refreshToken, "/");
         navigate("/");
       } else {
         setPwdInputErr("올바른 이메일과 비밀번호를 입력해주세요.");
@@ -37,6 +41,10 @@ function Login() {
     }
   };
 
+  const setCookie = (name: string, value: string, path: string): void => {
+    document.cookie = `${name}=${value}; path=${path};`;
+  };
+  
   // 이메일 입력란 비어있는지 확인
   const checkEmailEmpty = (email: string): boolean => {
     if (email === '') {
