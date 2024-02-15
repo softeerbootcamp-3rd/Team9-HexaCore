@@ -6,6 +6,7 @@ import ListComponent from '@/components/ListComponent';
 import HostCalendar from '@/components/calendar/hostCalendar/HostCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
 import { HostManageLoaderData } from './hostsRoutes';
+import ImageGallery from '../cars/ImageGallery';
 
 const TABS = ['calendar', 'reservation'] as const;
 type TabType = (typeof TABS)[number];
@@ -13,19 +14,8 @@ type TabType = (typeof TABS)[number];
 function HostManage() {
   const navigate = useNavigate();
   const { carDetail, hostReservations } = useLoaderData() as HostManageLoaderData;
-  const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
-  const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.dates);
-
-  // 다음 이미지 표시
-  const showNextImage = () => {
-    setCurrentIdx((prevIdx) => (prevIdx + 1) % carDetail.imageUrls.length);
-  };
-
-  // 이전 이미지 표시
-  const showPrevImage = () => {
-    setCurrentIdx((prevIdx) => (prevIdx - 1 + carDetail.imageUrls.length) % carDetail.imageUrls.length);
-  };
+  const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
 
   const editCar = () => {
     alert('수정이 완료되었습니다.');
@@ -115,15 +105,7 @@ function HostManage() {
           <h3 className="pl-3 text-lg xl:text-xl font-medium">차량 정보</h3>
           <div className="flex flex-col w-full bg-white rounded-3xl shadow-xl overflow-hidden">
             {/* Image Gallery */}
-            <div className="relative flex h-[300px] w-full overflow-hidden">
-              <button onClick={showPrevImage} className="absolute left-3 top-1/2 -translate-y-1/2 transform hover:brightness-75">
-                <img src="/prev-button.svg" alt="Prev Button Image" />
-              </button>
-              <img className="w-full object-cover" src={carDetail.imageUrls[currentIdx]} alt="car-img" />
-              <button onClick={showNextImage} className="absolute right-3 top-1/2 -translate-y-1/2 transform hover:brightness-75">
-                <img src="/next-button.svg" alt="Next Button Image" />
-              </button>
-            </div>
+            <ImageGallery imageUrls={carDetail.imageUrls} className='h-[300px] w-full rounded-xl' />
 
             <div className="flex flex-col justify-center gap-4 p-6">
               {/* Header : CarName, CarNumber, type, mileage, fuel */}
@@ -149,19 +131,19 @@ function HostManage() {
               <div className="flex flex-col gap-3">
                 {/* carNumber */}
                 <div className="flex gap-4 items-center">
-                  <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
-                    <img src="../public/default-profile.png" alt="host-profile" />
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                    <img src="/location.svg" alt="host-profile" />
                   </div>
                   <div className="flex flex-col">
                     <p className="font-semibold">위치</p>
-                    <p className="text-background-500 text-sm">{carDetail.carAddress}</p>
+                    <p className="text-background-500 text-sm">{carDetail.address}</p>
                   </div>
                 </div>
 
                 {/* Year */}
                 <div className="flex gap-4 items-center">
-                  <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
-                    <img src="../public/default-profile.png" alt="host-profile" />
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                    <img src="/price.svg" alt="host-profile" />
                   </div>
                   <div className="flex flex-col">
                     <p className="font-semibold">가격</p>
@@ -171,8 +153,8 @@ function HostManage() {
 
                 {/* Address */}
                 <div className="flex gap-4 items-center">
-                  <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
-                    <img src="../public/default-profile.png" alt="host-profile" />
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                    <img src="/year.svg" alt="host-profile" />
                   </div>
                   <div className="flex flex-col">
                     <p className="font-semibold">연식</p>
