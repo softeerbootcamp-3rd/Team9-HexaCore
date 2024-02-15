@@ -3,38 +3,39 @@ import { server } from '@/fetches/common/axios';
 import type { ResponseWithData } from '@/fetches/common/response.type';
 import type { ReservationData, ReservationStatus } from "@/fetches/reservations/Reservation.type"
 
-type HostReservationsResponse = {
-  reservations: HostReservationResponse[];
+type GuestReservationsResponse = {
+  reservations: GuestReservationResponse[];
 };
 
-type HostReservationResponse = {
+type GuestReservationResponse = {
   id: number;
-  guest: { id: number; name: string; imageUrl: string; phoneNumber: string};
+  car: { id: number; name: string; imageUrl: string;};
   rentDateTime: string;
   returnDateTime: string;
   fee: number;
   status: ReservationStatus;
-  address: string;
+  carAddress: string;
+  hostPhoneNumber: string;
 };
 
-export const fetchHostReservations = async () => {
-  const response = await server.get<ResponseWithData<HostReservationsResponse>>('/reservations/host', {
+export const fetchGuestReservations = async () => {
+  const response = await server.get<ResponseWithData<GuestReservationsResponse>>('/reservations/guest', {
   });
   if (response.success) {
     return response;
   }
 };
 
-export const parseHostReservations = (hostReservationsResponseRaw: HostReservationsResponse): ReservationData[] => {
+export const parseGuestReservations = (hostReservationsResponseRaw: GuestReservationsResponse): ReservationData[] => {
   return hostReservationsResponseRaw.reservations.map(
     (reservation) =>
       ({
         id: reservation.id,
         target: {
-          id: reservation.guest.id,
-          name: reservation.guest.name ,
-          image: reservation.guest.imageUrl,
-          phoneNumber: reservation.guest.phoneNumber,
+          id: reservation.car.id,
+          name: reservation.car.name ,
+          image: reservation.car.imageUrl,
+          phoneNumber: reservation.hostPhoneNumber
         },
         rentPeriod: stringTupleToDateRange([reservation.rentDateTime, reservation.returnDateTime]),
         rentFee: reservation.fee,
