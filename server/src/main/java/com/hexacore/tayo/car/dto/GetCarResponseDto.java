@@ -54,7 +54,7 @@ public class GetCarResponseDto {
         this.carNumber = car.getCarNumber();
         this.imageUrls = images;
         this.mileage = car.getMileage();
-        this.type = car.getType().getType();
+        this.type = car.getType().getValue();
         this.fuel = car.getFuel().getValue();
         this.capacity = car.getCapacity();
         this.year = car.getYear();
