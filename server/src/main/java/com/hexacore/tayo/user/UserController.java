@@ -23,9 +23,9 @@ public class UserController {
     }
 
     // 유저 정보 수정
-    @PutMapping
+    @PatchMapping
     public ResponseEntity<Response> updateUser(HttpServletRequest request,
-            @ModelAttribute UpdateUserRequestDto updateRequestDto) {
+                                               @ModelAttribute UpdateUserRequestDto updateRequestDto) {
         userService.update((Long) request.getAttribute("userId"), updateRequestDto);
 
         return Response.of(HttpStatus.OK);

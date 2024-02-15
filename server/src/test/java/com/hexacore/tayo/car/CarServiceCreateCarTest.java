@@ -12,10 +12,12 @@ import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.util.S3Manager;
+
 import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,7 +31,7 @@ import org.springframework.mock.web.MockMultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 public class CarServiceCreateCarTest {
-    
+
     @Mock
     private S3Manager mockS3Manager;
     @Mock

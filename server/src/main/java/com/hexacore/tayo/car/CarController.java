@@ -73,7 +73,6 @@ public class CarController {
         return Response.of(HttpStatus.NO_CONTENT);
     }
 
-
     @GetMapping("{carId}")
     public ResponseEntity<Response> carDetail(@PathVariable Long carId) {
         GetCarResponseDto getCarResponseDto = carService.carDetail(carId);
@@ -81,9 +80,10 @@ public class CarController {
     }
 
     @PutMapping("{carId}")
-    public ResponseEntity<Response> carUpdate(@PathVariable Long carId,
-            @ModelAttribute UpdateCarRequestDto updateCarRequestDto) {
-        carService.carUpdate(carId, updateCarRequestDto);
+    public ResponseEntity<Response> updateCar(@PathVariable Long carId,
+            @Valid @ModelAttribute UpdateCarRequestDto updateCarRequestDto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        carService.updateCar(carId, updateCarRequestDto, userId);
         return Response.of(HttpStatus.OK);
     }
 
