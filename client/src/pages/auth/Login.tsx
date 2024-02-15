@@ -95,7 +95,7 @@ function Login() {
 
         <div className="flex justify-end pr-3 pt-8">
           <Link to="/auth/signup" className="pr-8">
-            <Button text="회원가입 하러 가기" className="h-12 w-44 bg-primary-300 hover:bg-primary-400" isRounded></Button>
+            <Button text="회원가입 하러 가기" className="h-12 w-44" isRounded></Button>
           </Link>
           <Button text="로그인" className="h-12 w-32" isRounded onClick={handleLogin} />
         </div>
