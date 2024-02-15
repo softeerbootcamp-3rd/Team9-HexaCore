@@ -6,7 +6,6 @@ import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.car.model.Car;
-import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.FuelType;
@@ -14,10 +13,14 @@ import com.hexacore.tayo.category.SubCategoryRepository;
 import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.reservation.ReservationRepository;
+import com.hexacore.tayo.reservation.model.Reservation;
+import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +38,7 @@ public class CarService {
     private final CarImageRepository carImageRepository;
     private final CarDateRangeRepository carDateRangeRepository;
     private final SubCategoryRepository subCategoryRepository;
+    private final ReservationRepository reservationRepository;
     private final S3Manager s3Manager;
 
     /* 차량 등록 */
@@ -170,24 +174,32 @@ public class CarService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         // 차량 소유자와 일치하지 않을 경우
-        if (car.getOwner().getId() != hostUserId) {
+        if (!car.getOwner().getId().equals(hostUserId)) {
             throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
         }
 
-        // dateListDto의 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
-        for (List<LocalDate> carDateRangeList : carDateRangesDto.getDates()) {
-            CarDateRangeDto carDateRangeDto = new CarDateRangeDto(carDateRangeList);
+        // 기존 구간을 모두 삭제한다.
+        carDateRangeRepository.deleteAllByCar_Id(car.getId());
 
-            LocalDate startDate = carDateRangeDto.getStartDate();
-            LocalDate endDate = carDateRangeDto.getEndDate();
+        // CarDateRanges 검증하고 인접한 구역을 합친다.
+        // 검증 요소: List<LocalDate>의 길이는 2이고, 시작일자 <= 종료일자, 그리고 겹치는 부분이 없어야 한다.
+        List<CarDateRangeDto> sortedCarDateRanges = checkDateRangesDtoValidAndMerge(carDateRangesDto);
 
-            if (startDate.isAfter(endDate)) {
-                throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
+        List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
+                car.getId(),
+                List.of(ReservationStatus.USING, ReservationStatus.READY)
+        );
+
+        for (Reservation reservation : reservations) {
+            // N개의 예약과 M개의 DateRange를 비교한다.
+            if (!isReservationValidInDateRanges(reservation, sortedCarDateRanges)) {
+                throw new GeneralException(ErrorCode.CAR_DATE_RANGE_ALREADY_HAS_RESERVATIONS);
             }
-
-            CarDateRange carDateRange = carDateRangeDto.toEntity(car);
-            carDateRangeRepository.save(carDateRange);
         }
+
+        sortedCarDateRanges.stream()
+                .map(carDateRangeDto -> carDateRangeDto.toEntity(car))
+                .forEach(carDateRangeRepository::save);
     }
 
     /* 이미지 엔티티 저장 */
@@ -250,5 +262,78 @@ public class CarService {
     /* FuelType이 지원하는 형식인지 체크 */
     private Boolean isSupportedFuelType(String fuelType) {
         return FuelType.of(fuelType) != FuelType.NOT_FOUND;
+    }
+
+    /* CarDateRangesDto가 올바른지 검증하고 정렬한뒤 인접하다면 병합한다. */
+    private List<CarDateRangeDto> checkDateRangesDtoValidAndMerge(CarDateRangesDto carDateRangesDto) {
+        List<List<LocalDate>> dateRanges = carDateRangesDto.getDates();
+        // dateRanges가 비어있다면 모든 예약일자를 비운다는 의미이다.
+        if (dateRanges.isEmpty()) {
+            return List.of();
+        }
+
+        // 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
+        for (List<LocalDate> dateRange : dateRanges) {
+            if (dateRange.size() != 2) {
+                throw new GeneralException(ErrorCode.DATE_SIZE_MISMATCH);
+            }
+
+            LocalDate startDate = dateRange.get(0);
+            LocalDate endDate = dateRange.get(1);
+
+            if (startDate.isAfter(endDate)) {
+                throw new GeneralException(ErrorCode.DATE_FORMAT_MISMATCH);
+            }
+        }
+
+        // dateRanges를 정렬한다.
+        dateRanges.sort((dateRange1, dateRange2) -> {
+            LocalDate startDate1 = dateRange1.get(0);
+            LocalDate endDate1 = dateRange1.get(1);
+
+            LocalDate startDate2 = dateRange2.get(0);
+            LocalDate endDate2 = dateRange2.get(1);
+            if (startDate1.isEqual(startDate2)) {
+                return endDate1.compareTo(endDate2);
+            }
+            return startDate1.compareTo(startDate2);
+        });
+
+        List<CarDateRangeDto> result = new ArrayList<>();
+        List<LocalDate> currentCarDateRange = dateRanges.get(0);
+
+        for (int idx = 1; idx < dateRanges.size(); idx++) {
+            List<LocalDate> nextCarDateRange = dateRanges.get(idx);
+            LocalDate currentEndDate = currentCarDateRange.get(1);
+            LocalDate nextStartDate = nextCarDateRange.get(0);
+            LocalDate nextEndDate = nextCarDateRange.get(1);
+            if (currentEndDate.isEqual(nextStartDate)
+                    || currentEndDate.isAfter(nextStartDate)) {
+                throw new GeneralException(ErrorCode.INVALID_CAR_DATE_RANGE_DUPLICATED);
+            }
+
+            if (currentEndDate.plusDays(1).isEqual(nextStartDate)) {
+                currentCarDateRange.set(1, nextEndDate);
+            } else {
+                result.add(new CarDateRangeDto(currentCarDateRange));
+                currentCarDateRange = nextCarDateRange;
+            }
+        }
+
+        result.add(new CarDateRangeDto(currentCarDateRange));
+        return result;
+    }
+
+    private Boolean isReservationValidInDateRanges(Reservation reservation, List<CarDateRangeDto> carDateRanges) {
+        LocalDate rentDate = reservation.getRentDateTime().toLocalDate();
+        LocalDate returnDate = reservation.getReturnDateTime().toLocalDate();
+
+        // startDate <= rentDate <= returnDate <= endDate
+        return carDateRanges
+                .stream().anyMatch(dateRange ->
+                        (dateRange.getStartDate().isBefore(rentDate)
+                                || dateRange.getStartDate().isEqual(rentDate))
+                                && (dateRange.getEndDate().isAfter(returnDate)
+                                || dateRange.getEndDate().isEqual(returnDate)));
     }
 }
