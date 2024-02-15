@@ -178,9 +178,6 @@ public class CarService {
             throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
         }
 
-        // 기존 구간을 모두 삭제한다.
-        carDateRangeRepository.deleteAllByCar_Id(car.getId());
-
         // CarDateRanges 검증하고 인접한 구역을 합친다.
         // 검증 요소: List<LocalDate>의 길이는 2이고, 시작일자 <= 종료일자, 그리고 겹치는 부분이 없어야 한다.
         List<CarDateRangeDto> sortedCarDateRanges = checkDateRangesDtoValidAndMerge(carDateRangesDto);
@@ -196,6 +193,9 @@ public class CarService {
                 throw new GeneralException(ErrorCode.CAR_DATE_RANGE_ALREADY_HAS_RESERVATIONS);
             }
         }
+
+        // 기존 구간을 모두 삭제한다.
+        carDateRangeRepository.deleteAllByCar_Id(car.getId());
 
         sortedCarDateRanges.stream()
                 .map(carDateRangeDto -> carDateRangeDto.toEntity(car))
