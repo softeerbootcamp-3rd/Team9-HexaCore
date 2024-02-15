@@ -1,11 +1,8 @@
 package com.hexacore.tayo.car;
 
-import com.hexacore.tayo.car.dto.CreateCarRequestDto;
-import com.hexacore.tayo.car.dto.GetCarDateRangeRequestDto;
-import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.dto.*;
 import com.hexacore.tayo.car.model.*;
 import com.hexacore.tayo.category.SubcategoryRepository;
-import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
@@ -104,8 +101,8 @@ public class CarService {
         }
     }
 
-    public Page<Car> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
-        Specification<Car> searchSpec = CarSpecifications.searchCars(searchCarsDto);
+    public Page<Car> searchCars(SearchCarsParamsDto searchCarsParamsDto, Pageable pageable) {
+        Specification<Car> searchSpec = CarSpecifications.searchCars(searchCarsParamsDto);
         return carRepository.findAll(searchSpec, pageable);
     }
 

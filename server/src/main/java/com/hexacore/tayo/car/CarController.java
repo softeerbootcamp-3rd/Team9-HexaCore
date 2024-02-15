@@ -1,12 +1,9 @@
 package com.hexacore.tayo.car;
 
-import com.hexacore.tayo.car.dto.CreateCarRequestDto;
-import com.hexacore.tayo.car.dto.GetCarDateRangeRequestDto;
-import com.hexacore.tayo.car.dto.GetCarResponseDto;
-import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
+import com.hexacore.tayo.car.dto.*;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
-import com.hexacore.tayo.car.model.SearchCarsDto;
+import com.hexacore.tayo.car.dto.SearchCarsParamsDto;
 import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.common.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,7 +40,7 @@ public class CarController {
         @RequestParam(required = false) Integer maxPrice,
         Pageable pageable
     ) {
-        SearchCarsDto searchCarsDto = SearchCarsDto.builder()
+        SearchCarsParamsDto searchCarsParamsDto = SearchCarsParamsDto.builder()
                 .distance(distance)
                 .position(new Position(lat, lng))
                 .startDate(startDate)
@@ -56,8 +53,9 @@ public class CarController {
                 .maxPrice(maxPrice)
                 .build();
 
-        Page<Car> cars = carService.searchCars(searchCarsDto, pageable);
-        return Response.of(HttpStatus.OK, cars);
+        Page<Car> cars = carService.searchCars(searchCarsParamsDto, pageable);
+        Page<SearchCarsResultDto> data = cars.map(SearchCarsResultDto::of);
+        return Response.of(HttpStatus.OK, data);
     }
 
     @PostMapping
