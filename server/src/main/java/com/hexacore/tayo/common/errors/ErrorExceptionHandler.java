@@ -4,6 +4,7 @@ import com.hexacore.tayo.common.response.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -19,6 +20,13 @@ public class ErrorExceptionHandler {
     public ResponseEntity<Response> handleValidationExceptions(MethodArgumentNotValidException e) {
         BindingResult result = e.getBindingResult();
         String message = result.getFieldErrors().get(0).getDefaultMessage();
+        return Response.of(ErrorCode.VALIDATION_ERROR, message);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Response> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException e) {
+        String message = e.getParameterType() + " 타입의 " + e.getParameterName() + " 파라미터가 없습니다.";
         return Response.of(ErrorCode.VALIDATION_ERROR, message);
     }
 
