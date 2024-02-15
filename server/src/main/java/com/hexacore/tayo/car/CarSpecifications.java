@@ -1,6 +1,8 @@
-package com.hexacore.tayo.car.model;
+package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.SearchCarsParamsDto;
+import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.category.model.Category;
 import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.reservation.model.Reservation;
