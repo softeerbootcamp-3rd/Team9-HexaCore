@@ -43,6 +43,10 @@ public class ReservationService {
         Car car = carRepository.findById(createReservationRequestDto.getCarId())
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
+        if (guestUser.getId() == car.getOwner().getId()) {
+            throw new GeneralException(ErrorCode.RESERVATION_HOST_EQUALS_GUEST);
+        }
+
         User hostUser = car.getOwner();
         List<CarDateRange> carDateRanges = car.getCarDateRanges();
 

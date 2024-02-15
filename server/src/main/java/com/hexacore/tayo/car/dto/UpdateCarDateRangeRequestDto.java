@@ -10,12 +10,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 
-public class UpdateCarDateRangeDto {
+public class UpdateCarDateRangeRequestDto {
 
     @Getter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class CarDateRangeListDto {
+    public static class CarDateRangesDto {
 
         private List<CarDateRangeDto> carDateRanges;
     }

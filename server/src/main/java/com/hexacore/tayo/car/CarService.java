@@ -2,7 +2,8 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
-import com.hexacore.tayo.car.dto.UpdateCarDateRangeDto;
+import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto;
+import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
@@ -113,24 +114,28 @@ public class CarService {
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         List<String> images = carDateList(carId);
-        List<UpdateCarDateRangeDto.CarDateRangeDto> carDateRanges = car.getCarDateRanges().stream()
-                .map(UpdateCarDateRangeDto.CarDateRangeDto::new)
-                .collect(Collectors.toList());
-        return new GetCarResponseDto(car, carDateRanges, images);
+        return new GetCarResponseDto(car, images);
     }
 
     /* 차량 정보 수정 */
     @Transactional
-    public void carUpdate(Long carId, UpdateCarRequestDto updateCarRequestDto) {
+    public void updateCar(Long carId, UpdateCarRequestDto updateCarRequestDto, Long userId) {
+        if (!isIndexSizeEqualsToImageSize(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles())) {
+            // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
+            throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
+        }
         Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
+        if (car.getOwner().getId() != userId) {
+            throw new GeneralException(ErrorCode.CAR_UPDATED_BY_OTHERS);
+        }
         car.setFeePerHour(updateCarRequestDto.getFeePerHour());
         car.setAddress(updateCarRequestDto.getAddress());
         car.setPosition(updateCarRequestDto.getPosition().toEntity());
         car.setDescription(updateCarRequestDto.getDescription());
-
         saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles(), car);
+        carRepository.save(car);
     }
 
     /* 차량 삭제 */
@@ -160,7 +165,7 @@ public class CarService {
     /* 예약 가능 날짜 수정 */
     @Transactional
     public void updateDateRanges(Long hostUserId, Long carId,
-            UpdateCarDateRangeDto.CarDateRangeListDto carDateRangeListDto) {
+            CarDateRangesDto carDateRangesDto) {
         // 차량 조회가 안 되는 경우
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
@@ -172,7 +177,7 @@ public class CarService {
 
         // dateListDto의 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
         List<CarDateRange> carDateRanges = new ArrayList<>();
-        for (UpdateCarDateRangeDto.CarDateRangeDto carDateRangeDto : carDateRangeListDto.getCarDateRanges()) {
+        for (UpdateCarDateRangeRequestDto.CarDateRangeDto carDateRangeDto : carDateRangesDto.getCarDateRanges()) {
             LocalDate startDate = carDateRangeDto.getStartDate();
             LocalDate endDate = carDateRangeDto.getEndDate();
 
@@ -180,15 +185,10 @@ public class CarService {
                 throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
             }
 
-            // TODO: carDateRange 업데이트 할때 소속된 예약의 상태가 Ready, Using일 때 지우지 않도록
-            //  그리고 carDateRanges 전체를 수정하는 로직 구성
             CarDateRange carDateRange = carDateRangeDto.toEntity(car);
             carDateRangeRepository.save(carDateRange);
             carDateRanges.add(carDateRange);
         }
-
-        car.setCarDateRanges(carDateRanges);
-        carRepository.save(car);
     }
 
     /* 이미지 엔티티 저장 */

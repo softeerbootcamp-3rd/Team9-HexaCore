@@ -2,7 +2,7 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
-import com.hexacore.tayo.car.dto.UpdateCarDateRangeDto;
+import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.common.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
@@ -42,7 +42,6 @@ public class CarController {
         return Response.of(HttpStatus.NO_CONTENT);
     }
 
-
     @GetMapping("{carId}")
     public ResponseEntity<Response> carDetail(@PathVariable Long carId) {
         GetCarResponseDto getCarResponseDto = carService.carDetail(carId);
@@ -50,18 +49,19 @@ public class CarController {
     }
 
     @PutMapping("{carId}")
-    public ResponseEntity<Response> carUpdate(@PathVariable Long carId,
-            @ModelAttribute UpdateCarRequestDto updateCarRequestDto) {
-        carService.carUpdate(carId, updateCarRequestDto);
+    public ResponseEntity<Response> updateCar(@PathVariable Long carId,
+            @Valid @ModelAttribute UpdateCarRequestDto updateCarRequestDto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        carService.updateCar(carId, updateCarRequestDto, userId);
         return Response.of(HttpStatus.OK);
     }
 
     @PutMapping("{carId}/date")
     public ResponseEntity<Response> updateDateRanges(@PathVariable Long carId,
             HttpServletRequest request,
-            @RequestBody UpdateCarDateRangeDto.CarDateRangeListDto carDateRangeListDto) {
+            @RequestBody CarDateRangesDto getCarDateRangeRequestDto) {
         Long hostUserId = (Long) request.getAttribute("userId");
-        carService.updateDateRanges(hostUserId, carId, carDateRangeListDto);
+        carService.updateDateRanges(hostUserId, carId, getCarDateRangeRequestDto);
         return Response.of(HttpStatus.ACCEPTED);
     }
 }
