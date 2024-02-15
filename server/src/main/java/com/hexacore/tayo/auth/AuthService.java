@@ -103,7 +103,7 @@ public class AuthService {
                 .build();
 
         return LoginResponseDto.builder()
-                .tokenResponseDto(tokenResponseDto)
+                .tokens(tokenResponseDto)
                 .loginUserInfo(loginUserInfo)
                 .build();
     }
@@ -112,11 +112,9 @@ public class AuthService {
         User expiredUser = userRepository.findById(userId).orElseThrow(() ->
                 new AuthException(ErrorCode.USER_NOT_FOUND));
 
-        GetTokenResponseDto tokenResponseDto = GetTokenResponseDto.builder()
+        return GetTokenResponseDto.builder()
                 .accessToken(jwtProvider.createAccessToken(expiredUser))
                 .build();
-
-        return tokenResponseDto;
     }
 
     private GetUserInfoResponseDto getLoginUserInfo(User user) {

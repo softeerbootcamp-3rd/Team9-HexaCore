@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 public class LoginResponseDto {
 
-    private GetTokenResponseDto tokenResponseDto;
+    private GetTokenResponseDto tokens;
     private GetUserInfoResponseDto loginUserInfo;
 
 }

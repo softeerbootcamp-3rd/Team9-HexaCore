@@ -1,7 +1,6 @@
 package com.hexacore.tayo.auth;
 
 import com.hexacore.tayo.auth.jwt.dto.GetTokenResponseDto;
-import com.hexacore.tayo.common.UriPath;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.common.response.Response;
@@ -9,11 +8,8 @@ import com.hexacore.tayo.user.dto.LoginRequestDto;
 import com.hexacore.tayo.user.dto.LoginResponseDto;
 import com.hexacore.tayo.user.dto.SignUpRequestDto;
 import com.hexacore.tayo.user.model.User;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -50,7 +46,7 @@ public class AuthController {
 
     // 로그아웃
     @GetMapping("/logout")
-    public ResponseEntity<Response> logOut(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Response> logOut(HttpServletRequest request) {
         authService.logOut((Long) request.getAttribute(USER_ID));
 
         return Response.of(HttpStatus.OK);
@@ -58,7 +54,7 @@ public class AuthController {
 
     // 회원 탈퇴
     @DeleteMapping("/users")
-    public ResponseEntity<Response> deleteUser(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<Response> deleteUser(HttpServletRequest request) {
         authService.delete((Long) request.getAttribute(USER_ID));
 
         return Response.of(HttpStatus.OK);
@@ -66,7 +62,7 @@ public class AuthController {
 
     // 엑세스 토큰 재발급
     @GetMapping("/refresh")
-    public ResponseEntity<Response> refresh(HttpServletRequest request, HttpServletResponse response) {dd
+    public ResponseEntity<Response> refresh(HttpServletRequest request) {
         GetTokenResponseDto tokenResponseDto = authService.refresh((Long) request.getAttribute(USER_ID));
 
         return Response.of(HttpStatus.OK, tokenResponseDto);
