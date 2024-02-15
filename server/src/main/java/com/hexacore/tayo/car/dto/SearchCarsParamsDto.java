@@ -20,4 +20,8 @@ public class SearchCarsParamsDto {
     Integer subcategoryId;
     Integer minPrice;
     Integer maxPrice;
+
+    public Boolean hasAllRequiredParams() {
+        return !(distance == null || position == null || startDate == null || endDate == null || party == null);
+    }
 }

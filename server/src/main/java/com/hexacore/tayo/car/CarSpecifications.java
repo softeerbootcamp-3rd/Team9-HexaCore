@@ -5,6 +5,8 @@ import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.category.model.Category;
 import com.hexacore.tayo.category.model.Subcategory;
+import com.hexacore.tayo.common.errors.ErrorCode;
+import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import jakarta.persistence.criteria.Join;
@@ -21,6 +23,9 @@ import java.util.List;
 public class CarSpecifications {
 
     public static Specification<Car> searchCars(SearchCarsParamsDto searchCarsParamsDto) {
+        if (searchCarsParamsDto == null || !searchCarsParamsDto.hasAllRequiredParams())
+            throw new GeneralException(ErrorCode.REQUIRED_PARAMETER);
+
         return (root, query, criteriaBuilder) -> {
             query.distinct(true);
 
