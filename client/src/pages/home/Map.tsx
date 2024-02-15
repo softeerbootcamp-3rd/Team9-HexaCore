@@ -15,7 +15,7 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
   useEffect(() => {
     const center: naver.maps.LatLng = new naver.maps.LatLng(37.3595704, 127.105399);
 
-    const map = new naver.maps.Map('map', {
+    new naver.maps.Map('map', {
       center: center,
       zoom: 16,
       mapTypeControl: true,
@@ -40,11 +40,13 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
 
       const htmlAddresses: string[] = [];
       if (item.roadAddress) {
+        console.log(item.roadAddress);
         htmlAddresses.push('[도로명 주소] ' + item.roadAddress);
         setAddress(item.roadAddress);
       }
 
       if (item.jibunAddress) {
+        console.log(item.jibunAddress);
         htmlAddresses.push('[지번 주소] ' + item.jibunAddress);
       }
 
@@ -87,14 +89,14 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
 
   return (
     <div>
-      <div className="pb-2">
+      <div className='pb-2'>
         <input
           ref={searchAddress}
-          className="ring-gray-300 focus:ring-indigo-500 cursor-default rounded-md bg-white px-3 py-1.5 text-left shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 sm:text-sm sm:leading-6"
-          placeholder="검색할 주소"></input>
-        <Button text="검색" onClick={() => searchAddressToCoordinate(searchAddress.current ? searchAddress.current.value : '')} />
+          className='ring-gray-300 focus:ring-indigo-500 cursor-default rounded-md bg-white px-3 py-1.5 text-left shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 sm:text-sm sm:leading-6'
+          placeholder='검색할 주소'></input>
+        <Button text='검색' onClick={() => searchAddressToCoordinate(searchAddress.current ? searchAddress.current.value : '')} />
       </div>
-      <div id="map" ref={mapElement} className="h-[500px] w-[500px] p-2" />
+      <div id='map' ref={mapElement} className='h-[500px] w-[500px] p-2' />
     </div>
   );
 }

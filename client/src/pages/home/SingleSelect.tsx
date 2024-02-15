@@ -1,13 +1,14 @@
+import { Category } from '@/fetches/categories/categories.type';
 import { Dispatch, useEffect, useRef, useState } from 'react';
 
 type SelectProps = {
-  categoryList: string[];
-  selectedCategory: string;
-  setSelectedCategory: Dispatch<React.SetStateAction<string>>;
-  setSubSelectedCategory: Dispatch<React.SetStateAction<string[]>>;
+  categoryList: Category[];
+  selectedCategory: Category | undefined;
+  setSelectedCategory: Dispatch<React.SetStateAction<Category | undefined>>;
+  setSelectedSubcategory: Dispatch<React.SetStateAction<Category[]>>;
 };
 
-function SingleSelect({ categoryList, selectedCategory, setSelectedCategory, setSubSelectedCategory }: SelectProps) {
+function SingleSelect({ categoryList, selectedCategory, setSelectedCategory, setSelectedSubcategory }: SelectProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropDownRef = useRef<HTMLDivElement>(null);
 
@@ -35,7 +36,7 @@ function SingleSelect({ categoryList, selectedCategory, setSelectedCategory, set
           aria-labelledby="listbox-label"
           onClick={() => setIsOpen((prev) => !prev)}>
           <span className="flex items-center">
-            <span className="ml-3 block truncate">{selectedCategory}</span>
+            <span className="ml-3 block truncate">{selectedCategory?.name}</span>
           </span>
           <span className="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
             <svg className="text-gray-400 h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -62,10 +63,10 @@ function SingleSelect({ categoryList, selectedCategory, setSelectedCategory, set
                   onClick={() => {
                     setSelectedCategory(category);
                     // 모델을 변경하면 세부 모델 선택 정보가 리셋됨
-                    setSubSelectedCategory([]);
+                    setSelectedSubcategory([]);
                   }}>
                   <div className="flex items-center">
-                    <span className="block truncate font-normal">{category}</span>
+                    <span className="block truncate font-normal">{category.name}</span>
                   </div>
                   {selectedCategory === category && (
                     <span className="text-indigo-600 inset-y-0 right-0 flex items-center pr-4">

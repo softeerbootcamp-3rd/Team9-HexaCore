@@ -1,29 +1,26 @@
 import Search from '@/components/svgs/Search';
-import { CarData } from '@/pages/home/CarCard';
-import { Dispatch, useEffect, useRef, useState } from 'react';
-import response from '@/pages/home/dummy/cars.json';
+import { useEffect, useRef, useState } from 'react';
 import Map from '@/pages/home/Map';
 import GuestCalendar from '@/components/calendar/guestCalendar/GuestCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
+import { useNavigate } from 'react-router-dom';
+import { formatDate } from '@/utils/converters';
 
 type SearchBarProps = {
-  setCarDataList: Dispatch<React.SetStateAction<CarData[]>>;
-  setClickSearch: Dispatch<React.SetStateAction<boolean>>;
-  rentDate: React.RefObject<HTMLInputElement>;
-  returnDate: React.RefObject<HTMLInputElement>;
+  searchRange: DateRange;
+  setSearchRange: React.Dispatch<React.SetStateAction<DateRange>>;
   people: React.RefObject<HTMLInputElement>;
   latitude: React.MutableRefObject<number>;
   longitude: React.MutableRefObject<number>;
 };
 
-function SearchBar({ setCarDataList, setClickSearch, /*rentDate, returnDate, */ people, latitude, longitude }: SearchBarProps) {
+function SearchBar({ searchRange, setSearchRange, people, latitude, longitude }: SearchBarProps) {
   const [address, setAddress] = useState<string>('차를 빌릴 위치');
   const [isOpenMap, setIsOpenMap] = useState<boolean>(false);
-  const [rentDate, setRentDate] = useState<string>('빌릴 날짜');
-  const [returnDate, setReturnDate] = useState<string>('반납할 날짜');
   const [isOpenCalendar, setIsOpenCalendar] = useState<boolean>(false);
   const calendarRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // 드롭다운 외부 클릭 시 isOpenMap을 false로 설정
@@ -52,81 +49,58 @@ function SearchBar({ setCarDataList, setClickSearch, /*rentDate, returnDate, */ 
   }, [calendarRef]);
 
   const handleSearch = async () => {
-    const carDataList: CarData[] = response.data.cars;
-    setCarDataList(carDataList);
-    setClickSearch(true);
-    console.log(
-      'address > ',
-      address,
-      ' latitude > ',
-      latitude.current,
-      ' longitude > ',
-      longitude.current,
-      ' rentDate > ',
-      rentDate,
-      ' returnDate > ',
-      returnDate,
-      ' people > ',
-      people.current?.value,
-    );
-  };
-
-  const onReservationChange = (range: DateRange) => {
-    console.log(range);
-    if (range[0] == range[1]) {
-      setRentDate(formatDate(range[0]));
-      setReturnDate('');
+    if (latitude.current !== 0 && longitude.current !== 0 && searchRange && people.current?.value) {
+      const queryString = new URLSearchParams({
+        lat: latitude.current.toString(),
+        lng: longitude.current.toString(),
+        startDate: formatDate(searchRange[0]),
+        endDate: formatDate(searchRange[1]),
+        party: people.current?.value,
+      });
+      navigate(`?${queryString}`);
     } else {
-      setRentDate(formatDate(range[0]));
-      setReturnDate(formatDate(range[1]));
+      alert('검색 조건을 모두 입력해주세요!');
     }
   };
 
-  const formatDate = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-
-    const formattedMonth = month < 10 ? `0${month}` : month.toString();
-    const formattedDay = day < 10 ? `0${day}` : day.toString();
-
-    return `${year}-${formattedMonth}-${formattedDay}`;
-  };
-
   return (
-    <div className="flex flex-col items-center">
-      <p className="pb-6 pt-14 text-background-500">빌리고 싶은 차량을 검색해 보세요.</p>
-      <div className="relative flex h-[68px] w-[743px] rounded-full border border-background-200 bg-white">
-        <div className="flex w-1/4 rounded-full" onClick={() => setIsOpenMap((prev) => !prev)}>
-          <label className="flex w-full flex-col justify-center px-6">
+    <div className='flex flex-col items-center'>
+      <p className='pb-6 pt-14 text-background-500'>빌리고 싶은 차량을 검색해 보세요.</p>
+      <div className='relative flex h-[68px] w-[743px] rounded-full border border-background-200 bg-white'>
+        <div className='flex w-1/4 rounded-full' onClick={() => setIsOpenMap((prev) => !prev)}>
+          <label className='flex w-full flex-col justify-center px-6'>
             <div>
               <b>위치</b>
             </div>
-            <div className="text-sm text-background-400">{address}</div>
+            <div className='text-sm text-background-400'>{address}</div>
           </label>
         </div>
-        <div className="border-r border-solid border-background-200"></div>
-        <div className="flex w-1/4" onClick={() => setIsOpenCalendar((prev) => !prev)}>
-          <label className="flex w-full flex-col justify-center px-6">
+        <div className='border-r border-solid border-background-200'></div>
+        <div className='flex w-1/4' onClick={() => setIsOpenCalendar((prev) => !prev)}>
+          <label className='flex w-full flex-col justify-center px-6'>
             <div>
               <b>대여일</b>
             </div>
-            <div className="min-h-5 text-sm text-background-400">{rentDate}</div>
+            <div className='min-h-5 text-sm text-background-400'>
+              {searchRange[0].toString() === new Date(0).toString() ? '빌릴 날짜' : formatDate(searchRange[0])}
+            </div>
           </label>
         </div>
-        <div className="border-r border-solid border-background-200"></div>
-        <div className="flex w-1/4" onClick={() => setIsOpenCalendar((prev) => !prev)}>
-          <label className="flex w-full flex-col justify-center px-6">
+        <div className='border-r border-solid border-background-200'></div>
+        <div className='flex w-1/4' onClick={() => setIsOpenCalendar((prev) => !prev)}>
+          <label className='flex w-full flex-col justify-center px-6'>
             <div>
               <b>반납일</b>
             </div>
-            <div className="min-h-5 text-sm text-background-400">{returnDate}</div>
+            <div className='min-h-5 text-sm text-background-400'>
+              {searchRange[1].toString() === new Date(0).toString() ? '반납할 날짜' : formatDate(searchRange[1])}
+            </div>
           </label>
         </div>
-        <div className="border-r border-solid border-background-200"></div>
-        <div className="flex w-1/4 rounded-full">
-          <div className="flex w-[130px]">
-            <label className="flex w-full flex-col justify-center pl-6">
+        <div className='border-r border-solid border-background-200'></div>
+        <div className='flex w-1/4 rounded-full'>
+          <div className='flex w-[130px]'>
+            <label className='flex w-full flex-col justify-center pl-6'>
               <div>
                 <b>인원 수</b>
               </div>
@@ -135,24 +109,24 @@ function SearchBar({ setCarDataList, setClickSearch, /*rentDate, returnDate, */ 
                 onInput={(e) => {
                   e.currentTarget.value = e.currentTarget.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
                 }}
-                className="text-sm focus:outline-none"
-                placeholder="탑승 인원"></input>
+                className='text-sm focus:outline-none'
+                placeholder='탑승 인원'></input>
             </label>
           </div>
-          <div className="flex w-1/4">
+          <div className='flex w-1/4'>
             <button onClick={handleSearch}>
               <Search />
             </button>
           </div>
         </div>
         {isOpenMap && (
-          <div ref={mapRef} className="absolute top-[68px] z-10 rounded-xl bg-white p-4">
+          <div ref={mapRef} className='absolute top-[68px] z-10 rounded-xl bg-white p-4'>
             <Map setAddress={setAddress} latitude={latitude} longitude={longitude} />{' '}
           </div>
         )}
         {isOpenCalendar && (
-          <div ref={calendarRef} className="absolute left-1/4 top-[68px] z-10 w-1/2 rounded-xl bg-white p-4">
-            <GuestCalendar onReservationChange={onReservationChange} />
+          <div ref={calendarRef} className='absolute left-1/4 top-[68px] z-10 w-1/2 rounded-xl bg-white p-4'>
+            <GuestCalendar onReservationChange={setSearchRange} reservation={searchRange} />
           </div>
         )}
       </div>
