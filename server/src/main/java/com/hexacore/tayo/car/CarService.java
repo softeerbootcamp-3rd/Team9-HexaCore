@@ -111,8 +111,7 @@ public class CarService {
         Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-        List<String> images = carDateList(carId);
-        return new GetCarResponseDto(car, images);
+        return GetCarResponseDto.of(car);
     }
 
     /* 차량 정보 수정 */

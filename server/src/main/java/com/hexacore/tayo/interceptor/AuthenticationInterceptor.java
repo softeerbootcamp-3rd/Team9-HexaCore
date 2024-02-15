@@ -3,8 +3,6 @@ package com.hexacore.tayo.interceptor;
 import com.hexacore.tayo.auth.jwt.util.JwtParser;
 import com.hexacore.tayo.common.UriPath;
 import com.hexacore.tayo.util.RequestParser;
-import com.hexacore.tayo.common.errors.AuthException;
-import com.hexacore.tayo.common.errors.ErrorCode;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
