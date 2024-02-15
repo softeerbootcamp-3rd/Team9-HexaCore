@@ -2,7 +2,7 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
-import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto;
+import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.car.model.Car;
@@ -18,7 +18,6 @@ import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -176,8 +175,9 @@ public class CarService {
         }
 
         // dateListDto의 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
-        List<CarDateRange> carDateRanges = new ArrayList<>();
-        for (UpdateCarDateRangeRequestDto.CarDateRangeDto carDateRangeDto : carDateRangesDto.getCarDateRanges()) {
+        for (List<LocalDate> carDateRangeList : carDateRangesDto.getDates()) {
+            CarDateRangeDto carDateRangeDto = new CarDateRangeDto(carDateRangeList);
+
             LocalDate startDate = carDateRangeDto.getStartDate();
             LocalDate endDate = carDateRangeDto.getEndDate();
 
@@ -187,7 +187,6 @@ public class CarService {
 
             CarDateRange carDateRange = carDateRangeDto.toEntity(car);
             carDateRangeRepository.save(carDateRange);
-            carDateRanges.add(carDateRange);
         }
     }
 
