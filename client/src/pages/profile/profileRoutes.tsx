@@ -11,7 +11,7 @@ const profileRoutes: RouteObject[] = [
       if(userId === null){
         throw new Error("사용자 정보를 불러오는데 실패했습니다")//Todo : redirect
       }
-      const [userResult, HostReservationResult] = await Promise.allSettled([fetchUser(parseInt(userId)), fetchHostReservations()]);
+      const [userResult, HostReservationResult] = await Promise.allSettled([fetchUser(), fetchHostReservations()]);
       
       if (userResult.status === 'rejected') {
         throw new Error('사용자 정보를 불러오는데 실패했습니다');

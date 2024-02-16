@@ -159,15 +159,16 @@ public class ReservationService {
             LocalDate startDate = carDateRange.getStartDate();
             LocalDate endDate = carDateRange.getEndDate();
 
-            if (!localDateInclusiveAfter(endDate, returnDateTime.toLocalDate()) ||
-                    !localDateInclusiveBefore(startDate, rentDateTime.toLocalDate())) {
+            // 포함되는 예약 가능 구간을 찾을 때 까지는 continue;
+            if (startDate.isAfter(rentDateTime.toLocalDate()) || endDate.isBefore(rentDateTime.toLocalDate())) {
                 continue;
             }
+
             for (Reservation reservation : carDateRange.getReservations()) {
-                if (reservation.getStatus() == ReservationStatus.READY ||
-                        reservation.getStatus() == ReservationStatus.USING) {
-                    if (!reservation.getReturnDateTime().isBefore(rentDateTime)
-                            || !reservation.getRentDateTime().isAfter(returnDateTime)) {
+                if (reservation.getStatus() == ReservationStatus.READY
+                        || reservation.getStatus() == ReservationStatus.USING) {
+                    if (!(reservation.getRentDateTime().toLocalDate().isAfter(returnDateTime.toLocalDate())
+                            || reservation.getReturnDateTime().toLocalDate().isBefore(rentDateTime.toLocalDate()))) {
                         throw new GeneralException(ErrorCode.RESERVATION_ALREADY_READY_OR_USING);
                     }
                 }
@@ -175,13 +176,5 @@ public class ReservationService {
             return carDateRange;
         }
         throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
-    }
-
-    private boolean localDateInclusiveBefore(LocalDate startDate, LocalDate rentDate) {
-        return startDate.isEqual(rentDate) || startDate.isBefore(rentDate);
-    }
-
-    private boolean localDateInclusiveAfter(LocalDate endDate, LocalDate returnDate) {
-        return endDate.isEqual(returnDate) || endDate.isAfter(returnDate);
     }
 }
