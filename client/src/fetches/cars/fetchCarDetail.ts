@@ -6,9 +6,8 @@ import { CarDetailData, CarDetailJsonData } from './cars.type';
 export const fetchCarDetail = async () => {
   const response = await server.get<ResponseWithData<CarDetailJsonData>>('/users/cars', {
   });
-  if (response.success) {
-    return response;
-  }
+  console.log(response)
+  return response;  
 };
 
 export const parseCarDetail = (carDetailJsonData: CarDetailJsonData): CarDetailData => {
