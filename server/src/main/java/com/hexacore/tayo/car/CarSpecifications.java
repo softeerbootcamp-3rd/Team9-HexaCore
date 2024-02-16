@@ -56,7 +56,7 @@ public class CarSpecifications {
             }
 
             // 날짜 기반 예약 가능 차량 검색
-            if (searchCarsParamsDto.getStartDate() != null && searchCarsParamsDto.getEndDate() != null && searchCarsParamsDto.getStartDate().isBefore(searchCarsParamsDto.getEndDate())) {
+            if (searchCarsParamsDto.getStartDate() != null && searchCarsParamsDto.getEndDate() != null && !searchCarsParamsDto.getStartDate().isAfter(searchCarsParamsDto.getEndDate())) {
                 LocalDate startDate = searchCarsParamsDto.getStartDate();
                 LocalDate endDate = searchCarsParamsDto.getEndDate();
 
@@ -102,7 +102,7 @@ public class CarSpecifications {
             if (searchCarsParamsDto.getSubcategoryId() != null && searchCarsParamsDto.getSubcategoryId() > 0) {
                 predicates.add(criteriaBuilder.equal(root.get("subcategory").get("id"), searchCarsParamsDto.getSubcategoryId()));
             }
-            else if (searchCarsParamsDto.getSubcategoryId() != null && searchCarsParamsDto.getCategoryId() > 0) {
+            else if (searchCarsParamsDto.getCategoryId() != null && searchCarsParamsDto.getCategoryId() > 0) {
                 Join<Car, Subcategory> subcategoryJoin = root.join("subcategory");
                 Join<Subcategory, Category> categoryJoin = subcategoryJoin.join("category");
                 predicates.add(criteriaBuilder.equal(categoryJoin.get("id"), searchCarsParamsDto.getCategoryId()));
