@@ -24,8 +24,9 @@ import java.util.List;
 public class CarSpecifications {
 
     public static Specification<Car> searchCars(SearchCarsParamsDto searchCarsParamsDto) {
-        if (searchCarsParamsDto == null || !searchCarsParamsDto.isValid())
+        if (searchCarsParamsDto == null || !searchCarsParamsDto.isValid()) {
             throw new GeneralException(ErrorCode.VALIDATION_ERROR);
+        }
 
         return (root, query, criteriaBuilder) -> {
             query.distinct(true);
@@ -95,7 +96,8 @@ public class CarSpecifications {
 
             // 인원수 기반 차량 검색
             if (searchCarsParamsDto.getParty() != null && searchCarsParamsDto.getParty() > 0) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("capacity"), searchCarsParamsDto.getParty()));
+                predicates.add(
+                        criteriaBuilder.greaterThanOrEqualTo(root.get("capacity"), searchCarsParamsDto.getParty()));
             }
 
             // 차량 타입 기반 차량 검색
@@ -115,10 +117,12 @@ public class CarSpecifications {
 
             // 가격 기반 차량 검색
             if (searchCarsParamsDto.getMinPrice() != null && searchCarsParamsDto.getMinPrice() > 0) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("feePerHour"), searchCarsParamsDto.getMinPrice()));
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("feePerHour"),
+                        searchCarsParamsDto.getMinPrice()));
             }
             if (searchCarsParamsDto.getMaxPrice() != null && searchCarsParamsDto.getMaxPrice() > 0) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("feePerHour"), searchCarsParamsDto.getMaxPrice()));
+                predicates.add(
+                        criteriaBuilder.lessThanOrEqualTo(root.get("feePerHour"), searchCarsParamsDto.getMaxPrice()));
             }
 
             predicates.add(criteriaBuilder.isFalse(root.get("isDeleted")));

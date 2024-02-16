@@ -72,7 +72,6 @@ public class ReservationService {
     public GetGuestReservationListResponseDto getGuestReservations(Long guestUserId) {
         List<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId);
         List<GetGuestReservationResponseDto> getGuestReservationResponseDtos = new ArrayList<>();
-
         for (Reservation reservation : reservations) {
             Car car = reservation.getCarDateRange().getCar();
             List<CarImage> images = car.getCarImages();
