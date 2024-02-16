@@ -14,9 +14,7 @@ axiosInstance.interceptors.request.use(
   function (config) {
     // 헤더에 Authorization 설정
     const accessToken = localStorage.getItem('accessToken');
-    console.log("in");
     if (accessToken) {
-      console.log(accessToken);
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
     return config;
