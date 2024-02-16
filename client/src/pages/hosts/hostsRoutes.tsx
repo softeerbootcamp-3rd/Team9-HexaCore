@@ -19,7 +19,8 @@ const hostsRoutes: RouteObject[] = [
       var hostReservations : ReservationData[] = []
       if (carDetailResult.status === 'fulfilled' && carDetailResult.value !== undefined) {
         carDetail = parseCarDetail(carDetailResult.value.data);
-      } else if (HostReservationResult.status === 'fulfilled' && HostReservationResult.value !== undefined) {
+      }
+      if (HostReservationResult.status === 'fulfilled' && HostReservationResult.value !== undefined) {
         hostReservations = parseHostReservations(HostReservationResult.value.data);
       }
       const data: HostManageLoaderData = {
