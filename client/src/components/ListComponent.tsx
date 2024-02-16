@@ -35,8 +35,6 @@ const buttonByReservationStatus: {
 };
 
 function ListComponent({ target, reservation, className }: Props) {
-  console.log(target);
-  console.log(reservation);
   const { buttonText, buttonType } = buttonByReservationStatus[reservation.status][target.type];
   useEffect(() => {
     const handleResize = () => {
