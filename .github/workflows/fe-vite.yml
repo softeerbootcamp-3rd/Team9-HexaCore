@@ -3,7 +3,7 @@ name: Build and Deploy React App
 on:
   push:
     branches:
-      - main
+      - deploy-FE
 
 jobs:
   build:
