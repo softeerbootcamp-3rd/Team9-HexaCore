@@ -17,6 +17,6 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<Response> getCategories() {
-        return Response.of(HttpStatus.OK, categoryService.getSubCategories());
+        return Response.of(HttpStatus.OK, categoryService.getSubcategories());
     }
 }
