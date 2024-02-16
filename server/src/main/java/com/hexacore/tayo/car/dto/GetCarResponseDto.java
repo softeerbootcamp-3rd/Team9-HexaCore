@@ -1,16 +1,11 @@
 package com.hexacore.tayo.car.dto;
 
 import com.hexacore.tayo.car.model.Car;
-import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Getter;
 
 @Getter
