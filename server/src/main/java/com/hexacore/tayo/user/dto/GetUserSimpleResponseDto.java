@@ -1,6 +1,7 @@
 package com.hexacore.tayo.user.dto;
 
 import com.hexacore.tayo.user.model.User;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

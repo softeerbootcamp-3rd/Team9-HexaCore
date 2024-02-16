@@ -4,6 +4,7 @@ import com.hexacore.tayo.auth.jwt.RefreshTokenService;
 import com.hexacore.tayo.common.errors.AuthException;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,9 @@ public class JwtParser {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
+        } catch (ExpiredJwtException e) {
+            // 토큰이 만료된 경우
+            throw new AuthException(ErrorCode.EXPIRED_JWT_TOKEN);
         } catch (Exception e) {
             // 서명 검증에 실패한 경우
             throw new AuthException(ErrorCode.INVALID_JWT_TOKEN);
@@ -54,6 +58,9 @@ public class JwtParser {
                     .parseClaimsJws(refreshToken);
 
             return refreshToken;
+        } catch (ExpiredJwtException e) {
+            // 리프레시 토큰이 만료된 경우
+            throw new AuthException(ErrorCode.EXPIRED_JWT_TOKEN);
         } catch (Exception e) {
             // 서명 검증에 실패한 경우
             throw new AuthException(ErrorCode.INVALID_JWT_TOKEN);

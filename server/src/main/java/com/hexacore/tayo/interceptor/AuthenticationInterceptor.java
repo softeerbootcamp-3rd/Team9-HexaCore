@@ -1,9 +1,8 @@
 package com.hexacore.tayo.interceptor;
 
 import com.hexacore.tayo.auth.jwt.util.JwtParser;
+import com.hexacore.tayo.common.UriPath;
 import com.hexacore.tayo.util.RequestParser;
-import com.hexacore.tayo.common.errors.AuthException;
-import com.hexacore.tayo.common.errors.ErrorCode;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,7 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
-import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @RequiredArgsConstructor
 public class AuthenticationInterceptor implements HandlerInterceptor {
@@ -25,6 +25,12 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Value("${jwt.access.cookie-name}")
     private String accessTokenCookieName;
 
+    private static final String USER_ID = "userId";
+    private static final String USER_NAME = "userName";
+    private static final String HTTP_GET = "GET";
+
+    private static final String[] whiteUrlList = {"/cars/[0-9]*"};
+
     /**
      * @param request  HTTP 요청
      * @param response HTTP 응답
@@ -35,20 +41,31 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        if (handler.getClass().equals(ResourceHttpRequestHandler.class)) {
+        String httpMethod = request.getMethod();
+        String url = request.getRequestURI();
+        if (handler.getClass().equals(ResourceHttpRequestHandler.class) ||
+                (httpMethod.equals(HTTP_GET) && canPass(url))
+        ) {
             return true;
         }
 
-        String accessToken = RequestParser.getToken(request, accessTokenCookieName);
+        String accessToken = RequestParser.getAuthorizationToken(request);
         Claims claims = jwtParser.getClaims(accessToken);
 
-        // 엑세스 토큰의 만료여부를 확인
-        if (claims.getExpiration().after(new Date())) { // 만료되지 않은 토큰인 경우
-            request.setAttribute("userId", Long.valueOf((Integer) claims.get("userId")));
-            request.setAttribute("userName", claims.get("userName"));
-            return true;
-        } else { // 만료된 토큰인 경우
-            throw new AuthException(ErrorCode.EXPIRED_ACCESS_TOKEN);
+        request.setAttribute(USER_ID, Long.valueOf((Integer) claims.get(USER_ID)));
+        request.setAttribute(USER_NAME, claims.get(USER_NAME));
+        return true;
+    }
+
+    private boolean canPass(String url) {
+        for (String possibleUrl : whiteUrlList) {
+            Pattern pattern = Pattern.compile(UriPath.PREFIX + possibleUrl);
+            Matcher matcher = pattern.matcher(url);
+
+            if (matcher.matches()) {
+                return true;
+            }
         }
+        return false;
     }
 }
