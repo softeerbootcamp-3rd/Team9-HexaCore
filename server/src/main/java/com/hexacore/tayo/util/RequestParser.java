@@ -35,12 +35,12 @@ public class RequestParser {
     public static String getAuthorizationToken(HttpServletRequest request) {
         String authorizationHeader = request.getHeader("Authorization");
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            // Bearer 제외한 값 리턴
-            return authorizationHeader.substring(7);
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            // 요청 헤더 Authorization 에 정상적인 토큰이 없는 경우
+            throw new AuthException(ErrorCode.INVALID_JWT_TOKEN);
         }
 
-        // 요청 헤더 Authorization 에 정상적인 토큰이 없는 경우
-        throw new AuthException(ErrorCode.INVALID_JWT_TOKEN);
+        // Bearer 제외한 값 리턴
+        return authorizationHeader.substring("Bearer ".length());
     }
 }

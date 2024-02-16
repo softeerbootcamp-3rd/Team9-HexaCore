@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { LoginResponse } from '@/fetches/auth/auth.type';
 
 function Login() {
-  document.cookie = `a=bbbb; path=/;`;
   const navigate = useNavigate();
 
   const emailInputRef = useRef<HTMLInputElement | null>(null);

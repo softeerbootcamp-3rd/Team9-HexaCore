@@ -2,16 +2,13 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.dto.SearchCarsParamsDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
-import com.hexacore.tayo.car.model.Car;
-import com.hexacore.tayo.car.model.CarDateRange;
-import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.car.model.CarType;
-import com.hexacore.tayo.car.model.FuelType;
-import com.hexacore.tayo.category.SubCategoryRepository;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.car.model.*;
+import com.hexacore.tayo.category.SubcategoryRepository;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.model.User;
@@ -21,9 +18,11 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -34,7 +33,7 @@ public class CarService {
     private final CarRepository carRepository;
     private final CarImageRepository carImageRepository;
     private final CarDateRangeRepository carDateRangeRepository;
-    private final SubCategoryRepository subCategoryRepository;
+    private final SubcategoryRepository subcategoryRepository;
     private final S3Manager s3Manager;
 
     /* 차량 등록 */
@@ -50,7 +49,7 @@ public class CarService {
         }
         if (!isSupportedCarType(createCarRequestDto.getType())) {
             // 지원하는 않는 차량 타입인 경우
-            throw new GeneralException(ErrorCode.INAVALID_CAR_TYPE);
+            throw new GeneralException(ErrorCode.INVALID_CAR_TYPE);
         }
         if (!isSupportedFuelType(createCarRequestDto.getFuel())) {
             // 지원하지 않는 연료 타입인 경우
@@ -62,7 +61,7 @@ public class CarService {
         }
 
         // 등록에 필요한 정보 가져오기
-        SubCategory subCategory = subCategoryRepository.findByName(createCarRequestDto.getCarName())
+        Subcategory subcategory = subcategoryRepository.findByName(createCarRequestDto.getCarName())
                 // 존재하지 않는 모델인 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
 
@@ -71,7 +70,7 @@ public class CarService {
 
         if (car != null) {
             // 유저가 이전에 등록한 같은 번호의 차가 있는 경우 UPDATE
-            car.setSubCategory(subCategory);
+            car.setSubcategory(subcategory);
             car.setMileage(createCarRequestDto.getMileage());
             car.setFuel(FuelType.of(createCarRequestDto.getFuel()));
             car.setType(CarType.of(createCarRequestDto.getType()));
@@ -79,7 +78,7 @@ public class CarService {
             car.setYear(createCarRequestDto.getYear());
             car.setFeePerHour(createCarRequestDto.getFeePerHour());
             car.setAddress(createCarRequestDto.getAddress());
-            car.setPosition(createCarRequestDto.getPosition().toEntity());
+            car.setPosition(createCarRequestDto.getPosition().toPoint());
             car.setDescription(createCarRequestDto.getDescription());
             car.setIsDeleted(false);
             // 이미지 저장
@@ -88,7 +87,7 @@ public class CarService {
             // 유저가 이전에 등록한 같은 번호의 차가 없는 경우 CREATE
             Car carEntity = Car.builder()
                     .owner(User.builder().id(userId).build())
-                    .subCategory(subCategory)
+                    .subcategory(subcategory)
                     .carNumber(createCarRequestDto.getCarNumber())
                     .mileage(createCarRequestDto.getMileage())
                     .fuel(FuelType.of(createCarRequestDto.getFuel()))
@@ -97,7 +96,7 @@ public class CarService {
                     .year(createCarRequestDto.getYear())
                     .feePerHour(createCarRequestDto.getFeePerHour())
                     .address(createCarRequestDto.getAddress())
-                    .position(createCarRequestDto.getPosition().toEntity())
+                    .position(createCarRequestDto.getPosition().toPoint())
                     .description(createCarRequestDto.getDescription())
                     .build();
 
@@ -107,13 +106,17 @@ public class CarService {
         }
     }
 
+    public Page<Car> searchCars(SearchCarsParamsDto searchCarsParamsDto, Pageable pageable) {
+        Specification<Car> searchSpec = CarSpecifications.searchCars(searchCarsParamsDto);
+        return carRepository.findAll(searchSpec, pageable);
+    }
+
     /* 차량 정보 조회 */
     public GetCarResponseDto carDetail(Long carId) {
         Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-        List<String> images = carDateList(carId);
-        return new GetCarResponseDto(car, images);
+        return GetCarResponseDto.of(car);
     }
 
     /* 차량 정보 수정 */
@@ -126,12 +129,12 @@ public class CarService {
         Car car = carRepository.findById(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-        if (car.getOwner().getId() != userId) {
+        if (!car.getOwner().getId().equals(userId)) {
             throw new GeneralException(ErrorCode.CAR_UPDATED_BY_OTHERS);
         }
         car.setFeePerHour(updateCarRequestDto.getFeePerHour());
         car.setAddress(updateCarRequestDto.getAddress());
-        car.setPosition(updateCarRequestDto.getPosition().toEntity());
+        car.setPosition(updateCarRequestDto.getPosition().toPoint());
         car.setDescription(updateCarRequestDto.getDescription());
         saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles(), car);
         carRepository.save(car);
@@ -153,14 +156,6 @@ public class CarService {
         });
     }
 
-    /* 에약 가능 날짜 조회 */
-    private List<String> carDateList(Long carId) {
-        return carImageRepository.findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(carId)
-                .stream()
-                .map(CarImage::getUrl)
-                .collect(Collectors.toList());
-    }
-
     /* 예약 가능 날짜 수정 */
     @Transactional
     public void updateDateRanges(Long hostUserId, Long carId,
@@ -170,7 +165,7 @@ public class CarService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         // 차량 소유자와 일치하지 않을 경우
-        if (car.getOwner().getId() != hostUserId) {
+        if (!car.getOwner().getId().equals(hostUserId)) {
             throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
         }
 

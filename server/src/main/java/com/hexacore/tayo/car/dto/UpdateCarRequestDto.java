@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car.dto;
 
+import com.hexacore.tayo.common.Position;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,7 +17,7 @@ public class UpdateCarRequestDto {
     private String address;
 
     @NotNull
-    private CreatePositionRequestDto position;
+    private Position position;
 
     @NotNull
     private String description;
