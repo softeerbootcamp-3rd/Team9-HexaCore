@@ -35,11 +35,21 @@ function HostManage() {
     } 
   };
 
+  const updateDates = async () => {
+    console.log(availableDates)
+    const response = await server.put<ResponseWithoutData>('/cars/' + carDetail?.id + '/date', {
+      data: {
+        dates: availableDates,
+      }
+    })
+    console.log(response);
+  }
   //
   const handleTabSelect = (tab: TabType) => {
     setSelectedTab(tab);
   };
 
+  
   // 선택된 탭에 따라 해당 컴포넌트 렌더링
   const renderSelectedComponent = () => {
     const reservations = hostReservations.map((reservation) => reservation.rentPeriod);
@@ -48,8 +58,12 @@ function HostManage() {
       case 'calendar':
         return (
           <div className='rounded-xl bg-white p-8'>
-            <div>
+            <div className=''>
               <HostCalendar size='large' availableDates={availableDates} onAvailableDatesChange={setAvailableDates} reservations={reservations} />
+              <div className='flex justify-end'>
+                <Button text = "저장" onClick={updateDates}></Button>
+              </div>
+              
             </div>
           </div>
         );
