@@ -1,7 +1,7 @@
 import type { RouteObject } from 'react-router-dom';
 import HostManage from '@/pages/hosts/HostManage';
 import HostRegister from '@/pages/hosts/HostRegister';
-import { CarData, fetchCarDetail, parseCarDetail } from '@/fetches/cars/fetchCarDetail';
+import { fetchCarDetail, parseCarDetail } from '@/fetches/cars/fetchCarDetail'
 import { fetchHostReservations, parseHostReservations } from '@/fetches/reservations/fetchHostReservations';
 import { ReservationData } from '@/fetches/reservations/Reservation.type';
 

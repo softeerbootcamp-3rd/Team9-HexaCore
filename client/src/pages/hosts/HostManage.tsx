@@ -112,7 +112,7 @@ function HostManage() {
       <h2 className='mt-4 pl-3 text-3xl font-semibold'>수현님, 등록한 차량을 관리해보세요!</h2>
       <div className='mb-10 flex gap-8'>
         {/* Car Info Manage */}
-        <div className='flex w-2/5 flex-col gap-3'>
+        <div className='flex w-1/2 flex-col gap-3'>
           <h3 className='pl-3 text-lg font-medium xl:text-xl'>차량 정보</h3>
           <div className='flex w-full flex-col overflow-hidden rounded-3xl bg-white shadow-xl'>
             {/* Image Gallery */}
@@ -122,9 +122,9 @@ function HostManage() {
               {/* Header : CarName, CarNumber, type, mileage, fuel */}
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between">
-                  <div className="flex items-center gap-3">
-                    <h1 className="text-base lg:text-2xl font-bold">{carDetail.categoryName}</h1>
-                    <div className="text-background-700 font-semibold text-base">{carDetail.carNumber}</div>
+                  <div className="flex items-center gap-2 ">
+                    <h1 className="text-base lg:text-xl font-bold">{carDetail.categoryName}</h1>
+                    <div className="text-background-700 font-media text-xs lg:text-sm h-full flex flex-col justify-end color">{carDetail.carNumber}</div>
                     {/* <Tag className="h-6 text-background-700 font-semibold text-base" text={data.car.carNumber} /> */}
                   </div>
                   <div className='ml-3 flex items-center gap-3'>
@@ -193,7 +193,7 @@ function HostManage() {
         </div>
 
         {/* Calendar + Reservation */}
-        <div className='flex w-3/5 flex-col gap-3'>
+        <div className='flex w-1/2 flex-col gap-3'>
           {/* Button div */}
           <div className='flex gap-6'>
             <button
