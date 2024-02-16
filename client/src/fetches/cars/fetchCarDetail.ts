@@ -14,7 +14,7 @@ type CarDetailResponse = {
   capacity: number;
   year: number;
   feePerHour: number;
-  carAddress: string;
+  address: string;
   description: string;
   carDateRanges: string[][];
 };
@@ -55,7 +55,7 @@ export const parseCarDetail = (carData: CarDetailResponse): CarData => {
     capacity: carData.capacity,
     year: carData.year,
     feePerHour: carData.feePerHour,
-    carAddress: carData.carAddress,
+    carAddress: carData.address,
     description: carData.description,
     carDateRanges: stringTuplesToDateRanges(carData.carDateRanges),
   };
