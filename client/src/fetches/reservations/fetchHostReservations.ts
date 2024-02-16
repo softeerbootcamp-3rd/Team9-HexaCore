@@ -43,11 +43,6 @@ export const parseHostReservations = (hostReservationsResponseRaw: HostReservati
   );
 };
 
-const toReservationStatus = (status: string): ReservationStatus => {
-  const validStatuses: ReservationStatus[] = ['CANCEL', 'READY', 'USING', 'TERMINATED'];
-  if (validStatuses.includes(status as ReservationStatus)) {      
-    return status as ReservationStatus;
-  }
-  return "disabled" as ReservationStatus;
+const toReservationStatus = (status: ReservationStatus) => {
+  return status;
 };
-

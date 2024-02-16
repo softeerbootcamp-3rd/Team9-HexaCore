@@ -1,6 +1,12 @@
 import { DateRange } from '@/components/calendar/calendar.core';
 
-export type ReservationStatus = 'CANCEL' | 'READY' | 'USING' | 'TERMINATED';
+export const reservationStatus = {
+  CANCEL:'CANCEL',
+  READY:'READY',
+  USING: 'USING',
+  TERMINATED: 'TERMINATED'
+} as const
+export type ReservationStatus = keyof typeof reservationStatus
 
 export type ReservationData = {
   id: number;

@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
 import Button from './Button';
-import { ReservationStatus } from '@/fetches/reservations/fetchHostReservations';
+import { ReservationStatus } from '@/fetches/reservations/Reservation.type';
 
 type ButtonType = 'disabled' | 'enabled' | 'danger';
 export type TargetType = 'host' | 'guest';
