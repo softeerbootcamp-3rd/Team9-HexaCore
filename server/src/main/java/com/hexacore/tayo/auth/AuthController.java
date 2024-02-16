@@ -77,4 +77,5 @@ public class AuthController {
 
         return Response.of(HttpStatus.OK, arr);
     }
+
 }

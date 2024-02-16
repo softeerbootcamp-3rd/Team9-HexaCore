@@ -16,7 +16,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.BAD_REQUEST, "유저가 존재하지 않습니다."),
     USER_WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "비밀번호가 틀렸습니다."),
     USER_DELETED(HttpStatus.BAD_REQUEST, "탈퇴한 사용자입니다."),
-
+    USER_CAR_NOT_EXISTS(HttpStatus.NOT_FOUND, "등록한 차량이 존재하지 않습니다."),
     CAR_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 차량입니다."),
     CAR_IMAGE_INSUFFICIENT(HttpStatus.BAD_REQUEST, "이미지를 5개 이상 등록해야 합니다."),
     CAR_MODEL_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 모델명입니다."),

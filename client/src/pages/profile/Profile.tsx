@@ -1,7 +1,7 @@
 import Button from '@/components/Button';
 import { useEffect } from 'react';
 import { UserData } from '@/fetches/users/fetchUser';
-import { ReservationData } from '@/fetches/reservations/fetchHostReservations'
+import { ReservationData } from '@/fetches/reservations/Reservation.type';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
 import ListComponent from '@/components/ListComponent';
@@ -65,26 +65,27 @@ function Profile() {
       ))
     : null;
   return (
-    <div className="min-w-[640px] flex flex-col h-full">
-      <div className="h-auto flex flex-col">
-        <h2 className="text-lg font-bold">내 정보</h2>
-        <div className="py-4 flex h-auto w-full">
-          <img className="h-28 w-24 rounded-2xl" src={data.user?.image || '../public/default-profile.png'}></img>
-          <div className="ml-6 flex w-2/5 flex-col">
-            <p className="text-md font-bold">
-              {data.user?.name} ({data.user?.nickName})
-            </p>
-            <p className="mt-2 text-sm text-background-400">{data.user?.email}</p>
-            <p className="text-sm text-background-400">{data.user?.phoneNum}</p>
-            <Button text="수정" className="h-8 m-4 ml-0 w-1/5 text-xs xl:text-sm whitespace-nowrap flex justify-center items-center" onClick={editProfile}></Button>
+    <div className='flex h-full min-w-[640px] flex-col'>
+      <div className='flex h-auto flex-col'>
+        <h2 className='text-lg font-bold'>내 정보</h2>
+        <div className='flex h-auto w-full py-4'>
+          <img className='h-28 w-24 rounded-2xl' src={data.user?.image || '../public/default-profile.svg'}></img>
+          <div className='ml-6 flex w-2/5 flex-col'>
+            <p className='text-md font-bold'>{data.user?.name}</p>
+            <p className='mt-2 text-sm text-background-400'>{data.user?.email}</p>
+            <p className='text-sm text-background-400'>{data.user?.phoneNum}</p>
+            <Button
+              text='수정'
+              className='m-4 ml-0 flex h-8 w-1/5 items-center justify-center whitespace-nowrap text-xs xl:text-sm'
+              onClick={editProfile}></Button>
           </div>
         </div>
       </div>
-      <hr className="border-background-300"></hr>
-      <div className="h-2/3">
-        <div className="flex h-full w-full">
-          <h2 className="mt-8 text-lg font-bold">예약 내역</h2>
-          <div className="flex flex-col grow max-h-[560px] gap-5 pr-6 overflow-y-auto mx-6 mt-8">{ReservationCard}</div>
+      <hr className='border-background-300'></hr>
+      <div className='h-2/3'>
+        <div className='flex h-full w-full'>
+          <h2 className='mt-8 text-lg font-bold'>예약 내역</h2>
+          <div className='mx-6 mt-8 flex max-h-[560px] grow flex-col gap-5 overflow-y-auto pr-6'>{ReservationCard}</div>
         </div>
       </div>
     </div>

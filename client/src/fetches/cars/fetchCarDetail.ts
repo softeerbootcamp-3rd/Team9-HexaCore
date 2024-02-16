@@ -3,17 +3,19 @@ import { server } from '../common/axios';
 import { ResponseWithData } from '../common/response.type';
 import { CarDetailData, CarDetailJsonData } from './cars.type';
 
-export const fetchCarDetail = async (carId: number) => {
-  // 차량 세부 정보 조회 api 호출
-  const response = await server.get<ResponseWithData<CarDetailJsonData>>(`/cars/${carId}`);
-
-  return response;
+export const fetchCarDetail = async () => {
+  const response = await server.get<ResponseWithData<CarDetailJsonData>>('/users/cars', {
+  });
+  if (response.success) {
+    return response;
+  }
 };
 
 export const parseCarDetail = (carDetailJsonData: CarDetailJsonData): CarDetailData => {
   const carData = carDetailJsonData;
 
   return {
+    id: carData.id,
     categoryName: carData.carName,
     carNumber: carData.carNumber,
     imageUrls: carData.imageUrls,
