@@ -13,6 +13,7 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 
+import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.Polygon;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -34,9 +35,13 @@ public class CarSpecifications {
 
             // 위경도 기반 거리 검색
             if (searchCarsParamsDto.getPosition() != null && searchCarsParamsDto.getDistance() > 0) {
+                Point point = searchCarsParamsDto.getPosition().toPointForSpec();
+                if (point.getX() < -90 || point.getX() > 90 || point.getY() <= -180 || point.getY() > 180)
+                    throw new GeneralException(ErrorCode.INVALID_POSITION);
+
                 var bufferExpression = criteriaBuilder.function("ST_Buffer",
                         Polygon.class,
-                        criteriaBuilder.literal(searchCarsParamsDto.getPosition().toPoint()),
+                        criteriaBuilder.literal(point),
                         criteriaBuilder.literal(searchCarsParamsDto.getDistance())
                 );
 
@@ -52,8 +57,7 @@ public class CarSpecifications {
             }
 
             // 날짜 기반 예약 가능 차량 검색
-            if (searchCarsParamsDto.getStartDate() != null && searchCarsParamsDto.getEndDate() != null
-                    && searchCarsParamsDto.getStartDate().isBefore(searchCarsParamsDto.getEndDate())) {
+            if (searchCarsParamsDto.getStartDate() != null && searchCarsParamsDto.getEndDate() != null && !searchCarsParamsDto.getStartDate().isAfter(searchCarsParamsDto.getEndDate())) {
                 LocalDate startDate = searchCarsParamsDto.getStartDate();
                 LocalDate endDate = searchCarsParamsDto.getEndDate();
 
@@ -74,12 +78,17 @@ public class CarSpecifications {
 
                 Predicate reservationPredicate = criteriaBuilder.or(
                         criteriaBuilder.isNull(reservationJoin.get("id")),
+                        criteriaBuilder.not(
+                                criteriaBuilder.or(
+                                        criteriaBuilder.equal(reservationJoin.get("status"), ReservationStatus.READY.ordinal()),
+                                        criteriaBuilder.equal(reservationJoin.get("status"), ReservationStatus.USING.ordinal())
+                                )
+                        ),
                         criteriaBuilder.greaterThan(reservationJoin.get("rentDateTime"), endDate),
                         criteriaBuilder.lessThan(reservationJoin.get("returnDateTime"), startDate)
                 );
 
                 predicates.add(criteriaBuilder.and(
-                        reservationStatusPredicate,
                         dateRangePredicate,
                         reservationPredicate
                 ));
@@ -98,9 +107,9 @@ public class CarSpecifications {
 
             // 카테고리 기반 차량 검색(하위 카테고리가 있을 경우 하위 카테고리 기반 검색, 없을 경우 상위 카테고리 기반 검색)
             if (searchCarsParamsDto.getSubcategoryId() != null && searchCarsParamsDto.getSubcategoryId() > 0) {
-                predicates.add(criteriaBuilder.equal(root.get("subcategory").get("id"),
-                        searchCarsParamsDto.getSubcategoryId()));
-            } else if (searchCarsParamsDto.getSubcategoryId() != null && searchCarsParamsDto.getCategoryId() > 0) {
+                predicates.add(criteriaBuilder.equal(root.get("subcategory").get("id"), searchCarsParamsDto.getSubcategoryId()));
+            }
+            else if (searchCarsParamsDto.getCategoryId() != null && searchCarsParamsDto.getCategoryId() > 0) {
                 Join<Car, Subcategory> subcategoryJoin = root.join("subcategory");
                 Join<Subcategory, Category> categoryJoin = subcategoryJoin.join("category");
                 predicates.add(criteriaBuilder.equal(categoryJoin.get("id"), searchCarsParamsDto.getCategoryId()));

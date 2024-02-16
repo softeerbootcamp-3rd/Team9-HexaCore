@@ -3,11 +3,11 @@ package com.hexacore.tayo.car;
 import static org.mockito.BDDMockito.given;
 
 import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.category.SubcategoryRepository;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.CategoryRepository;
-import com.hexacore.tayo.category.SubcategoryRepository;
-import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.util.S3Manager;
@@ -239,7 +239,7 @@ public class CarServiceCreateCarTest {
         // given
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "휘발유", "중중형차", 2,
                 2020, 10000, "경기도 테스트 주소",
-                new CreatePositionRequestDto(10.0, 10.0), "설명",
+                new Position(10.0, 10.0), "설명",
                 List.of(new MockMultipartFile("image1", "filename1.txt", "text/plain", "dummy".getBytes()),
                         new MockMultipartFile("image2", "filename2.txt", "text/plain", "dummy".getBytes()),
                         new MockMultipartFile("image3", "filename3.txt", "text/plain", "dummy".getBytes()),
@@ -254,6 +254,6 @@ public class CarServiceCreateCarTest {
         // when & then
         Assertions.assertThatThrownBy(() -> carService.createCar(createCarRequestDto, 0L))
                 .isInstanceOf(GeneralException.class)
-                .hasMessage(ErrorCode.INAVALID_CAR_TYPE.getErrorMessage());
+                .hasMessage(ErrorCode.INVALID_CAR_TYPE.getErrorMessage());
     }
 }

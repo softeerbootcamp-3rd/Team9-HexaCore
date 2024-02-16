@@ -39,12 +39,12 @@ public class CarServiceRetrieveCarTest {
     private CarService carService;
 
     User user = new User(1L, "jomualgy988@gmail.com", "1234", "김지훈", "010-4825-9803", null, null, false);
-    Category category = new Category(1L, "i30");
-    Subcategory subCategory = new Subcategory(1L, "i30 (PD)", category);
+    Category category = Category.builder().id(1L).name("i30").build();
+    Subcategory subcategory = new Subcategory(1L, "i30 (PD)", category);
     GeometryFactory geometryFactory = new GeometryFactory();
     Coordinate coordinate = new Coordinate(120.0, 30.0);
     Point point = geometryFactory.createPoint(coordinate);
-    Car car = new Car(1L, user, subCategory, "11가 1111", 14.3, FuelType.DIESEL, CarType.RV, 5, 2024, 10000,
+    Car car = new Car(1L, user, subcategory, "11가 1111", 14.3, FuelType.DIESEL, CarType.RV, 5, 2024, 10000,
             "경기도 용인시 기흥구 신정로", point, "설명", null, null, null);
     List<CarImage> images = new ArrayList<>();
 
@@ -59,12 +59,12 @@ public class CarServiceRetrieveCarTest {
         GetCarResponseDto getCarResponseDto = carService.carDetail(carId);
         //then
         Assertions.assertThat(getCarResponseDto.getHost()).isNotNull();
-        Assertions.assertThat(getCarResponseDto.getCarName()).isEqualTo(subCategory.getName());
+        Assertions.assertThat(getCarResponseDto.getCarName()).isEqualTo(subcategory.getName());
         Assertions.assertThat(getCarResponseDto.getCarNumber()).isEqualTo("11가 1111");
         Assertions.assertThat(getCarResponseDto.getImageUrls()).isNotNull();
         Assertions.assertThat(getCarResponseDto.getMileage()).isEqualTo(14.3);
-        Assertions.assertThat(getCarResponseDto.getFuel()).isEqualTo(FuelType.DIESEL.getType());
-        Assertions.assertThat(getCarResponseDto.getType()).isEqualTo(CarType.RV.getType());
+        Assertions.assertThat(getCarResponseDto.getFuel()).isEqualTo(FuelType.DIESEL.getValue());
+        Assertions.assertThat(getCarResponseDto.getType()).isEqualTo(CarType.RV.getValue());
         Assertions.assertThat(getCarResponseDto.getCapacity()).isEqualTo(5);
         Assertions.assertThat(getCarResponseDto.getYear()).isEqualTo(2024);
         Assertions.assertThat(getCarResponseDto.getFeePerHour()).isEqualTo(10000);

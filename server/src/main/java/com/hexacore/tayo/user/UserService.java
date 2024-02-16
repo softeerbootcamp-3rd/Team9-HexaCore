@@ -1,5 +1,6 @@
 package com.hexacore.tayo.user;
 
+import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.util.S3Manager;
@@ -45,6 +46,14 @@ public class UserService {
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         return getUserInfo(user);
+    }
+
+    public GetCarResponseDto getUserCar(Long userId) {
+        User user = userRepository.getById(userId);
+        if (user.getCar() == null) {
+            throw new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS);
+        }
+        return GetCarResponseDto.of(user.getCar());
     }
 
     private GetUserInfoResponseDto getUserInfo(User user) {

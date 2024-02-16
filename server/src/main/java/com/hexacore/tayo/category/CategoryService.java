@@ -1,7 +1,6 @@
 package com.hexacore.tayo.category;
 
 import com.hexacore.tayo.category.dto.GetCategoriesResponseDto;
-import com.hexacore.tayo.category.dto.GetCategoriesResponseDto.CategoryListDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -10,13 +9,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CategoryService {
 
-    private final SubcategoryRepository subcategoryRepository;
+    private final CategoryRepository categoryRepository;
 
     /* 모델, 세부 모델명 조회 */
-    public GetCategoriesResponseDto.CategoryListDto getSubCategories() {
-        List<GetCategoriesResponseDto.CategoryDto> models = subcategoryRepository.findAll().stream()
+    public List<GetCategoriesResponseDto.CategoryDto> getSubcategories() {
+        return categoryRepository.findAll().stream()
                 .map(GetCategoriesResponseDto.CategoryDto::new)
                 .toList();
-        return new CategoryListDto(models);
     }
 }

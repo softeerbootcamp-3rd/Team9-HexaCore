@@ -1,12 +1,13 @@
+import { Category } from '@/fetches/categories/categories.type';
 import { Dispatch, useEffect, useRef, useState } from 'react';
 
 type SubCategorySelectProps = {
-  categoryList: string[];
-  selectedSubCategory: string[];
-  setSelectedSubCategory: Dispatch<React.SetStateAction<string[]>>;
+  categoryList: Category[];
+  selectedSubcategory: Category[];
+  setSelectedSubcategory: Dispatch<React.SetStateAction<Category[]>>;
 };
 
-function MultipleSelect({ categoryList, selectedSubCategory, setSelectedSubCategory }: SubCategorySelectProps) {
+function MultipleSelect({ categoryList, selectedSubcategory, setSelectedSubcategory }: SubCategorySelectProps) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const dropDownRef = useRef<HTMLDivElement>(null);
 
@@ -23,18 +24,18 @@ function MultipleSelect({ categoryList, selectedSubCategory, setSelectedSubCateg
     };
   }, [dropDownRef]);
 
-  const isOptionSelected = (option: string) => {
-    return selectedSubCategory.includes(option);
+  const isOptionSelected = (option: Category) => {
+    return selectedSubcategory.includes(option);
   };
 
-  const selectOption = (category: string) => {
-    setSelectedSubCategory((prevSelectedSubCategory) => {
-      const index = prevSelectedSubCategory.indexOf(category);
+  const selectOption = (category: Category) => {
+    setSelectedSubcategory((prevSelectedSubcategory) => {
+      const index = prevSelectedSubcategory.indexOf(category);
 
       if (index === -1) {
-        return [...prevSelectedSubCategory, category];
+        return [...prevSelectedSubcategory, category];
       } else {
-        return prevSelectedSubCategory.filter((subCategory) => subCategory !== category);
+        return prevSelectedSubcategory.filter((subcategory) => subcategory !== category);
       }
     });
   };
@@ -44,30 +45,30 @@ function MultipleSelect({ categoryList, selectedSubCategory, setSelectedSubCateg
       <div className="relative mt-2">
         <button
           type="button"
-          className="relative w-full min-h-[45px] cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 sm:text-sm sm:leading-6"
+          className="text-gray-900 ring-gray-300 focus:ring-indigo-500 relative min-h-[45px] w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 sm:text-sm sm:leading-6"
           aria-haspopup="listbox"
           aria-expanded="true"
           aria-labelledby="listbox-label"
           onClick={() => setIsOpen((prev) => !prev)}>
           <div className="overflow-auto whitespace-nowrap">
             <span className="flex items-center gap-1">
-              {selectedSubCategory.map((category) => (
+              {selectedSubcategory.map((category) => (
                 <button
-                  key={category}
+                  key={category.id}
                   className="rounded-md bg-primary-100 px-2 py-1"
                   onClick={(e) => {
                     e.stopPropagation();
                     selectOption(category);
                   }}>
-                  {category}
-                  <span className="text-lg text-slate-500 pl-1">&times;</span>
+                  {category.name}
+                  <span className="text-slate-500 pl-1 text-lg">&times;</span>
                 </button>
               ))}
             </span>
           </div>
 
           <span className="pointer-events-none absolute inset-y-0 right-0 ml-3 flex items-center pr-2">
-            <svg className="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <svg className="text-gray-400 h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
               <path
                 fillRule="evenodd"
                 d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z"
@@ -86,11 +87,11 @@ function MultipleSelect({ categoryList, selectedSubCategory, setSelectedSubCateg
               return (
                 <li
                   key={index}
-                  className="flex justify-between text-gray-900 cursor-default select-none py-2 pl-3 pr-3"
+                  className="text-gray-900 flex cursor-default select-none justify-between py-2 pl-3 pr-3"
                   role="option"
                   onClick={() => selectOption(category)}>
                   <div className="flex items-center">
-                    <span className="font-normal block truncate">{category}</span>
+                    <span className="block truncate font-normal">{category.name}</span>
                   </div>
                   {isOptionSelected(category) && (
                     <span className="text-indigo-600 inset-y-0 right-0 flex items-center pr-4">

@@ -18,7 +18,7 @@ function SelectCarType({ activeCarTypes, setActiveCarTypes }: CarTypeProps) {
     <div>
       {Array.from(activeCarTypes.keys()).map((carType) => (
         <button
-          className={`rounded-xl p-3 m-1 text-sm 
+          className={`m-1 rounded-xl p-3 text-sm 
             ${activeCarTypes.get(carType) ? 'bg-primary-100' : 'bg-background-100 text-background-400'}`}
           key={carType}
           onClick={() => updateCarType(carType)}>

@@ -17,6 +17,9 @@ import lombok.Getter;
 public class GetCarResponseDto {
 
     @NotNull
+    private final Long id;
+
+    @NotNull
     private final GetUserSimpleResponseDto host;
 
     @NotNull
@@ -55,6 +58,7 @@ public class GetCarResponseDto {
     private final String description;
 
     private GetCarResponseDto(Car car) {
+        this.id = car.getId();
         this.carName = car.getSubcategory().getName();
         this.carNumber = car.getCarNumber();
         this.imageUrls = car.getCarImages().stream().map(CarImage::getUrl).toList();
