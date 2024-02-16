@@ -35,14 +35,11 @@ function HostManage() {
     } 
   };
   const updateDates = async () => {
-    const response = await server.put<ResponseWithoutData>('/cars/' + carDetail?.id + '/date', {
+    await server.put<ResponseWithoutData>('/cars/' + carDetail?.id + '/date', {
       data: {
         dates: availableDates,
       }
     })
-    if(response.success){
-      location.reload();
-    }
   }
   //
   const handleTabSelect = (tab: TabType) => {
