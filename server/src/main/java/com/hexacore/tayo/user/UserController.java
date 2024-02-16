@@ -16,9 +16,18 @@ public class UserController {
 
     private final UserService userService;
 
+    // 내 정보 조회
+    @GetMapping
+    public ResponseEntity<Response> getMyInfo(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        GetUserInfoResponseDto userInfoDto = userService.getUser(userId);
+        return Response.of(HttpStatus.OK, userInfoDto);
+    }
+
     // 유저 정보 조회
     @GetMapping("/{userId}")
-    public ResponseEntity<Response> getUserInfo(@PathVariable Long userId) {
+    public ResponseEntity<Response> getUserInfo(HttpServletRequest request,
+            @PathVariable Long userId) {
         GetUserInfoResponseDto userInfoDto = userService.getUser(userId);
         return Response.of(HttpStatus.OK, userInfoDto);
     }

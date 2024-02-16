@@ -19,6 +19,10 @@ function HostManage() {
   const navigate = useNavigate();
   const { carDetail, hostReservations } = useLoaderData() as HostManageLoaderData;
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
+  if(carDetail === null){
+    alert("등록된 차량이 없습니다.")
+    return;
+  }
   const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
 
   const editCar = () => {
