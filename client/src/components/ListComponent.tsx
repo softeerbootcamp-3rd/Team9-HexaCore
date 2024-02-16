@@ -36,21 +36,6 @@ const buttonByReservationStatus: {
 
 function ListComponent({ target, reservation, className }: Props) {
   const { buttonText, buttonType } = buttonByReservationStatus[reservation.status][target.type];
-  useEffect(() => {
-    const handleResize = () => {
-      const buttons = document.querySelectorAll('Button');
-      buttons.forEach((button) => {
-        if (window.innerWidth <= 1100) {
-          button.classList.add('max-w-[9ch]', 'min-w-[9ch]');
-        } else {
-          button.classList.remove('max-w-[9ch]', 'min-w-[9ch]');
-        }
-      });
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
   return (
     <div
       className={`
@@ -97,12 +82,12 @@ function ListComponent({ target, reservation, className }: Props) {
                   {reservation.price || undefined}원
                 </p>
               </div>
-              <div className={`flex justify-end ${target.type === 'guest' ? 'w-full' : ''}`}>
+              <div className={`flex justify-end ${target.type === 'guest' ? 'w-full' : ''}`} data-buttonArea>
                 {reservation.status === 'READY' && target.type === 'guest' && (
-                  <Button className={`mr-6 h-auto rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'w-1/4 ' : 'w-full'}`} type='danger' text='예약취소'></Button>
+                  <Button className={`w-[9ch] min-w-[9ch] mr-6 h-auto rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'xl:w-1/4 ' : 'xl:w-full'}`} type='danger' text='예약취소'></Button>
                 )}                
                 <Button
-                  className={`mr-6 h-auto rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'w-1/4 ' : 'w-full'}`}
+                  className={`w-[9ch] min-w-[9ch] mr-6 h-auto rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'xl:w-1/4 ' : 'xl:w-full'}`}
                   type={buttonType}
                   text={buttonText}></Button>
               </div>
