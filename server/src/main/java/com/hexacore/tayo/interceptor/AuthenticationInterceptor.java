@@ -28,8 +28,9 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private static final String USER_ID = "userId";
     private static final String USER_NAME = "userName";
     private static final String HTTP_GET = "GET";
+    private static final String HTTP_OPTIONS = "OPTIONS";
 
-    private static final String[] whiteUrlList = {"/cars/[0-9]*"};
+    private static final String[] whiteUrlList = {"/cars", "/cars/[0-9]*", "/categories"};
 
     /**
      * @param request  HTTP 요청
@@ -44,7 +45,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         String httpMethod = request.getMethod();
         String url = request.getRequestURI();
         if (handler.getClass().equals(ResourceHttpRequestHandler.class) ||
-                (httpMethod.equals(HTTP_GET) && canPass(url))
+                (httpMethod.equals(HTTP_GET) && canPass(url)) || httpMethod.equals(HTTP_OPTIONS)
         ) {
             return true;
         }
