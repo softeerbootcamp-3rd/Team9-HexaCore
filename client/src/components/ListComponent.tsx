@@ -36,21 +36,6 @@ const buttonByReservationStatus: {
 
 function ListComponent({ target, reservation, className }: Props) {
   const { buttonText, buttonType } = buttonByReservationStatus[reservation.status][target.type];
-  useEffect(() => {
-    const handleResize = () => {
-      const buttons = document.querySelectorAll('Button');
-      buttons.forEach((button) => {
-        if (window.innerWidth <= 1000) {
-          button.classList.add('w-[9ch]', 'min-w-[9ch]');
-        } else {
-          button.classList.remove('w-[9ch]', 'min-w-[9ch]');
-        }
-      });
-    };
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
   return (
     <div
       className={`
@@ -99,10 +84,10 @@ function ListComponent({ target, reservation, className }: Props) {
               </div>
               <div className={`flex justify-end ${target.type === 'guest' ? 'w-full' : ''}`}>
                 {reservation.status === 'READY' && target.type === 'guest' && (
-                  <Button className='mr-6 h-auto w-1/4 rounded-xl text-xs lg:text-sm' type='danger' text='예약취소'></Button>
+                  <Button className={`w-[9ch] min-w-[9ch]  mr-6 h-auto rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'xlg:w-1/4 ' : 'xlg:w-full'}`} type='danger' text='예약취소'></Button>
                 )}
                 <Button
-                  className={`mr-6 h-auto rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'w-1/4 ' : 'w-full'}`}
+                  className={`w-[9ch] min-w-[9ch]  mr-6 h-auto rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'xlg:w-1/4 ' : 'xlg:w-full'}`}
                   type={buttonType}
                   text={buttonText}></Button>
               </div>
