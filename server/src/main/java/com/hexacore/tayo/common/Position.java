@@ -16,9 +16,15 @@ public class Position {
     private Double lat;
     private Double lng;
 
-    public Point toPoint() {
+    public Point toPointForSpec() {
         GeometryFactory geometryFactory = new GeometryFactory();
         Point position = geometryFactory.createPoint(new Coordinate(lat, lng));
+        position.setSRID(SRID);
+        return position;
+    }
+    public Point toPoint() {
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Point position = geometryFactory.createPoint(new Coordinate(lng, lat));
         position.setSRID(SRID);
         return position;
     }

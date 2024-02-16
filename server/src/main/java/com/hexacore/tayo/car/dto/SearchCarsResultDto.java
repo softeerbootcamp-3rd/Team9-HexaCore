@@ -2,8 +2,10 @@ package com.hexacore.tayo.car.dto;
 
 import com.hexacore.tayo.car.model.Car;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
+@Getter
 public class SearchCarsResultDto {
     private final Long id;
     private final String subcategory;
