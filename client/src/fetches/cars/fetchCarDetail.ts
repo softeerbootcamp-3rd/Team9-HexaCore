@@ -1,52 +1,20 @@
-import { DateRange } from '@/components/calendar/calendar.core';
 import { stringTuplesToDateRanges } from '@/utils/converters';
-import { server } from '@/fetches/common/axios';
-import type { ResponseWithData } from '@/fetches/common/response.type';
+import { server } from '../common/axios';
+import { ResponseWithData } from '../common/response.type';
+import { CarDetailData, CarDetailJsonData } from './cars.type';
 
-type CarDetailResponse = {
-  id: number;
-  carName: string;
-  carNumber: string;
-  imageUrls: string[];
-  mileage: number;
-  fuel: string;
-  type: string;
-  capacity: number;
-  year: number;
-  feePerHour: number;
-  carAddress: string;
-  description: string;
-  carDateRanges: string[][];
+export const fetchCarDetail = async (carId: number) => {
+  // 차량 세부 정보 조회 api 호출
+  const response = await server.get<ResponseWithData<CarDetailJsonData>>(`/cars/${carId}`);
+
+  return response;
 };
 
-export type CarData = {
-  id: number;
-  carName: string;
-  carNumber: string;
-  imageUrls: string[];
-  mileage: number;
-  fuel: string;
-  type: string;
-  capacity: number;
-  year: number;
-  feePerHour: number;
-  carAddress: string;
-  description: string;
-  carDateRanges: DateRange[];
-};
+export const parseCarDetail = (carDetailJsonData: CarDetailJsonData): CarDetailData => {
+  const carData = carDetailJsonData;
 
-export const fetchCarDetail = async () => {
-  const response = await server.get<ResponseWithData<CarDetailResponse>>('/users/cars', {
-  });
-  if (response.success) {
-    return response;
-  }
-};
-
-export const parseCarDetail = (carData: CarDetailResponse): CarData => {
   return {
-    id: carData.id,
-    carName: carData.carName,
+    categoryName: carData.carName,
     carNumber: carData.carNumber,
     imageUrls: carData.imageUrls,
     mileage: carData.mileage,
@@ -55,9 +23,10 @@ export const parseCarDetail = (carData: CarDetailResponse): CarData => {
     capacity: carData.capacity,
     year: carData.year,
     feePerHour: carData.feePerHour,
-    carAddress: carData.carAddress,
+    address: carData.address,
     description: carData.description,
     carDateRanges: stringTuplesToDateRanges(carData.carDateRanges),
+    host: carData.host
   };
 };
 

@@ -9,6 +9,8 @@ import { HostManageLoaderData } from './hostsRoutes';
 import { TargetType } from '@/components/ListComponent';
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
+import ImageGallery from '../cars/ImageGallery';
+
 
 const TABS = ['calendar', 'reservation'] as const;
 type TabType = (typeof TABS)[number];
@@ -16,19 +18,8 @@ type TabType = (typeof TABS)[number];
 function HostManage() {
   const navigate = useNavigate();
   const { carDetail, hostReservations } = useLoaderData() as HostManageLoaderData;
-  const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
   const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
-
-  // 다음 이미지 표시
-  const showNextImage = () => {
-    setCurrentIdx((prevIdx) => (prevIdx + 1) % carDetail.imageUrls.length);
-  };
-
-  // 이전 이미지 표시
-  const showPrevImage = () => {
-    setCurrentIdx((prevIdx) => (prevIdx - 1 + carDetail.imageUrls.length) % carDetail.imageUrls.length);
-  };
 
   const editCar = () => {
     navigate('/hosts/register');
@@ -121,23 +112,15 @@ function HostManage() {
           <h3 className='pl-3 text-lg font-medium xl:text-xl'>차량 정보</h3>
           <div className='flex w-full flex-col overflow-hidden rounded-3xl bg-white shadow-xl'>
             {/* Image Gallery */}
-            <div className='relative flex h-[300px] w-full overflow-hidden'>
-              <button onClick={showPrevImage} className='absolute left-3 top-1/2 -translate-y-1/2 transform hover:brightness-75'>
-                <img src='/prev-button.svg' alt='Prev Button Image' />
-              </button>
-              <img className='w-full object-cover' src={carDetail.imageUrls[currentIdx]} alt='car-img' />
-              <button onClick={showNextImage} className='absolute right-3 top-1/2 -translate-y-1/2 transform hover:brightness-75'>
-                <img src='/next-button.svg' alt='Next Button Image' />
-              </button>
-            </div>
+            <ImageGallery imageUrls={carDetail.imageUrls} className='h-[300px] w-full rounded-xl' />
 
             <div className='flex flex-col justify-center gap-4 p-6'>
               {/* Header : CarName, CarNumber, type, mileage, fuel */}
-              <div className='flex flex-col gap-2'>
-                <div className='flex justify-between'>
-                  <div className='flex items-center gap-2'>
-                    <h1 className='text-base font-bold lg:text-xl'>{carDetail.carName}</h1>
-                    <div className='xlg:text-sm text-xs font-semibold text-background-700'>{carDetail.carNumber}</div>
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-between">
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-base lg:text-2xl font-bold">{carDetail.categoryName}</h1>
+                    <div className="text-background-700 font-semibold text-base">{carDetail.carNumber}</div>
                     {/* <Tag className="h-6 text-background-700 font-semibold text-base" text={data.car.carNumber} /> */}
                   </div>
                   <div className='ml-3 flex items-center gap-3'>
@@ -161,20 +144,20 @@ function HostManage() {
               {/* Car Info Detail */}
               <div className='flex flex-col gap-3'>
                 {/* carNumber */}
-                <div className='flex items-center gap-4'>
-                  <div className='bg-gray-300 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full'>
-                    <img src='../public/default-profile.png' alt='host-profile' />
+                <div className="flex gap-4 items-center">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                    <img src="/location.svg" alt="host-profile" />
                   </div>
-                  <div className='flex flex-col'>
-                    <p className='font-semibold'>위치</p>
-                    <p className='text-sm text-background-500'>{carDetail.carAddress}</p>
+                  <div className="flex flex-col">
+                    <p className="font-semibold">위치</p>
+                    <p className="text-background-500 text-sm">{carDetail.address}</p>
                   </div>
                 </div>
 
                 {/* Year */}
-                <div className='flex items-center gap-4'>
-                  <div className='bg-gray-300 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full'>
-                    <img src='../public/default-profile.png' alt='host-profile' />
+                <div className="flex gap-4 items-center">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                    <img src="/price.svg" alt="host-profile" />
                   </div>
                   <div className='flex flex-col'>
                     <p className='font-semibold'>가격</p>
@@ -183,9 +166,9 @@ function HostManage() {
                 </div>
 
                 {/* Address */}
-                <div className='flex items-center gap-4'>
-                  <div className='bg-gray-300 flex h-14 w-14 items-center justify-center overflow-hidden rounded-full'>
-                    <img src='../public/default-profile.png' alt='host-profile' />
+                <div className="flex gap-4 items-center">
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
+                    <img src="/year.svg" alt="host-profile" />
                   </div>
                   <div className='flex flex-col'>
                     <p className='font-semibold'>연식</p>
