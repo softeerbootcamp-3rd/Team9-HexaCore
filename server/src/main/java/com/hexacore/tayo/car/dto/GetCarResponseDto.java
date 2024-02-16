@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Getter;
 
 @Getter
@@ -89,14 +90,17 @@ public class GetCarResponseDto {
                     .toList();
             for (Reservation reservation : sortedReservations) {
                 end = reservation.getRentDateTime().toLocalDate().minusDays(1);
-                if (start.isBefore(end)) {
+                if (!start.isAfter(end)) {
                     carAvailableDates.add(List.of(start.toString(), end.toString()));
                 }
                 start = reservation.getReturnDateTime().toLocalDate().plusDays(1);
             }
-            carAvailableDates.add(List.of(start.toString(), carDateRange.getEndDate().toString()));
+            if (!start.isAfter(carDateRange.getEndDate())) {
+                carAvailableDates.add(List.of(start.toString(), carDateRange.getEndDate().toString()));
+            }
         }
-        return carAvailableDates;
+        return carAvailableDates.stream().sorted(Comparator.comparing(list -> list.get(0)))
+                .collect(Collectors.toList());
     }
 
 }
