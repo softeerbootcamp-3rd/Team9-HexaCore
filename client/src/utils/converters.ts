@@ -16,6 +16,17 @@ export const stringTuplesToDateRanges = (dates: string[][]) => {
     .filter(([start, end]) => start <= end) as DateRange[];
 };
 
+export const formatDate = (date: Date) => {
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  const formattedMonth = month < 10 ? `0${month}` : month.toString();
+  const formattedDay = day < 10 ? `0${day}` : day.toString();
+
+  return `${year}-${formattedMonth}-${formattedDay}`;
+};
+
 export const dateToString = (date: Date) => {
   const year = date.getFullYear();
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
