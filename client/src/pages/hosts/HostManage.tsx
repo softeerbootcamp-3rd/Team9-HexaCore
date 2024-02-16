@@ -18,8 +18,11 @@ function HostManage() {
   const { carDetail, hostReservations } = useLoaderData() as HostManageLoaderData;
   const [currentIdx, setCurrentIdx] = useState(0);
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
+  if(carDetail === null){
+    alert("등록된 차량이 없습니다.")
+    return;
+  }
   const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
-
   // 다음 이미지 표시
   const showNextImage = () => {
     setCurrentIdx((prevIdx) => (prevIdx + 1) % carDetail.imageUrls.length);
