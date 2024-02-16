@@ -23,7 +23,7 @@ const hostsRoutes: RouteObject[] = [
         throw new Error('예약 정보를 불러오는데 실패했습니다');
       }
 
-      const carDetail = parseCarDetail(carDetailResult.value);
+      const carDetail = parseCarDetail(carDetailResult.value.data);
       const hostReservations = parseHostReservations(HostReservationResult.value);
       const data: HostManageLoaderData = {
         carDetail,

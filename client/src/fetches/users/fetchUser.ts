@@ -10,7 +10,7 @@ export type UserData = {
   image: string;
 };
 
-export const fetchUser = async (userId: number) => {
+export const fetchUser = async () => {
   return UserDummy;
 };
 

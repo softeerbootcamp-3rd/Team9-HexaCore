@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import InputBox from '@/pages/auth/InputBox';
+import InputBox from '@/components/InputBox';
 import Button from '@/components/Button';
 import type { ResponseWithData } from "@/fetches/common/response.type";
 import { server } from "@/fetches/common/axios";
@@ -71,9 +71,9 @@ function Login() {
   }
 
   return (
-    <div className="flex justify-center pt-16">
+    <div className="flex justify-center pt-24">
       <div className="flex w-5/12 flex-col">
-        <div className={`p-8 text-2xl`}>로그인</div>
+        <div className="pl-5 pb-7 text-[21px] text-background-600 font-semibold">로그인</div>
 
         <InputBox 
           ref={emailInputRef} 
@@ -92,11 +92,11 @@ function Login() {
           errorMsg={pwdErr}
         />
 
-        <div className="flex justify-end pr-14 pt-8">
+        <div className="flex justify-end pr-3 pt-8">
           <Link to="/auth/signup" className="pr-8">
-            <Button text="회원가입 하러 가기" className="h-12 w-48 bg-primary-300 hover:bg-primary-400" isRounded></Button>
+            <Button text="회원가입 하러 가기" className="h-12 w-44" isRounded></Button>
           </Link>
-          <Button text="로그인" className="h-12 w-36" isRounded onClick={handleLogin} />
+          <Button text="로그인" className="h-12 w-32" isRounded onClick={handleLogin} />
         </div>
       </div>
     </div>
