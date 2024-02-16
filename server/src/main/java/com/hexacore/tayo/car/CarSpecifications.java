@@ -77,12 +77,17 @@ public class CarSpecifications {
 
                 Predicate reservationPredicate = criteriaBuilder.or(
                         criteriaBuilder.isNull(reservationJoin.get("id")),
+                        criteriaBuilder.not(
+                                criteriaBuilder.or(
+                                        criteriaBuilder.equal(reservationJoin.get("status"), ReservationStatus.READY.ordinal()),
+                                        criteriaBuilder.equal(reservationJoin.get("status"), ReservationStatus.USING.ordinal())
+                                )
+                        ),
                         criteriaBuilder.greaterThan(reservationJoin.get("rentDateTime"), endDate),
                         criteriaBuilder.lessThan(reservationJoin.get("returnDateTime"), startDate)
                 );
 
                 predicates.add(criteriaBuilder.and(
-                        reservationStatusPredicate,
                         dateRangePredicate,
                         reservationPredicate
                 ));
