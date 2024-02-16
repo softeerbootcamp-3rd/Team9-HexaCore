@@ -34,15 +34,15 @@ function HostManage() {
       location.reload();
     } 
   };
-
   const updateDates = async () => {
-    console.log(availableDates)
     const response = await server.put<ResponseWithoutData>('/cars/' + carDetail?.id + '/date', {
       data: {
         dates: availableDates,
       }
     })
-    console.log(response);
+    if(response.success){
+      location.reload();
+    }
   }
   //
   const handleTabSelect = (tab: TabType) => {
