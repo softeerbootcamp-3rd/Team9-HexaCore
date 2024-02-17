@@ -3,8 +3,6 @@ package com.hexacore.tayo.interceptor;
 import com.hexacore.tayo.auth.jwt.util.JwtParser;
 import com.hexacore.tayo.common.UriPath;
 import com.hexacore.tayo.util.RequestParser;
-import com.hexacore.tayo.common.errors.AuthException;
-import com.hexacore.tayo.common.errors.ErrorCode;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
 
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,8 +28,9 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private static final String USER_ID = "userId";
     private static final String USER_NAME = "userName";
     private static final String HTTP_GET = "GET";
+    private static final String HTTP_OPTIONS = "OPTIONS";
 
-    private static final String[] whiteUrlList = {"/cars/[0-9]*"};
+    private static final String[] whiteUrlList = {"/cars", "/cars/[0-9]*", "/categories"};
 
     /**
      * @param request  HTTP 요청
@@ -47,12 +45,13 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         String httpMethod = request.getMethod();
         String url = request.getRequestURI();
         if (handler.getClass().equals(ResourceHttpRequestHandler.class) ||
-                (httpMethod.equals(HTTP_GET) && canPass(url))
+                (httpMethod.equals(HTTP_GET) && canPass(url)) || httpMethod.equals(HTTP_OPTIONS)
         ) {
             return true;
         }
 
-        String accessToken = RequestParser.getToken(request, accessTokenCookieName);
+        String accessToken = RequestParser.getAuthorizationToken(request);
+
         Claims claims = jwtParser.getClaims(accessToken);
 
         request.setAttribute(USER_ID, Long.valueOf((Integer) claims.get(USER_ID)));
@@ -64,7 +63,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         for (String possibleUrl : whiteUrlList) {
             Pattern pattern = Pattern.compile(UriPath.PREFIX + possibleUrl);
             Matcher matcher = pattern.matcher(url);
-
+            
             if (matcher.matches()) {
                 return true;
             }

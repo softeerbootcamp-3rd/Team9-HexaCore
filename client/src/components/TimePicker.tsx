@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 type Props = {
-  onTimeChange: (time: string) => void;
+  onTimeChange: (time: number) => void;
   id: string;
   className?: string;
+  time: string;
 };
 
-function TimePicker({ onTimeChange, id, className }: Props) {
-  const [selectedHour, setSelectedHour] = useState('12');
+function TimePicker({ onTimeChange, id, className, time }: Props) {
 
   const handleHourChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedHour(event.target.value);
-    onTimeChange(event.target.value);
+    onTimeChange(parseInt(event.target.value));
   };
 
   return (
@@ -21,7 +20,7 @@ function TimePicker({ onTimeChange, id, className }: Props) {
         ${className}
       `}
       id={id}
-      value={selectedHour}
+      value={time}
       onChange={handleHourChange} >
       {
         Array.from({ length: 24 }, (_, i) => {

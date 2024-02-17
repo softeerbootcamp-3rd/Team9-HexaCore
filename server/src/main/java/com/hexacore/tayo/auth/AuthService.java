@@ -1,6 +1,7 @@
 package com.hexacore.tayo.auth;
 
 import com.hexacore.tayo.auth.jwt.RefreshTokenService;
+import com.hexacore.tayo.auth.jwt.dto.GetTokenResponseDto;
 import com.hexacore.tayo.auth.jwt.util.JwtProvider;
 import com.hexacore.tayo.util.Encryptor;
 import com.hexacore.tayo.car.model.Car;
@@ -96,19 +97,24 @@ public class AuthService {
         }
 
         GetUserInfoResponseDto loginUserInfo = getLoginUserInfo(loginUser);
-
-        return LoginResponseDto.builder()
+        GetTokenResponseDto tokenResponseDto = GetTokenResponseDto.builder()
                 .accessToken(jwtProvider.createAccessToken(loginUser))
                 .refreshToken(jwtProvider.createRefreshToken(loginUser.getId()))
+                .build();
+
+        return LoginResponseDto.builder()
+                .tokens(tokenResponseDto)
                 .loginUserInfo(loginUserInfo)
                 .build();
     }
 
-    public String refresh(Long userId) {
+    public GetTokenResponseDto refresh(Long userId) {
         User expiredUser = userRepository.findById(userId).orElseThrow(() ->
                 new AuthException(ErrorCode.USER_NOT_FOUND));
 
-        return jwtProvider.createAccessToken(expiredUser);
+        return GetTokenResponseDto.builder()
+                .accessToken(jwtProvider.createAccessToken(expiredUser))
+                .build();
     }
 
     private GetUserInfoResponseDto getLoginUserInfo(User user) {
