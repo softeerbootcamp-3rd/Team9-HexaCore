@@ -1,6 +1,8 @@
 package com.hexacore.tayo.user;
 
+import com.hexacore.tayo.car.CarRepository;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.util.S3Manager;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final CarRepository carRepository;
     private final S3Manager s3Manager;
 
     @Transactional
@@ -48,14 +51,14 @@ public class UserService {
         return getUserInfo(user);
     }
 
-    // TODO: #138 이슈
-//    public GetCarResponseDto getUserCar(Long userId) {
-//        User user = userRepository.getById(userId);
-//        if (user.getCar() == null) {
-//            throw new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS);
-//        }
-//        return GetCarResponseDto.of(user.getCar());
-//    }
+    public GetCarResponseDto getUserCar(Long userId) {
+        User user = userRepository.getById(userId);
+        Car car = carRepository.findByOwner_IdAndIsDeletedFalse(userId);
+        if (user.getCar() == null) {
+            throw new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS);
+        }
+        return GetCarResponseDto.of(user.getCar());
+    }
 
     private GetUserInfoResponseDto getUserInfo(User user) {
         return GetUserInfoResponseDto.builder()
