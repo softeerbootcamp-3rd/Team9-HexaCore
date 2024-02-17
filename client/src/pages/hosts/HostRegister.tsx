@@ -6,6 +6,27 @@ import { useNavigate } from 'react-router-dom';
 import AddressButton from './AddressButton';
 import { server } from '@/fetches/common/axios';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
+import axios from 'axios';
+
+const GET_CAR_INFO_API_URL = 'https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry';
+
+interface CarDetailResponseByApi {
+  CARNAME: string;
+  CARYEAR: string;
+  FUEL: string;
+  FUELECO: string;
+  SEATS: string;
+}
+
+type CarDetailByApi = {
+  capacity: number;
+  carName: string;
+  carNumber: string;
+  fuel: string;
+  mileage: number;
+  type: string; // 현재 외부 API에서 type에 해당하는 필드가 없음
+  year: number;
+};
 
 type positionLatLng = {
   lat: string;
@@ -13,6 +34,7 @@ type positionLatLng = {
 };
 
 function HostRegister() {
+  const [carDetail, setCarDetail] = useState<CarDetailByApi | null>(null);
   const [images, setImages] = useState<(File | null)[]>([null, null, null, null, null]);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [address, setAddress] = useState<string>('');
@@ -24,6 +46,7 @@ function HostRegister() {
   const feeRef = useRef<HTMLInputElement>(null);
   const navigator = useNavigate();
 
+  // 주소의 변경시 좌표 API를 호출하여 결과를 가진다.
   useEffect(() => {
     if (address == '') return;
     naver.maps.Service.geocode(
@@ -82,17 +105,54 @@ function HostRegister() {
     });
   };
 
-  const onSubmitCheckCarNumber = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmitCheckCarNumber = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
 
-    if (formData.get('REGINUMBER') != '') {
-      setCarNumberConfirmed(true);
-      // TODO: 외부 API에 fetch 등으로 요청을 보낸 뒤, 응답으로 받은 차량 정보를 저장한다.
-    } else {
-      alert('등록번호를 잘못 입력하셨습니다!');
+    const registerNumber = formData.get('REGINUMBER')?.toString();
+
+    if (registerNumber === undefined || registerNumber === '') {
+      alert('차량번호는 반드시 입력해야 합니다!');
+      return;
     }
+
+    if (!registerNumber.match(/^[0-9]{2,3}[가-힣][0-9]{4}$/g)) {
+      alert('차량번호의 형식이 아닙니다');
+      return;
+    }
+
+    const response = await axios.post(
+      GET_CAR_INFO_API_URL,
+      { REGINUMBER: registerNumber, OWNERNAME: '' },
+      { headers: { Authorization: `Token ${import.meta.env.VITE_CAR_INFO_API_TOKEN}` } },
+    );
+
+    const resultMessage = response.data.result;
+    const responseData: CarDetailResponseByApi = response.data.data;
+
+    if (resultMessage == 'SUCCESS') {
+      const responseCarName = responseData.CARNAME;
+      const responseCarYear = responseData.CARYEAR;
+      const responseCarFuel = responseData.FUEL;
+      const responseCarMileage = responseData.FUELECO;
+      const responseCarCapacity = responseData.SEATS;
+
+      setCarDetail({
+        capacity: Number.parseInt(responseCarCapacity),
+        carName: responseCarName,
+        carNumber: registerNumber,
+        fuel: responseCarFuel,
+        mileage: Number.parseFloat(responseCarMileage),
+        type: '중형차', // 현재 외부 API에서 type에 해당하는 필드가 없음
+        year: Number.parseInt(responseCarYear),
+      });
+
+      setCarNumberConfirmed(true);
+    } else {
+      alert('등록번호로 조회에 실패하였습니다. 다시 시도해주세요.');
+    }
+    setCarNumberConfirmed(true);
   };
 
   const onSubmitRequestCarRegister = async () => {
@@ -104,6 +164,12 @@ function HostRegister() {
     const formData = new FormData();
     let formFailed = false;
     let feeValue: number = 0;
+
+    if (carDetail === null) {
+      alert('차량 조회가 되지 않은 상태입니다.');
+      setCarNumberConfirmed(false);
+      return;
+    }
 
     images.forEach((image) => {
       if (image !== null) formData.append(`imageFiles`, image);
@@ -137,22 +203,22 @@ function HostRegister() {
 
     if (formFailed) return;
 
-    formData.append('carNumber', '12가2345');
-    formData.append('carName', 'SM5');
-    formData.append('mileage', (12).toString());
-    formData.append('fuel', '휘발유');
+    formData.append('carName', carDetail.carName);
+    formData.append('carNumber', carDetail.carNumber);
+    formData.append('mileage', carDetail.mileage.toString());
+    formData.append('fuel', carDetail.fuel);
     formData.append('type', '중형차');
-    formData.append('capacity', (5).toString());
-    formData.append('year', (2020).toString());
+    formData.append('capacity', carDetail.capacity.toString());
+    formData.append('year', carDetail.year.toString());
     formData.append('feePerHour', feeValue.toString());
     formData.append('address', address);
-
     if (position) {
       formData.append('position.lat', position.lat);
       formData.append('position.lng', position.lng);
     }
     formData.append('description', descriptionRef.current.value);
     formData.append('imageIndexes', Array.of(0, 1, 2, 3, 4).toString());
+
     const response = await server.post<ResponseWithoutData>('/cars', {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -160,11 +226,13 @@ function HostRegister() {
       data: formData,
     });
 
-    if (response.success) {
-      alert('차량 등록을 완료하였습니다.');
-      navigator('/hosts/manage');
+    if (!response.success) {
+      alert('차량 등록에 실패하였습니다. 다시 시도해 주세요.');
+      return;
     }
-    alert('차량 등록에 실패하였습니다. 다시 시도해 주세요.');
+
+    alert('차량 등록을 완료하였습니다.');
+    navigator('/hosts/manage');
   };
 
   if (!isCarNumberConfirmed)
@@ -180,7 +248,7 @@ function HostRegister() {
           <form method='POST' action='https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry' onSubmit={onSubmitCheckCarNumber}>
             <div className='flex justify-center'>
               <div className='flex w-5/12 items-center justify-between rounded-3xl bg-white px-6 py-2'>
-                <input className='w-full p-3 text-2xl focus:outline-none' name='REGINUMBER' type='text' placeholder='12가 3456' />
+                <input className='w-full p-3 text-2xl focus:outline-none' name='REGINUMBER' type='text' placeholder='12가3456' />
                 <input type='image' src='/search-button.png' width={48} height={48} />
               </div>
             </div>
@@ -195,8 +263,10 @@ function HostRegister() {
         <div className='col-span-2 flex flex-col gap-4'>
           <TitledBlock title='차량 정보'>
             <div className='rounded-3xl bg-white p-5 shadow-lg'>
-              <p className='text-lg text-background-400'>{'제네시스 G80 12가 3456'}</p>
-              <p className='text-lg text-background-400'>{'대형차 | 5인승 | 연료 | 연비'}</p>
+              <p className='text-lg text-background-400'>
+                {carDetail?.carName} {carDetail?.carNumber}
+              </p>
+              <p className='text-lg text-background-400'>{`${carDetail?.type} | ${carDetail?.capacity}인승 | ${carDetail?.fuel} | ${carDetail?.mileage} km / L`}</p>
             </div>
           </TitledBlock>
           <TitledBlock title='부가 설명' className='flex grow flex-col'>
