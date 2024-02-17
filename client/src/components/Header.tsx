@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import Envelope from '@/components/svgs/Envelope';
 import UserCircle from '@/components/svgs/UserCircle';
 import Button from '@/components/Button';
+import { logout } from '@/fetches/auth/fetchAuth';
 
 function Header() {
   const isLogin = localStorage.getItem("accessToken") !== null ? true : false;
@@ -18,8 +19,8 @@ function Header() {
           {
             (isLogin) 
             ?
-            <div className="text-sm mr-1 text-primary-500 hover:text-primary-600">
-              로그아웃
+            <div className="text-sm mr-1 text-primary-500 hover:text-primary-600" onClick={logout}>
+              <Link to="">로그아웃</Link>
             </div> 
             :
             <Link to="/auth/login" className="text-sm mr-2 text-primary-500 hover:text-primary-600">
