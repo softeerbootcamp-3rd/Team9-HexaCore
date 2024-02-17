@@ -11,6 +11,7 @@ import com.hexacore.tayo.user.dto.GetUserInfoResponseDto;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.Encryptor;
 import jakarta.transaction.Transactional;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -52,12 +53,11 @@ public class UserService {
     }
 
     public GetCarResponseDto getUserCar(Long userId) {
-        User user = userRepository.getById(userId);
-        Car car = carRepository.findByOwner_IdAndIsDeletedFalse(userId);
-        if (user.getCar() == null) {
+        Optional<Car> car = carRepository.findByOwner_IdAndIsDeletedFalse(userId);
+        if (!car.isPresent()) {
             throw new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS);
         }
-        return GetCarResponseDto.of(user.getCar());
+        return GetCarResponseDto.of(car.get());
     }
 
     private GetUserInfoResponseDto getUserInfo(User user) {
