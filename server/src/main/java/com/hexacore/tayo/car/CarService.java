@@ -255,7 +255,7 @@ public class CarService {
 
     /* 유저가 등록한 차량이 있는지 체크 */
     private Boolean isUserHavingCar(Long userId) {
-        return !carRepository.findByOwner_IdAndIsDeletedFalse(userId).isEmpty();
+        return carRepository.findByOwner_IdAndIsDeletedFalse(userId).isPresent();
     }
 
     /* 중복된 차량 번호가 있는지 체크 */
