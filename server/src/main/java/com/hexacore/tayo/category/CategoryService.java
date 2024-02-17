@@ -13,7 +13,7 @@ public class CategoryService {
 
     /* 모델, 세부 모델명 조회 */
     public List<GetCategoriesResponseDto.CategoryDto> getSubcategories() {
-        return categoryRepository.findAll().stream()
+        return categoryRepository.findAllFetch().stream()
                 .map(GetCategoriesResponseDto.CategoryDto::new)
                 .toList();
     }
