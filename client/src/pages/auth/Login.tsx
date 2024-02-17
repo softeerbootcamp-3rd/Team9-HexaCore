@@ -4,11 +4,11 @@ import InputBox from '@/components/InputBox';
 import Button from '@/components/Button';
 import type { ResponseWithData } from '@/fetches/common/response.type';
 import { server } from '@/fetches/common/axios';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import { LoginResponse } from '@/fetches/auth/auth.type';
 
 function Login() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const emailInputRef = useRef<HTMLInputElement | null>(null);
   const pwdInputRef = useRef<HTMLInputElement | null>(null);
@@ -33,7 +33,7 @@ function Login() {
       if (response.success) {
         localStorage.setItem('accessToken', response.data.tokens.accessToken);
         localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
-        navigate('/');
+        window.location.href = '/';
       } else {
         console.log(response);
         setPwdErr('올바른 이메일과 비밀번호를 입력해주세요.');
