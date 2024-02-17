@@ -9,7 +9,7 @@ import { DateRange } from '@/components/calendar/calendar.core';
 import { dateTimeToString, dateToString, stringToDate, stringTupleToDateRange } from '@/utils/converters';
 import { server } from '@/fetches/common/axios';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
-import ImageGallery from './ImageGallery';
+import ImageGallery from '../../components/ImageGallery';
 
 function CarDetail() {
   const navigate = useNavigate();

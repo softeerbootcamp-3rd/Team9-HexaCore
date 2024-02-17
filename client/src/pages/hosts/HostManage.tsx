@@ -9,7 +9,7 @@ import { HostManageLoaderData } from './hostsRoutes';
 import { TargetType } from '@/components/ListComponent';
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
-import ImageGallery from '../cars/ImageGallery';
+import ImageGallery from '../../components/ImageGallery';
 
 
 const TABS = ['calendar', 'reservation'] as const;
