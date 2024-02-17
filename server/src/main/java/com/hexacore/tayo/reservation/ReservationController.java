@@ -5,6 +5,7 @@ import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.GetGuestReservationListResponseDto;
 import com.hexacore.tayo.reservation.dto.GetHostReservationListResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Response> createReservation(HttpServletRequest request,
-            @RequestBody CreateReservationRequestDto createReservationRequestDto) {
+            @Valid @RequestBody CreateReservationRequestDto createReservationRequestDto) {
         Long guestUserId = (Long) request.getAttribute("userId");
 
         reservationService.createReservation(createReservationRequestDto, guestUserId);

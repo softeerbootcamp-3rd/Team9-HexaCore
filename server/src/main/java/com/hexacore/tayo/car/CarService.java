@@ -6,18 +6,27 @@ import com.hexacore.tayo.car.dto.SearchCarsParamsDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
-import com.hexacore.tayo.car.model.*;
+import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarImage;
+import com.hexacore.tayo.car.model.CarType;
+import com.hexacore.tayo.car.model.FuelType;
 import com.hexacore.tayo.category.SubcategoryRepository;
 import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.reservation.ReservationRepository;
+import com.hexacore.tayo.reservation.model.Reservation;
+import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,6 +43,7 @@ public class CarService {
     private final CarImageRepository carImageRepository;
     private final CarDateRangeRepository carDateRangeRepository;
     private final SubcategoryRepository subcategoryRepository;
+    private final ReservationRepository reservationRepository;
     private final S3Manager s3Manager;
 
     /* 차량 등록 */
@@ -169,20 +179,41 @@ public class CarService {
             throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
         }
 
-        // dateListDto의 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
-        for (List<LocalDate> carDateRangeList : carDateRangesDto.getDates()) {
-            CarDateRangeDto carDateRangeDto = new CarDateRangeDto(carDateRangeList);
+        // CarDateRanges 검증하고 인접한 구역을 합친다.
+        // 검증 요소: List<LocalDate>의 길이는 2이고, 시작일자 <= 종료일자, 그리고 겹치는 부분이 없어야 한다.
+        List<CarDateRangeDto> sortedCarDateRanges = checkDateRangesDtoValidAndMerge(carDateRangesDto);
 
-            LocalDate startDate = carDateRangeDto.getStartDate();
-            LocalDate endDate = carDateRangeDto.getEndDate();
+        List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
+                car.getId(),
+                List.of(ReservationStatus.USING, ReservationStatus.READY)
+        );
 
-            if (startDate.isAfter(endDate)) {
-                throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
+        int reservationIdx = 0, dateRangeIdx = 0;
+        while (dateRangeIdx < sortedCarDateRanges.size() && reservationIdx < reservations.size()) {
+            CarDateRangeDto dateRange = sortedCarDateRanges.get(dateRangeIdx);
+            Reservation reservation = reservations.get(reservationIdx);
+            LocalDate dateRangeStartDate = dateRange.getStartDate();
+            LocalDate dateRangeEndDate = dateRange.getEndDate();
+            LocalDate reservationStartDate = reservation.getRentDateTime().toLocalDate();
+            LocalDate reservationEndDate = reservation.getReturnDateTime().toLocalDate();
+
+            // dateRangeStartDate <= reservationStartDate <= reservationEndDate <= dateRangeEndDate
+            if (!dateRangeStartDate.isAfter(reservationStartDate) // 예약 가능한 구간에 예약이 포함하면 다음 예약 확인
+                    && !reservationEndDate.isAfter(dateRangeEndDate)) {
+                reservationIdx++;
+            } else if (reservationStartDate.isAfter(dateRangeEndDate)) { // 다음 예약 가능한 구간 확인
+                dateRangeIdx++;
+            } else {
+                throw new GeneralException(ErrorCode.CAR_DATE_RANGE_ALREADY_HAS_RESERVATIONS);
             }
-
-            CarDateRange carDateRange = carDateRangeDto.toEntity(car);
-            carDateRangeRepository.save(carDateRange);
         }
+
+        // 기존 구간을 모두 삭제한다.
+        carDateRangeRepository.deleteAllByCar_Id(car.getId());
+
+        sortedCarDateRanges.stream()
+                .map(carDateRangeDto -> carDateRangeDto.toEntity(car))
+                .forEach(carDateRangeRepository::save);
     }
 
     /* 이미지 엔티티 저장 */
@@ -245,5 +276,57 @@ public class CarService {
     /* FuelType이 지원하는 형식인지 체크 */
     private Boolean isSupportedFuelType(String fuelType) {
         return FuelType.of(fuelType) != FuelType.NOT_FOUND;
+    }
+
+    /* CarDateRangesDto가 올바른지 검증하고 정렬한뒤 인접하다면 병합한다. */
+    private List<CarDateRangeDto> checkDateRangesDtoValidAndMerge(CarDateRangesDto carDateRangesDto) {
+        List<List<LocalDate>> dateRanges = carDateRangesDto.getDates();
+        // dateRanges가 비어있다면 모든 예약일자를 비운다는 의미이다.
+        if (dateRanges.isEmpty()) {
+            return List.of();
+        }
+
+        // 각 구간이 [시작, 끝] 으로 이루어지지 않거나 시작 날짜가 끝 날짜보다 뒤에 있는 경우
+        for (List<LocalDate> dateRange : dateRanges) {
+            if (dateRange.size() != 2) {
+                throw new GeneralException(ErrorCode.DATE_SIZE_MISMATCH);
+            }
+
+            LocalDate startDate = dateRange.get(0);
+            LocalDate endDate = dateRange.get(1);
+
+            if (startDate.isAfter(endDate)) {
+                throw new GeneralException(ErrorCode.DATE_FORMAT_MISMATCH);
+            }
+        }
+
+        Function<List<LocalDate>, LocalDate> firstSort = dateRange -> dateRange.get(0);
+        Function<List<LocalDate>, LocalDate> secondSort = dateRange -> dateRange.get(1);
+
+        dateRanges.sort(Comparator.comparing(firstSort)
+                .thenComparing(secondSort));
+
+        List<CarDateRangeDto> result = new ArrayList<>();
+        List<LocalDate> currentCarDateRange = dateRanges.get(0);
+
+        for (int idx = 1; idx < dateRanges.size(); idx++) {
+            List<LocalDate> nextCarDateRange = dateRanges.get(idx);
+            LocalDate currentEndDate = currentCarDateRange.get(1);
+            LocalDate nextStartDate = nextCarDateRange.get(0);
+            LocalDate nextEndDate = nextCarDateRange.get(1);
+            if (!currentEndDate.isBefore(nextStartDate)) {
+                throw new GeneralException(ErrorCode.INVALID_CAR_DATE_RANGE_DUPLICATED);
+            }
+
+            if (currentEndDate.plusDays(1).isEqual(nextStartDate)) {
+                currentCarDateRange.set(1, nextEndDate);
+            } else {
+                result.add(new CarDateRangeDto(currentCarDateRange));
+                currentCarDateRange = nextCarDateRange;
+            }
+        }
+
+        result.add(new CarDateRangeDto(currentCarDateRange));
+        return result;
     }
 }

@@ -1,6 +1,6 @@
 package com.hexacore.tayo.reservation.model;
 
-import com.hexacore.tayo.car.model.CarDateRange;
+import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.BaseTime;
 import com.hexacore.tayo.user.model.User;
 import jakarta.persistence.Column;
@@ -39,8 +39,8 @@ public class Reservation extends BaseTime {
     private User host;
 
     @ManyToOne
-    @JoinColumn(name = "car_date_range_id", nullable = false)
-    private CarDateRange carDateRange;
+    @JoinColumn(name = "car_id", nullable = false)
+    private Car car;
 
     @Column(name = "rent_date_time", nullable = false)
     private LocalDateTime rentDateTime;

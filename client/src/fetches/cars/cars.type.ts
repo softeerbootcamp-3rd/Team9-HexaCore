@@ -6,6 +6,7 @@ export type HostData = {
 }
 
 export type CarDetailData = {
+  id: number,
   categoryName: string;
   carNumber: string;
   imageUrls: string[];
@@ -22,6 +23,7 @@ export type CarDetailData = {
 };
 
 export type CarDetailJsonData = {
+  id: number;
   carName: string;
   carNumber: string;
   imageUrls: string[];
