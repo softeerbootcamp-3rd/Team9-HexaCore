@@ -33,6 +33,7 @@ function Login() {
       if (response.success) {
         localStorage.setItem('accessToken', response.data.tokens.accessToken);
         localStorage.setItem('refreshToken', response.data.tokens.refreshToken);
+        localStorage.setItem('userId', response.data.loginUserInfo.userId.toString());
         window.location.href = '/';
       } else {
         console.log(response);
