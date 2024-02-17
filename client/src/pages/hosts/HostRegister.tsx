@@ -152,47 +152,36 @@ function HostRegister() {
       return;
     }
 
-    // const response = await axios.post(
-    //   GET_CAR_INFO_API_URL,
-    //   { REGINUMBER: registerNumber, OWNERNAME: userCarInfo.username },
-    //   { headers: { Authorization: `Token ${import.meta.env.VITE_CAR_INFO_API_TOKEN}` } },
-    // );
+    const response = await axios.post(
+      GET_CAR_INFO_API_URL,
+      { REGINUMBER: registerNumber, OWNERNAME: userCarInfo.username },
+      { headers: { Authorization: `Token ${import.meta.env.VITE_CAR_INFO_API_TOKEN}` } },
+    );
 
-    // const resultMessage = response.data.result;
-    // const responseData: CarDetailResponseByApi = response.data.data;
+    const resultMessage = response.data.result;
+    const responseData: CarDetailResponseByApi = response.data.data;
 
-    // if (resultMessage == 'SUCCESS') {
-    //   const responseCarName = responseData.CARNAME;
-    //   const responseCarYear = responseData.CARYEAR;
-    //   const responseCarFuel = responseData.FUEL;
-    //   const responseCarMileage = responseData.FUELECO;
-    //   const responseCarCapacity = responseData.SEATS;
+    if (resultMessage == 'SUCCESS') {
+      const responseCarName = responseData.CARNAME;
+      const responseCarYear = responseData.CARYEAR;
+      const responseCarFuel = responseData.FUEL;
+      const responseCarMileage = responseData.FUELECO;
+      const responseCarCapacity = responseData.SEATS;
 
-    //   setCarDetail({
-    //     capacity: Number.parseInt(responseCarCapacity),
-    //     carName: responseCarName,
-    //     carNumber: registerNumber,
-    //     fuel: responseCarFuel,
-    //     mileage: Number.parseFloat(responseCarMileage),
-    //     type: '중형차', // 현재 외부 API에서 type에 해당하는 필드가 없음
-    //     year: Number.parseInt(responseCarYear),
-    //   });
+      setCarDetail({
+        capacity: Number.parseInt(responseCarCapacity),
+        carName: responseCarName,
+        carNumber: registerNumber,
+        fuel: responseCarFuel,
+        mileage: Number.parseFloat(responseCarMileage),
+        type: '중형차', // 현재 외부 API에서 type에 해당하는 필드가 없음
+        year: Number.parseInt(responseCarYear),
+      });
 
-    //   setCarNumberConfirmed(true);
-    // } else {
-    //   alert('등록번호로 조회에 실패하였습니다. 다시 시도해주세요.');
-    // }
-
-    setCarDetail({
-      capacity: 9,
-      carName: 'SM3',
-      carNumber: registerNumber,
-      fuel: '휘발유',
-      mileage: 12.3,
-      type: '중형차', // 현재 외부 API에서 type에 해당하는 필드가 없음
-      year: 2021,
-    });
-    setCarNumberConfirmed(true);
+      setCarNumberConfirmed(true);
+    } else {
+      alert('등록번호로 조회에 실패하였습니다. 다시 시도해주세요.');
+    }
   };
 
   const onSubmitRequestCarRegister = async () => {
