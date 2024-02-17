@@ -2,6 +2,7 @@ package com.hexacore.tayo.car.model;
 
 import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.BaseTime;
+import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.user.model.User;
 import jakarta.persistence.*;
 
@@ -78,4 +79,8 @@ public class Car extends BaseTime {
     @OneToMany(mappedBy = "car")
     @Builder.Default
     private List<CarDateRange> carDateRanges = new ArrayList<>();
+
+    @OneToMany(mappedBy = "car")
+    @Builder.Default
+    private List<Reservation> reservations = new ArrayList<>();
 }
