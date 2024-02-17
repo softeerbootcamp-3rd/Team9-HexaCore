@@ -50,7 +50,7 @@ function ListComponent({ target, reservation, className }: Props) {
                 alt=''
                 onError={(e) => {
                   const imgElement = e.target as HTMLImageElement;
-                  imgElement.src = '../public/default-profile.png';
+                  imgElement.src = '/defaultProfile.png';
                 }}
               />
               <div className='flex flex-col justify-between'>
@@ -81,12 +81,15 @@ function ListComponent({ target, reservation, className }: Props) {
                   {reservation.price || undefined}원
                 </p>
               </div>
-              <div className={`flex justify-end ${target.type === 'guest' ? 'w-full' : ''}`}>
+              <div className={`flex justify-end ${target.type === 'guest' ? 'w-full' : ''}`} data-buttonArea>
                 {reservation.status === 'READY' && target.type === 'guest' && (
-                  <Button className={`w-[9ch] min-w-[9ch]  mr-6 h-auto rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'xlg:w-1/4 ' : 'xlg:w-full'}`} type='danger' text='예약취소'></Button>
+                  <Button
+                    className={`mr-6 h-auto w-[9ch] min-w-[9ch] rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'xl:w-1/4 ' : 'xl:w-full'}`}
+                    type='danger'
+                    text='예약취소'></Button>
                 )}
                 <Button
-                  className={`w-[9ch] min-w-[9ch]  mr-6 h-auto rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'xlg:w-1/4 ' : 'xlg:w-full'}`}
+                  className={`mr-6 h-auto w-[9ch] min-w-[9ch] rounded-xl text-xs lg:text-sm ${target.type === 'guest' ? 'xl:w-1/4 ' : 'xl:w-full'}`}
                   type={buttonType}
                   text={buttonText}></Button>
               </div>
@@ -99,3 +102,4 @@ function ListComponent({ target, reservation, className }: Props) {
 }
 
 export default ListComponent;
+
