@@ -36,7 +36,7 @@ function Login() {
         navigate('/');
       } else {
         console.log(response);
-        setPwdInputErr('올바른 이메일과 비밀번호를 입력해주세요.');
+        setPwdErr('올바른 이메일과 비밀번호를 입력해주세요.');
       }
     }
   };
@@ -57,18 +57,14 @@ function Login() {
   // 비밀번호 입력란 비어있는지 확인
   const checkPwdEmpty = (pwd: string): boolean => {
     if (pwd === '') {
-      setPwdInputErr('비밀번호를 입력해주세요.');
+      setWrongPwd(true);
+      setPwdErr('비밀번호를 입력해주세요.');
       return true;
     }
 
     setWrongPwd(false);
     setPwdErr('');
     return false;
-  };
-
-  const setPwdInputErr = (errorMsg: string): void => {
-    setWrongPwd(true);
-    setPwdErr(errorMsg);
   };
 
   return (
