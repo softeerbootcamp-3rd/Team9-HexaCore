@@ -6,7 +6,7 @@ import Button from '@/components/Button';
 import TimePicker from '@/components/TimePicker';
 import GuestCalendar from '@/components/calendar/guestCalendar/GuestCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
-import { dateTimeToString, dateToString, stringTupleToDateRange } from '@/utils/converters';
+import { dateTimeToString, dateToString, stringToDate, stringTupleToDateRange } from '@/utils/converters';
 import { server } from '@/fetches/common/axios';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
 import ImageGallery from './ImageGallery';
@@ -119,7 +119,7 @@ function CarDetail() {
 
     if(response.success) {
       // 마이페이지로 이동
-      navigate('/profile/1');
+      navigate('/profile');
     } else {
       alert(response.message);
     }
@@ -214,6 +214,7 @@ function CarDetail() {
             <GuestCalendar 
               availableDates={data.carDateRanges}
               onReservationChange={updateDateRange}
+              initDate={stringToDate(startDate)}
               reservation={dateRange}/>
           </div>
           {/* Date + Time Info */}
