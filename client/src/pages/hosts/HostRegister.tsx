@@ -43,7 +43,8 @@ type positionLatLng = {
 function HostRegister() {
   const [carDetail, setCarDetail] = useState<CarDetailByApi | null>(null);
   const [images, setImages] = useState<(File | null)[]>([null, null, null, null, null]);
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [description, setDescription] = useState<string>('');
+  const [fee, setFee] = useState<string>('');
   const [address, setAddress] = useState<string>('');
   const [position, setPosition] = useState<positionLatLng | null>(null);
   const [isCarNumberConfirmed, setCarNumberConfirmed] = useState<boolean>(false);
@@ -59,9 +60,8 @@ function HostRegister() {
     if (userCarInfo.isUpdate && userCarInfo.carDetail) {
       const carDetail = userCarInfo.carDetail;
       setAddress(carDetail.address);
-
-      if (descriptionRef.current) descriptionRef.current.value = carDetail.description;
-      if (feeRef.current) feeRef.current.value = carDetail.feePerHour.toLocaleString('ko-KR');
+      setDescription(carDetail.description);
+      setFee(carDetail.feePerHour.toLocaleString('ko-kr'));
 
       setCarDetail({
         capacity: carDetail.capacity,
@@ -152,40 +152,51 @@ function HostRegister() {
       return;
     }
 
-    const response = await axios.post(
-      GET_CAR_INFO_API_URL,
-      { REGINUMBER: registerNumber, OWNERNAME: userCarInfo.username },
-      { headers: { Authorization: `Token ${import.meta.env.VITE_CAR_INFO_API_TOKEN}` } },
-    );
+    // const response = await axios.post(
+    //   GET_CAR_INFO_API_URL,
+    //   { REGINUMBER: registerNumber, OWNERNAME: userCarInfo.username },
+    //   { headers: { Authorization: `Token ${import.meta.env.VITE_CAR_INFO_API_TOKEN}` } },
+    // );
 
-    const resultMessage = response.data.result;
-    const responseData: CarDetailResponseByApi = response.data.data;
+    // const resultMessage = response.data.result;
+    // const responseData: CarDetailResponseByApi = response.data.data;
 
-    if (resultMessage == 'SUCCESS') {
-      const responseCarName = responseData.CARNAME;
-      const responseCarYear = responseData.CARYEAR;
-      const responseCarFuel = responseData.FUEL;
-      const responseCarMileage = responseData.FUELECO;
-      const responseCarCapacity = responseData.SEATS;
+    // if (resultMessage == 'SUCCESS') {
+    //   const responseCarName = responseData.CARNAME;
+    //   const responseCarYear = responseData.CARYEAR;
+    //   const responseCarFuel = responseData.FUEL;
+    //   const responseCarMileage = responseData.FUELECO;
+    //   const responseCarCapacity = responseData.SEATS;
 
-      setCarDetail({
-        capacity: Number.parseInt(responseCarCapacity),
-        carName: responseCarName,
-        carNumber: registerNumber,
-        fuel: responseCarFuel,
-        mileage: Number.parseFloat(responseCarMileage),
-        type: '중형차', // 현재 외부 API에서 type에 해당하는 필드가 없음
-        year: Number.parseInt(responseCarYear),
-      });
+    //   setCarDetail({
+    //     capacity: Number.parseInt(responseCarCapacity),
+    //     carName: responseCarName,
+    //     carNumber: registerNumber,
+    //     fuel: responseCarFuel,
+    //     mileage: Number.parseFloat(responseCarMileage),
+    //     type: '중형차', // 현재 외부 API에서 type에 해당하는 필드가 없음
+    //     year: Number.parseInt(responseCarYear),
+    //   });
 
-      setCarNumberConfirmed(true);
-    } else {
-      alert('등록번호로 조회에 실패하였습니다. 다시 시도해주세요.');
-    }
+    //   setCarNumberConfirmed(true);
+    // } else {
+    //   alert('등록번호로 조회에 실패하였습니다. 다시 시도해주세요.');
+    // }
+
+    setCarDetail({
+      capacity: 9,
+      carName: 'SM3',
+      carNumber: registerNumber,
+      fuel: '휘발유',
+      mileage: 12.3,
+      type: '중형차', // 현재 외부 API에서 type에 해당하는 필드가 없음
+      year: 2021,
+    });
+    setCarNumberConfirmed(true);
   };
 
   const onSubmitRequestCarRegister = async () => {
-    if (descriptionRef.current === null || feeRef.current === null) return;
+    if (feeRef.current === null) return;
     setFeeMessage(null);
     setImageMessage(null);
     setAddressMessage(null);
@@ -228,7 +239,10 @@ function HostRegister() {
       formFailed = true;
     }
 
-    if (position === null) formFailed = true;
+    if (position === null) {
+      setAddressMessage('차량 위치를 다시 입력해주세요.');
+      formFailed = true;
+    }
 
     if (formFailed) return;
 
@@ -248,7 +262,7 @@ function HostRegister() {
       formData.append('position.lat', position.lat);
       formData.append('position.lng', position.lng);
     }
-    formData.append('description', descriptionRef.current.value);
+    formData.append('description', description);
     formData.append('imageIndexes', Array.of(0, 1, 2, 3, 4).toString());
 
     let response: ResponseWithoutData;
@@ -312,7 +326,10 @@ function HostRegister() {
             <p className='mb-1 text-sm text-background-400'>{'차에 대한 부가 정보나, 차를 사용할 때 주의점을 적어주세요.'}</p>
             <div className='min-h-40 grow rounded-3xl bg-white p-5 shadow-lg'>
               <textarea
-                ref={descriptionRef}
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                }}
                 name='carAdditionalInfo'
                 placeholder='차량을 소중히 운전해주세요.'
                 className='h-full w-full resize-none placeholder:text-background-200 focus:outline-none'></textarea>
@@ -347,8 +364,12 @@ function HostRegister() {
                     onKeyDown={validateNumber}
                     onKeyUp={formatCurrency}
                     onSelect={formatCurrency}
-                    maxLength={20}
                     ref={feeRef}
+                    value={fee}
+                    onChange={(e) => {
+                      setFee(e.target.value);
+                    }}
+                    maxLength={20}
                     required
                   />
                   <p className='text-semibold min-w-16 text-lg text-background-400'>{'원 / 시간'}</p>
