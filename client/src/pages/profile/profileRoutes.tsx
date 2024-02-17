@@ -13,7 +13,7 @@ const profileRoutes: RouteObject[] = [
   {
     path: 'profile/:userId?',
     loader: async ({ params }: LoaderParams) => {
-      const userId = params.userId ?? '';
+      const userId = params.userId ?? localStorage.getItem("userId") ?? '';
       const [userResult, GuestReservationResult] = await Promise.allSettled([fetchUser(parseInt(userId)), fetchGuestReservations()]);
 
       if (userResult.status === 'rejected' || userResult.value === undefined) {
