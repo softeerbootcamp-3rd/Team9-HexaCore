@@ -132,18 +132,52 @@ public class ReservationService {
     }
 
     @Transactional
-    public void cancelReservation(Long hostUserId, Long reservationId) {
-        User hostUser = userRepository.findById(hostUserId)
+    public void updateReservationStatus(Long userId, Long reservationId, String status) {
+        ReservationStatus requestedStatus = ReservationStatus.getReservationStatus(status);
+
+        if (requestedStatus == ReservationStatus.NOT_FOUND) {
+            throw new GeneralException(ErrorCode.RESERVATION_STATUS_NOT_FOUND);
+        }
+
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        if (!reservation.getHost().getId().equals(hostUser.getId())) {
-            throw new GeneralException(ErrorCode.RESERVATION_CANCELED_BY_OTHERS);
+        ReservationStatus originStatus = reservation.getStatus();
+        boolean invalidUpdate = false;
+
+        // 호스트가 요청한 경우
+        if (reservation.getHost().getId().equals(user.getId())) {
+            // 예약 취소
+            if (originStatus == ReservationStatus.READY && requestedStatus == ReservationStatus.CANCEL) {
+                reservation.setStatus(requestedStatus);
+            }
+            // 반납 확인
+            else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
+                reservation.setStatus(requestedStatus);
+            } else {
+                invalidUpdate = true;
+            }
+        }
+        // 게스트가 요청한 경우
+        else if (reservation.getGuest().getId().equals(user.getId())) {
+            // 예약 취소 혹은 대여 시작
+            if (originStatus == ReservationStatus.READY &&
+                    (requestedStatus == ReservationStatus.CANCEL || requestedStatus == ReservationStatus.USING)) {
+                reservation.setStatus(requestedStatus);
+            } else {
+                invalidUpdate = true;
+            }
+        } else {
+            throw new GeneralException(ErrorCode.RESERVATION_STATUS_CHANGED_BY_OTHERS);
+        }
+        if (invalidUpdate) {
+            throw new GeneralException(ErrorCode.RESERVATION_STATUS_INVALID_CHANGE);
         }
 
-        reservation.setStatus(ReservationStatus.CANCEL);
+        reservation.setStatus(requestedStatus);
         reservationRepository.save(reservation);
     }
 
