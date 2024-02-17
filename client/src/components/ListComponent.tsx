@@ -1,5 +1,4 @@
 import Button from './Button';
-import { useEffect } from 'react';
 import { ReservationStatus } from '@/fetches/reservations/Reservation.type';
 
 type ButtonType = 'disabled' | 'enabled' | 'danger';
