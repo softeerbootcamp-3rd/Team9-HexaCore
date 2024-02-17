@@ -39,12 +39,9 @@ const hostsRoutes: RouteObject[] = [
     path: 'hosts/register',
     element: <HostRegister />,
     loader: async () => {
+      // fetchUser(NaN)이면 로그인한 사용자의 정보를 받아온다.
       const response = await fetchUser(NaN);
-
-      if (response === undefined || response.success === false) {
-        location.href = '/auth/login';
-        return;
-      }
+      if (response === undefined) throw Error('예기치 못한 오류가 발생했습니다.');
 
       const carResponse = await fetchCarDetail();
       const isUpdate: boolean = carResponse?.success ?? false;
