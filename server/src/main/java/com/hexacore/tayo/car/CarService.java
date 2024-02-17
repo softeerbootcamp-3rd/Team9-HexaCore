@@ -161,14 +161,15 @@ public class CarService {
             throw new GeneralException(ErrorCode.CAR_HAVE_ACTIVE_RESERVATIONS);
         }
 
-        // 차량 isDeleted = true
+        // 차량 삭제: isDeleted = true
         car.setIsDeleted(true);
         carRepository.save(car);
 
-        // 이미지 isDeleted = true
+        // 이미지 삭제
         carImageRepository.findByCar_Id(car.getId()).forEach((image) -> {
-            image.setIsDeleted(true);
-            carImageRepository.save(image);
+            // s3 버킷 객체 삭제
+            s3Manager.deleteImage(image.getUrl());
+            carImageRepository.delete(image);
         });
     }
 
