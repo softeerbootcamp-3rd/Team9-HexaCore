@@ -4,7 +4,7 @@ import com.hexacore.tayo.car.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
@@ -73,16 +73,15 @@ public class ReservationService {
     public GetGuestReservationListResponseDto getGuestReservations(Long guestUserId) {
         List<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId);
         List<GetGuestReservationResponseDto> getGuestReservationResponseDtos = new ArrayList<>();
-
         for (Reservation reservation : reservations) {
             Car car = reservation.getCar();
             List<CarImage> images = car.getCarImages();
-            SubCategory subCategory = car.getSubCategory();
+            Subcategory subcategory = car.getSubcategory();
             User host = car.getOwner();
 
             GetCarSimpleResponseDto getCarSimpleResponseDto = GetCarSimpleResponseDto.builder()
                     .id(car.getId())
-                    .name(subCategory.getName())
+                    .name(subcategory.getName())
                     .imageUrl(images.get(0).getUrl()) // 대표 이미지 1장
                     .build();
 
@@ -164,8 +163,8 @@ public class ReservationService {
             LocalDate startDate = carDateRange.getStartDate();
             LocalDate endDate = carDateRange.getEndDate();
 
-            if (!localDateInclusiveAfter(endDate, returnDateTime.toLocalDate()) ||
-                    !localDateInclusiveBefore(startDate, rentDateTime.toLocalDate())) {
+            // 포함되는 예약 가능 구간을 찾을 때 까지는 continue;
+            if (startDate.isAfter(rentDateTime.toLocalDate()) || endDate.isBefore(rentDateTime.toLocalDate())) {
                 continue;
             }
 
@@ -179,13 +178,5 @@ public class ReservationService {
             return;
         }
         throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
-    }
-
-    private boolean localDateInclusiveBefore(LocalDate startDate, LocalDate rentDate) {
-        return startDate.isEqual(rentDate) || startDate.isBefore(rentDate);
-    }
-
-    private boolean localDateInclusiveAfter(LocalDate endDate, LocalDate returnDate) {
-        return endDate.isEqual(returnDate) || endDate.isAfter(returnDate);
     }
 }

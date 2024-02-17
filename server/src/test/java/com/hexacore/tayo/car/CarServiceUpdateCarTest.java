@@ -1,22 +1,19 @@
 package com.hexacore.tayo.car;
 
-import static org.awaitility.Awaitility.given;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-import com.hexacore.tayo.car.dto.CreatePositionRequestDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.FuelType;
 import com.hexacore.tayo.category.model.Category;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
+import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
@@ -48,8 +45,8 @@ public class CarServiceUpdateCarTest {
     private CarService carService;
 
     User user = new User(1L, "jomualgy988@gmail.com", "1234", "김지훈", "010-4825-9803", null, null, false);
-    Category category = new Category(1L, "i30");
-    SubCategory subCategory = new SubCategory(1L, "i30 (PD)", category);
+    Category category = Category.builder().id(1L).name("i30").build();
+    Subcategory subCategory = new Subcategory(1L, "i30 (PD)", category);
     GeometryFactory geometryFactory = new GeometryFactory();
     Coordinate coordinate = new Coordinate(120.0, 30.0);
     Point point = geometryFactory.createPoint(coordinate);
@@ -60,7 +57,7 @@ public class CarServiceUpdateCarTest {
             new CarImage(3L, car, "filename3.png", 2, false),
             new CarImage(4L, car, "filename4.png", 3, false),
             new CarImage(5L, car, "filename5.png", 4, false));
-    CreatePositionRequestDto position = new CreatePositionRequestDto(23.4, 32.4);
+    Position position = new Position(23.4, 32.4);
 
     @Test
     @DisplayName("차량 수정 성공")

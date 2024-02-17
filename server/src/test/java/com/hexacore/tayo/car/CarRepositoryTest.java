@@ -3,9 +3,10 @@ package com.hexacore.tayo.car;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.category.CategoryRepository;
-import com.hexacore.tayo.category.SubCategoryRepository;
+import com.hexacore.tayo.category.SubcategoryRepository;
 import com.hexacore.tayo.category.model.Category;
-import com.hexacore.tayo.category.model.SubCategory;
+import com.hexacore.tayo.category.model.Subcategory;
+import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.model.User;
 import java.util.List;
@@ -14,8 +15,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -31,10 +30,10 @@ public class CarRepositoryTest {
     @Autowired
     private CategoryRepository categoryRepository;
     @Autowired
-    private SubCategoryRepository subCategoryRepository;
+    private SubcategoryRepository subcategoryRepository;
 
     private User user;
-    private SubCategory subCategory;
+    private Subcategory subcategory;
 
     @BeforeEach
     void createUserAndModel() {
@@ -44,10 +43,10 @@ public class CarRepositoryTest {
                         .build());
         Category category = categoryRepository.save(
                 Category.builder().name("모델명").build());
-        SubCategory subCategory = subCategoryRepository.save(
-                SubCategory.builder().name("모델명 세부모델명").category(category).build());
+        Subcategory subcategory = subcategoryRepository.save(
+                Subcategory.builder().name("모델명 세부모델명").category(category).build());
         this.user = user;
-        this.subCategory = subCategory;
+        this.subcategory = subcategory;
     }
 
     @Test
@@ -56,9 +55,9 @@ public class CarRepositoryTest {
         // given
         String carNumber = "11주 1111";
         carRepository.save(
-                Car.builder().owner(user).subCategory(subCategory).carNumber(carNumber).type(CarType.LIGHT).capacity(2)
+                Car.builder().owner(user).subcategory(subcategory).carNumber(carNumber).type(CarType.LIGHT).capacity(2)
                         .address("경기도 테스트 주소")
-                        .feePerHour(1000).position(new GeometryFactory().createPoint(new Coordinate(10.0, 10.0)))
+                        .feePerHour(1000).position((new Position(10.0, 10.0)).toPoint())
                         .isDeleted(true).build());
 
         // when
@@ -76,9 +75,9 @@ public class CarRepositoryTest {
     void findByOwner_IdAndIsDeletedFalse() {
         // given
         carRepository.save(
-                Car.builder().owner(user).subCategory(subCategory).carNumber("11주 1111").type(CarType.LIGHT).capacity(2)
+                Car.builder().owner(user).subcategory(subcategory).carNumber("11주 1111").type(CarType.LIGHT).capacity(2)
                         .address("경기도 테스트 주소")
-                        .feePerHour(1000).position(new GeometryFactory().createPoint(new Coordinate(10.0, 10.0)))
+                        .feePerHour(1000).position((new Position(10.0, 10.0)).toPoint())
                         .isDeleted(false).build());
 
         // when
@@ -96,9 +95,9 @@ public class CarRepositoryTest {
         // given
         String carNumber = "11주 1111";
         carRepository.save(
-                Car.builder().owner(user).subCategory(subCategory).carNumber(carNumber).type(CarType.LIGHT).capacity(2)
+                Car.builder().owner(user).subcategory(subcategory).carNumber(carNumber).type(CarType.LIGHT).capacity(2)
                         .address("경기도 테스트 주소")
-                        .feePerHour(1000).position(new GeometryFactory().createPoint(new Coordinate(10.0, 10.0)))
+                        .feePerHour(1000).position((new Position(10.0, 10.0)).toPoint())
                         .isDeleted(false).build());
 
         // when
