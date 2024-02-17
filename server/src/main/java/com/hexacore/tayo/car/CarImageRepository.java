@@ -10,9 +10,7 @@ public interface CarImageRepository extends JpaRepository<CarImage, Long> {
 
     List<CarImage> findByCar_Id(Long carId);
 
-    List<CarImage> findAllByCar_IdAndIsDeletedFalseOrderByOrderIdxAsc(Long carId);
-
-    Optional<CarImage> findByCar_IdAndOrderIdxAndIsDeletedFalse(Long carId, Integer orderIdx);
+    Optional<CarImage> findByCar_IdAndOrderIdx(Long carId, Integer orderIdx);
 
     boolean existsByCar_Id(Long carId);
 
