@@ -71,7 +71,7 @@ public class GetCarResponseDto {
         this.feePerHour = car.getFeePerHour();
         this.address = car.getAddress();
         this.description = car.getDescription();
-        this.carDateRanges = getCarAvailableDates(car.getCarDateRanges());
+        this.carDateRanges = getCarAvailableDates(car);
         this.host = new GetUserSimpleResponseDto(car.getOwner());
     }
 
@@ -79,16 +79,22 @@ public class GetCarResponseDto {
         return new GetCarResponseDto(car);
     }
 
-    private List<List<String>> getCarAvailableDates(List<CarDateRange> CarDateRanges) {
+    private List<List<String>> getCarAvailableDates(Car car) {
         List<List<String>> carAvailableDates = new ArrayList<>();
-        for (CarDateRange carDateRange : CarDateRanges) {
+        List<Reservation> sortedReservations = car.getReservations().stream()
+                .filter((reservation -> reservation.getStatus() != ReservationStatus.CANCEL))
+                .sorted(Comparator.comparing(Reservation::getRentDateTime))
+                .toList();
+
+        for (CarDateRange carDateRange : car.getCarDateRanges()) {
             LocalDate start = carDateRange.getStartDate();
             LocalDate end;
-            List<Reservation> sortedReservations = carDateRange.getReservations().stream()
-                    .filter((reservation -> reservation.getStatus() != ReservationStatus.CANCEL))
-                    .sorted(Comparator.comparing(Reservation::getRentDateTime))
-                    .toList();
+
             for (Reservation reservation : sortedReservations) {
+                if (reservation.getRentDateTime().toLocalDate().isAfter(carDateRange.getEndDate())
+                        || reservation.getReturnDateTime().toLocalDate().isBefore(carDateRange.getStartDate())) {
+                    continue;
+                }
                 end = reservation.getRentDateTime().toLocalDate().minusDays(1);
                 if (!start.isAfter(end)) {
                     carAvailableDates.add(List.of(start.toString(), end.toString()));
