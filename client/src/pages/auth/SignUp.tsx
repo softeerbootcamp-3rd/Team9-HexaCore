@@ -6,7 +6,7 @@ import { server } from "@/fetches/common/axios";
 import { useNavigate } from 'react-router-dom';
 
 const emailPattern: RegExp = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
-// const passwordPattern: RegExp = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+const passwordPattern: RegExp = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
 const phoneNumberPattern: RegExp = /^\d{3}-\d{4}-\d{4}$/;
 
 function SignUp() {
@@ -61,14 +61,13 @@ function SignUp() {
         
       } else {
         // 에러 메세지 띄우기
-        setEmailInputErr(response.message);
+        setPhoneInputErr(response.message);
       }
     }
   };
 
-  const setEmailInputErr = (errorMsg: string): void => {
-    setIsWrongEmail(true)
-    setEmailErr(errorMsg);
+  const setPhoneInputErr = (errorMsg: string): void => {
+    setPhoneErr(errorMsg);
   }
 
   // 이메일 형식에 맞는지 확인
@@ -85,16 +84,14 @@ function SignUp() {
 
   // 비밀번호 형식에 맞는지 확인
   const checkPwd = (pwd: string): boolean => {
-    // if (!passwordPattern.test(pwd)) {
-    if (pwd === "") {
-      setIsWrongPassword(true)
-      // setPwdErr("영어, 숫자, 기호 포함 길이 6이상 입력해주세요");
-      setPwdErr("비밀번호를 입력해주세요.");
-      return false;
+    if (passwordPattern.test(pwd)) {
+      setIsWrongPassword(false)
+      setPwdErr("");
+      return true;
     }
-    setIsWrongPassword(false)
-    setPwdErr("");
-    return true;
+    setIsWrongPassword(true)
+      setPwdErr("영어, 숫자, 기호 포함 길이 6이상 입력해주세요");
+    return false;
   }
 
   // 이름 입력했는지 확인
