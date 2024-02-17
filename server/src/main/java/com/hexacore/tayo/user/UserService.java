@@ -48,13 +48,14 @@ public class UserService {
         return getUserInfo(user);
     }
 
-    public GetCarResponseDto getUserCar(Long userId) {
-        User user = userRepository.getById(userId);
-        if (user.getCar() == null) {
-            throw new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS);
-        }
-        return GetCarResponseDto.of(user.getCar());
-    }
+    // TODO: #138 이슈
+//    public GetCarResponseDto getUserCar(Long userId) {
+//        User user = userRepository.getById(userId);
+//        if (user.getCar() == null) {
+//            throw new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS);
+//        }
+//        return GetCarResponseDto.of(user.getCar());
+//    }
 
     private GetUserInfoResponseDto getUserInfo(User user) {
         return GetUserInfoResponseDto.builder()

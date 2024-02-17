@@ -30,7 +30,7 @@ public class Car extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
