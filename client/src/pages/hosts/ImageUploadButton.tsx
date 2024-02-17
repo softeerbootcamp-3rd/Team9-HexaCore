@@ -5,9 +5,11 @@ type Props = {
   onImageChange: (image: File) => void;
 };
 
+const DEFAULT_IMAGE_URL = '/form-image-add.png';
+
 function ImageUploadButton({ className = '', onImageChange }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>('/form-image-add.png'); // 기본 이미지
+  const [previewUrl, setPreviewUrl] = useState<string>(DEFAULT_IMAGE_URL); // 기본 이미지
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files === null) return;
@@ -29,9 +31,9 @@ function ImageUploadButton({ className = '', onImageChange }: Props) {
   };
 
   return (
-    <div className={`flex cursor-pointer items-center justify-center rounded-2xl h-full w-full ${className}`}>
-      <img src={previewUrl} alt="Preview" className="h-full w-full rounded-2xl shadow-lg bg-white object-contain" onClick={handleUploadClick} />
-      <input type="file" accept="image/png, image/jpeg" className="hidden" ref={inputRef} onChange={handleImageChange} />
+    <div className={`flex h-full w-full cursor-pointer items-center justify-center rounded-2xl ${className}`}>
+      <img src={previewUrl} alt='Preview' className='h-full w-full rounded-2xl bg-white object-contain shadow-lg' onClick={handleUploadClick} />
+      <input type='file' accept='image/png, image/jpeg' className='hidden' ref={inputRef} onChange={handleImageChange} />
     </div>
   );
 }
