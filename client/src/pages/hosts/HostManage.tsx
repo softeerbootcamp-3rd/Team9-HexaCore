@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
 import Button from '@/components/Button';
@@ -9,7 +9,7 @@ import { HostManageLoaderData } from './hostsRoutes';
 import { TargetType } from '@/components/ListComponent';
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
-import ImageGallery from '../../components/ImageGallery';
+import ImageGallery from '@/components/ImageGallery';
 
 
 const TABS = ['calendar', 'reservation'] as const;
