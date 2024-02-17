@@ -188,9 +188,22 @@ public class CarService {
                 List.of(ReservationStatus.USING, ReservationStatus.READY)
         );
 
-        for (Reservation reservation : reservations) {
-            // N개의 예약과 M개의 DateRange를 비교한다.
-            if (!isReservationValidInDateRanges(reservation, sortedCarDateRanges)) {
+        int reservationIdx = 0, dateRangeIdx = 0;
+        while (dateRangeIdx < sortedCarDateRanges.size() && reservationIdx < reservations.size()) {
+            CarDateRangeDto dateRange = sortedCarDateRanges.get(dateRangeIdx);
+            Reservation reservation = reservations.get(reservationIdx);
+            LocalDate dateRangeStartDate = dateRange.getStartDate();
+            LocalDate dateRangeEndDate = dateRange.getEndDate();
+            LocalDate reservationStartDate = reservation.getRentDateTime().toLocalDate();
+            LocalDate reservationEndDate = reservation.getReturnDateTime().toLocalDate();
+
+            // dateRangeStartDate <= reservationStartDate <= reservationEndDate <= dateRangeEndDate
+            if (!dateRangeStartDate.isAfter(reservationStartDate) // 예약 가능한 구간에 예약이 포함하면 다음 예약 확인
+                    && !reservationEndDate.isAfter(dateRangeEndDate)) {
+                reservationIdx++;
+            } else if (reservationStartDate.isAfter(dateRangeEndDate)) { // 다음 예약 가능한 구간 확인
+                dateRangeIdx++;
+            } else {
                 throw new GeneralException(ErrorCode.CAR_DATE_RANGE_ALREADY_HAS_RESERVATIONS);
             }
         }
@@ -315,16 +328,5 @@ public class CarService {
 
         result.add(new CarDateRangeDto(currentCarDateRange));
         return result;
-    }
-
-    private Boolean isReservationValidInDateRanges(Reservation reservation, List<CarDateRangeDto> carDateRanges) {
-        LocalDate rentDate = reservation.getRentDateTime().toLocalDate();
-        LocalDate returnDate = reservation.getReturnDateTime().toLocalDate();
-
-        // startDate <= rentDate <= returnDate <= endDate
-        return carDateRanges
-                .stream().anyMatch(dateRange ->
-                        !dateRange.getStartDate().isAfter(rentDate)
-                                && !dateRange.getEndDate().isBefore(returnDate));
     }
 }
