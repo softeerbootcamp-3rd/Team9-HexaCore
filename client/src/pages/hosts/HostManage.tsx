@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
 import Button from '@/components/Button';
@@ -19,10 +19,9 @@ function HostManage() {
   const navigate = useNavigate();
   const { carDetail, hostReservations } = useLoaderData() as HostManageLoaderData;
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
-  if(carDetail === null){
-    alert("등록된 차량이 없습니다.")
+  if (!carDetail) { 
     return;
-  }
+ }
   const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
 
   const editCar = () => {
@@ -32,22 +31,22 @@ function HostManage() {
   const deleteCar = async () => {
     const response = await server.delete<ResponseWithoutData>('/cars/' + carDetail.id, {});
     if (response.success) {
-      alert('차량 삭제가 완료되었습니다.');
       location.reload();
-    } else {
-      alert('차량 삭제를 실패했습니다.');
-    }
+    } 
   };
-
-  if (carDetail === null) {
-    navigate('/hosts/register');
+  const updateDates = async () => {
+    await server.put<ResponseWithoutData>('/cars/' + carDetail?.id + '/date', {
+      data: {
+        dates: availableDates,
+      }
+    })
   }
-
   //
   const handleTabSelect = (tab: TabType) => {
     setSelectedTab(tab);
   };
 
+  
   // 선택된 탭에 따라 해당 컴포넌트 렌더링
   const renderSelectedComponent = () => {
     const reservations = hostReservations.map((reservation) => reservation.rentPeriod);
@@ -56,8 +55,12 @@ function HostManage() {
       case 'calendar':
         return (
           <div className='rounded-xl bg-white p-8'>
-            <div>
+            <div className=''>
               <HostCalendar size='large' availableDates={availableDates} onAvailableDatesChange={setAvailableDates} reservations={reservations} />
+              <div className='flex justify-end'>
+                <Button text = "저장" onClick={updateDates}></Button>
+              </div>
+              
             </div>
           </div>
         );
