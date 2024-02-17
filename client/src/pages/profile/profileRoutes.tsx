@@ -9,26 +9,38 @@ interface LoaderParams {
   };
 }
 
+type ProfileLoaderData = {
+  user: ReturnType<typeof parseUser> | undefined;
+  reservations: ReturnType<typeof parseGuestReservations>;
+};
+
 const profileRoutes: RouteObject[] = [
   {
     path: 'profile/:userId?',
     loader: async ({ params }: LoaderParams) => {
       const userId = params.userId ?? '';
       const [userResult, GuestReservationResult] = await Promise.allSettled([fetchUser(parseInt(userId)), fetchGuestReservations()]);
-
-      if (userResult.status === 'rejected' || userResult.value === undefined) {
-        throw new Error('사용자 정보를 불러오는데 실패했습니다');
-      } else if (GuestReservationResult.status === 'rejected' || GuestReservationResult.value === undefined) {
-        throw new Error('예약 정보를 불러오는데 실패했습니다');
-      } else {
-        const user = parseUser(userResult.value.data);
-        const reservations = parseGuestReservations(GuestReservationResult.value.data);
-
-        return {
-          user: user,
-          reservations: reservations,
-        };
+      var data: ProfileLoaderData = {
+        user: undefined,
+        reservations: []
       }
+      if (userResult.status == 'fulfilled' && userResult.value != undefined){
+        if(userResult.value.code === 200){
+          data.user = parseUser(userResult.value.data);
+        } else if(userResult.value.code === 403){
+          location.href = "/auth/login";
+        }
+        else{
+          throw Error("예기치 못한 오류가 발생했습니다.")
+        }
+      }
+      else{
+
+      }
+      if (GuestReservationResult.status === 'fulfilled' && GuestReservationResult.value !== undefined) {
+        data.reservations = parseGuestReservations(GuestReservationResult.value.data);
+      }
+      return data;
     },
     element: <Profile />,
   },
