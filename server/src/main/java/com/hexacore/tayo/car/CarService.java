@@ -22,9 +22,11 @@ import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -285,18 +287,11 @@ public class CarService {
             }
         }
 
-        // dateRanges를 정렬한다.
-        dateRanges.sort((dateRange1, dateRange2) -> {
-            LocalDate startDate1 = dateRange1.get(0);
-            LocalDate endDate1 = dateRange1.get(1);
+        Function<List<LocalDate>, LocalDate> firstSort = dateRange -> dateRange.get(0);
+        Function<List<LocalDate>, LocalDate> secondSort = dateRange -> dateRange.get(1);
 
-            LocalDate startDate2 = dateRange2.get(0);
-            LocalDate endDate2 = dateRange2.get(1);
-            if (startDate1.isEqual(startDate2)) {
-                return endDate1.compareTo(endDate2);
-            }
-            return startDate1.compareTo(startDate2);
-        });
+        dateRanges.sort(Comparator.comparing(firstSort)
+                .thenComparing(secondSort));
 
         List<CarDateRangeDto> result = new ArrayList<>();
         List<LocalDate> currentCarDateRange = dateRanges.get(0);
@@ -306,8 +301,7 @@ public class CarService {
             LocalDate currentEndDate = currentCarDateRange.get(1);
             LocalDate nextStartDate = nextCarDateRange.get(0);
             LocalDate nextEndDate = nextCarDateRange.get(1);
-            if (currentEndDate.isEqual(nextStartDate)
-                    || currentEndDate.isAfter(nextStartDate)) {
+            if (!currentEndDate.isBefore(nextStartDate)) {
                 throw new GeneralException(ErrorCode.INVALID_CAR_DATE_RANGE_DUPLICATED);
             }
 
@@ -330,9 +324,7 @@ public class CarService {
         // startDate <= rentDate <= returnDate <= endDate
         return carDateRanges
                 .stream().anyMatch(dateRange ->
-                        (dateRange.getStartDate().isBefore(rentDate)
-                                || dateRange.getStartDate().isEqual(rentDate))
-                                && (dateRange.getEndDate().isAfter(returnDate)
-                                || dateRange.getEndDate().isEqual(returnDate)));
+                        !dateRange.getStartDate().isAfter(rentDate)
+                                && !dateRange.getEndDate().isBefore(returnDate));
     }
 }
