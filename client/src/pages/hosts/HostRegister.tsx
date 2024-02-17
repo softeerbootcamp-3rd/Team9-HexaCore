@@ -2,11 +2,12 @@ import Button from '@/components/Button';
 import TitledBlock from '@/components/TitledBlock';
 import ImageUploadButton from '@/pages/hosts/ImageUploadButton';
 import { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLoaderData, useNavigate } from 'react-router-dom';
 import AddressButton from './AddressButton';
 import { server } from '@/fetches/common/axios';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
 import axios from 'axios';
+import { CarDetailJsonData } from '@/fetches/cars/cars.type';
 
 const GET_CAR_INFO_API_URL = 'https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry';
 
@@ -28,6 +29,12 @@ type CarDetailByApi = {
   year: number;
 };
 
+type loaderData = {
+  username: string;
+  isUpdate: boolean;
+  carDetail: CarDetailJsonData | undefined;
+};
+
 type positionLatLng = {
   lat: string;
   lng: string;
@@ -45,6 +52,30 @@ function HostRegister() {
   const [addressMessage, setAddressMessage] = useState<string | null>(null);
   const feeRef = useRef<HTMLInputElement>(null);
   const navigator = useNavigate();
+  const userCarInfo = useLoaderData() as loaderData;
+
+  // 만약 수정에 대한 사항이라면 차량 번호 조회 페이지를 생략한다.
+  useEffect(() => {
+    if (userCarInfo.isUpdate && userCarInfo.carDetail) {
+      const carDetail = userCarInfo.carDetail;
+      setAddress(carDetail.address);
+
+      if (descriptionRef.current) descriptionRef.current.value = carDetail.description;
+      if (feeRef.current) feeRef.current.value = carDetail.feePerHour.toLocaleString('ko-KR');
+
+      setCarDetail({
+        capacity: carDetail.capacity,
+        carName: carDetail.carName,
+        carNumber: carDetail.carNumber,
+        fuel: carDetail.fuel,
+        mileage: carDetail.mileage,
+        type: carDetail.type,
+        year: carDetail.year,
+      });
+
+      setCarNumberConfirmed(true);
+    }
+  }, []);
 
   // 주소의 변경시 좌표 API를 호출하여 결과를 가진다.
   useEffect(() => {
@@ -109,7 +140,6 @@ function HostRegister() {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-
     const registerNumber = formData.get('REGINUMBER')?.toString();
 
     if (registerNumber === undefined || registerNumber === '') {
@@ -118,13 +148,13 @@ function HostRegister() {
     }
 
     if (!registerNumber.match(/^[0-9]{2,3}[가-힣][0-9]{4}$/g)) {
-      alert('차량번호의 형식이 아닙니다');
+      alert('차량번호의 형식이 아닙니다.');
       return;
     }
 
     const response = await axios.post(
       GET_CAR_INFO_API_URL,
-      { REGINUMBER: registerNumber, OWNERNAME: '' },
+      { REGINUMBER: registerNumber, OWNERNAME: userCarInfo.username },
       { headers: { Authorization: `Token ${import.meta.env.VITE_CAR_INFO_API_TOKEN}` } },
     );
 
@@ -152,7 +182,6 @@ function HostRegister() {
     } else {
       alert('등록번호로 조회에 실패하였습니다. 다시 시도해주세요.');
     }
-    setCarNumberConfirmed(true);
   };
 
   const onSubmitRequestCarRegister = async () => {
@@ -203,13 +232,16 @@ function HostRegister() {
 
     if (formFailed) return;
 
-    formData.append('carName', carDetail.carName);
-    formData.append('carNumber', carDetail.carNumber);
-    formData.append('mileage', carDetail.mileage.toString());
-    formData.append('fuel', carDetail.fuel);
-    formData.append('type', '중형차');
-    formData.append('capacity', carDetail.capacity.toString());
-    formData.append('year', carDetail.year.toString());
+    if (!userCarInfo.isUpdate) {
+      // 차량 등록에 경우에만 해당 정보를 입력한다.
+      formData.append('carName', carDetail.carName);
+      formData.append('carNumber', carDetail.carNumber);
+      formData.append('mileage', carDetail.mileage.toString());
+      formData.append('fuel', carDetail.fuel);
+      formData.append('type', '중형차');
+      formData.append('capacity', carDetail.capacity.toString());
+      formData.append('year', carDetail.year.toString());
+    }
     formData.append('feePerHour', feeValue.toString());
     formData.append('address', address);
     if (position) {
@@ -219,12 +251,19 @@ function HostRegister() {
     formData.append('description', descriptionRef.current.value);
     formData.append('imageIndexes', Array.of(0, 1, 2, 3, 4).toString());
 
-    const response = await server.post<ResponseWithoutData>('/cars', {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      data: formData,
-    });
+    let response: ResponseWithoutData;
+
+    if (userCarInfo.isUpdate) {
+      response = await server.put(`/cars/${userCarInfo.carDetail?.id}`, {
+        data: formData,
+      });
+    } else
+      response = await server.post<ResponseWithoutData>('/cars', {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        data: formData,
+      });
 
     if (!response.success) {
       alert('차량 등록에 실패하였습니다. 다시 시도해 주세요.');
