@@ -90,7 +90,7 @@ function SignUp() {
       return true;
     }
     setIsWrongPassword(true)
-      setPwdErr("영어, 숫자, 기호 포함 길이 6이상 입력해주세요");
+    setPwdErr("영어, 숫자, 기호 포함 길이 6이상 입력해주세요");
     return false;
   }
 
