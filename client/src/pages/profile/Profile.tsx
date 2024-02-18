@@ -7,6 +7,7 @@ import { useLoaderData } from 'react-router';
 import ListComponent from '@/components/ListComponent';
 import PhoneIcon from '@/components/svgs/PhoneIcon';
 import MailIcon from '@/components/svgs/MailIcon';
+import { deleteUser } from '@/fetches/auth/fetchAuth';
 
 function Profile() {
   const data = useLoaderData() as { user: UserData; reservations: ReservationData[] };
@@ -103,7 +104,7 @@ function Profile() {
               <Button
                 text='탈퇴'
                 className='ml-5 flex h-8 w-1/6 items-center justify-center whitespace-nowrap text-xs xl:text-sm rounded-xl'
-                onClick={editProfile}
+                onClick={deleteUser}
                 type='danger'>
               </Button>
             </div>
