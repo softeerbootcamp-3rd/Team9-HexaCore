@@ -1,10 +1,11 @@
 import { DateRange } from '@/components/calendar/calendar.core';
 
 export const reservationStatus = {
-  CANCEL:'CANCEL',
-  READY:'READY',
-  USING: 'USING',
-  TERMINATED: 'TERMINATED'
+  CANCEL:'cancel',
+  READY:'ready',
+  USING: 'using',
+  TERMINATED: 'terminated',
+  UNDEFINED: undefined
 } as const
 export type ReservationStatus = keyof typeof reservationStatus
 
@@ -15,5 +16,4 @@ export type ReservationData = {
   rentFee: number;
   rentStatus: ReservationStatus;
   address: string;
-  status: ReservationData;
 };
