@@ -34,10 +34,13 @@ export const parseUser = (userResponseRaw: UserResponse): UserData => {
 	} as UserData;
 };
 
-export const fetchUserCustomerKey = async (): Promise<string> => {
+export const fetchUserCustomerKey = async (): Promise<UserCustomerKeyResponse> => {
   const response = await server.get<ResponseWithData<UserCustomerKeyResponse>>('/users/customerKey');
   if (!response || !response.success) {
-    return '';
+    return {
+      customerKey: '',
+      name: ''
+    };
   }
-  return response.data.customerKey;
+  return response.data;
 }

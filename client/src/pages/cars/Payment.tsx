@@ -10,11 +10,13 @@ import { useCustomToast } from '@/components/Toast';
 type PaymentProps = {
   price: number;
   customerKey: string;
+  userName: string;
+  orderName: string;
   reservationData: ReservationData;
   onClose: () => void;
 };
 
-function Payment({ price, customerKey, reservationData, onClose }: PaymentProps) {
+function Payment({ price, customerKey, userName, orderName, reservationData, onClose }: PaymentProps) {
   const navigate = useNavigate();
   const paymentWidgetRef = useRef<PaymentWidgetInstance | null>(null);
   const paymentMethodsWidgetRef = useRef<ReturnType<PaymentWidgetInstance['renderPaymentMethods']> | null>(null);
@@ -48,8 +50,8 @@ function Payment({ price, customerKey, reservationData, onClose }: PaymentProps)
     await paymentWidget
       ?.requestPayment({
         orderId: crypto.randomUUID(),
-        orderName: 'orderName',
-        customerName: 'user name',
+        orderName: orderName,
+        customerName: userName,
       })
       .then(async (data) => {
         setIsPending(true);

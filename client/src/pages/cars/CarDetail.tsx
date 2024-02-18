@@ -37,6 +37,7 @@ function CarDetail() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [reservationData, setReservationData] = useState<ReservationData | null>(null);
   const [customerKey, setCustomerKey] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
 
   // 가격 계산 함수
   const calculatePrice = (dateRange: DateRange) => {
@@ -123,8 +124,9 @@ function CarDetail() {
     setReservationData(reservationData);
 
     // 결제 모달창 호출
-    const customerKey = await fetchUserCustomerKey();
+    const { customerKey, name } = await fetchUserCustomerKey();
     setCustomerKey(customerKey);
+    setUserName(name);
     setIsOpen(true);
   };
 
@@ -251,8 +253,15 @@ function CarDetail() {
           {isOpen &&
             reservationData &&
             customerKey &&
+            userName &&
             createPortal(
-              <Payment price={totalFee} customerKey={customerKey} reservationData={reservationData} onClose={() => setIsOpen(false)}></Payment>,
+              <Payment
+                price={totalFee}
+                customerKey={customerKey}
+                userName={userName}
+                orderName={`${data.carNumber}:${reservationData.rentDateTime}-${reservationData.returnDateTime}`}
+                reservationData={reservationData}
+                onClose={() => setIsOpen(false)}></Payment>,
               document.body,
             )}
         </div>
