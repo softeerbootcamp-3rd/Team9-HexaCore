@@ -8,7 +8,7 @@ import org.hibernate.validator.constraints.Range;
 
 @Getter
 @AllArgsConstructor
-public class CreateReviewForCarRequestDto {
+public class CreateReviewRequestDto {
 
     @NotNull(message = "reservationId가 null 이어서는 안됩니다.")
     private Long reservationId;
