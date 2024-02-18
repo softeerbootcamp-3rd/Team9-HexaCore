@@ -2,7 +2,7 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
-import com.hexacore.tayo.car.dto.SearchCarsParamsDto;
+import com.hexacore.tayo.car.dto.SearchCarsDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
@@ -31,7 +31,6 @@ import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -116,9 +115,8 @@ public class CarService {
         }
     }
 
-    public Page<Car> searchCars(SearchCarsParamsDto searchCarsParamsDto, Pageable pageable) {
-        Specification<Car> searchSpec = CarSpecifications.searchCars(searchCarsParamsDto);
-        return carRepository.findAll(searchSpec, pageable);
+    public Page<Car> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
+        return carRepository.search(searchCarsDto, pageable);
     }
 
     /* 차량 정보 조회 */
