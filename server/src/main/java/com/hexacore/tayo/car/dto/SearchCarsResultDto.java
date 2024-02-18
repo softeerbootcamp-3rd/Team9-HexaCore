@@ -7,6 +7,7 @@ import lombok.Getter;
 @Builder
 @Getter
 public class SearchCarsResultDto {
+
     private final Long id;
     private final String subcategory;
     private final String imageUrl;
@@ -25,5 +26,18 @@ public class SearchCarsResultDto {
                 .capacity(car.getCapacity())
                 .feePerHour(car.getFeePerHour())
                 .build();
+    }
+
+    @Override
+    public String toString() {
+        return "SearchCarsResultDto{"
+                + "id=" + id
+                + ", subcategory='" + subcategory + '\''
+                + ", imageUrl='" + imageUrl + '\''
+                + ", address='" + address + '\''
+                + ", mileage=" + mileage
+                + ", capacity=" + capacity
+                + ", feePerHour=" + feePerHour
+                + '}';
     }
 }

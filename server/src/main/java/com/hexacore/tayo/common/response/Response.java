@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 @Getter
 @RequiredArgsConstructor
 public class Response {
+
     private final Boolean success;
     private final Integer code;
     private final String message;
@@ -58,6 +59,17 @@ public class Response {
                                 page.getTotalPages()), page.getContent()),
                 status
         );
+    }
+
+    @Override
+    public String toString() {
+        return "Response{"
+                + "success=" + success
+                + ", code=" + code
+                + ", message='" + message + '\''
+                + ", pageInfo=" + pageInfo
+                + ", data=" + data
+                + '}';
     }
 }
 

@@ -10,4 +10,11 @@ public class GetTokenResponseDto {
     private String accessToken;
     private String refreshToken;
 
+    @Override
+    public String toString() {
+        return "GetTokenResponseDto{"
+                + "accessToken='" + accessToken + '\''
+                + ", refreshToken='" + refreshToken + '\''
+                + '}';
+    }
 }

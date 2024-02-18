@@ -109,4 +109,22 @@ public class GetCarResponseDto {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public String toString() {
+        return "GetCarResponseDto{"
+                + "id=" + id
+                + ", host=" + host
+                + ", carName='" + carName + '\''
+                + ", carNumber='" + carNumber + '\''
+                + ", imageUrls=" + imageUrls
+                + ", fuel='" + fuel + '\''
+                + ", type='" + type + '\''
+                + ", capacity=" + capacity
+                + ", year=" + year
+                + ", feePerHour=" + feePerHour
+                + ", address='" + address + '\''
+                + ", carDateRanges=" + carDateRanges
+                + ", description='" + description + '\''
+                + '}';
+    }
 }

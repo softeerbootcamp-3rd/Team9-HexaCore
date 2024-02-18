@@ -1,7 +1,6 @@
 package com.hexacore.tayo.user.dto;
 
 import com.hexacore.tayo.user.model.User;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,4 +22,13 @@ public class GetUserSimpleResponseDto {
         this.phoneNumber = user.getPhoneNumber();
     }
 
+    @Override
+    public String toString() {
+        return "GetUserSimpleResponseDto{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", profileImgUrl='" + profileImgUrl + '\''
+                + ", phoneNumber='" + phoneNumber + '\''
+                + '}';
+    }
 }
