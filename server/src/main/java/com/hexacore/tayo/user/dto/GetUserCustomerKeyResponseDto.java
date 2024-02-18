@@ -7,4 +7,5 @@ import lombok.Getter;
 @Builder
 public class GetUserCustomerKeyResponseDto {
     private String customerKey;
+    private String name;
 }

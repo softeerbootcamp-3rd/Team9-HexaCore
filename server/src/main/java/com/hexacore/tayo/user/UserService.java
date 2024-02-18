@@ -71,6 +71,6 @@ public class UserService {
     public GetUserCustomerKeyResponseDto getUserCustomerKey(Long userId) {
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
-        return GetUserCustomerKeyResponseDto.builder().customerKey(user.getCustomerKey()).build();
+        return GetUserCustomerKeyResponseDto.builder().customerKey(user.getCustomerKey()).name(user.getName()).build();
     }
 }
