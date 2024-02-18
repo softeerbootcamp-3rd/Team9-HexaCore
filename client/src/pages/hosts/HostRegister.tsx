@@ -26,7 +26,7 @@ type CarDetailByApi = {
   carNumber: string;
   fuel: string;
   mileage: number;
-  type: string; // 현재 외부 API에서 type에 해당하는 필드가 없음
+  type: string;
   year: number;
 };
 
