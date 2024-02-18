@@ -37,8 +37,4 @@ public class CarImage extends BaseTime {
 
     @Column(name = "order_idx", nullable = false)
     private Integer orderIdx;
-
-    @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
-    @Builder.Default
-    private Boolean isDeleted = false;
 }

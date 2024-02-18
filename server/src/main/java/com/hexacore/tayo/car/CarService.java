@@ -151,16 +151,23 @@ public class CarService {
     /* 차량 삭제 */
     @Transactional
     public void deleteCar(Long carId) {
-        // 차량 isDeleted = true
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
+
+        // 차량에 연결된 READY, USING 상태의 예약이 있는 경우 삭제불가
+        if (isCarHavingReservation(car.getReservations())) {
+            throw new GeneralException(ErrorCode.CAR_HAVE_ACTIVE_RESERVATIONS);
+        }
+
+        // 차량 삭제: isDeleted = true
         car.setIsDeleted(true);
         carRepository.save(car);
 
-        // 이미지 isDeleted = true
+        // 이미지 삭제
         carImageRepository.findByCar_Id(car.getId()).forEach((image) -> {
-            image.setIsDeleted(true);
-            carImageRepository.save(image);
+            // s3 버킷 객체 삭제
+            s3Manager.deleteImage(image.getUrl());
+            carImageRepository.delete(image);
         });
     }
 
@@ -202,8 +209,12 @@ public class CarService {
             } else if (reservationStartDate.isAfter(dateRangeEndDate)) { // 다음 예약 가능한 구간 확인
                 dateRangeIdx++;
             } else {
-                throw new GeneralException(ErrorCode.CAR_DATE_RANGE_ALREADY_HAS_RESERVATIONS);
+                throw new GeneralException(ErrorCode.CAR_DATE_RANGE_NOT_CONTAIN_RESERVATIONS);
             }
+        }
+
+        if (reservationIdx < reservations.size()) { // 예약 가능한 구간이 남지 않았는데 예약이 남은 경우
+            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_NOT_CONTAIN_RESERVATIONS);
         }
 
         // 기존 구간을 모두 삭제한다.
@@ -231,14 +242,14 @@ public class CarService {
             int idx = (int) data.get("index");
             String url = (String) data.get("url");
 
-            Optional<CarImage> optionalImage = carImageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(
+            Optional<CarImage> optionalImage = carImageRepository.findByCar_IdAndOrderIdx(
                     car.getId(), idx);
             CarImage carImage;
-            // 인덱스가 idx인 image가 존재하면 soft delete
+
             if (optionalImage.isPresent()) {
                 carImage = optionalImage.get();
-                carImage.setIsDeleted(true);
-                carImageRepository.save(carImage);
+                s3Manager.deleteImage(carImage.getUrl());
+                carImageRepository.delete(carImage);
             }
             // 새로 만들어서 추가하기
             carImage = CarImage.builder()
@@ -253,7 +264,7 @@ public class CarService {
 
     /* 유저가 등록한 차량이 있는지 체크 */
     private Boolean isUserHavingCar(Long userId) {
-        return !carRepository.findByOwner_IdAndIsDeletedFalse(userId).isEmpty();
+        return carRepository.findByOwner_IdAndIsDeletedFalse(userId).isPresent();
     }
 
     /* 중복된 차량 번호가 있는지 체크 */
@@ -326,5 +337,12 @@ public class CarService {
 
         result.add(new CarDateRangeDto(currentCarDateRange));
         return result;
+    }
+
+    /* READY, USING 상태의 예약이 있는지 체크 */
+    private Boolean isCarHavingReservation(List<Reservation> reservations) {
+        return reservations.stream().anyMatch(reservation ->
+                reservation.getStatus() == ReservationStatus.READY ||
+                        reservation.getStatus() == ReservationStatus.USING);
     }
 }

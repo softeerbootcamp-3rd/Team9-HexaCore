@@ -69,16 +69,17 @@ public class AuthService {
         // 유저 soft delete
         user.setDeleted(true);
 
+        // TODO: #135 이슈
         // 유저가 등록한 차가 있는 경우, 차도 soft delete
-        Car userCar = user.getCar();
-        if (userCar != null) {
-            userCar.setIsDeleted(true);
-
-            // 차의 image 들 soft delete
-            for (CarImage carImage : userCar.getCarImages()) {
-                carImage.setIsDeleted(true);
-            }
-        }
+//        Car userCar = user.getCar();
+//        if (userCar != null) {
+//            userCar.setIsDeleted(true);
+//
+//            // 차의 image 들 soft delete
+//            for (CarImage carImage : userCar.getCarImages()) {
+//                carImage.setIsDeleted(true);
+//            }
+//        }
 
         // 발급받은 리프레시 토큰 삭제
         refreshTokenService.deleteRefreshToken(userId);

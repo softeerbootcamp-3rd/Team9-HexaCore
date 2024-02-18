@@ -11,7 +11,7 @@ public interface CarRepository extends JpaRepository<Car, Long>, CarCustomReposi
 
     Optional<Car> findByOwner_IdAndCarNumberAndIsDeletedTrue(Long ownerId, String carNumber);
 
-    List<Car> findByOwner_IdAndIsDeletedFalse(Long ownerId);
+    Optional<Car> findByOwner_IdAndIsDeletedFalse(Long ownerId);
 
     List<Car> findByCarNumberAndIsDeletedFalse(String carNumber);
 }

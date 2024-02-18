@@ -4,7 +4,7 @@ import { UserData } from '@/fetches/users/fetchUser';
 import { ReservationData } from '@/fetches/reservations/Reservation.type';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
-import ListComponent from '@/components/ListComponent';
+import ListComponent, { TargetType } from '@/components/ListComponent';
 
 function Profile() {
   const data = useLoaderData() as { user: UserData; reservations: ReservationData[] };
@@ -48,17 +48,13 @@ function Profile() {
     ? reservations.map((reservation, index) => (
         <ListComponent
           key={index}
-          target={{
-            type: 'guest',
-            name: reservation.target.name ?? '',
-            phoneNumber: reservation.target.phoneNumber ?? '',
-            image: reservation.target.image ?? '',
-          }}
+          type={'guest' as TargetType}
           reservation={{
-            startDate: reservation.rentPeriod[0] ?? new Date(),
-            endDate: reservation.rentPeriod[1] ?? new Date(),
-            status: reservation.rentStatus ?? '',
-            price: reservation.rentFee ?? undefined,
+            id: reservation.id,
+            target: reservation.target,
+            rentPeriod: reservation.rentPeriod,
+            rentStatus: reservation.rentStatus ?? '',
+            rentFee: reservation.rentFee ?? undefined,
             address: reservation.address ?? '',
           }}
         />
@@ -69,7 +65,7 @@ function Profile() {
       <div className='flex h-auto flex-col'>
         <h2 className='text-lg font-bold'>내 정보</h2>
         <div className='flex h-auto w-full py-4'>
-          <img className='h-28 w-24 rounded-2xl' src={data.user?.image || '../public/default-profile.svg'}></img>
+          <img className='h-28 w-24 rounded-2xl' src={data.user?.image || '../public/defaultProfile.png'}></img>
           <div className='ml-6 flex w-2/5 flex-col'>
             <p className='text-md font-bold'>{data.user?.name}</p>
             <p className='mt-2 text-sm text-background-400'>{data.user?.email}</p>
