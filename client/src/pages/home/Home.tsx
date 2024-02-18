@@ -23,9 +23,9 @@ function Home() {
   const loaderRef = useRef(null);
 
   useEffect(() => {
-    setCarDataList(loaderData.cars ? loaderData.cars.data : []);
+    setCarDataList(loaderData.cars?.data ? loaderData.cars.data : []);
     setPage(0);
-    setTotalPages(loaderData.cars ? loaderData.cars.pageInfo.totalPages : 0);
+    setTotalPages(loaderData.cars?.pageInfo ? loaderData.cars.pageInfo.totalPages : 0);
   }, [window.location.search]);
 
   // 무한 스크롤 요청
@@ -44,7 +44,10 @@ function Home() {
         maxPrice: params.maxPrice,
         page: page,
       });
-      setCarDataList((prevCarDataList) => [...prevCarDataList, ...newCarData.data]);
+
+      if (newCarData.data) {
+        setCarDataList((prevCarDataList) => [...prevCarDataList, ...newCarData.data]);
+      }
     };
 
     const carSearchParam = parseQueryString(window.location.href);
@@ -57,7 +60,6 @@ function Home() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
-          console.log('isIntersecting ');
           setPage((prevPage) => prevPage + 1);
         }
       },

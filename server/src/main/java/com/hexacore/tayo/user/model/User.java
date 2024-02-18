@@ -33,9 +33,6 @@ public class User extends BaseTime {
     @Column(name = "profile_img_url", columnDefinition = "text")
     private String profileImgUrl;
 
-    @OneToOne(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Car car;
-
     @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;
 }
