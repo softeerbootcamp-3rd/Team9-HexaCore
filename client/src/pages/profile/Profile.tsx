@@ -65,7 +65,7 @@ function Profile() {
       <div className='flex h-auto flex-col'>
         <h2 className='text-lg font-bold'>내 정보</h2>
         <div className='flex h-auto w-full py-4'>
-          <img className='h-28 w-24 rounded-2xl' src={data.user?.image || '../public/default-profile.svg'}></img>
+          <img className='h-28 w-24 rounded-2xl' src={data.user?.image || '../public/defaultProfile.png'}></img>
           <div className='ml-6 flex w-2/5 flex-col'>
             <p className='text-md font-bold'>{data.user?.name}</p>
             <p className='mt-2 text-sm text-background-400'>{data.user?.email}</p>
