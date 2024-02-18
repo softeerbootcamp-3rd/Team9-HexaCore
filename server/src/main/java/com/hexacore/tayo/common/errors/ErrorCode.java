@@ -30,6 +30,8 @@ public enum ErrorCode {
     INVALID_CAR_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 차량 타입입니다."),
     INVALID_FUEL_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 연료 타입입니다."),
     CAR_HAVE_ACTIVE_RESERVATIONS(HttpStatus.BAD_REQUEST, "차량에 활성화된 예약 내역이 있어 차량을 삭제할 수 없습니다."),
+    CANNOT_ADD_REVIEW(HttpStatus.BAD_REQUEST, "해당 예약에 대한 리뷰를 작성할 수 없습니다."),
+    RESERVATION_REVIEWED_BY_OTHERS(HttpStatus.BAD_REQUEST, "해당 예약과 관련된 게스트만 리뷰를 작성할 수 있습니다."),
 
     DATE_SIZE_MISMATCH(HttpStatus.BAD_REQUEST, "날짜 구간이 맞지 않습니다."),
     DATE_FORMAT_MISMATCH(HttpStatus.BAD_REQUEST, "날짜 형식이 맞지 않습니다."),
