@@ -19,9 +19,9 @@ function Header() {
           {
             (isLogin) 
             ?
-            <div className="text-sm mr-1 text-primary-500 hover:text-primary-600" onClick={logout}>
-              <Link to="">로그아웃</Link>
-            </div> 
+            <button className="text-sm mr-1 text-primary-500 hover:text-primary-600" onClick={logout}>
+              로그아웃
+            </button> 
             :
             <Link to="/auth/login" className="text-sm mr-2 text-primary-500 hover:text-primary-600">
               <Button text="로그인" type="enabled" isRounded />
