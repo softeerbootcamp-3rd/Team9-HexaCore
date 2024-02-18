@@ -341,6 +341,6 @@ public class CarService {
     private Boolean isCarHavingReservation(List<Reservation> reservations) {
         return reservations.stream().anyMatch(reservation ->
                 reservation.getStatus() == ReservationStatus.READY ||
-                        reservation.getStatus() == ReservationStatus.USING);
+                reservation.getStatus() == ReservationStatus.USING);
     }
 }

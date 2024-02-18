@@ -20,9 +20,7 @@ export const fetchUser = async (userId: number) => {
 	const path = !isNaN(userId) ? `/users/${userId}` : '/users';
   const response = await server.get<ResponseWithData<UserResponse>>(path, {
   });
-  if (response.success) {
-    return response;
-  }
+  return response;
 };
 
 export const parseUser = (userResponseRaw: UserResponse): UserData => {

@@ -17,7 +17,7 @@ public enum ReservationStatus {
         return status;
     }
 
-    public ReservationStatus getReservationStatus(String status) {
+    public static ReservationStatus getReservationStatus(String status) {
         for (ReservationStatus r : values()) {
             if (r.status.equals(status)) {
                 return r;
