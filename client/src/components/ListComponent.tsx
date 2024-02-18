@@ -16,7 +16,7 @@ const dateFormatter = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month:
 function ListComponent({ type, reservation, className }: Props) {
   const [buttonText, setButtonText] = useState('');
   const [buttonType, setButtonType] = useState<ButtonType>('disabled');
-  const [buttonClick, setButtonClick] = useState<((reservation: ReservationData) => void) | undefined>(undefined);
+  const [buttonClick, setButtonClick] = useState<((reservation: ReservationData) => void) | null>(null);
   const [rentStatus, setRentStatus] = useState(reservation.rentStatus);
 
   useEffect(() => {
@@ -68,12 +68,12 @@ function ListComponent({ type, reservation, className }: Props) {
 
   const buttonByReservationStatus: {
     [key in ReservationStatus]: {
-      [key in TargetType]: { buttonText: string; buttonType: ButtonType; buttonClick?: (reservation: ReservationData) => void };
+      [key in TargetType]: { buttonText: string; buttonType: ButtonType; buttonClick?: ((reservation: ReservationData) => void) | null };
     };
   } = {
     CANCEL: {
-      host: { buttonText: '거절완료', buttonType: 'disabled', buttonClick: undefined },
-      guest: { buttonText: '취소됨', buttonType: 'disabled', buttonClick: undefined },
+      host: { buttonText: '거절완료', buttonType: 'disabled', buttonClick: null },
+      guest: { buttonText: '취소됨', buttonType: 'disabled', buttonClick: null },
     },
     READY: {
       host: { buttonText: '거절하기', buttonType: 'danger', buttonClick: updateToCancel },
@@ -81,15 +81,15 @@ function ListComponent({ type, reservation, className }: Props) {
     },
     USING: {
       host: { buttonText: '반납확인', buttonType: 'enabled', buttonClick: updateToTerminated },
-      guest: { buttonText: '대여중', buttonType: 'disabled', buttonClick: undefined },
+      guest: { buttonText: '대여중', buttonType: 'disabled', buttonClick: null },
     },
     TERMINATED: {
-      host: { buttonText: '반납완료', buttonType: 'disabled', buttonClick: undefined },
-      guest: { buttonText: '사용완료', buttonType: 'disabled', buttonClick: undefined },
+      host: { buttonText: '반납완료', buttonType: 'disabled', buttonClick: null },
+      guest: { buttonText: '사용완료', buttonType: 'disabled', buttonClick: null },
     },
     UNDEFINED: {
-      host: { buttonText: '', buttonType: 'disabled', buttonClick: undefined },
-      guest: { buttonText: '', buttonType: 'disabled', buttonClick: undefined },
+      host: { buttonText: '', buttonType: 'disabled', buttonClick: null },
+      guest: { buttonText: '', buttonType: 'disabled', buttonClick: null },
     },
   };
 
@@ -135,7 +135,7 @@ function ListComponent({ type, reservation, className }: Props) {
                     ~ ${dateFormatter.format(reservation.rentPeriod[1]).replace(/ /g, '').replace(/\.$/, '')}`}
                   </p>
                 )}
-                <p className={`text-md truncate text-right font-semibold leading-5 ${type === 'guest' ? 'mb-2' : ''}`}>{reservation.rentFee || undefined}원</p>
+                <p className={`text-md truncate text-right font-semibold leading-5 ${type === 'guest' ? 'mb-2' : ''}`}>{reservation.rentFee || null}원</p>
               </div>
               <div className={`flex justify-end ${type === 'guest' ? 'w-full' : ''}`} data-buttonArea>
                 {rentStatus === 'READY' && type === 'guest' && (
