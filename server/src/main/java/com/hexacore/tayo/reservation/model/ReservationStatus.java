@@ -5,6 +5,8 @@ public enum ReservationStatus {
     READY("ready"),
     USING("using"),
     TERMINATED("terminated"),
+    GUEST_REVIEW("guest review"),
+    HOST_REVIEW("host review"),
     REVIEWED("reviewed"),
     NOT_FOUND("not found");
 
