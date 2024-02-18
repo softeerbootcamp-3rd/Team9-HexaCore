@@ -20,7 +20,7 @@ const profileRoutes: RouteObject[] = [
     loader: async ({ params }: LoaderParams) => {
       const userId = params.userId ?? localStorage.getItem("userId") ?? '';
       const [userResult, GuestReservationResult] = await Promise.allSettled([fetchUser(parseInt(userId)), fetchGuestReservations()]);
-      var data: ProfileLoaderData = {
+      const data: ProfileLoaderData = {
         user: null,
         reservations: []
       }
