@@ -4,10 +4,10 @@ import { UserData } from '@/fetches/users/fetchUser';
 import { ReservationData } from '@/fetches/reservations/Reservation.type';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
-import ListComponent from '@/components/ListComponent';
 import PhoneIcon from '@/components/svgs/PhoneIcon';
 import MailIcon from '@/components/svgs/MailIcon';
 import { deleteUser } from '@/fetches/auth/fetchAuth';
+import ListComponent, { TargetType } from '@/components/ListComponent';
 
 function Profile() {
   const data = useLoaderData() as { user: UserData; reservations: ReservationData[] };
@@ -51,17 +51,13 @@ function Profile() {
     ? reservations.map((reservation, index) => (
         <ListComponent
           key={index}
-          target={{
-            type: 'guest',
-            name: reservation.target.name ?? '',
-            phoneNumber: reservation.target.phoneNumber ?? '',
-            image: reservation.target.image ?? '',
-          }}
+          type={'guest' as TargetType}
           reservation={{
-            startDate: reservation.rentPeriod[0] ?? new Date(),
-            endDate: reservation.rentPeriod[1] ?? new Date(),
-            status: reservation.rentStatus ?? '',
-            price: reservation.rentFee ?? undefined,
+            id: reservation.id,
+            target: reservation.target,
+            rentPeriod: reservation.rentPeriod,
+            rentStatus: reservation.rentStatus ?? '',
+            rentFee: reservation.rentFee ?? undefined,
             address: reservation.address ?? '',
           }}
         />

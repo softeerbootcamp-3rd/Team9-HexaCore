@@ -41,11 +41,10 @@ public class UserController {
         return Response.of(HttpStatus.OK);
     }
 
-    // TODO: #138 이슈
-//    @GetMapping("/cars")
-//    public ResponseEntity<Response> getUserCar(HttpServletRequest request) {
-//        Long userId = (Long) request.getAttribute("userId");
-//        GetCarResponseDto getCarResponseDto = userService.getUserCar(userId);
-//        return Response.of(HttpStatus.OK, getCarResponseDto);
-//    }
+    @GetMapping("/cars")
+    public ResponseEntity<Response> getUserCar(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        GetCarResponseDto getCarResponseDto = userService.getUserCar(userId);
+        return Response.of(HttpStatus.OK, getCarResponseDto);
+    }
 }

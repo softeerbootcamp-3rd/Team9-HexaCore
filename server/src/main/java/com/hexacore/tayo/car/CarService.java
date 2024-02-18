@@ -240,14 +240,14 @@ public class CarService {
             int idx = (int) data.get("index");
             String url = (String) data.get("url");
 
-            Optional<CarImage> optionalImage = carImageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(
+            Optional<CarImage> optionalImage = carImageRepository.findByCar_IdAndOrderIdx(
                     car.getId(), idx);
             CarImage carImage;
-            // 인덱스가 idx인 image가 존재하면 soft delete
+
             if (optionalImage.isPresent()) {
                 carImage = optionalImage.get();
-                carImage.setIsDeleted(true);
-                carImageRepository.save(carImage);
+                s3Manager.deleteImage(carImage.getUrl());
+                carImageRepository.delete(carImage);
             }
             // 새로 만들어서 추가하기
             carImage = CarImage.builder()
@@ -262,7 +262,7 @@ public class CarService {
 
     /* 유저가 등록한 차량이 있는지 체크 */
     private Boolean isUserHavingCar(Long userId) {
-        return !carRepository.findByOwner_IdAndIsDeletedFalse(userId).isEmpty();
+        return carRepository.findByOwner_IdAndIsDeletedFalse(userId).isPresent();
     }
 
     /* 중복된 차량 번호가 있는지 체크 */

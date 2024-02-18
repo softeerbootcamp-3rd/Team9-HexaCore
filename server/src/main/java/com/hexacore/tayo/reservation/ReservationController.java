@@ -4,6 +4,7 @@ import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.GetGuestReservationListResponseDto;
 import com.hexacore.tayo.reservation.dto.GetHostReservationListResponseDto;
+import com.hexacore.tayo.reservation.dto.UpdateReservationStatusRequestDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,11 +53,14 @@ public class ReservationController {
         return Response.of(HttpStatus.OK, getHostReservationListResponseDto);
     }
 
-    @DeleteMapping("/{reservationId}")
-    public ResponseEntity<Response> cancelReservation(HttpServletRequest request, @PathVariable Long reservationId) {
-        Long hostUserId = (Long) request.getAttribute("userId");
+    @PatchMapping("/{reservationId}")
+    public ResponseEntity<Response> updateReservationStatus(HttpServletRequest request,
+            @PathVariable Long reservationId,
+            @RequestBody UpdateReservationStatusRequestDto statusDto) {
+        Long userId = (Long) request.getAttribute("userId");
+        String status = statusDto.getStatus();
 
-        reservationService.cancelReservation(hostUserId, reservationId);
+        reservationService.updateReservationStatus(userId, reservationId, status);
         return Response.of(HttpStatus.NO_CONTENT);
     }
 }
