@@ -83,4 +83,7 @@ public class Car extends BaseTime {
     @OneToMany(mappedBy = "car")
     @Builder.Default
     private List<Reservation> reservations = new ArrayList<>();
+
+    @Column(name = "average_rate")
+    private Double averageRate = 0.0;
 }
