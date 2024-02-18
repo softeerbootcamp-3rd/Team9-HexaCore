@@ -61,14 +61,10 @@ function SignUp() {
         
       } else {
         // 에러 메세지 띄우기
-        setPhoneInputErr(response.message);
+        setPhoneErr(response.message);
       }
     }
   };
-
-  const setPhoneInputErr = (errorMsg: string): void => {
-    setPhoneErr(errorMsg);
-  }
 
   // 이메일 형식에 맞는지 확인
   const checkEmail = (email: string): boolean => {
