@@ -5,6 +5,7 @@ public enum ReservationStatus {
     READY("ready"),
     USING("using"),
     TERMINATED("terminated"),
+    REVIEWED("reviewed"),
     NOT_FOUND("not found");
 
     private final String status;
