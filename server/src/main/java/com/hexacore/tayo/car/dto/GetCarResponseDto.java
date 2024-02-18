@@ -111,7 +111,7 @@ public class GetCarResponseDto {
 
     @Override
     public String toString() {
-        return "GetCarResponseDto{"
+        return "{"
                 + "id=" + id
                 + ", host=" + host
                 + ", carName='" + carName + '\''
