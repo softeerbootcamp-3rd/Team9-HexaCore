@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
 import Button from '@/components/Button';
@@ -10,6 +10,7 @@ import { TargetType } from '@/components/ListComponent';
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
 import ImageGallery from '../cars/ImageGallery';
+import { reservationStatus } from '@/fetches/reservations/Reservation.type';
 
 
 const TABS = ['calendar', 'reservation'] as const;
@@ -94,17 +95,13 @@ function HostManage() {
   const ReservationCard = reservations.map((reservation, index) => (
     <ListComponent
       key={index}
-      target={{
-        type: 'host' as TargetType,
-        name: reservation.target.name ?? '',
-        phoneNumber: reservation.target.phoneNumber ?? '',
-        image: reservation.target.image ?? '',
-      }}
+      type={'host' as TargetType}
       reservation={{
-        startDate: reservation.rentPeriod[0] ?? new Date(),
-        endDate: reservation.rentPeriod[1] ?? new Date(),
-        status: reservation.rentStatus ?? '',
-        price: reservation.rentFee ?? undefined,
+        id: reservation.id,
+        target: reservation.target,
+        rentPeriod: reservation.rentPeriod,
+        rentStatus: reservation.rentStatus ?? reservationStatus.UNDEFINED,
+        rentFee: reservation.rentFee ?? undefined,
         address: reservation.address ?? '',
       }}
     />

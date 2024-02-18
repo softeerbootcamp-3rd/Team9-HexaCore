@@ -18,11 +18,11 @@ const hostsRoutes: RouteObject[] = [
         carDetail: undefined,
         hostReservations: []
       }
-      if (carDetailResult.status == 'fulfilled'){
+      if (carDetailResult.status == 'fulfilled' && carDetailResult!= undefined){
         if(carDetailResult.value.code === 200){
           data.carDetail = parseCarDetail(carDetailResult.value.data);
         } else if(carDetailResult.value.code === 404){
-          location.href = "/hosts/register"
+          location.href = "/hosts/register";
         }
         else{
           throw Error("예기치 못한 오류가 발생했습니다.")
