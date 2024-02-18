@@ -72,6 +72,8 @@ public class ReservationService {
 
     public GetGuestReservationListResponseDto getGuestReservations(Long guestUserId) {
         List<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId);
+        updateReservationStatusByCurrentDateTime(reservations);
+
         List<GetGuestReservationResponseDto> getGuestReservationResponseDtos = new ArrayList<>();
         for (Reservation reservation : reservations) {
             Car car = reservation.getCar();
@@ -104,8 +106,9 @@ public class ReservationService {
 
     public GetHostReservationListResponseDto getHostReservations(Long hostUserId) {
         List<Reservation> reservations = reservationRepository.findAllByHost_id(hostUserId);
-        List<GetHostReservationResponseDto> getHostReservationResponseDtos = new ArrayList<>();
+        updateReservationStatusByCurrentDateTime(reservations);
 
+        List<GetHostReservationResponseDto> getHostReservationResponseDtos = new ArrayList<>();
         for (Reservation reservation : reservations) {
             User guest = reservation.getGuest();
 
@@ -212,5 +215,34 @@ public class ReservationService {
             return;
         }
         throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
+    }
+
+    private void updateReservationStatusByCurrentDateTime(List<Reservation> reservations) {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        for (Reservation reservation : reservations) {
+            boolean changed = false;
+            ReservationStatus reservationStatus = reservation.getStatus();
+            LocalDateTime rentDateTime = reservation.getRentDateTime();
+            LocalDateTime returnDateTime = reservation.getReturnDateTime();
+
+            if (reservationStatus == ReservationStatus.READY) {
+                // Ready 상태일 때 (rentDateTime - 1day) < currentDateTime 이면 Using 상태로 변경
+                if (currentDateTime.isAfter(rentDateTime.minusDays(1))) {
+                    reservation.setStatus(ReservationStatus.USING);
+                    changed = true;
+                }
+            } else if (reservationStatus == ReservationStatus.USING) {
+                // Using 상태일 때 returnDateTime < currentDateTime 이면 Terminated로 변경
+                if (currentDateTime.isAfter(returnDateTime)) {
+                    reservation.setStatus(ReservationStatus.TERMINATED);
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                reservationRepository.save(reservation);
+            }
+        }
     }
 }
