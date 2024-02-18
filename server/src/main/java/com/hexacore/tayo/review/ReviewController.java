@@ -1,7 +1,7 @@
 package com.hexacore.tayo.review;
 
 import com.hexacore.tayo.common.response.Response;
-import com.hexacore.tayo.review.dto.CreateReviewForCarRequestDto;
+import com.hexacore.tayo.review.dto.CreateReviewRequestDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +19,21 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    /* 차량에 대한 리뷰 등록 */
+    /* 게스트의 차량에 대한 리뷰 등록 */
     @PostMapping("/car")
     public ResponseEntity<Response> createReviewForCar(HttpServletRequest request,
-            @Valid @RequestBody CreateReviewForCarRequestDto createReviewForCarRequestDto) {
+            @Valid @RequestBody CreateReviewRequestDto createReviewRequestDto) {
         Long writerId = (Long) request.getAttribute("userId");
-        reviewService.createReviewForCar(writerId, createReviewForCarRequestDto);
+        reviewService.createReview(writerId, createReviewRequestDto, true);
+        return Response.of(HttpStatus.CREATED);
+    }
+
+    /* 호스트의 게스트에 대한 리뷰 등록 */
+    @PostMapping("/guest")
+    public ResponseEntity<Response> createReviewForGuest(HttpServletRequest request,
+            @Valid @RequestBody CreateReviewRequestDto createReviewRequestDto) {
+        Long writerId = (Long) request.getAttribute("userId");
+        reviewService.createReview(writerId, createReviewRequestDto, false);
         return Response.of(HttpStatus.CREATED);
     }
 
