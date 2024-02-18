@@ -10,7 +10,7 @@ interface LoaderParams {
 }
 
 type ProfileLoaderData = {
-  user: ReturnType<typeof parseUser> | undefined;
+  user: ReturnType<typeof parseUser> | null;
   reservations: ReturnType<typeof parseGuestReservations>;
 };
 
@@ -21,7 +21,7 @@ const profileRoutes: RouteObject[] = [
       const userId = params.userId ?? localStorage.getItem("userId") ?? '';
       const [userResult, GuestReservationResult] = await Promise.allSettled([fetchUser(parseInt(userId)), fetchGuestReservations()]);
       var data: ProfileLoaderData = {
-        user: undefined,
+        user: null,
         reservations: []
       }
       if (userResult.status == 'fulfilled' && userResult.value != undefined){
@@ -33,9 +33,6 @@ const profileRoutes: RouteObject[] = [
         else{
           throw Error("예기치 못한 오류가 발생했습니다.")
         }
-      }
-      else{
-
       }
       if (GuestReservationResult.status === 'fulfilled' && GuestReservationResult.value !== undefined) {
         data.reservations = parseGuestReservations(GuestReservationResult.value.data);

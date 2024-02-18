@@ -5,7 +5,7 @@ export const reservationStatus = {
   READY:'ready',
   USING: 'using',
   TERMINATED: 'terminated',
-  UNDEFINED: undefined
+  UNDEFINED: null
 } as const
 export type ReservationStatus = keyof typeof reservationStatus
 

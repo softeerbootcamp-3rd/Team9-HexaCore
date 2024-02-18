@@ -6,7 +6,7 @@ import { fetchHostReservations, parseHostReservations } from '@/fetches/reservat
 import { fetchUser } from '@/fetches/users/fetchUser';
 
 export type HostManageLoaderData = {
-  carDetail: ReturnType<typeof parseCarDetail> | undefined;
+  carDetail: ReturnType<typeof parseCarDetail> | null;
   hostReservations: ReturnType<typeof parseHostReservations>;
 };
 
@@ -16,7 +16,7 @@ const hostsRoutes: RouteObject[] = [
     loader: async () => {
       const [carDetailResult, HostReservationResult] = await Promise.allSettled([fetchCarDetail(), fetchHostReservations()]);
       var data: HostManageLoaderData = {
-        carDetail: undefined,
+        carDetail: null,
         hostReservations: [],
       };
       if (carDetailResult.status == 'fulfilled' && carDetailResult != undefined) {

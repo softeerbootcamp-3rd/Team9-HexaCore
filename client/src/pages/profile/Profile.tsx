@@ -54,7 +54,7 @@ function Profile() {
             target: reservation.target,
             rentPeriod: reservation.rentPeriod,
             rentStatus: reservation.rentStatus ?? '',
-            rentFee: reservation.rentFee ?? undefined,
+            rentFee: reservation.rentFee ?? null,
             address: reservation.address ?? '',
           }}
         />

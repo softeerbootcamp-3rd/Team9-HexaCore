@@ -98,7 +98,7 @@ function HostManage() {
         target: reservation.target,
         rentPeriod: reservation.rentPeriod,
         rentStatus: reservation.rentStatus ?? reservationStatus.UNDEFINED,
-        rentFee: reservation.rentFee ?? undefined,
+        rentFee: reservation.rentFee ?? null,
         address: reservation.address ?? '',
       }}
     />
