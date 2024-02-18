@@ -137,7 +137,7 @@ function ListComponent({ type, reservation, className }: Props) {
                 )}
                 <p className={`text-md truncate text-right font-semibold leading-5 ${type === 'guest' ? 'mb-2' : ''}`}>{reservation.rentFee || null}원</p>
               </div>
-              <div className={`flex justify-end ${type === 'guest' ? 'w-full' : ''}`} data-buttonArea>
+              <div className={`flex justify-end ${type === 'guest' ? 'w-full' : ''}`}>
                 {rentStatus === 'READY' && type === 'guest' && (
                   <Button
                     className={`mr-6 h-auto w-[9ch] min-w-[9ch] rounded-xl text-xs lg:text-sm ${type === 'guest' ? 'xl:w-1/4 ' : 'xl:w-full'}`}
