@@ -1,8 +1,8 @@
 package com.hexacore.tayo.user.model;
 
-import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.BaseTime;
 import jakarta.persistence.*;
+import java.util.UUID;
 import lombok.*;
 
 @Getter
@@ -33,6 +33,14 @@ public class User extends BaseTime {
     @Column(name = "profile_img_url", columnDefinition = "text")
     private String profileImgUrl;
 
+    @Column(name = "customer_key", nullable = false)
+    private String customerKey;
+
     @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;
+
+    @PrePersist
+    protected void onCreate() {
+        this.customerKey = UUID.randomUUID().toString();
+    }
 }
