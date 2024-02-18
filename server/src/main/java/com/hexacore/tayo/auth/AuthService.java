@@ -77,9 +77,8 @@ public class AuthService {
         }
 
         // 유저가 등록한 차가 있으면
-        List<Car> userCars = carRepository.findByOwner_IdAndIsDeletedFalse(userId);
-        if (!userCars.isEmpty()) {
-            Car userCar = userCars.get(0);
+        Car userCar = carRepository.findByOwner_IdAndIsDeletedFalse(userId).orElse(null);
+        if (userCar != null) {
             // 유저가 등록한 차를 예약한 사용자가 있는 경우
             if (isOnGoing(userCar.getReservations())) {
                 throw new GeneralException(ErrorCode.USER_CAR_HAS_RESERVATION);
