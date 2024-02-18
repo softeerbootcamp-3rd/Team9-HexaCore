@@ -1,9 +1,12 @@
 package com.hexacore.tayo.user.model;
 
-import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.BaseTime;
+import com.hexacore.tayo.reservation.model.Reservation;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,7 +21,7 @@ public class User extends BaseTime {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -32,6 +35,10 @@ public class User extends BaseTime {
 
     @Column(name = "profile_img_url", columnDefinition = "text")
     private String profileImgUrl;
+
+    @OneToMany(mappedBy = "guest")
+    @Builder.Default
+    private List<Reservation> reservations = new ArrayList<>();
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;
