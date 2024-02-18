@@ -54,7 +54,7 @@ public class AuthController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("/users")
+    @DeleteMapping
     public ResponseEntity<Response> deleteUser(HttpServletRequest request) {
         authService.delete((Long) request.getAttribute(USER_ID));
 
