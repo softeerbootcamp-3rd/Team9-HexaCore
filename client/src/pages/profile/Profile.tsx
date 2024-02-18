@@ -16,7 +16,7 @@ function Profile() {
   }, [data.user, navigator]);
 
   const editProfile = () => {
-    navigator('/auth/signup');
+    navigator('/auth/signup/'+localStorage.getItem("userId"));
     return;
   };
 
