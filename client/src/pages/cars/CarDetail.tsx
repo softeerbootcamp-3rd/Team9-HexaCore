@@ -106,6 +106,12 @@ function CarDetail() {
     const rentDate = dateTimeToString(startDate);
     const returnDate = dateTimeToString(endDate);
 
+    // 만약 rentDate와 returnDate가 동일할 경우 예약 불가능
+    if(rentDate === returnDate) {
+      alert("최소 예약 단위는 1시간입니다.") // TODO: 모달 컴포넌트 만들면 모달창 띄우는 방식으로 수정
+      return;
+    }
+
     const reservationData = {
       carId: data.carId,
       rentDateTime: rentDate,
