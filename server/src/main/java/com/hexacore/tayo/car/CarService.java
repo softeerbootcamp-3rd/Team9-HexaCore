@@ -236,7 +236,7 @@ public class CarService {
             Optional<CarImage> optionalImage = carImageRepository.findByCar_IdAndOrderIdxAndIsDeletedFalse(
                     car.getId(), idx);
             CarImage carImage;
-            // 인덱스가 idx인 image가 존재하면 soft delete
+
             if (optionalImage.isPresent()) {
                 carImage = optionalImage.get();
                 carImage.setIsDeleted(true);

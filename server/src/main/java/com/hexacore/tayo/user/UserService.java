@@ -53,11 +53,9 @@ public class UserService {
     }
 
     public GetCarResponseDto getUserCar(Long userId) {
-        Optional<Car> car = carRepository.findByOwner_IdAndIsDeletedFalse(userId);
-        if (!car.isPresent()) {
-            throw new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS);
-        }
-        return GetCarResponseDto.of(car.get());
+        Car car = carRepository.findByOwner_IdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS));
+        return GetCarResponseDto.of(car);
     }
 
     private GetUserInfoResponseDto getUserInfo(User user) {
