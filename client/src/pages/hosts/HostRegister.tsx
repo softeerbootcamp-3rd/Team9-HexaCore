@@ -17,6 +17,7 @@ interface CarDetailResponseByApi {
   FUEL: string;
   FUELECO: string;
   SEATS: string;
+  CC: string;
 }
 
 type CarDetailByApi = {
@@ -38,6 +39,21 @@ type loaderData = {
 type positionLatLng = {
   lat: string;
   lng: string;
+};
+
+// 배기량을 기준으로 차량 종류를 구별한다.
+const calculateCarType = (CC: string) => {
+  const CCvalue = Number(CC);
+  if (CCvalue < 1000) {
+    return '경차';
+  }
+  if (CCvalue < 1600) {
+    return '소형차';
+  }
+  if (CCvalue < 2000) {
+    return '중형차';
+  }
+  return '대형차';
 };
 
 function HostRegister() {
@@ -174,7 +190,7 @@ function HostRegister() {
         carNumber: registerNumber,
         fuel: responseCarFuel,
         mileage: Number.parseFloat(responseCarMileage),
-        type: '중형차', // 현재 외부 API에서 type에 해당하는 필드가 없음
+        type: calculateCarType(responseData.CC),
         year: Number.parseInt(responseCarYear),
       });
 
@@ -241,7 +257,7 @@ function HostRegister() {
       formData.append('carNumber', carDetail.carNumber);
       formData.append('mileage', carDetail.mileage.toString());
       formData.append('fuel', carDetail.fuel);
-      formData.append('type', '중형차');
+      formData.append('type', carDetail.type);
       formData.append('capacity', carDetail.capacity.toString());
       formData.append('year', carDetail.year.toString());
     }
