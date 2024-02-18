@@ -211,8 +211,12 @@ public class CarService {
             } else if (reservationStartDate.isAfter(dateRangeEndDate)) { // 다음 예약 가능한 구간 확인
                 dateRangeIdx++;
             } else {
-                throw new GeneralException(ErrorCode.CAR_DATE_RANGE_ALREADY_HAS_RESERVATIONS);
+                throw new GeneralException(ErrorCode.CAR_DATE_RANGE_NOT_CONTAIN_RESERVATIONS);
             }
+        }
+
+        if (reservationIdx < reservations.size()) { // 예약 가능한 구간이 남지 않았는데 예약이 남은 경우
+            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_NOT_CONTAIN_RESERVATIONS);
         }
 
         // 기존 구간을 모두 삭제한다.
@@ -341,6 +345,6 @@ public class CarService {
     private Boolean isCarHavingReservation(List<Reservation> reservations) {
         return reservations.stream().anyMatch(reservation ->
                 reservation.getStatus() == ReservationStatus.READY ||
-                reservation.getStatus() == ReservationStatus.USING);
+                        reservation.getStatus() == ReservationStatus.USING);
     }
 }
