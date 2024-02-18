@@ -24,7 +24,7 @@ public class GetUserSimpleResponseDto {
 
     @Override
     public String toString() {
-        return "GetUserSimpleResponseDto{"
+        return "{"
                 + "id=" + id
                 + ", name='" + name + '\''
                 + ", profileImgUrl='" + profileImgUrl + '\''

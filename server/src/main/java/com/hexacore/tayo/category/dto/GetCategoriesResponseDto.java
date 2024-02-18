@@ -24,7 +24,7 @@ public class GetCategoriesResponseDto {
 
         @Override
         public String toString() {
-            return "CategoryDto{"
+            return "{"
                     + "id=" + id
                     + ", name='" + name + '\''
                     + ", subcategories=" + subcategories
@@ -46,7 +46,7 @@ public class GetCategoriesResponseDto {
 
         @Override
         public String toString() {
-            return "SubcategoryDto{"
+            return "{"
                     + "id=" + id
                     + ", name='" + name + '\''
                     + '}';

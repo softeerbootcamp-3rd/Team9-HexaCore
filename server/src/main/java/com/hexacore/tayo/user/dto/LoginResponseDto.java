@@ -13,7 +13,7 @@ public class LoginResponseDto {
 
     @Override
     public String toString() {
-        return "LoginResponseDto{"
+        return "{"
                 + "tokens=" + tokens
                 + ", loginUserInfo=" + loginUserInfo
                 + '}';

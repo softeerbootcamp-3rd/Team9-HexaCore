@@ -30,7 +30,7 @@ public class SearchCarsResultDto {
 
     @Override
     public String toString() {
-        return "SearchCarsResultDto{"
+        return "{"
                 + "id=" + id
                 + ", subcategory='" + subcategory + '\''
                 + ", imageUrl='" + imageUrl + '\''

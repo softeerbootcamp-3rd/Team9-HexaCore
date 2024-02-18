@@ -27,7 +27,7 @@ public class GetGuestReservationResponseDto {
 
     @Override
     public String toString() {
-        return "GetGuestReservationResponseDto{"
+        return "{"
                 + "id=" + id
                 + ", car=" + car
                 + ", fee=" + fee

@@ -12,7 +12,7 @@ public class GetTokenResponseDto {
 
     @Override
     public String toString() {
-        return "GetTokenResponseDto{"
+        return "{"
                 + "accessToken='" + accessToken + '\''
                 + ", refreshToken='" + refreshToken + '\''
                 + '}';

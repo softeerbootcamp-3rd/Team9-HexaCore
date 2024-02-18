@@ -15,7 +15,7 @@ public class GetUserInfoResponseDto {
 
     @Override
     public String toString() {
-        return "GetUserInfoResponseDto{"
+        return "{"
                 + "userId=" + userId
                 + ", name='" + name + '\''
                 + ", email='" + email + '\''
