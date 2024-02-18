@@ -3,13 +3,14 @@ import { ChangeEvent, useRef, useState } from 'react';
 type Props = {
   className?: string;
   onImageChange: (image: File) => void;
+  imageUrl?: string;
 };
 
 const DEFAULT_IMAGE_URL = '/form-image-add.png';
 
-function ImageUploadButton({ className = '', onImageChange }: Props) {
+function ImageUploadButton({ className = '', onImageChange, imageUrl }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [previewUrl, setPreviewUrl] = useState<string>(DEFAULT_IMAGE_URL); // 기본 이미지
+  const [previewUrl, setPreviewUrl] = useState<string>(imageUrl ?? DEFAULT_IMAGE_URL); // 기본 이미지
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files === null) return;

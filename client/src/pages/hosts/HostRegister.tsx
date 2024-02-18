@@ -216,12 +216,15 @@ function HostRegister() {
       return;
     }
 
-    images.forEach((image) => {
-      if (image !== null) formData.append(`imageFiles`, image);
+    images.forEach((image, index) => {
+      if (image !== null) {
+        formData.append(`imageFiles`, image);
+        formData.append('imageIndexes', index.toString());
+      }
     });
 
-    if (formData.getAll('imageFiles').length != 5) {
-      setImageMessage('차량 사진은 반드시 5장을 제출해야합니다.');
+    if (!userCarInfo.isUpdate && formData.getAll('imageFiles').length != 5) {
+      setImageMessage('등록 시 차량 사진은 반드시 5장을 제출해야합니다.');
       formFailed = true;
     }
 
@@ -268,12 +271,11 @@ function HostRegister() {
       formData.append('position.lng', position.lng);
     }
     formData.append('description', description);
-    formData.append('imageIndexes', Array.of(0, 1, 2, 3, 4).toString());
 
     let response: ResponseWithoutData;
 
     if (userCarInfo.isUpdate) {
-      response = await server.put(`/cars/${userCarInfo.carDetail?.id}`, {
+      response = await server.put<ResponseWithoutData>(`/cars/${userCarInfo.carDetail?.id}`, {
         data: formData,
       });
     } else
@@ -285,11 +287,11 @@ function HostRegister() {
       });
 
     if (!response.success) {
-      alert('차량 등록에 실패하였습니다. 다시 시도해 주세요.');
+      alert(`차량 ${userCarInfo.isUpdate ? '수정' : '등록'}에 실패하였습니다. 다시 시도해 주세요.`);
       return;
     }
 
-    alert('차량 등록을 완료하였습니다.');
+    alert(`차량 ${userCarInfo.isUpdate ? '수정' : '등록'}을 완료하였습니다.`);
     navigator('/hosts/manage');
   };
 
@@ -388,10 +390,14 @@ function HostRegister() {
                 {imageMessage ?? '차량 정면, 후면, 운전석 쪽, 보조석 쪽, 내부 사진 등을 올려주세요.'}
               </p>
               <div id='carImages' className='flex h-[450px] min-h-96 flex-wrap content-start gap-2'>
-                <ImageUploadButton onImageChange={(image) => changeImageByIndex(0, image)} className='flex-1' />
+                <ImageUploadButton onImageChange={(image) => changeImageByIndex(0, image)} className='flex-1' imageUrl={userCarInfo.carDetail?.imageUrls[0]} />
                 <div className='grid h-full flex-1 grid-cols-2 grid-rows-2 gap-2'>
                   {Array.from({ length: 4 }, (_, index) => (
-                    <ImageUploadButton key={index} onImageChange={(image) => changeImageByIndex(index + 1, image)} />
+                    <ImageUploadButton
+                      key={index}
+                      onImageChange={(image) => changeImageByIndex(index + 1, image)}
+                      imageUrl={userCarInfo.carDetail?.imageUrls[index + 1]}
+                    />
                   ))}
                 </div>
               </div>
