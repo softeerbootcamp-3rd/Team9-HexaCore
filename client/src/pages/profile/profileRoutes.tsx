@@ -27,8 +27,6 @@ const profileRoutes: RouteObject[] = [
       if (userResult.status == 'fulfilled' && userResult.value != undefined){
         if(userResult.value.code === 200){
           data.user = parseUser(userResult.value.data);
-        } else if(userResult.value.code === 403){
-          location.href = "/auth/login";
         }
         else{
           throw Error("예기치 못한 오류가 발생했습니다.")
