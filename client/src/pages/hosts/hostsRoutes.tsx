@@ -15,7 +15,7 @@ const hostsRoutes: RouteObject[] = [
     path: 'hosts/manage',
     loader: async () => {
       const [carDetailResult, HostReservationResult] = await Promise.allSettled([fetchCarDetail(), fetchHostReservations()]);
-      var data: HostManageLoaderData = {
+      const data: HostManageLoaderData = {
         carDetail: null,
         hostReservations: [],
       };
