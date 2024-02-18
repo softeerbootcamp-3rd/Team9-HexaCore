@@ -20,6 +20,7 @@ import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -123,7 +125,7 @@ public class CarService {
 
     /* 차량 정보 조회 */
     public GetCarResponseDto carDetail(Long carId) {
-        Car car = carRepository.findById(carId)
+        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         return GetCarResponseDto.of(car);
@@ -136,7 +138,7 @@ public class CarService {
             // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
             throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
         }
-        Car car = carRepository.findById(carId)
+        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         if (!car.getOwner().getId().equals(userId)) {
@@ -153,7 +155,7 @@ public class CarService {
     /* 차량 삭제 */
     @Transactional
     public void deleteCar(Long carId) {
-        Car car = carRepository.findById(carId)
+        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         // 차량에 연결된 READY, USING 상태의 예약이 있는 경우 삭제불가
@@ -176,9 +178,9 @@ public class CarService {
     /* 예약 가능 날짜 수정 */
     @Transactional
     public void updateDateRanges(Long hostUserId, Long carId,
-            CarDateRangesDto carDateRangesDto) {
+                                 CarDateRangesDto carDateRangesDto) {
         // 차량 조회가 안 되는 경우
-        Car car = carRepository.findById(carId)
+        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         // 차량 소유자와 일치하지 않을 경우
@@ -341,6 +343,6 @@ public class CarService {
     private Boolean isCarHavingReservation(List<Reservation> reservations) {
         return reservations.stream().anyMatch(reservation ->
                 reservation.getStatus() == ReservationStatus.READY ||
-                reservation.getStatus() == ReservationStatus.USING);
+                        reservation.getStatus() == ReservationStatus.USING);
     }
 }

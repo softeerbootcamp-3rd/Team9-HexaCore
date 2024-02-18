@@ -19,11 +19,13 @@ import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,10 +39,10 @@ public class ReservationService {
 
     @Transactional
     public void createReservation(CreateReservationRequestDto createReservationRequestDto, Long guestUserId) {
-        User guestUser = userRepository.findById(guestUserId)
+        User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
-        Car car = carRepository.findById(createReservationRequestDto.getCarId())
+        Car car = carRepository.findByIdAndIsDeletedFalse(createReservationRequestDto.getCarId())
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         if (guestUser.getId().equals(car.getOwner().getId())) {
@@ -139,7 +141,7 @@ public class ReservationService {
             throw new GeneralException(ErrorCode.RESERVATION_STATUS_NOT_FOUND);
         }
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         Reservation reservation = reservationRepository.findById(reservationId)
@@ -182,8 +184,8 @@ public class ReservationService {
     }
 
     private void validateRentReturnInRangeElseThrow(Car car,
-            LocalDateTime rentDateTime,
-            LocalDateTime returnDateTime) throws GeneralException {
+                                                    LocalDateTime rentDateTime,
+                                                    LocalDateTime returnDateTime) throws GeneralException {
         if (rentDateTime.isAfter(returnDateTime)) {
             throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
         }
