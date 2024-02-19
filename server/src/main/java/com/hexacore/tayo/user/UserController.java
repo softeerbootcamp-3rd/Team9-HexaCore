@@ -48,11 +48,10 @@ public class UserController {
         return Response.of(HttpStatus.OK, getCarResponseDto);
     }
 
-    @GetMapping("/customerkey")
-    public ResponseEntity<Response> getUserCustomerKey(HttpServletRequest request) {
+    @GetMapping("/payment")
+    public ResponseEntity<Response> getUserPaymentInfo(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        GetUserCustomerKeyResponseDto getUserCustomerKeyResponseDto = userService.getUserCustomerKey(userId);
-        return Response.of(HttpStatus.OK, getUserCustomerKeyResponseDto);
-
+        GetUserPaymentInfoResponseDto getUserPaymentInfoResponseDto = userService.getUserPaymentInfo(userId);
+        return Response.of(HttpStatus.OK, getUserPaymentInfoResponseDto);
     }
 }

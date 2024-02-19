@@ -5,8 +5,8 @@ import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.user.dto.GetUserCustomerKeyResponseDto;
 import com.hexacore.tayo.user.dto.GetUserInfoResponseDto;
+import com.hexacore.tayo.user.dto.GetUserPaymentInfoResponseDto;
 import com.hexacore.tayo.user.dto.UpdateUserRequestDto;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.Encryptor;
@@ -68,9 +68,9 @@ public class UserService {
                 .build();
     }
 
-    public GetUserCustomerKeyResponseDto getUserCustomerKey(Long userId) {
+    public GetUserPaymentInfoResponseDto getUserPaymentInfo(Long userId) {
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
-        return GetUserCustomerKeyResponseDto.builder().customerKey(user.getCustomerKey()).name(user.getName()).build();
+        return GetUserPaymentInfoResponseDto.of(user);
     }
 }
