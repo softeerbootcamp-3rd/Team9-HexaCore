@@ -52,8 +52,9 @@ public class CarController {
     }
 
     @DeleteMapping("/{carId}")
-    public ResponseEntity<Response> deleteCar(@PathVariable Long carId) {
-        carService.deleteCar(carId);
+    public ResponseEntity<Response> deleteCar(HttpServletRequest request, @PathVariable Long carId) {
+        Long userId = (Long) request.getAttribute("userId");
+        carService.deleteCar(carId, userId);
         return Response.of(HttpStatus.NO_CONTENT);
     }
 
