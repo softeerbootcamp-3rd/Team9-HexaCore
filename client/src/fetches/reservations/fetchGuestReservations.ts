@@ -1,4 +1,4 @@
-import { stringTupleToDateRange } from '@/utils/converters';
+import { stringTupleToDateTimeRange } from '@/utils/converters';
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithData } from '@/fetches/common/response.type';
 import type { ReservationData, ReservationStatus } from "@/fetches/reservations/Reservation.type"
@@ -37,7 +37,7 @@ export const parseGuestReservations = (hostReservationsResponseRaw: GuestReserva
           image: reservation.car.imageUrl,
           phoneNumber: reservation.hostPhoneNumber
         },
-        rentPeriod: stringTupleToDateRange([reservation.rentDateTime, reservation.returnDateTime]),
+        rentPeriod: stringTupleToDateTimeRange([reservation.rentDateTime, reservation.returnDateTime]),
         rentFee: reservation.fee,
         rentStatus: toReservationStatus(reservation.status),
       }) as ReservationData,

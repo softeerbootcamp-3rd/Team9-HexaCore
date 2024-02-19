@@ -5,9 +5,18 @@ export const stringToDate = (date: string) => {
   return new Date(year, month - 1, day, 0, 0, 0, 0);
 };
 
+const stringToDateTime = (date: string) => {
+  return new Date(date);
+};
+
 export const stringTupleToDateRange = (date: string[]) => {
   return date.map(stringToDate) as DateRange; // TODO: date.length !== 2, date[0] > date[1] validation
 };
+
+export const stringTupleToDateTimeRange = (date: string[]) => {
+  return date.map(stringToDateTime) as DateRange; // TODO: date.length !== 2, date[0] > date[1] validation
+};
+
 
 export const stringTuplesToDateRanges = (dates: string[][]) => {
   return dates
