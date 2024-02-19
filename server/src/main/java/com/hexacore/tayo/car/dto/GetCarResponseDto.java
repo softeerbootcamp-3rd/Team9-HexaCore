@@ -62,7 +62,9 @@ public class GetCarResponseDto {
         this.id = car.getId();
         this.carName = car.getSubcategory().getName();
         this.carNumber = car.getCarNumber();
-        this.imageUrls = car.getCarImages().stream().map(CarImage::getUrl).toList();
+        this.imageUrls = car.getCarImages().stream()
+                .sorted(Comparator.comparing(CarImage::getOrderIdx))
+                .map(CarImage::getUrl).toList();
         this.mileage = car.getMileage();
         this.fuel = car.getFuel().getValue();
         this.type = car.getType().getValue();
