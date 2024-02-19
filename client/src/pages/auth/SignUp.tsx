@@ -50,7 +50,7 @@ function SignUp() {
       pwdInputRef.current.autocomplete = "new-password";
     }
     if (fileInputRef.current) {
-      fileInputRef.current.autocomplete = "new-password";
+      fileInputRef.current.src = data.image;
     }
   };
   useEffect(() => {
