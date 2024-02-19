@@ -34,8 +34,8 @@ public class GetGuestReservationResponseDto {
                 .id(car.getId())
                 .name(car.getSubcategory().getName())
                 .imageUrl(car.getCarImages().get(0).getUrl()) // 대표 이미지 1장
-                .lat(car.getPosition().getX())
-                .lng(car.getPosition().getY())
+                .lat(car.getPosition().getY())
+                .lng(car.getPosition().getX())
                 .build();
 
         return GetGuestReservationResponseDto.builder()
