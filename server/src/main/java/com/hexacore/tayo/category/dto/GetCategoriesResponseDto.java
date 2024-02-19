@@ -21,7 +21,17 @@ public class GetCategoriesResponseDto {
             this.name = category.getName();
             this.subcategories = category.getSubcategories().stream().map(SubcategoryDto::new).toList();
         }
+
+        @Override
+        public String toString() {
+            return "{"
+                    + "id=" + id
+                    + ", name='" + name + '\''
+                    + ", subcategories=" + subcategories
+                    + '}';
+        }
     }
+
     @Getter
     @AllArgsConstructor
     public static class SubcategoryDto {
@@ -32,6 +42,14 @@ public class GetCategoriesResponseDto {
         public SubcategoryDto(Subcategory subcategory) {
             this.id = subcategory.getId();
             this.name = subcategory.getName();
+        }
+
+        @Override
+        public String toString() {
+            return "{"
+                    + "id=" + id
+                    + ", name='" + name + '\''
+                    + '}';
         }
     }
 }

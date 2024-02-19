@@ -13,6 +13,9 @@ import com.hexacore.tayo.reservation.dto.GetGuestReservationListResponseDto;
 import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.GetHostReservationListResponseDto;
 import com.hexacore.tayo.reservation.dto.GetHostReservationResponseDto;
+import com.hexacore.tayo.reservation.dto.TossPayment.TossApproveRequest;
+import com.hexacore.tayo.reservation.dto.TossPayment.TossCancelRequest;
+import com.hexacore.tayo.reservation.dto.TossPayment.TossPaymentResponse;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.UserRepository;
@@ -24,10 +27,17 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
 @Service
@@ -36,6 +46,10 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final CarRepository carRepository;
     private final UserRepository userRepository;
+    private final RestTemplate restTemplate;
+
+    @Value("${toss.secret-key}")
+    private String tossSecretKey;
 
     @Transactional
     public void createReservation(CreateReservationRequestDto createReservationRequestDto, Long guestUserId) {
@@ -59,6 +73,12 @@ public class ReservationService {
         // 범위 안이라면 이미 있는 예약과 겹치는 지 검증
         // 겹치면 RESERVATION_ALREADY_READY_OR_USING 예외 발생
         validateRentReturnInRangeElseThrow(car, rentDateTime, returnDateTime);
+
+        // 유저가 결제한 금액과 예약 fee 가 일치하는 지 확인
+        Integer fee = car.getFeePerHour() * (int) rentDateTime.until(returnDateTime, ChronoUnit.HOURS);
+        if (!fee.equals(amount)) {
+            throw new GeneralException(ErrorCode.INVALID_PAYMENT_AMOUNT);
+        }
 
         Reservation reservation = Reservation.builder()
                 .guest(guestUser)
@@ -214,5 +234,53 @@ public class ReservationService {
             return;
         }
         throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
+    }
+
+    public void confirmPayments(String paymentKey, String orderId, Integer amount) {
+        String encodedCredentials = getEncodedCredentials();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + encodedCredentials);
+        HttpEntity<TossApproveRequest> requestEntity = new HttpEntity<>(TossApproveRequest.builder().paymentKey(paymentKey).orderId(orderId).amount(amount).build(), headers);
+
+        try {
+            ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
+                    "https://api.tosspayments.com/v1/payments/confirm",
+                    HttpMethod.POST,
+                    requestEntity,
+                    TossPaymentResponse.class
+            );
+
+            if (response.getBody() != null || !"DONE".equals(response.getBody().getStatus())) {
+                // 결제 승인 실패
+                throw new GeneralException(ErrorCode.TOSS_PAYMENTS_FAILED);
+            }
+        } catch (Exception e) {
+            throw new GeneralException(ErrorCode.TOSS_PAYMENTS_FAILED, e.getMessage());
+        }
+    }
+
+    public void cancelPayments(String paymentKey, String cancelReason) {
+        String encodedCredentials = getEncodedCredentials();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Basic " + encodedCredentials);
+        HttpEntity<TossCancelRequest> requestEntity = new HttpEntity<>(TossCancelRequest.builder().cancelReason(cancelReason).build(), headers);
+        try {
+            ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
+                    "https://api.tosspayments.com/v1/payments/confirm",
+                    HttpMethod.POST,
+                    requestEntity,
+                    TossPaymentResponse.class
+            );
+            if (!response.getBody().getStatus().equals("CANCELED")) {
+                throw new GeneralException(ErrorCode.TOSS_PAYMENTS_CANCEL_FAILED);
+            }
+        } catch (Exception e) {
+            throw new GeneralException(ErrorCode.TOSS_PAYMENTS_CANCEL_FAILED, e.getMessage());
+        }
+    }
+
+    public String getEncodedCredentials() {
+        String credentials = tossSecretKey + ":";
+        return new String(Base64.getEncoder().encode(credentials.getBytes()));
     }
 }

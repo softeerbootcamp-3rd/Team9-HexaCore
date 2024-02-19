@@ -38,3 +38,6 @@ out/
 
 ### application-secret ###
 src/main/resources/application-secret.yml
+
+### Query DSL QClass ###
+src/main/generated

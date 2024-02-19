@@ -2,7 +2,8 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
-import com.hexacore.tayo.car.dto.SearchCarsParamsDto;
+import com.hexacore.tayo.car.dto.SearchCarsDto;
+import com.hexacore.tayo.car.dto.SearchCarsResultDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
@@ -31,9 +32,8 @@ import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -118,9 +118,8 @@ public class CarService {
         }
     }
 
-    public Page<Car> searchCars(SearchCarsParamsDto searchCarsParamsDto, Pageable pageable) {
-        Specification<Car> searchSpec = CarSpecifications.searchCars(searchCarsParamsDto);
-        return carRepository.findAll(searchSpec, pageable);
+    public Slice<SearchCarsResultDto> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
+        return carRepository.search(searchCarsDto, pageable);
     }
 
     /* 차량 정보 조회 */
@@ -158,6 +157,11 @@ public class CarService {
         Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
+        // 차량 주인이 아닌 경우 삭제불가
+        if (!userId.equals(car.getOwner().getId())) {
+            throw new GeneralException(ErrorCode.CAR_UPDATED_BY_OTHERS);
+        }
+
         // 차량에 연결된 READY, USING 상태의 예약이 있는 경우 삭제불가
         if (isCarHavingReservation(car.getReservations())) {
             throw new GeneralException(ErrorCode.CAR_HAVE_ACTIVE_RESERVATIONS);
@@ -166,6 +170,9 @@ public class CarService {
         // 차량 삭제: isDeleted = true
         car.setIsDeleted(true);
         carRepository.save(car);
+
+        // CarDateRange 삭제
+        carDateRangeRepository.deleteAll(car.getCarDateRanges());
 
         // 이미지 삭제
         carImageRepository.findByCar_Id(car.getId()).forEach((image) -> {

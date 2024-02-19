@@ -19,7 +19,7 @@ function Profile() {
   }, [data.user, navigator]);
 
   const editProfile = () => {
-    navigator('/auth/signup');
+    navigator('/auth/signup/'+localStorage.getItem("userId"));
     return;
   };
 
@@ -57,7 +57,7 @@ function Profile() {
             target: reservation.target,
             rentPeriod: reservation.rentPeriod,
             rentStatus: reservation.rentStatus ?? '',
-            rentFee: reservation.rentFee ?? undefined,
+            rentFee: reservation.rentFee ?? null,
             address: reservation.address ?? '',
           }}
         />
