@@ -9,11 +9,10 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-
-    Optional<User> findByIdAndIsDeletedFalse(Long id);
+  
+    Optional<User> findByIdAndIsDeletedFalse(Long userId);
 
     boolean existsByEmailAndIsDeletedFalse(String email);
 
     Optional<User> findFirstByEmailAndIsDeletedFalse(String email);
-
 }
