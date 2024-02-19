@@ -19,13 +19,9 @@ const hostsRoutes: RouteObject[] = [
         carDetail: null,
         hostReservations: [],
       };
-      if (carDetailResult.status == 'fulfilled' && carDetailResult != undefined) {
+      if (carDetailResult.status == 'fulfilled' && carDetailResult.value != undefined) {
         if (carDetailResult.value.code === 200) {
           data.carDetail = parseCarDetail(carDetailResult.value.data);
-        } else if (carDetailResult.value.code === 404) {
-          location.href = '/hosts/register';
-        } else {
-          throw Error('예기치 못한 오류가 발생했습니다.');
         }
       }
       if (HostReservationResult.status === 'fulfilled' && HostReservationResult.value !== undefined) {
