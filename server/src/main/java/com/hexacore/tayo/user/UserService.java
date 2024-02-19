@@ -6,11 +6,11 @@ import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.dto.GetUserCustomerKeyResponseDto;
-import com.hexacore.tayo.util.S3Manager;
-import com.hexacore.tayo.user.dto.UpdateUserRequestDto;
 import com.hexacore.tayo.user.dto.GetUserInfoResponseDto;
+import com.hexacore.tayo.user.dto.UpdateUserRequestDto;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.Encryptor;
+import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -55,7 +55,7 @@ public class UserService {
     public GetCarResponseDto getUserCar(Long userId) {
         Car car = carRepository.findByOwner_IdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS));
-        return GetCarResponseDto.of(car);
+        return GetCarResponseDto.host(car);
     }
 
     private GetUserInfoResponseDto getUserInfo(User user) {
