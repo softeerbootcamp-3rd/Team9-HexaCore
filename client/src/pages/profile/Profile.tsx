@@ -21,27 +21,29 @@ function Profile() {
   };
 
   const reservations = data.reservations.sort((a, b) => {
-    const dateA = a.rentPeriod[0];
-    const dateB = b.rentPeriod[0];
-    if (dateA && dateB) {
-      if (dateA < dateB) {
-        return 1;
-      } else if (dateA > dateB) {
-        return -1;
-      } else if (a.rentStatus && b.rentStatus) {
-        const statusOrder = ['using', 'ready', 'cancel', 'terminated'];
-        const statusIndexA = statusOrder.indexOf(a.rentStatus);
-        const statusIndexB = statusOrder.indexOf(b.rentStatus);
-        if (statusIndexA < statusIndexB) {
-          return -1;
-        } else if (statusIndexA > statusIndexB) {
-          return 1;
-        } else {
-          return 0;
-        }
-      }
+    // 상태에 따른 우선순위 설정
+    const statusOrder = ['using', 'ready', 'cancel', 'terminated'];
+    const statusIndexA = statusOrder.indexOf(a.rentStatus);
+    const statusIndexB = statusOrder.indexOf(b.rentStatus);
+  
+    // 상태 우선으로 정렬
+    if (statusIndexA < statusIndexB) {
+      return -1;
+    } else if (statusIndexA > statusIndexB) {
+      return 1;
     }
-    return 0;
+  
+    // 상태가 같을 경우 날짜로 정렬
+    const dateA = new Date(a.rentPeriod[0]); // 시작 날짜
+    const dateB = new Date(b.rentPeriod[0]); // 시작 날짜
+  
+    if (dateA < dateB) {
+      return -1;
+    } else if (dateA > dateB) {
+      return 1;
+    }
+  
+    return 0; // 상태와 날짜가 모두 같으면 순서를 변경하지 않음
   });
 
   const ReservationCard = data.reservations
@@ -60,6 +62,7 @@ function Profile() {
         />
       ))
     : null;
+
   return (
     <div className='flex h-full min-w-[640px] flex-col'>
       
