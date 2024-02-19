@@ -13,7 +13,7 @@ function Profile() {
   const navigator = useNavigate();
   if (!data.user) {
     //TODO: 진섭이가 로딩페이지 만들면 넣기
-    return <div>Loading...</div>;
+    return "";
   }
 
   const editProfile = () => {

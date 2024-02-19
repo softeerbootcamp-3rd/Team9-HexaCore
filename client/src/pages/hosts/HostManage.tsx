@@ -21,7 +21,7 @@ function HostManage() {
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
   if (!carDetail) {
     //TODO: 진섭이가 로딩페이지 만들면 넣기
-    return "Loading...";
+    return "";
   }
   const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
 
