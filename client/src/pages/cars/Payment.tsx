@@ -71,7 +71,7 @@ function Payment({ price, customerKey, userName, orderName, reservationData, onC
         setIsPending(false);
         // 성공 시 모달 창 닫고 마이페이지로 리다이렉트
         onClose();
-        navigate('/profile/3000003');
+        navigate('/profile');
       })
       .catch(() => {
         showToast('결제 실패', '결제가 실패했습니다.');
