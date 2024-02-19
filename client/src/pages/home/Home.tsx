@@ -47,7 +47,7 @@ function Home() {
         page: page,
       });
 
-      if (newCarData.data) {
+      if (newCarData?.data) {
         setCarDataList((prevCarDataList) => [...prevCarDataList, ...newCarData.data]);
       }
     };
