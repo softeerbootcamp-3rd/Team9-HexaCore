@@ -30,8 +30,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -116,7 +116,7 @@ public class CarService {
         }
     }
 
-    public Page<SearchCarsResultDto> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
+    public Slice<SearchCarsResultDto> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
         return carRepository.search(searchCarsDto, pageable);
     }
 

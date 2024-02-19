@@ -18,9 +18,9 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public class CarCustomRepositoryImpl implements CarCustomRepository {
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Page<SearchCarsResultDto> search(SearchCarsDto searchCondition, Pageable pageable) {
+    public Slice<SearchCarsResultDto> search(SearchCarsDto searchCondition, Pageable pageable) {
         QCar car = QCar.car;
         QCarImage carImage = QCarImage.carImage;
         QCarDateRange carDateRange = QCarDateRange.carDateRange;
@@ -85,32 +85,16 @@ public class CarCustomRepositoryImpl implements CarCustomRepository {
                 .groupBy(car)
                 .orderBy(car.id.desc()) // TODO: pagable.getSort()를 이용하여 정렬 조건을 추가
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        long total = queryFactory
-                .select(car.id)
-                .from(car)
-                .join(car.carDateRanges, carDateRange)
-                .leftJoin(car.reservations, reservation)
-                .where(
-                        isCarInCircle(searchCondition.getPosition(), searchCondition.getDistance()),
-                        car.isDeleted.isFalse(),
-                        carDateRange.startDate.loe(searchCondition.getStartDate()),
-                        carDateRange.endDate.goe(searchCondition.getEndDate()),
-                        reservation.isNull()
-                                .or(reservation.returnDateTime.lt(searchCondition.getStartDate().atStartOfDay()))
-                                .or(reservation.rentDateTime.gt(searchCondition.getEndDate().atStartOfDay())),
 
-                        optionalCarTypeEq(searchCondition.getType()),
-                        optionalCategoryEq(searchCondition.getCategoryId(), searchCondition.getSubcategoryId()),
-                        optionalCapacityGoe(searchCondition.getParty()),
-                        optionalFeePerHourInRange(searchCondition.getMinPrice(), searchCondition.getMaxPrice())
-                )
-                .fetch()
-                .size();
+        boolean hasNext = results.size() > pageable.getPageSize();
+        if (hasNext) {
+            results.remove(results.size() - 1);
+        }
 
-        return new PageImpl<>(results, pageable, total);
+        return new SliceImpl<>(results, pageable, hasNext);
     }
 
     private BooleanExpression isCarInCircle(Position center, Double radius) {
