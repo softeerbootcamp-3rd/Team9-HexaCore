@@ -86,8 +86,6 @@ function SignUp() {
     }
   };
 
-<<<<<<< Updated upstream
-=======
   const handleUpdate = async () => {
     const email: string = emailInputRef.current?.value || '';
     const password: string = pwdInputRef.current?.value || '';
@@ -125,7 +123,6 @@ function SignUp() {
     setEmailErr(errorMsg);
   };
 
->>>>>>> Stashed changes
   // 이메일 형식에 맞는지 확인
   const checkEmail = (email: string): boolean => {
     if (emailPattern.test(email)) {
@@ -140,17 +137,6 @@ function SignUp() {
 
   // 비밀번호 형식에 맞는지 확인
   const checkPwd = (pwd: string): boolean => {
-<<<<<<< Updated upstream
-    if (passwordPattern.test(pwd)) {
-      setIsWrongPassword(false)
-      setPwdErr("");
-      return true;
-    }
-    setIsWrongPassword(true)
-    setPwdErr("영어, 숫자, 기호 포함 길이 6이상 입력해주세요");
-    return false;
-  }
-=======
     // if (!passwordPattern.test(pwd)) {
     if (!data && pwd === '') {
       setIsWrongPassword(true);
@@ -162,7 +148,6 @@ function SignUp() {
     setPwdErr('');
     return true;
   };
->>>>>>> Stashed changes
 
   // 이름 입력했는지 확인
   const checkName = (name: string): boolean => {
