@@ -35,4 +35,7 @@ public class User extends BaseTime {
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;
+
+    @Column(name = "average_rate")
+    private Double averageRate = 0.0;
 }
