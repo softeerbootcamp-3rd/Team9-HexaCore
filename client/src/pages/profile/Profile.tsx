@@ -12,7 +12,6 @@ function Profile() {
   const data = useLoaderData() as { user: UserData; reservations: ReservationData[] };
   const navigator = useNavigate();
   if (!data.user) {
-    //TODO: 진섭이가 로딩페이지 만들면 넣기
     return "";
   }
 
