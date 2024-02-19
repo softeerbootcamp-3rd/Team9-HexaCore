@@ -44,15 +44,17 @@ export const useCustomToast = () => {
   const [message, setMessage] = useState('');
   const [title, setTitle] = useState('');
   const [key, setKey] = useState(0);
+  const [duration, setDuration] = useState<number | undefined>(2000);
 
-  const showToast = (title: string, newMessage: string) => {
+  const showToast = (title: string, newMessage: string, duration?: number) => {
     setTitle(title);
     setMessage(newMessage);
     setKey((prevKey) => prevKey + 1);
+    setDuration(duration);
   };
 
   return {
-    ToastComponent: () => <Toast key={key} title={title} message={message} />,
+    ToastComponent: () => <Toast key={key} title={title} message={message} duration={duration} />,
     showToast,
   };
 };
