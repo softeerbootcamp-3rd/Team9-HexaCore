@@ -10,7 +10,6 @@ function Header() {
   const navigate = useNavigate();
   const { auth, setAuth } = useAuth();
   const isLogin = auth.userId !== null;
-  console.log('auth', auth);
 
   const logout = async () => {
     const response = await server.get<ResponseWithoutData>('/auth/logout');
