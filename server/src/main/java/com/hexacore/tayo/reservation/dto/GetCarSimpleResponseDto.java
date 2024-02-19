@@ -12,6 +12,8 @@ public class GetCarSimpleResponseDto {
     private final Long id;
     private final String name;
     private final String imageUrl;
+    private final Double lat;
+    private final Double lng;
 
     @Override
     public String toString() {
@@ -19,6 +21,8 @@ public class GetCarSimpleResponseDto {
                 + "id=" + id
                 + ", name='" + name + '\''
                 + ", imageUrl='" + imageUrl + '\''
+                + ", lat=" + lat
+                + ", lng=" + lng
                 + '}';
     }
 }
