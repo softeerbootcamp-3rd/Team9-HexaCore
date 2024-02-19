@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 public interface GuestReviewRepository extends JpaRepository<GuestReview, Long> {
 
 
-    @Query("SELECT avg (r.rate) FROM GuestReview r where r.guest = :guestId")
-    Double findAverageRateByCarId(@Param("guestId") User guest);
+    @Query("SELECT avg (r.rate) FROM GuestReview r where r.guest = :guest")
+    Double findAverageRateByCarId(@Param("guest") User guest);
 
     Boolean existsByReservation(Reservation reservation);
 }
