@@ -14,4 +14,15 @@ public class GetCarSimpleResponseDto {
     private final String imageUrl;
     private final Double lat;
     private final Double lng;
+
+    @Override
+    public String toString() {
+        return "{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", imageUrl='" + imageUrl + '\''
+                + ", lat=" + lat
+                + ", lng=" + lng
+                + '}';
+    }
 }

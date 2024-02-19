@@ -42,9 +42,9 @@ export type CarDetailJsonData = {
 // ---- Response
 export type CarData = {
   id: number;
-  carName: string;
+  subcategory: string;
   imageUrl: string;
-  carAddress: string;
+  address: string;
   mileage: number;
   capacity: number;
   feePerHour: number;

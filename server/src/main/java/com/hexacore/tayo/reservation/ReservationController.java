@@ -1,5 +1,6 @@
 package com.hexacore.tayo.reservation;
 
+import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -30,10 +32,22 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Response> createReservation(HttpServletRequest request,
+            @RequestParam String paymentKey,
+            @RequestParam String orderId,
+            @RequestParam Integer amount,
             @Valid @RequestBody CreateReservationRequestDto createReservationRequestDto) {
         Long guestUserId = (Long) request.getAttribute("userId");
+        // 결제 승인 요청
+        reservationService.confirmPayments(paymentKey, orderId, amount);
+        // 결제가 성공하면 createReservation 실행
+        try {
+            reservationService.createReservation(createReservationRequestDto, guestUserId, amount);
+        } catch (Exception e) {
+            // 예약 내역 저장에 실패하면 결제 취소
+            reservationService.cancelPayments(paymentKey, "예약에 실패했습니다.");
+            throw new GeneralException(e);
+        }
 
-        reservationService.createReservation(createReservationRequestDto, guestUserId);
         return Response.of(HttpStatus.CREATED);
     }
 

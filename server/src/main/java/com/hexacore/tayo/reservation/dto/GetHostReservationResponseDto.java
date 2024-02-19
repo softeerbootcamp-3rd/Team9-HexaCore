@@ -46,4 +46,17 @@ public class GetHostReservationResponseDto {
                 .returnDateTime(reservation.getReturnDateTime())
                 .build();
     }
+
+    @Override
+    public String toString() {
+        return "{"
+                + "id=" + id
+                + ", guest=" + guest
+                + ", fee=" + fee
+                + ", extraFee=" + extraFee
+                + ", status=" + status
+                + ", rentDateTime=" + rentDateTime
+                + ", returnDateTime=" + returnDateTime
+                + '}';
+    }
 }

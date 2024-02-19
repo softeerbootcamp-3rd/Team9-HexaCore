@@ -25,8 +25,8 @@ export const fetchCars = async ({ lat, lng, startDate, endDate, party, type, cat
       sort: sort ? sort : PAGE_SORT,
     },
   });
-  if (!response.success) {
-    // TODO: response.success가 false인 경우 처리
+  if (!response || !response.success) {
+    return null;
   }
   return { data: response.data, pageInfo: response.pageInfo };
 };
