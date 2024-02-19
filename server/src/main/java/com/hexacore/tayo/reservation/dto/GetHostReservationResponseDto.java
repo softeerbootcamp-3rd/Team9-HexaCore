@@ -23,4 +23,16 @@ public class GetHostReservationResponseDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private final LocalDateTime returnDateTime;
+
+    @Override
+    public String toString() {
+        return "{"
+                + "id=" + id
+                + ", guest=" + guest
+                + ", fee=" + fee
+                + ", status=" + status
+                + ", rentDateTime=" + rentDateTime
+                + ", returnDateTime=" + returnDateTime
+                + '}';
+    }
 }

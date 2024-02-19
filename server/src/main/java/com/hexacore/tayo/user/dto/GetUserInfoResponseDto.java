@@ -13,4 +13,14 @@ public class GetUserInfoResponseDto {
     private String phoneNumber;
     private String profileImgUrl;
 
+    @Override
+    public String toString() {
+        return "{"
+                + "userId=" + userId
+                + ", name='" + name + '\''
+                + ", email='" + email + '\''
+                + ", phoneNumber='" + phoneNumber + '\''
+                + ", profileImgUrl='" + profileImgUrl + '\''
+                + '}';
+    }
 }

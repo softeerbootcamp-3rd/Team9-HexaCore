@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 @Getter
 @RequiredArgsConstructor
 public class Response {
+
     private final Boolean success;
     private final Integer code;
     private final String message;
@@ -51,13 +52,23 @@ public class Response {
     }
 
     // 페이지네이션에 대한 응답
-    public static ResponseEntity<Response> of(HttpStatus status, Page<?> page) {
+    public static ResponseEntity<Response> of(HttpStatus status, Slice<?> page) {
         return new ResponseEntity<>(
                 new Response(true, status.value(), status.getReasonPhrase(),
-                        new PageInfo(page.getNumber(), page.getSize(), page.getTotalElements(),
-                                page.getTotalPages()), page.getContent()),
+                        new PageInfo(page.getNumber(), page.getSize(), page.hasNext()), page.getContent()),
                 status
         );
+    }
+
+    @Override
+    public String toString() {
+        return "Response{"
+                + "success=" + success
+                + ", code=" + code
+                + ", message='" + message + '\''
+                + ", pageInfo=" + pageInfo
+                + ", data=" + data
+                + '}';
     }
 }
 

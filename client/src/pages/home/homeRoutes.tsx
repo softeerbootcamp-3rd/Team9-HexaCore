@@ -12,8 +12,7 @@ export type HomeLoaderResponse = {
     pageInfo: {
       page: number;
       size: number;
-      totalElements: number;
-      totalPages: number;
+      hasNext: boolean;
     };
   } | null;
 };
