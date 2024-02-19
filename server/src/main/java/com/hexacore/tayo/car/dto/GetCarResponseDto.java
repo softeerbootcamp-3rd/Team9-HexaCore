@@ -58,11 +58,13 @@ public class GetCarResponseDto {
 
     private final String description;
 
-    private GetCarResponseDto(Car car) {
+    private GetCarResponseDto(Car car, List<List<String>> carDateRanges) {
         this.id = car.getId();
         this.carName = car.getSubcategory().getName();
         this.carNumber = car.getCarNumber();
-        this.imageUrls = car.getCarImages().stream().map(CarImage::getUrl).toList();
+        this.imageUrls = car.getCarImages().stream()
+                .sorted(Comparator.comparing(CarImage::getOrderIdx))
+                .map(CarImage::getUrl).toList();
         this.mileage = car.getMileage();
         this.fuel = car.getFuel().getValue();
         this.type = car.getType().getValue();
@@ -71,15 +73,43 @@ public class GetCarResponseDto {
         this.feePerHour = car.getFeePerHour();
         this.address = car.getAddress();
         this.description = car.getDescription();
-        this.carDateRanges = getCarAvailableDates(car);
+        this.carDateRanges = carDateRanges;
         this.host = new GetUserSimpleResponseDto(car.getOwner());
     }
 
-    public static GetCarResponseDto of(Car car) {
-        return new GetCarResponseDto(car);
+    public static GetCarResponseDto host(Car car) {
+        return new GetCarResponseDto(car, getCarAvailableDatesForHost(car.getCarDateRanges()));
     }
 
-    private List<List<String>> getCarAvailableDates(Car car) {
+    public static GetCarResponseDto guest(Car car) {
+        return new GetCarResponseDto(car, getCarAvailableDatesForGuest(car));
+    }
+
+    private static List<List<String>> getCarAvailableDatesForHost(List<CarDateRange> carDateRanges) {
+        List<List<String>> carAvailableDates = new ArrayList<>();
+
+        for (CarDateRange carDateRange : carDateRanges) {
+            LocalDate start = carDateRange.getStartDate();
+            LocalDate end = carDateRange.getEndDate();
+
+            // 만약 end가 현재 날짜보다 전일 경우 추가하지 않음
+            if (end.isBefore(LocalDate.now())) {
+                continue;
+            }
+
+            // 만약 start가 현재 날짜보다 전일 경우 start를 현재 날짜로 업데이트
+            if (start.isBefore(LocalDate.now())) {
+                start = LocalDate.now();
+            }
+
+            carAvailableDates.add(List.of(start.toString(), end.toString()));
+        }
+
+        return carAvailableDates.stream().sorted(Comparator.comparing(list -> list.get(0)))
+                .collect(Collectors.toList());
+    }
+
+    private static List<List<String>> getCarAvailableDatesForGuest(Car car) {
         List<List<String>> carAvailableDates = new ArrayList<>();
         List<Reservation> sortedReservations = car.getReservations().stream()
                 .filter((reservation -> reservation.getStatus() != ReservationStatus.CANCEL))

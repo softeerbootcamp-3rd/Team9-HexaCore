@@ -47,4 +47,12 @@ public class UserController {
         GetCarResponseDto getCarResponseDto = userService.getUserCar(userId);
         return Response.of(HttpStatus.OK, getCarResponseDto);
     }
+
+    @GetMapping("/customerkey")
+    public ResponseEntity<Response> getUserCustomerKey(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        GetUserCustomerKeyResponseDto getUserCustomerKeyResponseDto = userService.getUserCustomerKey(userId);
+        return Response.of(HttpStatus.OK, getUserCustomerKeyResponseDto);
+
+    }
 }

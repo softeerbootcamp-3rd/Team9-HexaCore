@@ -4,8 +4,10 @@ import type { CategoryResponse } from '@/fetches/categories/categories.type';
 
 export const fetchCategories = async (): Promise<CategoryResponse[]> => {
   const response = await server.get<ResponseWithData<CategoryResponse[]>>('/categories');
-  if (!response.success) {
+  if (!response || !response.success) {
+    console.log('fetch error', response);
     // TODO: response.success가 false인 경우 처리
+    return [];
   }
   return response.data;
 };
