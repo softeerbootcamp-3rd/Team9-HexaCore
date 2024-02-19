@@ -12,4 +12,6 @@ public class GetCarSimpleResponseDto {
     private final Long id;
     private final String name;
     private final String imageUrl;
+    private final Double lat;
+    private final Double lng;
 }
