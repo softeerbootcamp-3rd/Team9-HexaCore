@@ -3,6 +3,7 @@ package com.hexacore.tayo.car;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.dto.SearchCarsDto;
+import com.hexacore.tayo.car.dto.SearchCarsResultDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
@@ -115,7 +116,7 @@ public class CarService {
         }
     }
 
-    public Page<Car> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
+    public Page<SearchCarsResultDto> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
         return carRepository.search(searchCarsDto, pageable);
     }
 

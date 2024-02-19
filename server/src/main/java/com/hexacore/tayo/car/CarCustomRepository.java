@@ -1,12 +1,12 @@
 package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.SearchCarsDto;
-import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.dto.SearchCarsResultDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CarCustomRepository {
 
-    Page<Car> search(SearchCarsDto searchCarsDto, Pageable pageable);
+    Page<SearchCarsResultDto> search(SearchCarsDto searchCarsDto, Pageable pageable);
 
 }

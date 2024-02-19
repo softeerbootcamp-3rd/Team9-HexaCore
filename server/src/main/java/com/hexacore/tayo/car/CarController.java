@@ -7,7 +7,6 @@ import com.hexacore.tayo.car.dto.SearchCarsRequestDto;
 import com.hexacore.tayo.car.dto.SearchCarsResultDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
-import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.response.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -31,8 +30,7 @@ public class CarController {
         Pageable pageable
     ) {
         SearchCarsDto searchCarsDto = SearchCarsDto.of(searchCarsRequestDto);
-        Page<Car> cars = carService.searchCars(searchCarsDto, pageable);
-        Page<SearchCarsResultDto> data = cars.map(SearchCarsResultDto::of);
+        Page<SearchCarsResultDto> data = carService.searchCars(searchCarsDto, pageable);
         return Response.of(HttpStatus.OK, data);
     }
 
