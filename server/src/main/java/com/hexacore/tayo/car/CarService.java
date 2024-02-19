@@ -152,9 +152,14 @@ public class CarService {
 
     /* 차량 삭제 */
     @Transactional
-    public void deleteCar(Long carId) {
+    public void deleteCar(Long carId, Long userId) {
         Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
+
+        // 차량 주인이 아닌 경우 삭제불가
+        if (!userId.equals(car.getOwner().getId())) {
+            throw new GeneralException(ErrorCode.CAR_UPDATED_BY_OTHERS);
+        }
 
         // 차량에 연결된 READY, USING 상태의 예약이 있는 경우 삭제불가
         if (isCarHavingReservation(car.getReservations())) {
@@ -164,6 +169,9 @@ public class CarService {
         // 차량 삭제: isDeleted = true
         car.setIsDeleted(true);
         carRepository.save(car);
+
+        // CarDateRange 삭제
+        carDateRangeRepository.deleteAll(car.getCarDateRanges());
 
         // 이미지 삭제
         carImageRepository.findByCar_Id(car.getId()).forEach((image) -> {
