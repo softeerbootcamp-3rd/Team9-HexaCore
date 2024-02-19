@@ -41,6 +41,17 @@ type positionLatLng = {
   lng: string;
 };
 
+// 데이터허브 API의 연료 형식을 DB에 맞게 변경한다.
+const convertFuelType = (fuel: string) => {
+  if (fuel === '가솔린') return '휘발유';
+  if (fuel === '디젤') return '경유';
+  if (fuel === 'LPG') return 'LPG';
+  if (fuel === '전기') return '전기';
+  if (fuel === '수소전기') return '수소';
+
+  return '';
+};
+
 // 배기량을 기준으로 차량 종류를 구별한다.
 const calculateCarType = (CC: string) => {
   const CCvalue = Number(CC);
@@ -188,7 +199,7 @@ function HostRegister() {
         capacity: Number.parseInt(responseCarCapacity),
         carName: responseCarName,
         carNumber: registerNumber,
-        fuel: responseCarFuel,
+        fuel: convertFuelType(responseCarFuel),
         mileage: Number.parseFloat(responseCarMileage),
         type: calculateCarType(responseData.CC),
         year: Number.parseInt(responseCarYear),
