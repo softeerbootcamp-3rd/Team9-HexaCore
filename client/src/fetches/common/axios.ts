@@ -22,7 +22,7 @@ axiosInstance.interceptors.request.use(
   function (error) {
     // 요청이 실패한 경우에 대한 처리
     return Promise.reject(error);
-  }
+  },
 );
 
 axiosInstance.interceptors.response.use(
