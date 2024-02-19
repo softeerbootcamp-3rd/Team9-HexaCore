@@ -153,7 +153,7 @@ public class CarService {
 
     /* 차량 삭제 */
     @Transactional
-    public void deleteCar(Long carId) {
+    public void deleteCar(Long carId, Long userId) {
         Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
