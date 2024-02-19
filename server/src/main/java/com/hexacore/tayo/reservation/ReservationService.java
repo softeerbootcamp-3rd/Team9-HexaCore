@@ -187,6 +187,13 @@ public class ReservationService {
             throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
         }
 
+        // 최소 1시간이어야 한다.
+        // rentDateTime + 1Hour <= returnDateTime
+        // rentDateTime + 1Hour > returnDateTime 일때 에러
+        if (rentDateTime.plusHours(1).isAfter(returnDateTime)) {
+            throw new GeneralException(ErrorCode.RESERVATION_DATETIME_LEAST_HOUR);
+        }
+
         List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
                 car.getId(),
                 List.of(ReservationStatus.READY, ReservationStatus.USING)
