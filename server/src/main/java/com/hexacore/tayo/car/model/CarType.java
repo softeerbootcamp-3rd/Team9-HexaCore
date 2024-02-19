@@ -29,6 +29,6 @@ public enum CarType {
                 return c;
             }
         }
-        throw new GeneralException(ErrorCode.CAR_TYPE_NOT_FOUND);
+        throw new GeneralException(ErrorCode.INVALID_CAR_TYPE);
     }
 }

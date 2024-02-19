@@ -27,6 +27,6 @@ public enum FuelType {
                 return f;
             }
         }
-        throw new GeneralException(ErrorCode.FUEL_TYPE_NOT_FOUND);
+        throw new GeneralException(ErrorCode.INVALID_FUEL_TYPE);
     }
 }

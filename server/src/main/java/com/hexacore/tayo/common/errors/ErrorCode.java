@@ -52,9 +52,6 @@ public enum ErrorCode {
     INVALID_POSITION(HttpStatus.BAD_REQUEST, "위치 정보가 올바르지 않습니다."),
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
 
-    CAR_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당하는 차종은 존재하지 않습니다."),
-    FUEL_TYPE_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당하는 연료 타입은 존재하지 않습니다."),
-
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스 입니다"),
     EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다."),
 
