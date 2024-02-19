@@ -18,6 +18,7 @@ public class GetHostReservationResponseDto {
     private final Long id;
     private final GetUserSimpleResponseDto guest;
     private final Integer fee;
+    private final Integer extraFee;
     private final ReservationStatus status;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -39,6 +40,7 @@ public class GetHostReservationResponseDto {
                 .id(reservation.getId())
                 .guest(userSimpleResponseDto)
                 .fee(reservation.getFee())
+                .extraFee(reservation.getExtraFee())
                 .status(reservation.getStatus())
                 .rentDateTime(reservation.getRentDateTime())
                 .returnDateTime(reservation.getReturnDateTime())

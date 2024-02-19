@@ -90,16 +90,15 @@ public class ReservationService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
 
         ReservationStatus originStatus = reservation.getStatus();
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime rentDateTime = reservation.getRentDateTime();
+        LocalDateTime returnDateTime = reservation.getReturnDateTime();
         boolean invalidUpdate = false;
 
         // 호스트가 요청한 경우
         if (reservation.getHost().getId().equals(user.getId())) {
             // 예약 취소
             if (originStatus == ReservationStatus.READY && requestedStatus == ReservationStatus.CANCEL) {
-                reservation.setStatus(requestedStatus);
-            }
-            // 반납 확인
-            else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
                 reservation.setStatus(requestedStatus);
             } else {
                 invalidUpdate = true;
@@ -111,12 +110,22 @@ public class ReservationService {
             if (originStatus == ReservationStatus.READY &&
                     (requestedStatus == ReservationStatus.CANCEL || requestedStatus == ReservationStatus.USING)) {
                 reservation.setStatus(requestedStatus);
+            }
+            // 반납 요청 및 추가 요금 과금
+            else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
+                reservation.setStatus(requestedStatus);
+                Integer feePerHour = reservation.getCar().getFeePerHour();
+                if (returnDateTime.isAfter(currentDateTime)) {
+                    throw new GeneralException(ErrorCode.RESERVATION_STATUS_INVALID_CHANGE);
+                }
+                reservation.setExtraFee(feePerHour * (int) returnDateTime.until(currentDateTime, ChronoUnit.HOURS));
             } else {
                 invalidUpdate = true;
             }
         } else {
             throw new GeneralException(ErrorCode.RESERVATION_STATUS_CHANGED_BY_OTHERS);
         }
+
         if (invalidUpdate) {
             throw new GeneralException(ErrorCode.RESERVATION_STATUS_INVALID_CHANGE);
         }
@@ -178,12 +187,6 @@ public class ReservationService {
                 // Ready 상태일 때 (rentDateTime - 1day) < currentDateTime 이면 Using 상태로 변경
                 if (currentDateTime.isAfter(rentDateTime.minusDays(1))) {
                     reservation.setStatus(ReservationStatus.USING);
-                    changed = true;
-                }
-            } else if (reservationStatus == ReservationStatus.USING) {
-                // Using 상태일 때 returnDateTime < currentDateTime 이면 Terminated로 변경
-                if (currentDateTime.isAfter(returnDateTime)) {
-                    reservation.setStatus(ReservationStatus.TERMINATED);
                     changed = true;
                 }
             }

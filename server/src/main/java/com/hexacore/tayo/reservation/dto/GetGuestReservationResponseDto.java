@@ -17,6 +17,7 @@ public class GetGuestReservationResponseDto {
     private final Long id;
     private final GetCarSimpleResponseDto car;
     private final Integer fee;
+    private final Integer extraFee;
     private final String carAddress;
     private final ReservationStatus status;
     private final String hostPhoneNumber;
@@ -39,6 +40,7 @@ public class GetGuestReservationResponseDto {
                 .id(reservation.getId())
                 .car(carSimpleResponseDto)
                 .fee(reservation.getFee())
+                .extraFee(reservation.getExtraFee())
                 .carAddress(car.getAddress())
                 .status(reservation.getStatus())
                 .hostPhoneNumber(reservation.getHost().getPhoneNumber())
