@@ -138,10 +138,6 @@ public class ReservationService {
     public void updateReservationStatus(Long userId, Long reservationId, String status) {
         ReservationStatus requestedStatus = ReservationStatus.getReservationStatus(status);
 
-        if (requestedStatus == ReservationStatus.NOT_FOUND) {
-            throw new GeneralException(ErrorCode.RESERVATION_STATUS_NOT_FOUND);
-        }
-
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
