@@ -21,7 +21,6 @@ import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,7 +29,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -127,7 +125,7 @@ public class CarService {
         Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-        return GetCarResponseDto.of(car);
+        return GetCarResponseDto.guest(car);
     }
 
     /* 차량 정보 수정 */
@@ -185,7 +183,7 @@ public class CarService {
     /* 예약 가능 날짜 수정 */
     @Transactional
     public void updateDateRanges(Long hostUserId, Long carId,
-                                 CarDateRangesDto carDateRangesDto) {
+            CarDateRangesDto carDateRangesDto) {
         // 차량 조회가 안 되는 경우
         Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
