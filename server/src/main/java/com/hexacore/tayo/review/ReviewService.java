@@ -7,8 +7,10 @@ import com.hexacore.tayo.reservation.ReservationRepository;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.review.dto.CreateReviewRequestDto;
-import com.hexacore.tayo.review.model.Review;
-import com.hexacore.tayo.review.model.ReviewRepository;
+import com.hexacore.tayo.review.model.CarReview;
+import com.hexacore.tayo.review.model.CarReviewRepository;
+import com.hexacore.tayo.review.model.GuestReview;
+import com.hexacore.tayo.review.model.GuestReviewRepository;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,59 +20,78 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ReviewService {
 
-    private final ReviewRepository reviewRepository;
+    private final CarReviewRepository carReviewRepository;
+    private final GuestReviewRepository guestReviewRepository;
     private final ReservationRepository reservationRepository;
 
     @Transactional
-    public void createReview(Long writerId, CreateReviewRequestDto createReviewRequestDto,
-            boolean isGuestReview) {
+    public void createReview(Long writerId, CreateReviewRequestDto createReviewRequestDto, boolean forCar) {
         Reservation reservation = reservationRepository.findById(createReviewRequestDto.getReservationId())
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
 
-        User user = isGuestReview ? reservation.getGuest() : reservation.getHost();
-        ReservationStatus status = reservation.getStatus();
-
-        // 예약과 관련한 유저가 리뷰 작성자와 일치하지 않을 경우
-        if (!user.getId().equals(writerId)) {
+        // 리뷰 작성자 확인
+        User writer = forCar ? reservation.getGuest() : reservation.getHost();
+        if (!writer.getId().equals(writerId)) {
             throw new GeneralException(ErrorCode.RESERVATION_REVIEWED_BY_OTHERS);
         }
 
-        // 게스트일 경우 예약 상태가 ('TERMINATED' or 'HOST_REVIEW') 가 아닐 경우 리뷰 작성 불가
-        // 호스트일 경우 예약 상태가 ('TERMINATED' or 'GUEST_REVIEW') 가 아닐 경우 리뷰 작성 불가
-        if (!status.equals(ReservationStatus.TERMINATED)
-                && !status.equals(isGuestReview ? ReservationStatus.HOST_REVIEW : ReservationStatus.GUEST_REVIEW)) {
+        // 예약 상태 확인
+        if (!reservation.getStatus().equals(ReservationStatus.TERMINATED)) {
             throw new GeneralException(ErrorCode.CANNOT_ADD_REVIEW);
         }
 
-        Review review = Review.builder()
+        // 리뷰 존재 여부 확인
+        boolean reviewExists = forCar ? carReviewRepository.existsByReservation(reservation) :
+                guestReviewRepository.existsByReservation(reservation);
+        if (reviewExists) {
+            throw new GeneralException(ErrorCode.REVIEW_ALREADY_EXIST);
+        }
+
+        // 리뷰 작성
+        if (forCar) {
+            createCarReview(writerId, reservation, createReviewRequestDto);
+        } else {
+            createGuestReview(writerId, reservation, createReviewRequestDto);
+        }
+    }
+
+    private void createCarReview(Long writerId, Reservation reservation,
+            CreateReviewRequestDto createReviewRequestDto) {
+        Car car = reservation.getCar();
+
+        CarReview review = CarReview.builder()
                 .writer(User.builder().id(writerId).build())
+                .car(car)
+                .reservation(reservation)
                 .contents(createReviewRequestDto.getContents())
                 .rate(createReviewRequestDto.getRate())
                 .build();
 
-        if (isGuestReview) {
-            Car car = reservation.getCar();
-            // 게스트의 리뷰일 경우 리뷰에 차량 정보를 FK로 연결
-            review.setCar(car);
+        // 리뷰 저장
+        carReviewRepository.save(review);
 
-            // 차량 테이블의 average_rate 정보 업데이트
-            updateAvgRate(car);
-        } else {
-            // 호스트의 리뷰일 경우 리뷰에 게스트 정보를 FK로 연결
-            review.setGuest(reservation.getGuest());
-        }
-
-        reviewRepository.save(review);
-
-        if (status.equals(ReservationStatus.TERMINATED)) {
-            reservation.setStatus(isGuestReview ? ReservationStatus.GUEST_REVIEW : ReservationStatus.HOST_REVIEW);
-        } else {
-            reservation.setStatus(ReservationStatus.REVIEWED);
-        }
+        // 차량 평균 평점 업데이트
+        Double updatedRate = carReviewRepository.findAverageRateByCarId(car);
+        car.setAverageRate(updatedRate);
     }
 
-    private void updateAvgRate(Car car) {
-        Double updatedRate = reviewRepository.findAverageRateByCarId(car);
-        car.setAverageRate(updatedRate);
+    private void createGuestReview(Long writerId, Reservation reservation,
+            CreateReviewRequestDto createReviewRequestDto) {
+        User guest = reservation.getGuest();
+
+        GuestReview review = GuestReview.builder()
+                .writer(User.builder().id(writerId).build())
+                .guest(guest)
+                .reservation(reservation)
+                .contents(createReviewRequestDto.getContents())
+                .rate(createReviewRequestDto.getRate())
+                .build();
+
+        // 리뷰 저장
+        guestReviewRepository.save(review);
+
+        // 게스트 평균 평점 업데이트
+        Double updatedRate = guestReviewRepository.findAverageRateByCarId(guest);
+        guest.setAverageRate(updatedRate);
     }
 }
