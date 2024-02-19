@@ -9,4 +9,11 @@ import lombok.RequiredArgsConstructor;
 public class GetGuestReservationListResponseDto {
 
     private final List<GetGuestReservationResponseDto> reservations;
+
+    @Override
+    public String toString() {
+        return "{"
+                + "reservations=" + reservations
+                + '}';
+    }
 }

@@ -14,7 +14,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 @Aspect
 @Component
-@RequiredArgsConstructor
 public class LoggingInterceptor implements HandlerInterceptor {
 
     // Auth 성공 로깅
@@ -54,7 +53,7 @@ public class LoggingInterceptor implements HandlerInterceptor {
 
     // DB 로깅
     @AfterReturning(pointcut = "execution(* com.hexacore.tayo..*Repository.*(..))", returning = "result")
-    public void logDBOperation(JoinPoint joinPoint, Object result) {
+    public void logDbOperation(JoinPoint joinPoint, Object result) {
         // Spring Data Jpa에서 JpaRepository를 구현한 클래스인 SimpleJpaRepository가 프록시 객체를 감싸고 있음
         // 프록시 객체가 실제로 어떤 인터페이스를 구현하고 있는지 확인
         Class<?>[] interfaces = joinPoint.getTarget().getClass().getInterfaces();

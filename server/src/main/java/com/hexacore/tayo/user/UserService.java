@@ -5,13 +5,13 @@ import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.util.S3Manager;
-import com.hexacore.tayo.user.dto.UpdateUserRequestDto;
+import com.hexacore.tayo.user.dto.GetUserCustomerKeyResponseDto;
 import com.hexacore.tayo.user.dto.GetUserInfoResponseDto;
+import com.hexacore.tayo.user.dto.UpdateUserRequestDto;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.Encryptor;
+import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ public class UserService {
 
     @Transactional
     public void update(Long userId, UpdateUserRequestDto updateRequestDto) {
-        User user = userRepository.findById(userId).orElseThrow(() ->
+        User user = userRepository.findByIdAndIsDeletedFalse(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         // 시용자 프로필 이미지 수정시 - s3에서 원래 이미지 삭제 후 새로 업로드
@@ -46,7 +46,7 @@ public class UserService {
     }
 
     public GetUserInfoResponseDto getUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() ->
+        User user = userRepository.findByIdAndIsDeletedFalse(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         return getUserInfo(user);
@@ -55,7 +55,7 @@ public class UserService {
     public GetCarResponseDto getUserCar(Long userId) {
         Car car = carRepository.findByOwner_IdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS));
-        return GetCarResponseDto.of(car);
+        return GetCarResponseDto.host(car);
     }
 
     private GetUserInfoResponseDto getUserInfo(User user) {
@@ -66,5 +66,11 @@ public class UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .profileImgUrl(user.getProfileImgUrl())
                 .build();
+    }
+
+    public GetUserCustomerKeyResponseDto getUserCustomerKey(Long userId) {
+        User user = userRepository.findByIdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+        return GetUserCustomerKeyResponseDto.builder().customerKey(user.getCustomerKey()).name(user.getName()).build();
     }
 }
