@@ -19,13 +19,15 @@ function Home() {
   const latitude = useRef<number>(0);
   const longitude = useRef<number>(0);
   const [page, setPage] = useState<number>(0);
-  const [totalPages, setTotalPages] = useState<number>(0);
+  // const [totalPages, setTotalPages] = useState<number>(0);
+  const [hasNext, setHasNext] = useState<boolean>(false);
   const loaderRef = useRef(null);
 
   useEffect(() => {
     setCarDataList(loaderData.cars?.data ? loaderData.cars.data : []);
     setPage(0);
-    setTotalPages(loaderData.cars?.pageInfo ? loaderData.cars.pageInfo.totalPages : 0);
+    // setTotalPages(loaderData.cars?.pageInfo ? loaderData.cars.pageInfo.totalPages : 0);
+    setHasNext(loaderData.cars?.pageInfo ? loaderData.cars.pageInfo.hasNext : false);
   }, [window.location.search]);
 
   // 무한 스크롤 요청
@@ -45,13 +47,13 @@ function Home() {
         page: page,
       });
 
-      if (newCarData.data) {
+      if (newCarData?.data) {
         setCarDataList((prevCarDataList) => [...prevCarDataList, ...newCarData.data]);
       }
     };
 
     const carSearchParam = parseQueryString(window.location.href);
-    if (carSearchParam && page <= totalPages) {
+    if (carSearchParam && hasNext) {
       fetchData(carSearchParam);
     }
   }, [page]);
@@ -102,4 +104,3 @@ function Home() {
 }
 
 export default Home;
-
