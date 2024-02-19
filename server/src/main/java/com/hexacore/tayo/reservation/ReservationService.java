@@ -3,28 +3,21 @@ package com.hexacore.tayo.reservation;
 import com.hexacore.tayo.car.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
-import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
-import com.hexacore.tayo.reservation.dto.GetCarSimpleResponseDto;
-import com.hexacore.tayo.reservation.dto.GetGuestReservationListResponseDto;
-import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
-import com.hexacore.tayo.reservation.dto.GetHostReservationListResponseDto;
-import com.hexacore.tayo.reservation.dto.GetHostReservationResponseDto;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.UserRepository;
-import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -70,68 +63,20 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
-    public GetGuestReservationListResponseDto getGuestReservations(Long guestUserId) {
-        List<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId);
+    @Transactional
+    public Page<Reservation> getGuestReservations(Long guestUserId, Pageable pageable) {
+        Page<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId, pageable);
         updateReservationStatusByCurrentDateTime(reservations);
 
-        List<GetGuestReservationResponseDto> getGuestReservationResponseDtos = new ArrayList<>();
-        for (Reservation reservation : reservations) {
-            Car car = reservation.getCar();
-            List<CarImage> images = car.getCarImages();
-            Subcategory subcategory = car.getSubcategory();
-            User host = car.getOwner();
-
-            GetCarSimpleResponseDto getCarSimpleResponseDto = GetCarSimpleResponseDto.builder()
-                    .id(car.getId())
-                    .name(subcategory.getName())
-                    .imageUrl(images.get(0).getUrl()) // 대표 이미지 1장
-                    .build();
-
-            GetGuestReservationResponseDto getGuestReservationResponseDto = GetGuestReservationResponseDto.builder()
-                    .id(reservation.getId())
-                    .car(getCarSimpleResponseDto)
-                    .fee(reservation.getFee())
-                    .carAddress(car.getAddress())
-                    .rentDateTime(reservation.getRentDateTime())
-                    .returnDateTime(reservation.getReturnDateTime())
-                    .status(reservation.getStatus())
-                    .hostPhoneNumber(host.getPhoneNumber())
-                    .build();
-
-            getGuestReservationResponseDtos.add(getGuestReservationResponseDto);
-        }
-
-        return new GetGuestReservationListResponseDto(getGuestReservationResponseDtos);
+        return reservations;
     }
 
-    public GetHostReservationListResponseDto getHostReservations(Long hostUserId) {
-        List<Reservation> reservations = reservationRepository.findAllByHost_id(hostUserId);
+    @Transactional
+    public Page<Reservation> getHostReservations(Long hostUserId, Pageable pageable) {
+        Page<Reservation> reservations = reservationRepository.findAllByHost_id(hostUserId, pageable);
         updateReservationStatusByCurrentDateTime(reservations);
 
-        List<GetHostReservationResponseDto> getHostReservationResponseDtos = new ArrayList<>();
-        for (Reservation reservation : reservations) {
-            User guest = reservation.getGuest();
-
-            GetUserSimpleResponseDto userSimpleResponseDto = GetUserSimpleResponseDto.builder()
-                    .id(guest.getId())
-                    .name(guest.getName())
-                    .phoneNumber(guest.getPhoneNumber())
-                    .profileImgUrl(guest.getProfileImgUrl())
-                    .build();
-
-            GetHostReservationResponseDto getHostReservationResponseDto = GetHostReservationResponseDto.builder()
-                    .id(reservation.getId())
-                    .guest(userSimpleResponseDto)
-                    .rentDateTime(reservation.getRentDateTime())
-                    .returnDateTime(reservation.getReturnDateTime())
-                    .fee(reservation.getFee())
-                    .status(reservation.getStatus())
-                    .build();
-
-            getHostReservationResponseDtos.add(getHostReservationResponseDto);
-        }
-
-        return new GetHostReservationListResponseDto(getHostReservationResponseDtos);
+        return reservations;
     }
 
     @Transactional
@@ -220,7 +165,7 @@ public class ReservationService {
         throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
     }
 
-    private void updateReservationStatusByCurrentDateTime(List<Reservation> reservations) {
+    private void updateReservationStatusByCurrentDateTime(Page<Reservation> reservations) {
         LocalDateTime currentDateTime = LocalDateTime.now();
 
         for (Reservation reservation : reservations) {
