@@ -1,5 +1,4 @@
 import Button from '@/components/Button';
-import { useEffect } from 'react';
 import { UserData } from '@/fetches/users/fetchUser';
 import { ReservationData } from '@/fetches/reservations/Reservation.type';
 import { useNavigate } from 'react-router-dom';
@@ -12,11 +11,10 @@ import ListComponent, { TargetType } from '@/components/ListComponent';
 function Profile() {
   const data = useLoaderData() as { user: UserData; reservations: ReservationData[] };
   const navigator = useNavigate();
-  useEffect(() => {
-    if (!data.user) {
-      navigator('/auth/login');
-    }
-  }, [data.user, navigator]);
+  if (!data.user) {
+    //TODO: 진섭이가 로딩페이지 만들면 넣기
+    return <div>Loading...</div>;
+  }
 
   const editProfile = () => {
     navigator('/auth/signup/'+localStorage.getItem("userId"));
