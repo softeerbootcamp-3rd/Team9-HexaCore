@@ -9,31 +9,18 @@ interface LoaderParams {
   };
 }
 
-type ProfileLoaderData = {
-  user: ReturnType<typeof parseUser> | null;
-  reservations: ReturnType<typeof parseGuestReservations>;
-};
-
 const profileRoutes: RouteObject[] = [
   {
     path: 'profile/:userId?',
     loader: async ({ params }: LoaderParams) => {
       const userId = params.userId ?? localStorage.getItem("userId") ?? '';
-      const [userResult, GuestReservationResult] = await Promise.allSettled([fetchUser(parseInt(userId)), fetchGuestReservations()]);
-      const data: ProfileLoaderData = {
-        user: null,
-        reservations: []
-      }
+      const [userResult] = await Promise.allSettled([fetchUser(parseInt(userId))]);
+      var data = null;
       if (userResult.status == 'fulfilled' && userResult.value != undefined){
         if(userResult.value.code === 200){
-          data.user = parseUser(userResult.value.data);
+          data = parseUser(userResult.value.data);
         }
-        else{
-          throw Error("예기치 못한 오류가 발생했습니다.")
-        }
-      }
-      if (GuestReservationResult.status === 'fulfilled' && GuestReservationResult.value !== undefined) {
-        data.reservations = parseGuestReservations(GuestReservationResult.value.data);
+        //TODO:통신실패시 동작
       }
       return data;
     },
