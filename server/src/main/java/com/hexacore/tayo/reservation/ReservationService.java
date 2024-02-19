@@ -115,10 +115,10 @@ public class ReservationService {
             else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
                 reservation.setStatus(requestedStatus);
                 Integer feePerHour = reservation.getCar().getFeePerHour();
-                if (returnDateTime.isAfter(currentDateTime)) {
-                    throw new GeneralException(ErrorCode.RESERVATION_STATUS_INVALID_CHANGE);
+                // 연체할 경우 시간당 추가 과금 (returnDateTime <= currentDateTime)
+                if (!returnDateTime.isAfter(currentDateTime)) {
+                    reservation.setExtraFee(feePerHour * (int) returnDateTime.until(currentDateTime, ChronoUnit.HOURS));
                 }
-                reservation.setExtraFee(feePerHour * (int) returnDateTime.until(currentDateTime, ChronoUnit.HOURS));
             } else {
                 invalidUpdate = true;
             }
