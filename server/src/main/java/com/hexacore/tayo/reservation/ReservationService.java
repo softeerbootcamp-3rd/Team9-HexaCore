@@ -52,7 +52,7 @@ public class ReservationService {
     private String tossSecretKey;
 
     @Transactional
-    public void createReservation(CreateReservationRequestDto createReservationRequestDto, Long guestUserId) {
+    public void createReservation(CreateReservationRequestDto createReservationRequestDto, Long guestUserId, Integer amount) throws Exception {
         User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
@@ -250,7 +250,7 @@ public class ReservationService {
                     TossPaymentResponse.class
             );
 
-            if (response.getBody() != null || !"DONE".equals(response.getBody().getStatus())) {
+            if (response.getBody() == null || !"DONE".equals(response.getBody().getStatus())) {
                 // 결제 승인 실패
                 throw new GeneralException(ErrorCode.TOSS_PAYMENTS_FAILED);
             }
@@ -266,7 +266,7 @@ public class ReservationService {
         HttpEntity<TossCancelRequest> requestEntity = new HttpEntity<>(TossCancelRequest.builder().cancelReason(cancelReason).build(), headers);
         try {
             ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
-                    "https://api.tosspayments.com/v1/payments/confirm",
+                    String.format("https://api.tosspayments.com/v1/payments/%s/cancel", paymentKey),
                     HttpMethod.POST,
                     requestEntity,
                     TossPaymentResponse.class
