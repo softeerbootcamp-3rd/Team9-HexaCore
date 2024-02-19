@@ -46,7 +46,9 @@ public class ReservationService {
     private String tossSecretKey;
 
     @Transactional
-    public void createReservation(CreateReservationRequestDto createReservationRequestDto, Long guestUserId, Integer amount) throws Exception {
+    public void createReservation(CreateReservationRequestDto createReservationRequestDto,
+            Long guestUserId,
+            Integer amount) throws Exception {
         User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
@@ -158,8 +160,8 @@ public class ReservationService {
     }
 
     private void validateRentReturnInRangeElseThrow(Car car,
-                                                    LocalDateTime rentDateTime,
-                                                    LocalDateTime returnDateTime) throws GeneralException {
+            LocalDateTime rentDateTime,
+            LocalDateTime returnDateTime) throws GeneralException {
         if (rentDateTime.isAfter(returnDateTime)) {
             throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
         }
@@ -207,8 +209,8 @@ public class ReservationService {
             LocalDateTime returnDateTime = reservation.getReturnDateTime();
 
             if (reservationStatus == ReservationStatus.READY) {
-                // Ready 상태일 때 (rentDateTime - 1day) < currentDateTime 이면 Using 상태로 변경
-                if (currentDateTime.isAfter(rentDateTime.minusDays(1))) {
+                // Ready 상태일 때 rentDate == currentDate 이면 (동일 날짜라면) Using 상태로 변경
+                if (rentDateTime.toLocalDate().isEqual(currentDateTime.toLocalDate())) {
                     reservation.setStatus(ReservationStatus.USING);
                     changed = true;
                 }
@@ -224,7 +226,8 @@ public class ReservationService {
         String encodedCredentials = getEncodedCredentials();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + encodedCredentials);
-        HttpEntity<TossApproveRequest> requestEntity = new HttpEntity<>(TossApproveRequest.builder().paymentKey(paymentKey).orderId(orderId).amount(amount).build(), headers);
+        HttpEntity<TossApproveRequest> requestEntity = new HttpEntity<>(
+                TossApproveRequest.builder().paymentKey(paymentKey).orderId(orderId).amount(amount).build(), headers);
 
         try {
             ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
@@ -247,7 +250,8 @@ public class ReservationService {
         String encodedCredentials = getEncodedCredentials();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + encodedCredentials);
-        HttpEntity<TossCancelRequest> requestEntity = new HttpEntity<>(TossCancelRequest.builder().cancelReason(cancelReason).build(), headers);
+        HttpEntity<TossCancelRequest> requestEntity = new HttpEntity<>(
+                TossCancelRequest.builder().cancelReason(cancelReason).build(), headers);
         try {
             ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
                     String.format("https://api.tosspayments.com/v1/payments/%s/cancel", paymentKey),
