@@ -49,6 +49,9 @@ function SignUp() {
     if (pwdInputRef.current) {
       pwdInputRef.current.autocomplete = "new-password";
     }
+    if (fileInputRef.current) {
+      fileInputRef.current.autocomplete = "new-password";
+    }
   };
   useEffect(() => {
     setUserInfo();
