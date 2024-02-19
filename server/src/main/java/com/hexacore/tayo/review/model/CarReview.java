@@ -2,6 +2,7 @@ package com.hexacore.tayo.review.model;
 
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.BaseTime;
+import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.user.model.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,21 +11,18 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
-@Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "review")
-public class Review extends BaseTime {
+@Table(name = "car_review")
+public class CarReview extends BaseTime {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,12 +33,12 @@ public class Review extends BaseTime {
     private User writer;
 
     @ManyToOne
-    @JoinColumn(name = "guest_id")
-    private User guest;
-
-    @ManyToOne
-    @JoinColumn(name = "car_id")
+    @JoinColumn(name = "car_id", nullable = false)
     private Car car;
+
+    @OneToOne
+    @JoinColumn(name = "reservation_id", nullable = false, unique = true)
+    private Reservation reservation;
 
     @Column(name = "contents")
     private String contents;
