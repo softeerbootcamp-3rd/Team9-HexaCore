@@ -11,4 +11,11 @@ public class LoginResponseDto {
     private GetTokenResponseDto tokens;
     private GetUserInfoResponseDto loginUserInfo;
 
+    @Override
+    public String toString() {
+        return "{"
+                + "tokens=" + tokens
+                + ", loginUserInfo=" + loginUserInfo
+                + '}';
+    }
 }

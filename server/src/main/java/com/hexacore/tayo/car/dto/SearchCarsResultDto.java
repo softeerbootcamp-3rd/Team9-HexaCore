@@ -26,4 +26,17 @@ public class SearchCarsResultDto {
                 ", feePerHour=" + feePerHour +
                 '}';
     }
+
+    @Override
+    public String toString() {
+        return "{"
+                + "id=" + id
+                + ", subcategory='" + subcategory + '\''
+                + ", imageUrl='" + imageUrl + '\''
+                + ", address='" + address + '\''
+                + ", mileage=" + mileage
+                + ", capacity=" + capacity
+                + ", feePerHour=" + feePerHour
+                + '}';
+    }
 }

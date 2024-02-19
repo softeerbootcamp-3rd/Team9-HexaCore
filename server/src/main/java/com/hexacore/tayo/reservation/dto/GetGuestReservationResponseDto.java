@@ -24,4 +24,18 @@ public class GetGuestReservationResponseDto {
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private final LocalDateTime returnDateTime;
+
+    @Override
+    public String toString() {
+        return "{"
+                + "id=" + id
+                + ", car=" + car
+                + ", fee=" + fee
+                + ", carAddress='" + carAddress + '\''
+                + ", status=" + status
+                + ", hostPhoneNumber='" + hostPhoneNumber + '\''
+                + ", rentDateTime=" + rentDateTime
+                + ", returnDateTime=" + returnDateTime
+                + '}';
+    }
 }
