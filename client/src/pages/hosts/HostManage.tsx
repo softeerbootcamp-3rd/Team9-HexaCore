@@ -9,9 +9,8 @@ import { HostManageLoaderData } from './hostsRoutes';
 import { TargetType } from '@/components/ListComponent';
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
-import ImageGallery from '../cars/ImageGallery';
+import ImageGallery from '@/components/ImageGallery';
 import { reservationStatus } from '@/fetches/reservations/Reservation.type';
-
 
 const TABS = ['calendar', 'reservation'] as const;
 type TabType = (typeof TABS)[number];
@@ -20,9 +19,9 @@ function HostManage() {
   const navigate = useNavigate();
   const { carDetail, hostReservations } = useLoaderData() as HostManageLoaderData;
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
-  if (!carDetail) { 
+  if (!carDetail) {
     return;
- }
+  }
   const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
 
   const editCar = () => {
@@ -33,21 +32,20 @@ function HostManage() {
     const response = await server.delete<ResponseWithoutData>('/cars/' + carDetail.id, {});
     if (response.success) {
       location.reload();
-    } 
+    }
   };
   const updateDates = async () => {
     await server.put<ResponseWithoutData>('/cars/' + carDetail?.id + '/date', {
       data: {
         dates: availableDates,
-      }
-    })
-  }
+      },
+    });
+  };
   //
   const handleTabSelect = (tab: TabType) => {
     setSelectedTab(tab);
   };
 
-  
   // 선택된 탭에 따라 해당 컴포넌트 렌더링
   const renderSelectedComponent = () => {
     const reservations = hostReservations.map((reservation) => reservation.rentPeriod);
@@ -59,9 +57,8 @@ function HostManage() {
             <div className=''>
               <HostCalendar size='large' availableDates={availableDates} onAvailableDatesChange={setAvailableDates} reservations={reservations} />
               <div className='flex justify-end'>
-                <Button text = "저장" onClick={updateDates}></Button>
+                <Button text='저장' onClick={updateDates}></Button>
               </div>
-              
             </div>
           </div>
         );
@@ -101,7 +98,7 @@ function HostManage() {
         target: reservation.target,
         rentPeriod: reservation.rentPeriod,
         rentStatus: reservation.rentStatus ?? reservationStatus.UNDEFINED,
-        rentFee: reservation.rentFee ?? undefined,
+        rentFee: reservation.rentFee ?? null,
         address: reservation.address ?? '',
       }}
     />
@@ -120,11 +117,11 @@ function HostManage() {
 
             <div className='flex flex-col justify-center gap-4 p-6'>
               {/* Header : CarName, CarNumber, type, mileage, fuel */}
-              <div className="flex flex-col gap-2">
-                <div className="flex justify-between">
-                  <div className="flex items-center gap-2 ">
-                    <h1 className="text-base lg:text-xl font-bold">{carDetail.categoryName}</h1>
-                    <div className="text-background-700 font-media text-xs lg:text-sm h-full flex flex-col justify-end color">{carDetail.carNumber}</div>
+              <div className='flex flex-col gap-2'>
+                <div className='flex justify-between'>
+                  <div className='flex items-center gap-2 '>
+                    <h1 className='text-base font-bold lg:text-xl'>{carDetail.categoryName}</h1>
+                    <div className='font-media color flex h-full flex-col justify-end text-xs text-background-700 lg:text-sm'>{carDetail.carNumber}</div>
                     {/* <Tag className="h-6 text-background-700 font-semibold text-base" text={data.car.carNumber} /> */}
                   </div>
                   <div className='ml-3 flex items-center gap-3'>
@@ -148,20 +145,20 @@ function HostManage() {
               {/* Car Info Detail */}
               <div className='flex flex-col gap-3'>
                 {/* carNumber */}
-                <div className="flex gap-4 items-center">
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
-                    <img src="/location.svg" alt="host-profile" />
+                <div className='flex items-center gap-4'>
+                  <div className='bg-gray-300 flex h-8 w-8 items-center justify-center overflow-hidden rounded-full'>
+                    <img src='/location.svg' alt='host-profile' />
                   </div>
-                  <div className="flex flex-col">
-                    <p className="font-semibold">위치</p>
-                    <p className="text-background-500 text-sm">{carDetail.address}</p>
+                  <div className='flex flex-col'>
+                    <p className='font-semibold'>위치</p>
+                    <p className='text-sm text-background-500'>{carDetail.address}</p>
                   </div>
                 </div>
 
                 {/* Year */}
-                <div className="flex gap-4 items-center">
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
-                    <img src="/price.svg" alt="host-profile" />
+                <div className='flex items-center gap-4'>
+                  <div className='bg-gray-300 flex h-8 w-8 items-center justify-center overflow-hidden rounded-full'>
+                    <img src='/price.svg' alt='host-profile' />
                   </div>
                   <div className='flex flex-col'>
                     <p className='font-semibold'>가격</p>
@@ -170,9 +167,9 @@ function HostManage() {
                 </div>
 
                 {/* Address */}
-                <div className="flex gap-4 items-center">
-                  <div className="w-8 h-8 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center">
-                    <img src="/year.svg" alt="host-profile" />
+                <div className='flex items-center gap-4'>
+                  <div className='bg-gray-300 flex h-8 w-8 items-center justify-center overflow-hidden rounded-full'>
+                    <img src='/year.svg' alt='host-profile' />
                   </div>
                   <div className='flex flex-col'>
                     <p className='font-semibold'>연식</p>
@@ -219,3 +216,4 @@ function HostManage() {
 }
 
 export default HostManage;
+

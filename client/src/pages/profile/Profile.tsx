@@ -4,6 +4,9 @@ import { UserData } from '@/fetches/users/fetchUser';
 import { ReservationData } from '@/fetches/reservations/Reservation.type';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
+import PhoneIcon from '@/components/svgs/PhoneIcon';
+import MailIcon from '@/components/svgs/MailIcon';
+import { deleteUser } from '@/fetches/auth/fetchAuth';
 import ListComponent, { TargetType } from '@/components/ListComponent';
 
 function Profile() {
@@ -16,7 +19,7 @@ function Profile() {
   }, [data.user, navigator]);
 
   const editProfile = () => {
-    navigator('/auth/signup');
+    navigator('/auth/signup/'+localStorage.getItem("userId"));
     return;
   };
 
@@ -54,7 +57,7 @@ function Profile() {
             target: reservation.target,
             rentPeriod: reservation.rentPeriod,
             rentStatus: reservation.rentStatus ?? '',
-            rentFee: reservation.rentFee ?? undefined,
+            rentFee: reservation.rentFee ?? null,
             address: reservation.address ?? '',
           }}
         />
@@ -62,26 +65,58 @@ function Profile() {
     : null;
   return (
     <div className='flex h-full min-w-[640px] flex-col'>
-      <div className='flex h-auto flex-col'>
-        <h2 className='text-lg font-bold'>내 정보</h2>
-        <div className='flex h-auto w-full py-4'>
-          <img className='h-28 w-24 rounded-2xl' src={data.user?.image || '../public/default-profile.svg'}></img>
-          <div className='ml-6 flex w-2/5 flex-col'>
-            <p className='text-md font-bold'>{data.user?.name}</p>
-            <p className='mt-2 text-sm text-background-400'>{data.user?.email}</p>
-            <p className='text-sm text-background-400'>{data.user?.phoneNum}</p>
-            <Button
-              text='수정'
-              className='m-4 ml-0 flex h-8 w-1/5 items-center justify-center whitespace-nowrap text-xs xl:text-sm'
-              onClick={editProfile}></Button>
+      
+      <div className='flex pt-3 h-1/3 flex-row'>
+        <h2 className='text-lg font-bold w-[10%]'>내 정보</h2>
+      
+        <div className='flex pt-2 w-full h-auto items-start'>
+          <img className='rounded-2xl w-[150px] h-[150px] shadow-md' src={data.user?.image || '../public/defaultProfile.png'}></img>
+          
+          <div className='ml-8 flex flex-col w-2/5'>
+            <p className='text-md font-semibold m-1 py-1'>
+              {data.user?.name}
+            </p>
+
+            <div className='flex flex-row text-background-400 items-center m-1'>
+              <MailIcon />
+              <p className='text-sm ml-4'>
+                {data.user?.email}
+              </p>
+            </div>
+
+            <div className='flex flex-row text-background-400 items-center m-1'>
+              <PhoneIcon />
+              <p className='text-sm ml-4'>          
+                {data.user?.phoneNum}
+              </p>
+            </div>
+
+            <div className='p-3 pl-0 pb-0 flex flex-row'>
+              <Button
+                text='수정'
+                className='flex h-8 w-1/6 items-center justify-center whitespace-nowrap text-xs xl:text-sm rounded-xl'
+                onClick={editProfile}>
+              </Button>
+              <Button
+                text='탈퇴'
+                className='ml-5 flex h-8 w-1/6 items-center justify-center whitespace-nowrap text-xs xl:text-sm rounded-xl'
+                onClick={deleteUser}
+                type='danger'>
+              </Button>
+            </div>
           </div>
+          
         </div>
       </div>
-      <hr className='border-background-300'></hr>
-      <div className='h-2/3'>
+
+      <hr className='border-background-200 pb-3'></hr>
+      
+      <div className='h-2/3 mt-8 '>
         <div className='flex h-full w-full'>
-          <h2 className='mt-8 text-lg font-bold'>예약 내역</h2>
-          <div className='mx-6 mt-8 flex max-h-[560px] grow flex-col gap-5 overflow-y-auto pr-6'>{ReservationCard}</div>
+          <h2 className='text-lg font-bold w-[10%]'>예약 내역</h2>
+          <div className='flex max-h-[560px] grow flex-col gap-5 overflow-y-auto pr-6'>
+            {ReservationCard}
+          </div>
         </div>
       </div>
     </div>

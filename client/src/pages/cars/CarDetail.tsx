@@ -6,8 +6,8 @@ import Button from '@/components/Button';
 import TimePicker from '@/components/TimePicker';
 import GuestCalendar from '@/components/calendar/guestCalendar/GuestCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
-import { dateTimeToString, dateToString, stringTupleToDateRange } from '@/utils/converters';
-import ImageGallery from './ImageGallery';
+import { dateTimeToString, dateToString, stringToDate, stringTupleToDateRange } from '@/utils/converters';
+import ImageGallery from '@/components/ImageGallery';
 import { fetchUserCustomerKey } from '@/fetches/users/fetchUser';
 import { createPortal } from 'react-dom';
 import Payment from './Payment';
@@ -216,17 +216,25 @@ function CarDetail() {
           {/* Total Fee */}
           <p className='text-gray-900 text-3xl tracking-tight'>₩ {totalFee}</p>
           <div>
-            <GuestCalendar availableDates={data.carDateRanges} onReservationChange={updateDateRange} reservation={dateRange} />
+            <GuestCalendar 
+              availableDates={data.carDateRanges}
+              onReservationChange={updateDateRange}
+              initDate={stringToDate(startDate)}
+              reservation={dateRange}/>
           </div>
           {/* Date + Time Info */}
           <div className='grid grid-cols-2 gap-0 overflow-hidden rounded-xl border-[1px] border-background-300'>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-r-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>대여일</p>
-              <p className='text-background-500'>{dateToString(dateRange[0])}</p>
+              <p className='text-background-500'>
+                {dateToString(dateRange[0]) === dateToString(new Date(0)) ? '' : dateToString(dateRange[0])}
+              </p>
             </label>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-l-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>반납일</p>
-              <p className='text-background-500'>{dateToString(dateRange[1])}</p>
+              <p className='text-background-500'>
+                {dateToString(dateRange[1]) === dateToString(new Date(0)) ? '' : dateToString(dateRange[1])}
+              </p>
             </label>
             <div className='gap-1 border-r-[0.5px] border-t-[0.5px] border-background-300 p-3'>
               <p className='text-xs font-medium'>대여 시각</p>
