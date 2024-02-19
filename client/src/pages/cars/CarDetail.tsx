@@ -221,14 +221,14 @@ function CarDetail() {
           <div className="grid grid-cols-2 gap-0 overflow-hidden rounded-xl border-[1px] border-background-300">
             <label className="flex flex-col gap-1 border-b-[0.5px] border-r-[0.5px] border-background-300 p-3" htmlFor="rentHourSelect">
               <p className="text-xs font-medium">대여일</p>
-              <p className="text-background-500">
-                {dateToString(dateRange[0])}
+              <p className="text-background-500 min-h-6">
+                {dateToString(dateRange[0]) === dateToString(new Date(0)) ? '' : dateToString(dateRange[0])}
               </p>
             </label>
             <label className="flex flex-col gap-1 border-b-[0.5px] border-l-[0.5px] border-background-300 p-3" htmlFor="rentHourSelect">
               <p className="text-xs font-medium">반납일</p>
-              <p className="text-background-500">
-                {dateToString(dateRange[1])}
+              <p className="text-background-500 min-h-6">
+                {dateToString(dateRange[1]) === dateToString(new Date(0)) ? '' : dateToString(dateRange[1])}
               </p>
             </label>
             <div className="gap-1 border-r-[0.5px] border-t-[0.5px] border-background-300 p-3">

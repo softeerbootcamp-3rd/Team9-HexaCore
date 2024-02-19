@@ -26,7 +26,7 @@ public class UserService {
 
     @Transactional
     public void update(Long userId, UpdateUserRequestDto updateRequestDto) {
-        User user = userRepository.findById(userId).orElseThrow(() ->
+        User user = userRepository.findByIdAndIsDeletedFalse(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         // 시용자 프로필 이미지 수정시 - s3에서 원래 이미지 삭제 후 새로 업로드
@@ -46,7 +46,7 @@ public class UserService {
     }
 
     public GetUserInfoResponseDto getUser(Long userId) {
-        User user = userRepository.findById(userId).orElseThrow(() ->
+        User user = userRepository.findByIdAndIsDeletedFalse(userId).orElseThrow(() ->
                 new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         return getUserInfo(user);
