@@ -12,4 +12,13 @@ public class GetCarSimpleResponseDto {
     private final Long id;
     private final String name;
     private final String imageUrl;
+
+    @Override
+    public String toString() {
+        return "{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", imageUrl='" + imageUrl + '\''
+                + '}';
+    }
 }
