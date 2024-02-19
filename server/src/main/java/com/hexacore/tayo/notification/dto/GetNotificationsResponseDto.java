@@ -9,31 +9,31 @@ import java.util.stream.Collectors;
 
 @Getter
 @Builder
-public class GetNotificationResponseDto {
+public class GetNotificationsResponseDto {
 
-    private List<NotificationDto> notifications;
+    private List<GetNotificationResponseDto> notifications;
 
     @Getter
     @Builder
-    public static class NotificationDto {
+    public static class GetNotificationResponseDto {
         private Long id;
         private String title;
         private String message;
     }
 
-    public static NotificationDto of(Notification notification) {
-        return NotificationDto.builder()
+    public static GetNotificationResponseDto of(Notification notification) {
+        return GetNotificationResponseDto.builder()
                 .id(notification.getId())
                 .message(notification.getMessage())
                 .title(notification.getNotificationType().typeTitle)
                 .build();
     }
 
-    public static GetNotificationResponseDto listOf(List<Notification> notifications) {
-        return new GetNotificationResponseDto(
+    public static GetNotificationsResponseDto listOf(List<Notification> notifications) {
+        return new GetNotificationsResponseDto(
                 notifications
                         .stream()
-                        .map(GetNotificationResponseDto::of)
+                        .map(GetNotificationsResponseDto::of)
                         .collect(Collectors.toList())
         );
     }
