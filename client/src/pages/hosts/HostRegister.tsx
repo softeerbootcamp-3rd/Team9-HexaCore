@@ -58,8 +58,11 @@ const calculateCarType = (CC: string) => {
   if (CCvalue < 1000) {
     return '경차';
   }
-  if (CCvalue < 1600) {
+  if (CCvalue < 1300) {
     return '소형차';
+  }
+  if (CCvalue < 1600) {
+    return '준중형차';
   }
   if (CCvalue < 2000) {
     return '중형차';
@@ -134,12 +137,12 @@ function HostRegister() {
   const formatCurrency = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.currentTarget.value.length === 0 || !feeRef.current) return;
 
-    const currencyValue = e.currentTarget.value ?? 0; // NaN일때 0으로 변환
+    const currencyValue = fee ?? 0; // NaN일때 0으로 변환
     const currencyValueNumber = Number(currencyValue.replace(/,/g, ''));
 
     // 0 혹은 NaN이면 빈 칸으로 바꾼다.
     if (currencyValueNumber === 0 || Number.isNaN(currencyValueNumber)) {
-      feeRef.current.value = '';
+      setFee('');
       return;
     }
 
@@ -148,7 +151,7 @@ function HostRegister() {
     // 0 3개마다 , 표시
 
     if (feeRef.current) {
-      feeRef.current.value = formattedCurrency;
+      setFee(formattedCurrency);
       // 입력 창의 커서를 ",000"의 앞의 위치로 강제한다.
       feeRef.current.selectionStart = e.currentTarget.value.length - 4;
       feeRef.current.selectionEnd = e.currentTarget.value.length - 4;
