@@ -35,6 +35,8 @@ export const parseHostReservations = (hostReservationsResponseRaw: HostReservati
           name: reservation.guest.name ,
           image: reservation.guest.imageUrl,
           phoneNumber: reservation.guest.phoneNumber,
+          lat:null,
+          lng:null
         },
         rentPeriod: stringTupleToDateTimeRange([reservation.rentDateTime, reservation.returnDateTime]),
         rentFee: reservation.fee,

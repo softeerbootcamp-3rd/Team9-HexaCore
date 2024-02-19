@@ -91,27 +91,47 @@ function ListComponent({ type, reservation, className }: Props) {
     });
   };
 
+  function distance(lat1:number, lon1:number, lat2:number, lon2:number) {
+    const R = 6371; // 지구 반지름 (단위: km)
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+              Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const distance = R * c; // 두 지점 간의 거리 (단위: km)
+    return distance;
+  }
+  
+  function deg2rad(deg: number) {
+    return deg * (Math.PI/180);
+  }
+
   const updateToTerminated = async (reservation: ReservationData) => {
     try {
       // 현재 위치를 비동기적으로 가져옴
       const position = await getCurrentLocation();
       const { latitude, longitude } = position.coords;
+      if(reservation.target.lat && reservation.target.lng){
+        const dist = distance(latitude, longitude, reservation.target.lat, reservation.target.lng);
+        if(dist <= 0.2){
+          const response = await server.patch<ResponseWithoutData>('/reservations/' + reservation.id, {
+            data: {
+              status: reservationStatus.TERMINATED,
+            },
+          });
       
-      console.log(latitude);
-      console.log(longitude);
-      // const response = await server.patch<ResponseWithoutData>('/reservations/' + reservation.id, {
-      //   data: {
-      //     status: reservationStatus.TERMINATED,
-      //   },
-      // });
-  
-      // if (response && !response.success) {
-      //   //TODO: 에러 처리
-      // } else {
-      //   setRentStatus('TERMINATED');
-      // }
+          if (response && !response.success) {
+            //TODO: 에러 처리
+          } else {
+            setRentStatus('TERMINATED');
+          }
+        }
+        //TODO: 너무 멀어서 반납 못한다고 표시
+      }
+      
     } catch (error) {
-      console.error("Error getting location", error);
+      //Todo: 위치 정보 획득 실패 모달 띄우기
     }
   };
 
