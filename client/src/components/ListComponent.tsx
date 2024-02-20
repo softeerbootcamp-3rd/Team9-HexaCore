@@ -11,7 +11,7 @@ type Props = {
   reservation: ReservationData;
   className?: string;
 };
-const dateFormatter = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit' });
+const dateFormatter = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit' });
 
 function ListComponent({ type, reservation, className }: Props) {
   const [buttonText, setButtonText] = useState('');
@@ -37,7 +37,7 @@ function ListComponent({ type, reservation, className }: Props) {
       }
     };
 
-    // 60초마다 시간 차이 업데이트
+    // 600초마다 시간 차이 업데이트
     const interval = setInterval(updateTimeDifference, 60000);
 
     // 초기 로드 시에도 바로 업데이트
