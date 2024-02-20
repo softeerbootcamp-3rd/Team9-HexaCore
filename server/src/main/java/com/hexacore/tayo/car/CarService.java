@@ -57,14 +57,6 @@ public class CarService {
             // 중복되는 차량 번호가 있을 경우
             throw new GeneralException(ErrorCode.CAR_NUMBER_DUPLICATED);
         }
-        if (!isSupportedCarType(createCarRequestDto.getType())) {
-            // 지원하는 않는 차량 타입인 경우
-            throw new GeneralException(ErrorCode.INVALID_CAR_TYPE);
-        }
-        if (!isSupportedFuelType(createCarRequestDto.getFuel())) {
-            // 지원하지 않는 연료 타입인 경우
-            throw new GeneralException(ErrorCode.INVALID_FUEL_TYPE);
-        }
         if (!isIndexSizeEqualsToImageSize(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles())) {
             // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
             throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
@@ -284,16 +276,6 @@ public class CarService {
     /* 인덱스 리스트와 이미지 리스트의 사이즈가 같은지 체크 */
     private Boolean isIndexSizeEqualsToImageSize(List<Integer> imageIndexes, List<MultipartFile> imageFiles) {
         return imageIndexes.size() == imageFiles.size();
-    }
-
-    /* CarType이 지원하는 형식인지 체크 */
-    private Boolean isSupportedCarType(String carType) {
-        return CarType.of(carType) != CarType.NOT_FOUND;
-    }
-
-    /* FuelType이 지원하는 형식인지 체크 */
-    private Boolean isSupportedFuelType(String fuelType) {
-        return FuelType.of(fuelType) != FuelType.NOT_FOUND;
     }
 
     /* CarDateRangesDto가 올바른지 검증하고 정렬한뒤 인접하다면 병합한다. */
