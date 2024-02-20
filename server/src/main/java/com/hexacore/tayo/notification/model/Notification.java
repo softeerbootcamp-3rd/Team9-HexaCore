@@ -26,7 +26,4 @@ public class Notification extends BaseTime {
     @Column(name = "message")
     private String message;
 
-    @Column(name = "is_read")
-    private boolean isRead = false;
-
 }

@@ -1,5 +1,7 @@
 package com.hexacore.tayo.notification;
 
+import com.hexacore.tayo.common.errors.ErrorCode;
+import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.notification.dto.SseNotificationDto;
 import com.hexacore.tayo.notification.model.Notification;
 import jakarta.transaction.Transactional;
@@ -28,24 +30,26 @@ public class NotificationService {
      * @return GetNotificationResponseDto
      */
     public List<SseNotificationDto> findAll(Long userId) {
-        List<Notification> notifications = notificationRepository.findAllByUserId(userId);
+        List<Notification> notifications = notificationRepository.findAllByUserIdOrderByCreatedAt(userId);
 
         return SseNotificationDto.listOf(notifications);
     }
 
     /**
-     * 특정 유저가 받은 모든 알람을 조회하고 읽음 여부를 true 로 업데아트 합니다.
-     * @param userId 수신자 id
-     * @return GetNotificationResponseDto
+     * 특정 알림을 모두 삭제합니다.
+     * @param userId 삭제 요청한 유저 id
+     * @param notificationId 삭제하고자 하는 알림 id
      */
     @Transactional
-    public List<SseNotificationDto> findAllAndUpdateReadTrue(Long userId) {
-        List<Notification> arr = notificationRepository.findAllByUserId(userId);
-        for (Notification notification : arr) {
-            notification.setRead(true);
+    public void delete(Long userId, Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId).orElseThrow(() ->
+                new GeneralException(ErrorCode.NOTIFICATION_NOT_FOUND));
+
+        if (!notification.getUserId().equals(userId)) {
+            throw new GeneralException(ErrorCode.NOTIFICATION_CANNOT_DELETED);
         }
 
-        return SseNotificationDto.listOf(arr);
+        notificationRepository.delete(notification);
     }
 
     /**

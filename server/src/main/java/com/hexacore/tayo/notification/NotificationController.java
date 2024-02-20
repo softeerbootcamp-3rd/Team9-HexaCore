@@ -68,6 +68,19 @@ public class NotificationController {
     }
 
     /**
+     * 유저가 삭제 요청한 알림을 삭제합니다.
+     * @param request
+     * @return
+     */
+    @DeleteMapping("/{notificationId}")
+    public ResponseEntity<Response> deleteNotification(HttpServletRequest request, @PathVariable Long notificationId) {
+        Long userId = (Long) request.getAttribute("userId");
+        notificationService.delete(userId, notificationId);
+
+        return Response.of(HttpStatus.OK);
+    }
+
+    /**
      * 유저의 알림을 모두 삭제합니다.
      * @param request
      * @return

@@ -52,6 +52,9 @@ public enum ErrorCode {
     INVALID_POSITION(HttpStatus.BAD_REQUEST, "위치 정보가 올바르지 않습니다."),
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
 
+    NOTIFICATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 알림입니다."),
+    NOTIFICATION_CANNOT_DELETED(HttpStatus.BAD_REQUEST, "알림을 삭제할 수 없는 사용자입니다."),
+
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스 입니다"),
     EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다."),
 

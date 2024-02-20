@@ -21,7 +21,6 @@ public class NotificationManager {
                         .userId(recipientId)
                         .title(notificationType.title)
                         .message(senderName + notificationType.msg)
-                        .isRead(false)
                         .build()
         );
 
