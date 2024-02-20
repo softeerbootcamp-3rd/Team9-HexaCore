@@ -30,7 +30,7 @@ public class NotificationService {
      * @return GetNotificationResponseDto
      */
     public List<SseNotificationDto> findAll(Long userId) {
-        List<Notification> notifications = notificationRepository.findAllByUserIdOrderByCreatedAt(userId);
+        List<Notification> notifications = notificationRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
 
         return SseNotificationDto.listOf(notifications);
     }

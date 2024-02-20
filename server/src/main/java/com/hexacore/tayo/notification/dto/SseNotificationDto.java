@@ -1,6 +1,7 @@
 package com.hexacore.tayo.notification.dto;
 
 import com.hexacore.tayo.notification.model.Notification;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,8 +14,13 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class SseNotificationDto {
 
+    @NotNull
     private Long id;
+
+    @NotNull
     private String title;
+
+    @NotNull
     private String message;
 
     public static SseNotificationDto of(Notification notification) {

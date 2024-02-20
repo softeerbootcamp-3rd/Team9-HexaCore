@@ -2,8 +2,10 @@ package com.hexacore.tayo.notification;
 
 import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.notification.dto.SseNotificationDto;
+import com.hexacore.tayo.notification.model.NotificationType;
 import com.hexacore.tayo.notification.sse.SseEmitterService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -22,6 +24,7 @@ public class NotificationController {
 
     /**
      * 사용자가 구독을 요청하면 SseEmitter 을 응답해줍니다.
+     *
      * @param request 사용자 요청
      * @return SseEmitter
      */
@@ -34,11 +37,12 @@ public class NotificationController {
 
     /**
      * 알림 전송 테스트 api
+     *
      * @param id 수신자 id
      * @param notification 알림
      */
     @PostMapping("/{id}")
-    public ResponseEntity<Response> sendData(@PathVariable Long id, @RequestBody SseNotificationDto notification) {
+    public ResponseEntity<Response> sendData(@PathVariable Long id, @Valid @RequestBody SseNotificationDto notification) {
         sseEmitterService.sendToClient(id, notification);
 
         return Response.of(HttpStatus.OK);
@@ -46,10 +50,11 @@ public class NotificationController {
 
     /**
      * 모든 사용자에게 알림을 보냅니다.
+     *
      * @param notification 알림
      */
     @PostMapping
-    public ResponseEntity<Response> sendNotification(@RequestBody SseNotificationDto notification) {
+    public ResponseEntity<Response> sendNotification(@Valid @RequestBody SseNotificationDto notification) {
         sseEmitterService.notifyAll(notification);
 
         return Response.of(HttpStatus.OK);
@@ -57,6 +62,7 @@ public class NotificationController {
 
     /**
      * 지금까지 전송된, 모든 알림을 조회합니다.
+     *
      * @param request 사용자 요청
      * @return Response
      */
@@ -70,6 +76,7 @@ public class NotificationController {
 
     /**
      * 유저가 삭제 요청한 알림을 삭제합니다.
+     *
      * @param request 사용자 요청
      * @return Response
      */
@@ -83,6 +90,7 @@ public class NotificationController {
 
     /**
      * 유저의 알림을 모두 삭제합니다.
+     *
      * @param request 사용자 요청
      * @return Response
      */
