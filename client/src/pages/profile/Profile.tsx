@@ -6,7 +6,6 @@ import { useLoaderData } from 'react-router';
 import { fetchGuestReservations, parseGuestReservations } from '@/fetches/reservations/fetchGuestReservations';
 import PhoneIcon from '@/components/svgs/PhoneIcon';
 import MailIcon from '@/components/svgs/MailIcon';
-import { deleteUser } from '@/fetches/auth/fetchAuth';
 import ListComponent, { TargetType } from '@/components/ListComponent';
 import { useEffect, useRef, useState } from 'react';
 
@@ -117,3 +116,4 @@ function Profile() {
 }
 
 export default Profile;
+
