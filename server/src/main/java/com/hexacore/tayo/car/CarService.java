@@ -2,7 +2,8 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
-import com.hexacore.tayo.car.dto.SearchCarsParamsDto;
+import com.hexacore.tayo.car.dto.SearchCarsDto;
+import com.hexacore.tayo.car.dto.SearchCarsResultDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
@@ -29,9 +30,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,14 +56,6 @@ public class CarService {
         if (isCarNumberDuplicated(createCarRequestDto.getCarNumber())) {
             // 중복되는 차량 번호가 있을 경우
             throw new GeneralException(ErrorCode.CAR_NUMBER_DUPLICATED);
-        }
-        if (!isSupportedCarType(createCarRequestDto.getType())) {
-            // 지원하는 않는 차량 타입인 경우
-            throw new GeneralException(ErrorCode.INVALID_CAR_TYPE);
-        }
-        if (!isSupportedFuelType(createCarRequestDto.getFuel())) {
-            // 지원하지 않는 연료 타입인 경우
-            throw new GeneralException(ErrorCode.INVALID_FUEL_TYPE);
         }
         if (!isIndexSizeEqualsToImageSize(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles())) {
             // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
@@ -116,17 +108,16 @@ public class CarService {
         }
     }
 
-    public Page<Car> searchCars(SearchCarsParamsDto searchCarsParamsDto, Pageable pageable) {
-        Specification<Car> searchSpec = CarSpecifications.searchCars(searchCarsParamsDto);
-        return carRepository.findAll(searchSpec, pageable);
+    public Slice<SearchCarsResultDto> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
+        return carRepository.search(searchCarsDto, pageable);
     }
 
     /* 차량 정보 조회 */
     public GetCarResponseDto carDetail(Long carId) {
-        Car car = carRepository.findById(carId)
+        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-        return GetCarResponseDto.of(car);
+        return GetCarResponseDto.guest(car);
     }
 
     /* 차량 정보 수정 */
@@ -136,7 +127,7 @@ public class CarService {
             // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
             throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
         }
-        Car car = carRepository.findById(carId)
+        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
         if (!car.getOwner().getId().equals(userId)) {
@@ -152,9 +143,14 @@ public class CarService {
 
     /* 차량 삭제 */
     @Transactional
-    public void deleteCar(Long carId) {
-        Car car = carRepository.findById(carId)
+    public void deleteCar(Long carId, Long userId) {
+        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
+
+        // 차량 주인이 아닌 경우 삭제불가
+        if (!userId.equals(car.getOwner().getId())) {
+            throw new GeneralException(ErrorCode.CAR_UPDATED_BY_OTHERS);
+        }
 
         // 차량에 연결된 READY, USING 상태의 예약이 있는 경우 삭제불가
         if (isCarHavingReservation(car.getReservations())) {
@@ -164,6 +160,9 @@ public class CarService {
         // 차량 삭제: isDeleted = true
         car.setIsDeleted(true);
         carRepository.save(car);
+
+        // CarDateRange 삭제
+        carDateRangeRepository.deleteAll(car.getCarDateRanges());
 
         // 이미지 삭제
         carImageRepository.findByCar_Id(car.getId()).forEach((image) -> {
@@ -178,7 +177,7 @@ public class CarService {
     public void updateDateRanges(Long hostUserId, Long carId,
             CarDateRangesDto carDateRangesDto) {
         // 차량 조회가 안 되는 경우
-        Car car = carRepository.findById(carId)
+        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
         // 차량 소유자와 일치하지 않을 경우
@@ -277,16 +276,6 @@ public class CarService {
     /* 인덱스 리스트와 이미지 리스트의 사이즈가 같은지 체크 */
     private Boolean isIndexSizeEqualsToImageSize(List<Integer> imageIndexes, List<MultipartFile> imageFiles) {
         return imageIndexes.size() == imageFiles.size();
-    }
-
-    /* CarType이 지원하는 형식인지 체크 */
-    private Boolean isSupportedCarType(String carType) {
-        return CarType.of(carType) != CarType.NOT_FOUND;
-    }
-
-    /* FuelType이 지원하는 형식인지 체크 */
-    private Boolean isSupportedFuelType(String fuelType) {
-        return FuelType.of(fuelType) != FuelType.NOT_FOUND;
     }
 
     /* CarDateRangesDto가 올바른지 검증하고 정렬한뒤 인접하다면 병합한다. */

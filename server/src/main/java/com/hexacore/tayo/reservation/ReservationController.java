@@ -1,22 +1,26 @@
 package com.hexacore.tayo.reservation;
 
+import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
-import com.hexacore.tayo.reservation.dto.GetGuestReservationListResponseDto;
-import com.hexacore.tayo.reservation.dto.GetHostReservationListResponseDto;
+import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
+import com.hexacore.tayo.reservation.dto.GetHostReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.UpdateReservationStatusRequestDto;
+import com.hexacore.tayo.reservation.model.Reservation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,29 +32,41 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Response> createReservation(HttpServletRequest request,
+            @RequestParam String paymentKey,
+            @RequestParam String orderId,
+            @RequestParam Integer amount,
             @Valid @RequestBody CreateReservationRequestDto createReservationRequestDto) {
         Long guestUserId = (Long) request.getAttribute("userId");
+        // 결제 승인 요청
+        reservationService.confirmPayments(paymentKey, orderId, amount);
+        // 결제가 성공하면 createReservation 실행
+        try {
+            reservationService.createReservation(createReservationRequestDto, guestUserId, amount);
+        } catch (Exception e) {
+            // 예약 내역 저장에 실패하면 결제 취소
+            reservationService.cancelPayments(paymentKey, "예약에 실패했습니다.");
+            throw new GeneralException(e);
+        }
 
-        reservationService.createReservation(createReservationRequestDto, guestUserId);
         return Response.of(HttpStatus.CREATED);
     }
 
     @GetMapping("/guest")
-    public ResponseEntity<Response> guestReservations(HttpServletRequest request) {
+    public ResponseEntity<Response> guestReservations(HttpServletRequest request, Pageable pageable) {
         Long guestUserId = (Long) request.getAttribute("userId");
 
-        GetGuestReservationListResponseDto getGuestReservationListResponseDto =
-                reservationService.getGuestReservations(guestUserId);
-        return Response.of(HttpStatus.OK, getGuestReservationListResponseDto);
+        Page<Reservation> reservations = reservationService.getGuestReservations(guestUserId, pageable);
+        Page<GetGuestReservationResponseDto> data = reservations.map(GetGuestReservationResponseDto::of);
+        return Response.of(HttpStatus.OK, data);
     }
 
     @GetMapping("/host")
-    public ResponseEntity<Response> hostReservations(HttpServletRequest request) {
+    public ResponseEntity<Response> hostReservations(HttpServletRequest request, Pageable pageable) {
         Long hostUserId = (Long) request.getAttribute("userId");
 
-        GetHostReservationListResponseDto getHostReservationListResponseDto
-                = reservationService.getHostReservations(hostUserId);
-        return Response.of(HttpStatus.OK, getHostReservationListResponseDto);
+        Page<Reservation> reservations = reservationService.getHostReservations(hostUserId, pageable);
+        Page<GetHostReservationResponseDto> data = reservations.map(GetHostReservationResponseDto::of);
+        return Response.of(HttpStatus.OK, data);
     }
 
     @PatchMapping("/{reservationId}")
