@@ -31,7 +31,9 @@ public class UserService {
 
         // 시용자 프로필 이미지 수정시 - s3에서 원래 이미지 삭제 후 새로 업로드
         if (updateRequestDto.getProfileImg() != null && !updateRequestDto.getProfileImg().isEmpty()) {
-            s3Manager.deleteImage(user.getProfileImgUrl());
+            if (user.getProfileImgUrl() != null) {
+                s3Manager.deleteImage(user.getProfileImgUrl());
+            }
             String newProfileImgUrl = s3Manager.uploadImage(updateRequestDto.getProfileImg());
             user.setProfileImgUrl(newProfileImgUrl);
         }
@@ -41,8 +43,10 @@ public class UserService {
             user.setPassword(Encryptor.encryptPwd(updateRequestDto.getPassword()));
         }
 
-        // todo null 체크를 해줘야할지 클라이언트 상에서 확인 후 수정
-        user.setPhoneNumber(updateRequestDto.getPhoneNumber());
+        // 새로운 전화번호를 입력한 경우
+        if (updateRequestDto.getPhoneNumber() != null && !updateRequestDto.getPhoneNumber().isEmpty()) {
+            user.setPhoneNumber(updateRequestDto.getPhoneNumber());
+        }
     }
 
     public GetUserInfoResponseDto getUser(Long userId) {
