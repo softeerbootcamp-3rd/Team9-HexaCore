@@ -8,9 +8,10 @@ import GuestCalendar from '@/components/calendar/guestCalendar/GuestCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
 import { dateTimeToString, dateToString, stringToDate, stringTupleToDateRange } from '@/utils/converters';
 import ImageGallery from '@/components/ImageGallery';
-import { fetchUserCustomerKey } from '@/fetches/users/fetchUser';
+import { fetchUserPaymentInfo } from '@/fetches/users/fetchUser';
 import { createPortal } from 'react-dom';
-import Payment from './Payment';
+import PaymentModal from '@/components/PaymentModal';
+import { useCustomToast } from '@/components/Toast';
 
 export type ReservationData = {
   carId: number;
@@ -36,8 +37,8 @@ function CarDetail() {
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [reservationData, setReservationData] = useState<ReservationData | null>(null);
-  const [customerKey, setCustomerKey] = useState<string | null>(null);
-  const [userName, setUserName] = useState<string | null>(null);
+  const clientKey = import.meta.env.VITE_TOSS_PAYMENTS_CLIENT_KEY;
+  const { ToastComponent, showToast } = useCustomToast();
 
   // 가격 계산 함수
   const calculatePrice = (dateRange: DateRange) => {
@@ -117,8 +118,8 @@ function CarDetail() {
     const returnDate = dateTimeToString(endDate);
 
     // 만약 rentDate와 returnDate가 동일할 경우 예약 불가능
-    if(rentDate === returnDate) {
-      alert("최소 예약 단위는 1시간입니다.") // TODO: 모달 컴포넌트 만들면 모달창 띄우는 방식으로 수정
+    if (rentDate === returnDate) {
+      alert('최소 예약 단위는 1시간입니다.'); // TODO: 모달 컴포넌트 만들면 모달창 띄우는 방식으로 수정
       return;
     }
 
@@ -130,10 +131,30 @@ function CarDetail() {
     setReservationData(reservationData);
 
     // 결제 모달창 호출
-    const { customerKey, name } = await fetchUserCustomerKey();
-    setCustomerKey(customerKey);
-    setUserName(name);
-    setIsOpen(true);
+    const { customerKey, billingKey } = await fetchUserPaymentInfo();
+
+    if (!customerKey) {
+      // customerKey가 없으면 예약 실패 알람
+      showToast('예약 실패', '예약을 진행할 수 없습니다.');
+    } else if (!billingKey) {
+      // billingKey가 없으면 토스 billing 모달 띄우기
+      await openTossModal(customerKey);
+    } else {
+      // customerKey, billingKey 모두 있으면 예약 확인 모달 띄우기
+      setIsOpen(true);
+    }
+  };
+
+  const openTossModal = async (customerKey: string) => {
+    if (!customerKey) return;
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-expect-error
+    const tossPayments = window.TossPayments(clientKey);
+    tossPayments.requestBillingAuth('카드', {
+      customerKey: customerKey,
+      successUrl: `${window.location.origin}/payment/pending?carId=${data.carId}`,
+      failUrl: `${window.location.origin}/payment/fail`,
+    });
   };
 
   return (
@@ -222,25 +243,22 @@ function CarDetail() {
           {/* Total Fee */}
           <p className='text-gray-900 text-3xl tracking-tight'>₩ {totalFee}</p>
           <div>
-            <GuestCalendar 
+            <GuestCalendar
               availableDates={data.carDateRanges}
               onReservationChange={updateDateRange}
               initDate={stringToDate(startDate)}
-              reservation={dateRange}/>
+              reservation={dateRange}
+            />
           </div>
           {/* Date + Time Info */}
           <div className='grid grid-cols-2 gap-0 overflow-hidden rounded-xl border-[1px] border-background-300'>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-r-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>대여일</p>
-              <p className='text-background-500'>
-                {dateToString(dateRange[0]) === dateToString(new Date(0)) ? '' : dateToString(dateRange[0])}
-              </p>
+              <p className='text-background-500'>{dateToString(dateRange[0]) === dateToString(new Date(0)) ? '' : dateToString(dateRange[0])}</p>
             </label>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-l-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>반납일</p>
-              <p className='text-background-500'>
-                {dateToString(dateRange[1]) === dateToString(new Date(0)) ? '' : dateToString(dateRange[1])}
-              </p>
+              <p className='text-background-500'>{dateToString(dateRange[1]) === dateToString(new Date(0)) ? '' : dateToString(dateRange[1])}</p>
             </label>
             <div className='gap-1 border-r-[0.5px] border-t-[0.5px] border-background-300 p-3'>
               <p className='text-xs font-medium'>대여 시각</p>
@@ -261,25 +279,22 @@ function CarDetail() {
               />
             </div>
           </div>
-
-          {/* Reservation Button */}
           <Button text='예약하기' type='enabled' className='h-[45px] w-full' onClick={handleReservation} />
+          {/* 결제 모달 창 */}
           {isOpen &&
             reservationData &&
-            customerKey &&
-            userName &&
             createPortal(
-              <Payment
+              <PaymentModal
                 price={totalFee}
-                customerKey={customerKey}
-                userName={userName}
                 orderName={`${data.carNumber}:${reservationData.rentDateTime}-${reservationData.returnDateTime}`}
                 reservationData={reservationData}
-                onClose={() => setIsOpen(false)}></Payment>,
+                onClose={() => setIsOpen(false)}
+              />,
               document.body,
             )}
         </div>
       </div>
+      <ToastComponent />
     </div>
   );
 }

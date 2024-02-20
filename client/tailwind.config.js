@@ -15,6 +15,10 @@ export default {
         DEFAULT: colors.red[400],
         ...colors.red,
       },
+      info: {
+        DEFAULT: colors.green[400],
+        ...colors.green,
+      },
       background: colors.zinc,
 
       white: colors.white,

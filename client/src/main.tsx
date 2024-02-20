@@ -8,6 +8,7 @@ import homeRoutes from '@/pages/home/homeRoutes';
 import profileRoutes from '@/pages/profile/profileRoutes';
 import carRoutes from '@/pages/cars/carRoutes';
 import hostsRoutes from '@/pages/hosts/hostsRoutes';
+import paymentRoutes from '@/pages/payment/paymentRoutes';
 import '@/index.css';
 
 const router = createBrowserRouter([
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
       ...profileRoutes,
       ...carRoutes,
       ...hostsRoutes,
+      ...paymentRoutes,
       {
         path: '*',
         element: <NotFound />,
