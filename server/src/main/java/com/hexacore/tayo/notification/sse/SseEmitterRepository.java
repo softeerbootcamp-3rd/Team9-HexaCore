@@ -3,9 +3,8 @@ package com.hexacore.tayo.notification.sse;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Repository
@@ -34,7 +33,7 @@ public class SseEmitterRepository {
     }
 
     /**
-     * 주어진 아이디의 Emitter 를 가져옴.
+     * 주어진 아이디의 Emitter 를 반환
      *
      * @param id 사용자 아이디.
      * @return 이벤트 Emitter.
@@ -43,11 +42,13 @@ public class SseEmitterRepository {
         return emitters.get(id);
     }
 
-    public List<SseEmitter> getAllEmitters() {
-        for (Long aLong : emitters.keySet()) {
-            System.out.println("id: " + aLong);
-        }
-        return new ArrayList<>(emitters.values());
+    /**
+     * 모든 SseEmitter 의 키 값 리스트 반환
+     *
+     * @return
+     */
+    public Set<Long> getAllEmitterKeys() {
+        return emitters.keySet();
     }
 
 }

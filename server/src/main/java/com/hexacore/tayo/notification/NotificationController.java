@@ -1,7 +1,6 @@
 package com.hexacore.tayo.notification;
 
 import com.hexacore.tayo.common.response.Response;
-import com.hexacore.tayo.notification.dto.SendNotificationRequestDto;
 import com.hexacore.tayo.notification.dto.SseNotificationDto;
 import com.hexacore.tayo.notification.sse.SseEmitterService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,7 +50,6 @@ public class NotificationController {
      */
     @PostMapping
     public ResponseEntity<Response> sendNotification(@RequestBody SseNotificationDto notification) {
-        System.out.println("aaaa");
         sseEmitterService.notifyAll(notification);
 
         return Response.of(HttpStatus.OK);
