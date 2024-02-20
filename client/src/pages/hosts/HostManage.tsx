@@ -13,6 +13,7 @@ import ImageGallery from '@/components/ImageGallery';
 import { reservationStatus } from '@/fetches/reservations/Reservation.type';
 import { ReservationData } from '@/fetches/reservations/Reservation.type';
 import { fetchHostReservations, parseHostReservations } from '@/fetches/reservations/fetchHostReservations';
+import { dateRangesToString } from '@/utils/converters';
 
 const TABS = ['calendar', 'reservation'] as const;
 type TabType = (typeof TABS)[number];
@@ -21,14 +22,18 @@ function HostManage() {
   const navigate = useNavigate();
   const carDetail = useLoaderData() as CarDetailData;
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
+
+  const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail?.carDateRanges);
+  const [reservations, setReservations] = useState<ReservationData[]>([]);
+
+  const loaderRefNext = useRef(null);
+  const page = useRef(0);
+
+  let hasNext = false;
+
   if (!carDetail) {
     return "";
   }
-  const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
-  const loaderRefNext = useRef(null);
-  const [reservations, setReservations] = useState<ReservationData[]>([]);
-  var hasNext = false;
-  const page = useRef(0);
 
   const fetchReservations = async () => {
     const response = await fetchHostReservations(page.current, 5);
@@ -48,6 +53,7 @@ function HostManage() {
       page.current += 1;
     });
   });
+
   useEffect(() => {
     if (loaderRefNext.current) {
       observerNext.observe(loaderRefNext.current);
@@ -63,10 +69,11 @@ function HostManage() {
       location.reload();
     }
   };
+
   const updateDates = async () => {
     await server.put<ResponseWithoutData>('/cars/' + carDetail?.id + '/date', {
       data: {
-        dates: availableDates,
+        dates: dateRangesToString(availableDates),
       },
     });
   };
