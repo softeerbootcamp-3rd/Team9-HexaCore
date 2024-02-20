@@ -17,7 +17,6 @@ export const stringTupleToDateTimeRange = (date: string[]) => {
   return date.map(stringToDateTime) as DateRange; // TODO: date.length !== 2, date[0] > date[1] validation
 };
 
-
 export const stringTuplesToDateRanges = (dates: string[][]) => {
   return dates
     .map(stringTupleToDateRange)
@@ -36,18 +35,18 @@ export const formatDate = (date: Date) => {
   return `${year}-${formattedMonth}-${formattedDay}`;
 };
 
-export const dateToString = (date: Date) => {
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
-
 // DateTime을 string으로 변환
 export const dateTimeToString = (dateTime: Date) => {
-  const date = dateToString(dateTime);
+  const date = formatDate(dateTime);
   const hours = dateTime.getHours().toString().padStart(2, '0');
   const time = `${hours}:00:00`
   return `${date}T${time}`;
 };
+
+const dateRangeToString = (dateRange: DateRange) => {
+  return dateRange.map(dateTimeToString)
+}
+
+export const dateRangesToString = (dateRanges: DateRange[]) => {
+  return dateRanges.map(dateRangeToString)
+}
