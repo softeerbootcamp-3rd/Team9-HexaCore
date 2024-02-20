@@ -44,6 +44,9 @@ public class SseEmitterRepository {
     }
 
     public List<SseEmitter> getAllEmitters() {
+        for (Long aLong : emitters.keySet()) {
+            System.out.println("id: " + aLong);
+        }
         return new ArrayList<>(emitters.values());
     }
 

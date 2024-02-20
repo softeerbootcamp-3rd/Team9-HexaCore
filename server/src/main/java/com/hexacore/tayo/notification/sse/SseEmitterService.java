@@ -31,7 +31,12 @@ public class SseEmitterService {
     public void notifyAll(Object event){
         for (SseEmitter emitter : sseEmitterRepository.getAllEmitters()) {
             try {
-                emitter.send(event);
+                emitter.send(
+                        SseEmitter
+                            .event()
+                            .name("sse")
+                            .data(event)
+                );
             } catch (IOException e) {
                 emitter.completeWithError(e);
             }

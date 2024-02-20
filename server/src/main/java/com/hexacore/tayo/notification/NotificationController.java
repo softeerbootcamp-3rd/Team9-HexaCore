@@ -22,7 +22,7 @@ public class NotificationController {
     private final NotificationService notificationService;
 
     /**
-     *
+     * 사용자가 구독을 요청하면 SseEmitter 을 응답해줍니다.
      * @param request 사용자 요청
      * @return SseEmitter
      */
@@ -39,7 +39,7 @@ public class NotificationController {
      * @param notification 알림
      */
     @PostMapping("/{id}")
-    public ResponseEntity<Response> sendData(@PathVariable Long id, @RequestBody SendNotificationRequestDto notification) {
+    public ResponseEntity<Response> sendData(@PathVariable Long id, @RequestBody SseNotificationDto notification) {
         sseEmitterService.sendToClient(id, notification);
 
         return Response.of(HttpStatus.OK);
@@ -50,14 +50,17 @@ public class NotificationController {
      * @param notification 알림
      */
     @PostMapping
-    public void sendNotification(@RequestBody SendNotificationRequestDto notification) {
+    public ResponseEntity<Response> sendNotification(@RequestBody SseNotificationDto notification) {
+        System.out.println("aaaa");
         sseEmitterService.notifyAll(notification);
+
+        return Response.of(HttpStatus.OK);
     }
 
     /**
      * 지금까지 전송된, 모든 알림을 조회합니다.
-     * @param request
-     * @return
+     * @param request 사용자 요청
+     * @return Response
      */
     @GetMapping
     public ResponseEntity<Response> getNotifications(HttpServletRequest request) {
@@ -69,8 +72,8 @@ public class NotificationController {
 
     /**
      * 유저가 삭제 요청한 알림을 삭제합니다.
-     * @param request
-     * @return
+     * @param request 사용자 요청
+     * @return Response
      */
     @DeleteMapping("/{notificationId}")
     public ResponseEntity<Response> deleteNotification(HttpServletRequest request, @PathVariable Long notificationId) {
@@ -82,8 +85,8 @@ public class NotificationController {
 
     /**
      * 유저의 알림을 모두 삭제합니다.
-     * @param request
-     * @return
+     * @param request 사용자 요청
+     * @return Response
      */
     @DeleteMapping
     public ResponseEntity<Response> deleteAllNotifications(HttpServletRequest request) {
