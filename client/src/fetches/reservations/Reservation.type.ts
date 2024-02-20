@@ -14,6 +14,7 @@ export type ReservationData = {
   target: { id: number; name: string; image: string; phoneNumber: string, lat: number | null; lng: number | null; };
   rentPeriod: DateRange;
   rentFee: number;
+  extraFee: number;
   rentStatus: ReservationStatus;
   address: string;
 };
