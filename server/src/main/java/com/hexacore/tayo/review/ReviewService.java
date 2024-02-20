@@ -1,5 +1,6 @@
 package com.hexacore.tayo.review;
 
+import com.hexacore.tayo.car.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
@@ -7,6 +8,7 @@ import com.hexacore.tayo.reservation.ReservationRepository;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.review.dto.CreateReviewRequestDto;
+import com.hexacore.tayo.review.dto.GetCarReviewsResponseDto;
 import com.hexacore.tayo.review.model.CarReview;
 import com.hexacore.tayo.review.model.CarReviewRepository;
 import com.hexacore.tayo.review.model.GuestReview;
@@ -14,6 +16,8 @@ import com.hexacore.tayo.review.model.GuestReviewRepository;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,6 +27,7 @@ public class ReviewService {
     private final CarReviewRepository carReviewRepository;
     private final GuestReviewRepository guestReviewRepository;
     private final ReservationRepository reservationRepository;
+    private final CarRepository carRepository;
 
     @Transactional
     public void createReview(Long writerId, CreateReviewRequestDto createReviewRequestDto, boolean forCar) {
@@ -55,7 +60,8 @@ public class ReviewService {
         }
     }
 
-    private void createCarReview(Long writerId, Reservation reservation,
+    @Transactional
+    void createCarReview(Long writerId, Reservation reservation,
             CreateReviewRequestDto createReviewRequestDto) {
         Car car = reservation.getCar();
 
@@ -75,7 +81,8 @@ public class ReviewService {
         car.setAverageRate(updatedRate);
     }
 
-    private void createGuestReview(Long writerId, Reservation reservation,
+    @Transactional
+    void createGuestReview(Long writerId, Reservation reservation,
             CreateReviewRequestDto createReviewRequestDto) {
         User guest = reservation.getGuest();
 
@@ -93,5 +100,13 @@ public class ReviewService {
         // 게스트 평균 평점 업데이트
         Double updatedRate = guestReviewRepository.findAverageRateByCarId(guest);
         guest.setAverageRate(updatedRate);
+    }
+
+    /* 차량 리뷰 조회 */
+    public Page<GetCarReviewsResponseDto> getCarReviews(Long carId, Pageable pageable) {
+        if (carRepository.findByIdAndIsDeletedFalse(carId).isEmpty()) {
+            throw new GeneralException(ErrorCode.CAR_NOT_FOUND);
+        }
+        return carReviewRepository.findAllByCarId(carId, pageable);
     }
 }

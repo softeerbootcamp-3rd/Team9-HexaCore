@@ -2,11 +2,16 @@ package com.hexacore.tayo.review;
 
 import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.review.dto.CreateReviewRequestDto;
+import com.hexacore.tayo.review.dto.GetCarReviewsResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +40,13 @@ public class ReviewController {
         Long writerId = (Long) request.getAttribute("userId");
         reviewService.createReview(writerId, createReviewRequestDto, false);
         return Response.of(HttpStatus.CREATED);
+    }
+
+    /* 차량에 대한 리뷰 조회 */
+    @GetMapping("/car/{carId}")
+    public ResponseEntity<Response> getCarReviews(@PathVariable Long carId, Pageable pageable) {
+        Page<GetCarReviewsResponseDto> carReviews = reviewService.getCarReviews(carId, pageable);
+        return Response.of(HttpStatus.OK, carReviews);
     }
 
 }
