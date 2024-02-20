@@ -7,7 +7,8 @@ import AddressButton from './AddressButton';
 import { server } from '@/fetches/common/axios';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
 import axios from 'axios';
-import { CarDetailJsonData } from '@/fetches/cars/cars.type';
+import { HostRegisterLoaderData } from './hostsRoutes';
+import LoadingCircle from '@/components/svgs/LoadingCircle';
 
 const GET_CAR_INFO_API_URL = 'https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry';
 
@@ -28,12 +29,6 @@ type CarDetailByApi = {
   mileage: number;
   type: string;
   year: number;
-};
-
-type loaderData = {
-  username: string;
-  isUpdate: boolean;
-  carDetail: CarDetailJsonData | undefined;
 };
 
 type positionLatLng = {
@@ -78,15 +73,28 @@ function HostRegister() {
   const [address, setAddress] = useState<string>('');
   const [position, setPosition] = useState<positionLatLng | null>(null);
   const [isCarNumberConfirmed, setCarNumberConfirmed] = useState<boolean>(false);
+  const [loadingCarNumber, setLoadingCarNumber] = useState<boolean>(false);
   const [imageMessage, setImageMessage] = useState<string | null>(null);
   const [feeMessage, setFeeMessage] = useState<string | null>(null);
   const [addressMessage, setAddressMessage] = useState<string | null>(null);
   const feeRef = useRef<HTMLInputElement>(null);
-  const navigator = useNavigate();
-  const userCarInfo = useLoaderData() as loaderData;
+  const navigate = useNavigate();
+  const userCarInfo = useLoaderData() as HostRegisterLoaderData;
+
+  // 서버에 접근할 수 없거나 요청에 대한 응답에 오류가 발생할 경우
+  if (userCarInfo === null) {
+    return <div>{'서버에 연결할 수 없습니다. 다시 시도해 주세요.'}</div>;
+  }
+  // 인증이 안된 경우 빈 페이지를 보여준다. -> 로그인 페이지로 리다이렉트
+  if (userCarInfo.errMessage === '로그인이 필요한 요청입니다.') {
+    return <div></div>;
+  }
 
   // 만약 수정에 대한 사항이라면 차량 번호 조회 페이지를 생략한다.
   useEffect(() => {
+    setCarDetail(null);
+    setCarNumberConfirmed(false);
+
     if (userCarInfo.isUpdate && userCarInfo.carDetail) {
       const carDetail = userCarInfo.carDetail;
       setAddress(carDetail.address);
@@ -105,7 +113,7 @@ function HostRegister() {
 
       setCarNumberConfirmed(true);
     }
-  }, []);
+  }, [userCarInfo]);
 
   // 주소의 변경시 좌표 API를 호출하여 결과를 가진다.
   useEffect(() => {
@@ -182,11 +190,14 @@ function HostRegister() {
       return;
     }
 
-    const response = await axios.post(
-      GET_CAR_INFO_API_URL,
-      { REGINUMBER: registerNumber, OWNERNAME: userCarInfo.username },
-      { headers: { Authorization: `Token ${import.meta.env.VITE_CAR_INFO_API_TOKEN}` } },
-    );
+    setLoadingCarNumber(true);
+    const response = await axios
+      .post(
+        GET_CAR_INFO_API_URL,
+        { REGINUMBER: registerNumber, OWNERNAME: userCarInfo.username },
+        { headers: { Authorization: `Token ${import.meta.env.VITE_CAR_INFO_API_TOKEN}` } },
+      )
+      .finally(() => setLoadingCarNumber(false));
 
     const resultMessage = response.data.result;
     const responseData: CarDetailResponseByApi = response.data.data;
@@ -306,12 +317,12 @@ function HostRegister() {
     }
 
     alert(`차량 ${userCarInfo.isUpdate ? '수정' : '등록'}을 완료하였습니다.`);
-    navigator('/hosts/manage');
+    navigate('/hosts/manage');
   };
 
   if (!isCarNumberConfirmed)
     return (
-      <div className='flex h-full flex-col'>
+      <div className={`relative flex h-full w-full flex-col`}>
         <div className='h-1/5' />
         <div>
           <h1 className='mb-7 text-center text-5xl font-semibold'>{'Hello'}</h1>
@@ -322,11 +333,19 @@ function HostRegister() {
           <form method='POST' action='https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry' onSubmit={onSubmitCheckCarNumber}>
             <div className='flex justify-center'>
               <div className='flex w-5/12 items-center justify-between rounded-3xl bg-white px-6 py-2'>
-                <input className='w-full p-3 text-2xl focus:outline-none' name='REGINUMBER' type='text' placeholder='12가3456' />
+                <input className='w-full p-3 text-2xl focus:outline-none' name='REGINUMBER' type='text' placeholder='12가3456' autoComplete='off' />
                 <input type='image' src='/search-button.png' width={48} height={48} />
               </div>
             </div>
           </form>
+        </div>
+        <div className='mt-8 flex flex-col items-center'>
+          <div
+            id='loading_circle'
+            className={`${loadingCarNumber ? '' : 'hidden'} z-50 flex w-4/12 items-center justify-center gap-6 rounded-2xl bg-background-600 px-8 py-4 opacity-50`}>
+            <LoadingCircle />
+            <div className='text-white'>{'차량정보를 불러오는 중입니다...'}</div>
+          </div>
         </div>
       </div>
     );
