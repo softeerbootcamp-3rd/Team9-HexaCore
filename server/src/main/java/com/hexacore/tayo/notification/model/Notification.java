@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @Builder
 @Entity
+@AllArgsConstructor
 @RequiredArgsConstructor
 @Table(name = "notification")
 public class Notification extends BaseTime {
@@ -19,8 +20,8 @@ public class Notification extends BaseTime {
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "notification_type")
-    private NotificationType notificationType;
+    @Column(name = "title")
+    private String title;
 
     @Column(name = "message")
     private String message;

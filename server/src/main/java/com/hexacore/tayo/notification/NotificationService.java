@@ -1,6 +1,6 @@
 package com.hexacore.tayo.notification;
 
-import com.hexacore.tayo.notification.dto.GetNotificationsResponseDto;
+import com.hexacore.tayo.notification.dto.SseNotificationDto;
 import com.hexacore.tayo.notification.model.Notification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +18,8 @@ public class NotificationService {
      * 알림을 저장합니다.
      * @param notification 알림
      */
-    public void save(Notification notification) {
-        notificationRepository.save(notification);
+    public Notification save(Notification notification) {
+        return notificationRepository.save(notification);
     }
 
     /**
@@ -27,10 +27,10 @@ public class NotificationService {
      * @param userId 수신자 id
      * @return GetNotificationResponseDto
      */
-    public GetNotificationsResponseDto findAll(Long userId) {
+    public List<SseNotificationDto> findAll(Long userId) {
         List<Notification> notifications = notificationRepository.findAllByUserId(userId);
 
-        return GetNotificationsResponseDto.listOf(notifications);
+        return SseNotificationDto.listOf(notifications);
     }
 
     /**
@@ -39,13 +39,13 @@ public class NotificationService {
      * @return GetNotificationResponseDto
      */
     @Transactional
-    public GetNotificationsResponseDto findAllAndUpdateReadTrue(Long userId) {
+    public List<SseNotificationDto> findAllAndUpdateReadTrue(Long userId) {
         List<Notification> arr = notificationRepository.findAllByUserId(userId);
         for (Notification notification : arr) {
             notification.setRead(true);
         }
 
-        return GetNotificationsResponseDto.listOf(arr);
+        return SseNotificationDto.listOf(arr);
     }
 
     /**

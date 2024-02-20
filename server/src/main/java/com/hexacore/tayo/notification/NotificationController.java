@@ -1,8 +1,8 @@
 package com.hexacore.tayo.notification;
 
 import com.hexacore.tayo.common.response.Response;
-import com.hexacore.tayo.notification.dto.GetNotificationsResponseDto;
 import com.hexacore.tayo.notification.dto.SendNotificationRequestDto;
+import com.hexacore.tayo.notification.dto.SseNotificationDto;
 import com.hexacore.tayo.notification.sse.SseEmitterService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +11,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/notifications")
@@ -60,7 +62,7 @@ public class NotificationController {
     @GetMapping
     public ResponseEntity<Response> getNotifications(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        GetNotificationsResponseDto response = notificationService.findAll(userId);
+        List<SseNotificationDto> response = notificationService.findAll(userId);
 
         return Response.of(HttpStatus.OK, response);
     }
