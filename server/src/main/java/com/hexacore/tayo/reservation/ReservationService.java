@@ -3,23 +3,15 @@ package com.hexacore.tayo.reservation;
 import com.hexacore.tayo.car.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
-import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
-import com.hexacore.tayo.reservation.dto.GetCarSimpleResponseDto;
-import com.hexacore.tayo.reservation.dto.GetGuestReservationListResponseDto;
-import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
-import com.hexacore.tayo.reservation.dto.GetHostReservationListResponseDto;
-import com.hexacore.tayo.reservation.dto.GetHostReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.TossPayment.TossApproveRequest;
 import com.hexacore.tayo.reservation.dto.TossPayment.TossCancelRequest;
 import com.hexacore.tayo.reservation.dto.TossPayment.TossPaymentResponse;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.UserRepository;
-import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
 
@@ -36,6 +28,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -52,7 +46,9 @@ public class ReservationService {
     private String tossSecretKey;
 
     @Transactional
-    public void createReservation(CreateReservationRequestDto createReservationRequestDto, Long guestUserId, Integer amount) throws Exception {
+    public void createReservation(CreateReservationRequestDto createReservationRequestDto,
+            Long guestUserId,
+            Integer amount) throws Exception {
         User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
@@ -92,74 +88,25 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
-    public GetGuestReservationListResponseDto getGuestReservations(Long guestUserId) {
-        List<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId);
-        List<GetGuestReservationResponseDto> getGuestReservationResponseDtos = new ArrayList<>();
-        for (Reservation reservation : reservations) {
-            Car car = reservation.getCar();
-            List<CarImage> images = car.getCarImages();
-            Subcategory subcategory = car.getSubcategory();
-            User host = car.getOwner();
+    @Transactional
+    public Page<Reservation> getGuestReservations(Long guestUserId, Pageable pageable) {
+        Page<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId, pageable);
+        updateReservationStatusByCurrentDateTime(reservations);
 
-            GetCarSimpleResponseDto getCarSimpleResponseDto = GetCarSimpleResponseDto.builder()
-                    .id(car.getId())
-                    .name(subcategory.getName())
-                    .imageUrl(images.get(0).getUrl()) // 대표 이미지 1장
-                    .build();
-
-            GetGuestReservationResponseDto getGuestReservationResponseDto = GetGuestReservationResponseDto.builder()
-                    .id(reservation.getId())
-                    .car(getCarSimpleResponseDto)
-                    .fee(reservation.getFee())
-                    .carAddress(car.getAddress())
-                    .rentDateTime(reservation.getRentDateTime())
-                    .returnDateTime(reservation.getReturnDateTime())
-                    .status(reservation.getStatus())
-                    .hostPhoneNumber(host.getPhoneNumber())
-                    .build();
-
-            getGuestReservationResponseDtos.add(getGuestReservationResponseDto);
-        }
-
-        return new GetGuestReservationListResponseDto(getGuestReservationResponseDtos);
+        return reservations;
     }
 
-    public GetHostReservationListResponseDto getHostReservations(Long hostUserId) {
-        List<Reservation> reservations = reservationRepository.findAllByHost_id(hostUserId);
-        List<GetHostReservationResponseDto> getHostReservationResponseDtos = new ArrayList<>();
+    @Transactional
+    public Page<Reservation> getHostReservations(Long hostUserId, Pageable pageable) {
+        Page<Reservation> reservations = reservationRepository.findAllByHost_id(hostUserId, pageable);
+        updateReservationStatusByCurrentDateTime(reservations);
 
-        for (Reservation reservation : reservations) {
-            User guest = reservation.getGuest();
-
-            GetUserSimpleResponseDto userSimpleResponseDto = GetUserSimpleResponseDto.builder()
-                    .id(guest.getId())
-                    .name(guest.getName())
-                    .phoneNumber(guest.getPhoneNumber())
-                    .profileImgUrl(guest.getProfileImgUrl())
-                    .build();
-
-            GetHostReservationResponseDto getHostReservationResponseDto = GetHostReservationResponseDto.builder()
-                    .id(reservation.getId())
-                    .guest(userSimpleResponseDto)
-                    .rentDateTime(reservation.getRentDateTime())
-                    .returnDateTime(reservation.getReturnDateTime())
-                    .fee(reservation.getFee())
-                    .status(reservation.getStatus())
-                    .build();
-
-            getHostReservationResponseDtos.add(getHostReservationResponseDto);
-        }
-
-        return new GetHostReservationListResponseDto(getHostReservationResponseDtos);
+        return reservations;
     }
 
     @Transactional
     public void updateReservationStatus(Long userId, Long reservationId, String status) {
         ReservationStatus requestedStatus = ReservationStatus.getReservationStatus(status);
-
-        if (requestedStatus == ReservationStatus.NOT_FOUND) {
-            throw new GeneralException(ErrorCode.RESERVATION_STATUS_NOT_FOUND);
-        }
 
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
@@ -168,16 +115,15 @@ public class ReservationService {
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
 
         ReservationStatus originStatus = reservation.getStatus();
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        LocalDateTime rentDateTime = reservation.getRentDateTime();
+        LocalDateTime returnDateTime = reservation.getReturnDateTime();
         boolean invalidUpdate = false;
 
         // 호스트가 요청한 경우
         if (reservation.getHost().getId().equals(user.getId())) {
             // 예약 취소
             if (originStatus == ReservationStatus.READY && requestedStatus == ReservationStatus.CANCEL) {
-                reservation.setStatus(requestedStatus);
-            }
-            // 반납 확인
-            else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
                 reservation.setStatus(requestedStatus);
             } else {
                 invalidUpdate = true;
@@ -189,12 +135,22 @@ public class ReservationService {
             if (originStatus == ReservationStatus.READY &&
                     (requestedStatus == ReservationStatus.CANCEL || requestedStatus == ReservationStatus.USING)) {
                 reservation.setStatus(requestedStatus);
+            }
+            // 반납 요청 및 추가 요금 과금
+            else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
+                reservation.setStatus(requestedStatus);
+                Integer feePerHour = reservation.getCar().getFeePerHour();
+                // 연체할 경우 시간당 추가 과금 (returnDateTime <= currentDateTime)
+                if (!returnDateTime.isAfter(currentDateTime)) {
+                    reservation.setExtraFee(feePerHour * (int) returnDateTime.until(currentDateTime, ChronoUnit.HOURS));
+                }
             } else {
                 invalidUpdate = true;
             }
         } else {
             throw new GeneralException(ErrorCode.RESERVATION_STATUS_CHANGED_BY_OTHERS);
         }
+
         if (invalidUpdate) {
             throw new GeneralException(ErrorCode.RESERVATION_STATUS_INVALID_CHANGE);
         }
@@ -204,10 +160,17 @@ public class ReservationService {
     }
 
     private void validateRentReturnInRangeElseThrow(Car car,
-                                                    LocalDateTime rentDateTime,
-                                                    LocalDateTime returnDateTime) throws GeneralException {
+            LocalDateTime rentDateTime,
+            LocalDateTime returnDateTime) throws GeneralException {
         if (rentDateTime.isAfter(returnDateTime)) {
             throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
+        }
+
+        // 최소 1시간이어야 한다.
+        // rentDateTime + 1Hour <= returnDateTime
+        // rentDateTime + 1Hour > returnDateTime 일때 에러
+        if (rentDateTime.plusHours(1).isAfter(returnDateTime)) {
+            throw new GeneralException(ErrorCode.RESERVATION_DATETIME_LEAST_HOUR);
         }
 
         List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
@@ -236,11 +199,35 @@ public class ReservationService {
         throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
     }
 
+    private void updateReservationStatusByCurrentDateTime(Page<Reservation> reservations) {
+        LocalDateTime currentDateTime = LocalDateTime.now();
+
+        for (Reservation reservation : reservations) {
+            boolean changed = false;
+            ReservationStatus reservationStatus = reservation.getStatus();
+            LocalDateTime rentDateTime = reservation.getRentDateTime();
+            LocalDateTime returnDateTime = reservation.getReturnDateTime();
+
+            if (reservationStatus == ReservationStatus.READY) {
+                // Ready 상태일 때 rentDate == currentDate 이면 (동일 날짜라면) Using 상태로 변경
+                if (rentDateTime.toLocalDate().isEqual(currentDateTime.toLocalDate())) {
+                    reservation.setStatus(ReservationStatus.USING);
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                reservationRepository.save(reservation);
+            }
+        }
+    }
+
     public void confirmPayments(String paymentKey, String orderId, Integer amount) {
         String encodedCredentials = getEncodedCredentials();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + encodedCredentials);
-        HttpEntity<TossApproveRequest> requestEntity = new HttpEntity<>(TossApproveRequest.builder().paymentKey(paymentKey).orderId(orderId).amount(amount).build(), headers);
+        HttpEntity<TossApproveRequest> requestEntity = new HttpEntity<>(
+                TossApproveRequest.builder().paymentKey(paymentKey).orderId(orderId).amount(amount).build(), headers);
 
         try {
             ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
@@ -263,7 +250,8 @@ public class ReservationService {
         String encodedCredentials = getEncodedCredentials();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + encodedCredentials);
-        HttpEntity<TossCancelRequest> requestEntity = new HttpEntity<>(TossCancelRequest.builder().cancelReason(cancelReason).build(), headers);
+        HttpEntity<TossCancelRequest> requestEntity = new HttpEntity<>(
+                TossCancelRequest.builder().cancelReason(cancelReason).build(), headers);
         try {
             ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
                     String.format("https://api.tosspayments.com/v1/payments/%s/cancel", paymentKey),

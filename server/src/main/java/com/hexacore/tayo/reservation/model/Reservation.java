@@ -55,4 +55,8 @@ public class Reservation extends BaseTime {
     @Setter
     private ReservationStatus status;
 
+    @Column(name = "extra_fee", nullable = false)
+    @Setter
+    @Builder.Default
+    private Integer extraFee = 0;
 }

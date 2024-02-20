@@ -3,12 +3,15 @@ package com.hexacore.tayo.reservation;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
-import com.hexacore.tayo.reservation.dto.GetGuestReservationListResponseDto;
-import com.hexacore.tayo.reservation.dto.GetHostReservationListResponseDto;
+import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
+import com.hexacore.tayo.reservation.dto.GetHostReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.UpdateReservationStatusRequestDto;
+import com.hexacore.tayo.reservation.model.Reservation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,21 +52,21 @@ public class ReservationController {
     }
 
     @GetMapping("/guest")
-    public ResponseEntity<Response> guestReservations(HttpServletRequest request) {
+    public ResponseEntity<Response> guestReservations(HttpServletRequest request, Pageable pageable) {
         Long guestUserId = (Long) request.getAttribute("userId");
 
-        GetGuestReservationListResponseDto getGuestReservationListResponseDto =
-                reservationService.getGuestReservations(guestUserId);
-        return Response.of(HttpStatus.OK, getGuestReservationListResponseDto);
+        Page<Reservation> reservations = reservationService.getGuestReservations(guestUserId, pageable);
+        Page<GetGuestReservationResponseDto> data = reservations.map(GetGuestReservationResponseDto::of);
+        return Response.of(HttpStatus.OK, data);
     }
 
     @GetMapping("/host")
-    public ResponseEntity<Response> hostReservations(HttpServletRequest request) {
+    public ResponseEntity<Response> hostReservations(HttpServletRequest request, Pageable pageable) {
         Long hostUserId = (Long) request.getAttribute("userId");
 
-        GetHostReservationListResponseDto getHostReservationListResponseDto
-                = reservationService.getHostReservations(hostUserId);
-        return Response.of(HttpStatus.OK, getHostReservationListResponseDto);
+        Page<Reservation> reservations = reservationService.getHostReservations(hostUserId, pageable);
+        Page<GetHostReservationResponseDto> data = reservations.map(GetHostReservationResponseDto::of);
+        return Response.of(HttpStatus.OK, data);
     }
 
     @PatchMapping("/{reservationId}")
