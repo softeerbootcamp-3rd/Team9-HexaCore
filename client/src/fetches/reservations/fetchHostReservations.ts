@@ -1,11 +1,7 @@
-import { stringTupleToDateRange } from '@/utils/converters';
+import { stringTupleToDateTimeRange } from '@/utils/converters';
 import { server } from '@/fetches/common/axios';
-import type { ResponseWithData } from '@/fetches/common/response.type';
+import type { ResponseWithPagination } from '@/fetches/common/response.type';
 import type { ReservationData, ReservationStatus } from "@/fetches/reservations/Reservation.type"
-
-type HostReservationsResponse = {
-  reservations: HostReservationResponse[];
-};
 
 type HostReservationResponse = {
   id: number;
@@ -13,20 +9,21 @@ type HostReservationResponse = {
   rentDateTime: string;
   returnDateTime: string;
   fee: number;
+  extraFee: number,
   status: ReservationStatus;
   address: string;
 };
 
-export const fetchHostReservations = async () => {
-  const response = await server.get<ResponseWithData<HostReservationsResponse>>('/reservations/host', {
+export const fetchHostReservations = async (page: number, size: number) => {
+  const response = await server.get<ResponseWithPagination<HostReservationResponse[]>>('/reservations/host?page='+page+'&size='+size, {
   });
   if (response.success) {
     return response;
   }
 };
 
-export const parseHostReservations = (hostReservationsResponseRaw: HostReservationsResponse): ReservationData[] => {
-  return hostReservationsResponseRaw.reservations.map(
+export const parseHostReservations = (hostReservationsResponseRaw: HostReservationResponse[]): ReservationData[] => {
+  return hostReservationsResponseRaw.map(
     (reservation) =>
       ({
         id: reservation.id,
@@ -35,9 +32,12 @@ export const parseHostReservations = (hostReservationsResponseRaw: HostReservati
           name: reservation.guest.name ,
           image: reservation.guest.imageUrl,
           phoneNumber: reservation.guest.phoneNumber,
+          lat:null,
+          lng:null
         },
-        rentPeriod: stringTupleToDateRange([reservation.rentDateTime, reservation.returnDateTime]),
+        rentPeriod: stringTupleToDateTimeRange([reservation.rentDateTime, reservation.returnDateTime]),
         rentFee: reservation.fee,
+        extraFee: reservation.extraFee,
         rentStatus: toReservationStatus(reservation.status),
       }) as ReservationData,
   );

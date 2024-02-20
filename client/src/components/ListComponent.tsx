@@ -3,7 +3,7 @@ import { ReservationData, ReservationStatus, reservationStatus } from '@/fetches
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
 import { useEffect, useState } from 'react';
-
+import { distance } from '@/utils/DistanceCalculater';
 type ButtonType = 'disabled' | 'enabled' | 'danger';
 export type TargetType = 'host' | 'guest';
 type Props = {
@@ -11,13 +11,54 @@ type Props = {
   reservation: ReservationData;
   className?: string;
 };
-const dateFormatter = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+const dateFormatter = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit' });
 
 function ListComponent({ type, reservation, className }: Props) {
   const [buttonText, setButtonText] = useState('');
   const [buttonType, setButtonType] = useState<ButtonType>('disabled');
   const [buttonClick, setButtonClick] = useState<((reservation: ReservationData) => void) | null>(null);
   const [rentStatus, setRentStatus] = useState(reservation.rentStatus);
+  const [timeDifference, setTimeDifference] = useState(0);
+  const [extraFee, setExtraFee] = useState(0);
+
+  useEffect(() => {
+    const updateTimeDifference = () => {
+      const returnTime = new Date(Number(reservation.rentPeriod[1]));
+      // 현재 시간과 반납 시간의 차이 계산 전, 숫자 타입 확인
+      const now = new Date().getTime(); // getTime()은 항상 숫자를 반환
+      const returnTimeMs = returnTime.getTime(); // 반납 시간을 밀리초로 변환
+
+      // 이제 returnTimeMs와 now는 숫자 타입이므로 산술 연산 가능
+      const difference = returnTimeMs - now;
+
+      if (difference < 0) {
+        const hours = Math.floor(difference / (1000 * 60 * 60));
+        setTimeDifference(hours * -1);
+      }
+    };
+
+    // 600초마다 시간 차이 업데이트
+    const interval = setInterval(updateTimeDifference, 30000);
+
+    // 초기 로드 시에도 바로 업데이트
+    updateTimeDifference();
+
+    // 컴포넌트 언마운트 시 인터벌 정리
+    return () => clearInterval(interval);
+  }, [reservation.rentPeriod]);
+
+  function calculateExtraFee(overTime: number) {
+    return overTime * reservation.rentFee;
+  }
+
+  useEffect(() => {
+    if (timeDifference > 0) {
+      const newExtraFee = calculateExtraFee(timeDifference);
+      setExtraFee(newExtraFee);
+    } else {
+      setExtraFee(0);
+    }
+  }, [timeDifference]);
 
   useEffect(() => {
     // reservation.status 값에 따라 Button 상태 업데이트
@@ -40,29 +81,40 @@ function ListComponent({ type, reservation, className }: Props) {
     }
   };
 
-  const updateToUsing = async (reservation: ReservationData) => {
-    const response = await server.patch<ResponseWithoutData>('/reservations/' + reservation.id, {
-      data: {
-        status: reservationStatus.USING,
-      },
+  const getCurrentLocation = () => {
+    return new Promise<GeolocationPosition>((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error('Geolocation is not supported by this browser.'));
+      } else {
+        navigator.geolocation.getCurrentPosition(resolve, reject);
+      }
     });
-    if (response && !response.success) {
-      //TODO: 에러나면 어떻게 할지 논의 필요
-    } else {
-      setRentStatus('USING');
-    }
   };
 
   const updateToTerminated = async (reservation: ReservationData) => {
-    const response = await server.patch<ResponseWithoutData>('/reservations/' + reservation.id, {
-      data: {
-        status: reservationStatus.TERMINATED,
-      },
-    });
-    if (response && !response.success) {
-      //TODO: 에러나면 어떻게 할지 논의 필요
-    } else {
-      setRentStatus('TERMINATED');
+    try {
+      // 현재 위치를 비동기적으로 가져옴
+      const position = await getCurrentLocation();
+      const { latitude, longitude } = position.coords;
+      if (reservation.target.lat && reservation.target.lng) {
+        const dist = distance(latitude, longitude, reservation.target.lat, reservation.target.lng);
+        if (dist <= 0.2) {
+          const response = await server.patch<ResponseWithoutData>('/reservations/' + reservation.id, {
+            data: {
+              status: reservationStatus.TERMINATED,
+            },
+          });
+
+          if (response && !response.success) {
+            //TODO: 에러 처리
+          } else {
+            setRentStatus('TERMINATED');
+          }
+        }
+        //TODO: 너무 멀어서 반납 못한다고 표시
+      }
+    } catch (error) {
+      //Todo: 위치 정보 획득 실패 모달 띄우기
     }
   };
 
@@ -77,11 +129,11 @@ function ListComponent({ type, reservation, className }: Props) {
     },
     READY: {
       host: { buttonText: '거절하기', buttonType: 'danger', buttonClick: updateToCancel },
-      guest: { buttonText: '대여시작', buttonType: 'enabled', buttonClick: updateToUsing },
+      guest: { buttonText: '예약취소', buttonType: 'danger', buttonClick: updateToCancel },
     },
     USING: {
-      host: { buttonText: '반납확인', buttonType: 'enabled', buttonClick: updateToTerminated },
-      guest: { buttonText: '대여중', buttonType: 'disabled', buttonClick: null },
+      host: { buttonText: '대여중', buttonType: 'disabled', buttonClick: null },
+      guest: { buttonText: '반납하기', buttonType: 'enabled', buttonClick: updateToTerminated },
     },
     TERMINATED: {
       host: { buttonText: '반납완료', buttonType: 'disabled', buttonClick: null },
@@ -92,7 +144,6 @@ function ListComponent({ type, reservation, className }: Props) {
       guest: { buttonText: '', buttonType: 'disabled', buttonClick: null },
     },
   };
-
   return (
     <div
       className={`
@@ -115,36 +166,29 @@ function ListComponent({ type, reservation, className }: Props) {
                 <p className='text-md leading-60 font-semibold'>{reservation.target.name}</p>
                 <div>
                   <p className='break-all text-xs leading-5 text-background-500'>{reservation.target.phoneNumber}</p>
-                  {type === 'guest' && (
-                    <>
-                      <p className='truncate text-xs leading-5 text-background-500'>{reservation.address}</p>
-                      <p className='text-xs leading-6 text-background-500'>
-                        {`${dateFormatter.format(reservation.rentPeriod[0]).replace(/ /g, '').replace(/\.$/, '')} 
-                        ~ ${dateFormatter.format(reservation.rentPeriod[1]).replace(/ /g, '').replace(/\.$/, '')}`}
+                  <p className='truncate text-xs leading-5 text-background-500'>{reservation.address}</p>
+                      <p className='text-xs leading-6 text-background-500 whitespace-nowrap'>
+                        {`${dateFormatter.format(reservation.rentPeriod[0]).replace(/ /g, '').replace(/\.$/, '').replace(/\,/, ' ')} 
+                        ~ ${dateFormatter.format(reservation.rentPeriod[1]).replace(/ /g, '').replace(/\.$/, '').replace(/\,/, ' ')}`}
                       </p>
-                    </>
-                  )}
                 </div>
               </div>
             </div>
-            <div className={`ml-6 flex h-full  w-1/2 ${type === 'guest' ? 'flex-col items-end justify-end' : 'items-center justify-end'}`}>
-              <div className='mr-6 flex w-1/2 flex-col'>
-                {type === 'host' && (
-                  <p className='text-right text-xs leading-6 text-background-500'>
-                    {`${dateFormatter.format(reservation.rentPeriod[0]).replace(/ /g, '').replace(/\.$/, '')} 
-                    ~ ${dateFormatter.format(reservation.rentPeriod[1]).replace(/ /g, '').replace(/\.$/, '')}`}
+            <div className='ml-6 flex h-full w-11/12 flex-col items-end justify-end'>
+              <div className='mr-6 mb-2 flex w-3/4 h-3/5 flex-col justify-center'>
+                <p className='text-md truncate text-right font-semibold'>
+                  {reservation.rentFee.toLocaleString('ko-KR') || null}원
+                </p>
+                {reservation.rentStatus === 'USING' && extraFee > 0 && type === 'guest' && (
+                  <p className='text-md mb-2 truncate text-right font-semibold leading-5 text-danger'>{'+' + extraFee.toLocaleString('ko-KR') || null}원</p>
+                )}
+                {reservation.rentStatus === 'TERMINATED' && reservation.extraFee > 0 && (
+                  <p className='text-md truncate text-right font-semibold'>
+                    {'+' + reservation.extraFee.toLocaleString('ko-KR') || null}원
                   </p>
                 )}
-                <p className={`text-md truncate text-right font-semibold leading-5 ${type === 'guest' ? 'mb-2' : ''}`}>{reservation.rentFee || null}원</p>
               </div>
               <div className={`flex justify-end ${type === 'guest' ? 'w-full' : ''}`}>
-                {rentStatus === 'READY' && type === 'guest' && (
-                  <Button
-                    className={`mr-6 h-auto w-[9ch] min-w-[9ch] rounded-xl text-xs lg:text-sm ${type === 'guest' ? 'xl:w-1/4 ' : 'xl:w-full'}`}
-                    type='danger'
-                    text='예약취소'
-                    onClick={() => updateToCancel(reservation)}></Button>
-                )}
                 <Button
                   className={`mr-6 h-auto w-[9ch] min-w-[9ch] rounded-xl text-xs lg:text-sm ${type === 'guest' ? 'xl:w-1/4 ' : 'xl:w-full'}`}
                   type={buttonType}
@@ -160,4 +204,3 @@ function ListComponent({ type, reservation, className }: Props) {
 }
 
 export default ListComponent;
-

@@ -1,29 +1,58 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CarDetailData } from '@/fetches/cars/cars.type';
 import { useLoaderData } from 'react-router';
 import Button from '@/components/Button';
 import ListComponent from '@/components/ListComponent';
 import HostCalendar from '@/components/calendar/hostCalendar/HostCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
-import { HostManageLoaderData } from './hostsRoutes';
 import { TargetType } from '@/components/ListComponent';
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
 import ImageGallery from '@/components/ImageGallery';
 import { reservationStatus } from '@/fetches/reservations/Reservation.type';
+import { ReservationData } from '@/fetches/reservations/Reservation.type';
+import { fetchHostReservations, parseHostReservations } from '@/fetches/reservations/fetchHostReservations';
 
 const TABS = ['calendar', 'reservation'] as const;
 type TabType = (typeof TABS)[number];
 
 function HostManage() {
   const navigate = useNavigate();
-  const { carDetail, hostReservations } = useLoaderData() as HostManageLoaderData;
+  const carDetail = useLoaderData() as CarDetailData;
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
   if (!carDetail) {
-    return;
+    return "";
   }
   const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
+  const loaderRefNext = useRef(null);
+  const [reservations, setReservations] = useState<ReservationData[]>([]);
+  var hasNext = false;
+  const page = useRef(0);
 
+  const fetchReservations = async () => {
+    const response = await fetchHostReservations(page.current, 5);
+    console.log(response)
+    if (response && response.success) {
+      const newReservations = parseHostReservations(response.data);
+      hasNext = response.pageInfo.hasNext;
+      setReservations((prevReservations) => [...prevReservations, ...newReservations]);
+    }
+  };
+
+  const observerNext = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      if (page.current !== 0 && !hasNext) return;
+      fetchReservations();
+      page.current += 1;
+    });
+  });
+  useEffect(() => {
+    if (loaderRefNext.current) {
+      observerNext.observe(loaderRefNext.current);
+    }
+  }, []);
   const editCar = () => {
     navigate('/hosts/register');
   };
@@ -41,21 +70,21 @@ function HostManage() {
       },
     });
   };
-  //
+  
   const handleTabSelect = (tab: TabType) => {
     setSelectedTab(tab);
   };
 
   // 선택된 탭에 따라 해당 컴포넌트 렌더링
   const renderSelectedComponent = () => {
-    const reservations = hostReservations.map((reservation) => reservation.rentPeriod);
+    const reservationDates = reservations.map((reservation) => reservation.rentPeriod);
 
     switch (selectedTab) {
       case 'calendar':
         return (
           <div className='rounded-xl bg-white p-8'>
             <div className=''>
-              <HostCalendar size='large' availableDates={availableDates} onAvailableDatesChange={setAvailableDates} reservations={reservations} />
+              <HostCalendar size='large' availableDates={availableDates} onAvailableDatesChange={setAvailableDates} reservations={reservationDates} />
               <div className='flex justify-end'>
                 <Button text='저장' onClick={updateDates}></Button>
               </div>
@@ -68,27 +97,7 @@ function HostManage() {
         return null;
     }
   };
-  const reservations = hostReservations.sort((a, b) => {
-    const dateA = a.rentPeriod[0];
-    const dateB = b.rentPeriod[0];
-    if (a.rentStatus && b.rentStatus) {
-      const statusOrder = ['ready', 'using', 'cancel', 'terminated'];
-      const statusIndexA = statusOrder.indexOf(a.rentStatus);
-      const statusIndexB = statusOrder.indexOf(b.rentStatus);
-      if (statusIndexA < statusIndexB) {
-        return -1;
-      } else if (statusIndexA > statusIndexB) {
-        return 1;
-      } else if (dateA && dateB) {
-        if (dateA < dateB) {
-          return 1;
-        } else if (dateA > dateB) {
-          return -1;
-        }
-      } else return 0;
-    }
-    return 0;
-  });
+
   const ReservationCard = reservations.map((reservation, index) => (
     <ListComponent
       key={index}
@@ -99,11 +108,11 @@ function HostManage() {
         rentPeriod: reservation.rentPeriod,
         rentStatus: reservation.rentStatus ?? reservationStatus.UNDEFINED,
         rentFee: reservation.rentFee ?? null,
+        extraFee: reservation.extraFee,
         address: reservation.address ?? '',
       }}
     />
   ));
-
   return (
     <div className='flex min-w-[768px] flex-col gap-8'>
       <h2 className='mt-4 pl-3 text-3xl font-semibold'>수현님, 등록한 차량을 관리해보세요!</h2>
@@ -208,7 +217,10 @@ function HostManage() {
               내 차 예약 내역
             </button>
           </div>
-          <div className='flex max-h-screen flex-col gap-4 overflow-y-auto pr-6'>{renderSelectedComponent()}</div>
+          <div className='flex flex-col gap-4 overflow-y-scroll scrollbar-hide pr-6 max-h-[660px]'>
+            {renderSelectedComponent()}
+            <div ref={loaderRefNext}></div>
+          </div>
         </div>
       </div>
     </div>
