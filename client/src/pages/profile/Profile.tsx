@@ -112,9 +112,10 @@ function Profile() {
               </Link>
               <Button
                 text='탈퇴'
-                className='ml-5 flex h-8 w-1/6 items-center justify-center whitespace-nowrap rounded-xl text-xs xl:text-sm'
+                className='ml-5 flex h-8 items-center justify-center whitespace-nowrap rounded-xl text-xs xl:text-sm'
                 onClick={deleteUser}
-                type='danger'></Button>
+                type='danger'
+              />
             </div>
           </div>
         </div>
