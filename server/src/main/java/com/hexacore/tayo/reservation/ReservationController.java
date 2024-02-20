@@ -41,7 +41,7 @@ public class ReservationController {
         reservationService.confirmPayments(paymentKey, orderId, amount);
         // 결제가 성공하면 createReservation 실행
         try {
-            reservationService.createReservation(createReservationRequestDto, guestUserId, amount);
+            reservationService.createReservation(createReservationRequestDto, guestUserId);
         } catch (Exception e) {
             // 예약 내역 저장에 실패하면 결제 취소
             reservationService.cancelPayments(paymentKey, "예약에 실패했습니다.");

@@ -11,6 +11,7 @@ import com.hexacore.tayo.reservation.dto.TossPayment.TossCancelRequest;
 import com.hexacore.tayo.reservation.dto.TossPayment.TossPaymentResponse;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
+import com.hexacore.tayo.reservation.repository.ReservationRepository;
 import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
@@ -18,7 +19,6 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
@@ -47,45 +47,81 @@ public class ReservationService {
 
     @Transactional
     public void createReservation(CreateReservationRequestDto createReservationRequestDto,
-            Long guestUserId,
-            Integer amount) throws Exception {
-        User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
+            Long guestId) {
+        User guest = userRepository.findByIdAndIsDeletedFalse(guestId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
         Car car = carRepository.findByIdAndIsDeletedFalse(createReservationRequestDto.getCarId())
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
-        if (guestUser.getId().equals(car.getOwner().getId())) {
+        if (guest.getId().equals(car.getOwner().getId())) {
             throw new GeneralException(ErrorCode.RESERVATION_HOST_EQUALS_GUEST);
         }
-
-        User hostUser = car.getOwner();
 
         LocalDateTime rentDateTime = createReservationRequestDto.getRentDateTime();
         LocalDateTime returnDateTime = createReservationRequestDto.getReturnDateTime();
 
-        // rentDateTime, returnDateTime이 범위안에 있는지 검증
-        // 아니라면 RESERVATION_DATE_NOT_IN_RANGE 예외 발생
-        // 범위 안이라면 이미 있는 예약과 겹치는 지 검증
-        // 겹치면 RESERVATION_ALREADY_READY_OR_USING 예외 발생
-        validateRentReturnInRangeElseThrow(car, rentDateTime, returnDateTime);
+        if (rentDateTime.isAfter(returnDateTime.minusHours(1))) {
+            throw new GeneralException(ErrorCode.RESERVATION_DATETIME_LEAST_HOUR);
+        }
 
-        // 유저가 결제한 금액과 예약 fee 가 일치하는 지 확인
-        Integer fee = car.getFeePerHour() * (int) rentDateTime.until(returnDateTime, ChronoUnit.HOURS);
-        if (!fee.equals(amount)) {
-            throw new GeneralException(ErrorCode.INVALID_PAYMENT_AMOUNT);
+        List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
+                car.getId(),
+                List.of(ReservationStatus.READY, ReservationStatus.USING)
+        );
+
+        if (isAvailableDates(car.getCarDateRanges(), reservations, rentDateTime.toLocalDate(), returnDateTime.toLocalDate())) {
+            throw new GeneralException(ErrorCode.RESERVATION_ALREADY_READY_OR_USING);
         }
 
         Reservation reservation = Reservation.builder()
-                .guest(guestUser)
-                .host(hostUser)
+                .guest(guest)
+                .host(car.getOwner())
                 .car(car)
-                .fee(car.getFeePerHour() * (int) rentDateTime.until(returnDateTime, ChronoUnit.HOURS))
+                .fee(calculateTotalPrice(car.getFeePerHour(), rentDateTime, returnDateTime))
                 .rentDateTime(createReservationRequestDto.getRentDateTime())
                 .returnDateTime(createReservationRequestDto.getReturnDateTime())
                 .status(ReservationStatus.READY)
                 .build();
         reservationRepository.save(reservation);
+    }
+
+    private int calculateTotalPrice(Integer fee, LocalDateTime rentDateTime, LocalDateTime returnDateTime) {
+        return fee * (int) rentDateTime.until(returnDateTime, ChronoUnit.HOURS);
+    }
+
+    private boolean isAvailableDates(List<CarDateRange> sortedCarDateRanges, List<Reservation> sortedReservations, LocalDate rentDate, LocalDate returnDate) {
+        for (CarDateRange carDateRange : sortedCarDateRanges) {
+            LocalDate carStartDate = carDateRange.getStartDate();
+            LocalDate carEndDate = carDateRange.getEndDate();
+
+            // 현재 carDateRange는 가장 앞쪽 범위이므로 예약이 carDateRange의 앞쪽으로 나온 경우 false
+            if (rentDate.isBefore(carStartDate)) {
+                return false;
+            }
+            // 현재 carDateRange는 가장 앞쪽 범위이므로 예약이 carDateRange의 뒷쪽으로 나온 경우 다음 범위와 비교
+            if (returnDate.isAfter(carEndDate)) {
+                continue;
+            }
+            // 예약하려는 날짜가 carDateRange 안에 있는 경우 다른 예약과 비교
+            for (Reservation reservation : sortedReservations) {
+                // 예약이 carDateRange의 앞쪽으로 나온 경우 다음 예약과 비교
+                if (carStartDate.isAfter(reservation.getReturnDateTime().toLocalDate())) {
+                    continue;
+                }
+                // 예약이 carDateRange의 뒷쪽으로 나온 경우 다음 예약 가능
+                if (carEndDate.isBefore(reservation.getRentDateTime().toLocalDate())) {
+                    break;
+                }
+                // 예약이 carDateRange 안에 있고 예약하려는 범위와 겹치면 false
+                if (!(returnDate.isBefore(reservation.getRentDateTime().toLocalDate())
+                        || rentDate.isAfter(reservation.getReturnDateTime().toLocalDate()))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     @Transactional
@@ -157,46 +193,6 @@ public class ReservationService {
 
         reservation.setStatus(requestedStatus);
         reservationRepository.save(reservation);
-    }
-
-    private void validateRentReturnInRangeElseThrow(Car car,
-            LocalDateTime rentDateTime,
-            LocalDateTime returnDateTime) throws GeneralException {
-        if (rentDateTime.isAfter(returnDateTime)) {
-            throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
-        }
-
-        // 최소 1시간이어야 한다.
-        // rentDateTime + 1Hour <= returnDateTime
-        // rentDateTime + 1Hour > returnDateTime 일때 에러
-        if (rentDateTime.plusHours(1).isAfter(returnDateTime)) {
-            throw new GeneralException(ErrorCode.RESERVATION_DATETIME_LEAST_HOUR);
-        }
-
-        List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
-                car.getId(),
-                List.of(ReservationStatus.READY, ReservationStatus.USING)
-        );
-
-        for (CarDateRange carDateRange : car.getCarDateRanges()) {
-            LocalDate startDate = carDateRange.getStartDate();
-            LocalDate endDate = carDateRange.getEndDate();
-
-            // 포함되는 예약 가능 구간을 찾을 때 까지는 continue;
-            if (startDate.isAfter(rentDateTime.toLocalDate()) || endDate.isBefore(rentDateTime.toLocalDate())) {
-                continue;
-            }
-
-            for (Reservation reservation : reservations) {
-                // 기존의 예약과 겹치는지
-                if (!(returnDateTime.isBefore(reservation.getRentDateTime())
-                        || rentDateTime.isAfter(reservation.getReturnDateTime()))) {
-                    throw new GeneralException(ErrorCode.RESERVATION_ALREADY_READY_OR_USING);
-                }
-            }
-            return;
-        }
-        throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
     }
 
     private void updateReservationStatusByCurrentDateTime(Page<Reservation> reservations) {
