@@ -4,6 +4,7 @@ import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.user.dto.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,5 +54,12 @@ public class UserController {
         Long userId = (Long) request.getAttribute("userId");
         GetUserPaymentInfoResponseDto getUserPaymentInfoResponseDto = userService.getUserPaymentInfo(userId);
         return Response.of(HttpStatus.OK, getUserPaymentInfoResponseDto);
+    }
+
+    @PatchMapping("/payment")
+    public ResponseEntity<Response> updateUserBillingKey(HttpServletRequest request, @Valid @RequestBody UpdateUserBillingKeyRequestDto updateUserBillingKeyRequestDto) {
+        Long userId = (Long) request.getAttribute("userId");
+        userService.updateUserBillingKey(userId, updateUserBillingKeyRequestDto);
+        return Response.of(HttpStatus.OK);
     }
 }
