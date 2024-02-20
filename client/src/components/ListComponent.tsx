@@ -11,7 +11,7 @@ type Props = {
   reservation: ReservationData;
   className?: string;
 };
-const dateFormatter = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour:'2-digit' });
+const dateFormatter = new Intl.DateTimeFormat('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit' });
 
 function ListComponent({ type, reservation, className }: Props) {
   const [buttonText, setButtonText] = useState('');
@@ -30,10 +30,10 @@ function ListComponent({ type, reservation, className }: Props) {
 
       // 이제 returnTimeMs와 now는 숫자 타입이므로 산술 연산 가능
       const difference = returnTimeMs - now;
-      
+
       if (difference < 0) {
-        const hours = Math.floor((difference / (1000 * 60 * 60)));
-        setTimeDifference(hours*-1);
+        const hours = Math.floor(difference / (1000 * 60 * 60));
+        setTimeDifference(hours * -1);
       }
     };
 
@@ -46,8 +46,8 @@ function ListComponent({ type, reservation, className }: Props) {
     // 컴포넌트 언마운트 시 인터벌 정리
     return () => clearInterval(interval);
   }, [reservation.rentPeriod]);
-  
-  function calculateExtraFee(overTime:number) {
+
+  function calculateExtraFee(overTime: number) {
     return overTime * reservation.rentFee;
   }
 
@@ -84,27 +84,25 @@ function ListComponent({ type, reservation, className }: Props) {
   const getCurrentLocation = () => {
     return new Promise<GeolocationPosition>((resolve, reject) => {
       if (!navigator.geolocation) {
-        reject(new Error("Geolocation is not supported by this browser."));
+        reject(new Error('Geolocation is not supported by this browser.'));
       } else {
         navigator.geolocation.getCurrentPosition(resolve, reject);
       }
     });
   };
 
-  function distance(lat1:number, lon1:number, lat2:number, lon2:number) {
+  function distance(lat1: number, lon1: number, lat2: number, lon2: number) {
     const R = 6371; // 지구 반지름 (단위: km)
     const dLat = deg2rad(lat2 - lat1);
     const dLon = deg2rad(lon2 - lon1);
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c; // 두 지점 간의 거리 (단위: km)
     return distance;
   }
-  
+
   function deg2rad(deg: number) {
-    return deg * (Math.PI/180);
+    return deg * (Math.PI / 180);
   }
 
   const updateToTerminated = async (reservation: ReservationData) => {
@@ -112,15 +110,15 @@ function ListComponent({ type, reservation, className }: Props) {
       // 현재 위치를 비동기적으로 가져옴
       const position = await getCurrentLocation();
       const { latitude, longitude } = position.coords;
-      if(reservation.target.lat && reservation.target.lng){
+      if (reservation.target.lat && reservation.target.lng) {
         const dist = distance(latitude, longitude, reservation.target.lat, reservation.target.lng);
-        if(dist <= 0.2){
+        if (dist <= 0.2) {
           const response = await server.patch<ResponseWithoutData>('/reservations/' + reservation.id, {
             data: {
               status: reservationStatus.TERMINATED,
             },
           });
-      
+
           if (response && !response.success) {
             //TODO: 에러 처리
           } else {
@@ -129,7 +127,6 @@ function ListComponent({ type, reservation, className }: Props) {
         }
         //TODO: 너무 멀어서 반납 못한다고 표시
       }
-      
     } catch (error) {
       //Todo: 위치 정보 획득 실패 모달 띄우기
     }
@@ -183,29 +180,26 @@ function ListComponent({ type, reservation, className }: Props) {
                 <p className='text-md leading-60 font-semibold'>{reservation.target.name}</p>
                 <div>
                   <p className='break-all text-xs leading-5 text-background-500'>{reservation.target.phoneNumber}</p>
-                  {type === 'guest' && (
-                    <>
-                      <p className='truncate text-xs leading-5 text-background-500'>{reservation.address}</p>
-                      <p className='text-xs leading-6 text-background-500'>
+                  <p className='truncate text-xs leading-5 text-background-500'>{reservation.address}</p>
+                      <p className='text-xs leading-6 text-background-500 whitespace-nowrap'>
                         {`${dateFormatter.format(reservation.rentPeriod[0]).replace(/ /g, '').replace(/\.$/, '').replace(/\,/, ' ')} 
                         ~ ${dateFormatter.format(reservation.rentPeriod[1]).replace(/ /g, '').replace(/\.$/, '').replace(/\,/, ' ')}`}
                       </p>
-                    </>
-                  )}
                 </div>
               </div>
             </div>
-            <div className={`ml-6 flex h-full  w-1/2 ${type === 'guest' ? 'flex-col items-end justify-end' : 'items-center justify-end'}`}>
-              <div className='mr-6 flex w-1/2 flex-col'>
-                {type === 'host' && (
-                  <p className='text-right text-xs leading-6 text-background-500'>
-                    {`${dateFormatter.format(reservation.rentPeriod[0]).replace(/ /g, '').replace(/\.$/, '').replace(/\,/, ' ')} 
-                    ~ ${dateFormatter.format(reservation.rentPeriod[1]).replace(/ /g, '').replace(/\.$/, '').replace(/\,/, ' ')}`}
-                  </p>
+            <div className='ml-6 flex h-full w-11/12 flex-col items-end justify-end'>
+              <div className='mr-6 mb-2 flex w-3/4 h-3/5 flex-col justify-center'>
+                <p className='text-md truncate text-right font-semibold'>
+                  {reservation.rentFee.toLocaleString('ko-KR') || null}원
+                </p>
+                {reservation.rentStatus === 'USING' && extraFee > 0 && type === 'guest' && (
+                  <p className='text-md mb-2 truncate text-right font-semibold leading-5 text-danger'>{'+' + extraFee.toLocaleString('ko-KR') || null}원</p>
                 )}
-                <p className={`text-md truncate text-right font-semibold leading-5 ${type === 'guest' ? 'mb-2' : ''}`}>{reservation.rentFee || null}원</p>
-                {reservation.rentStatus === 'USING' && extraFee > 0 && (
-                  <p className={`text-md truncate text-right font-semibold leading-5 text-danger ${type === 'guest' ? 'mb-2' : ''}`}>{extraFee || null}원</p>
+                {reservation.rentStatus === 'TERMINATED' && reservation.extraFee > 0 && (
+                  <p className='text-md truncate text-right font-semibold'>
+                    {'+' + reservation.extraFee.toLocaleString('ko-KR') || null}원
+                  </p>
                 )}
               </div>
               <div className={`flex justify-end ${type === 'guest' ? 'w-full' : ''}`}>
@@ -224,4 +218,3 @@ function ListComponent({ type, reservation, className }: Props) {
 }
 
 export default ListComponent;
-
