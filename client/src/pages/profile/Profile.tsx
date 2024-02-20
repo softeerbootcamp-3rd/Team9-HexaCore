@@ -108,7 +108,7 @@ function Profile() {
 
             <div className='flex flex-row p-3 pb-0 pl-0'>
               <Link to={`/auth/signup/${auth.userId}`} className='h-8 w-1/6 '>
-                <Button text='수정' className='whitespace-nowrap rounded-xl text-xs xl:text-sm' />
+                <Button text='수정' className='whitespace-nowrap rounded-xl text-xs xl:text-sm' onClick={editProfile}/>
               </Link>
               <Button
                 text='탈퇴'
