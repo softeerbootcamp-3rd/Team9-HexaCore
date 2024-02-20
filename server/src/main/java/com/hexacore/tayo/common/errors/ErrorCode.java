@@ -52,6 +52,9 @@ public enum ErrorCode {
     INVALID_POSITION(HttpStatus.BAD_REQUEST, "위치 정보가 올바르지 않습니다."),
     INVALID_PAYMENT_AMOUNT(HttpStatus.BAD_REQUEST, "결제 금액이 올바르지 않습니다."),
 
+    REPORTED_BY_OTHERS(HttpStatus.BAD_REQUEST, "해당 예약의 호스트만 신고가 가능합니다."),
+    REPORTED_NOT_USING_RESERVATION(HttpStatus.BAD_REQUEST, "반납이 지연된 예약만 신고가 가능합니다."),
+
     USER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스 입니다"),
     EXPIRED_JWT_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 JWT 토큰입니다."),
 
