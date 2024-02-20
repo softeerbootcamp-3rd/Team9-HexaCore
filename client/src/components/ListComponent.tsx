@@ -3,7 +3,7 @@ import { ReservationData, ReservationStatus, reservationStatus } from '@/fetches
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
 import { useEffect, useState } from 'react';
-
+import { distance } from '@/utils/DistanceCalculater';
 type ButtonType = 'disabled' | 'enabled' | 'danger';
 export type TargetType = 'host' | 'guest';
 type Props = {
@@ -38,7 +38,7 @@ function ListComponent({ type, reservation, className }: Props) {
     };
 
     // 600초마다 시간 차이 업데이트
-    const interval = setInterval(updateTimeDifference, 60000);
+    const interval = setInterval(updateTimeDifference, 30000);
 
     // 초기 로드 시에도 바로 업데이트
     updateTimeDifference();
@@ -90,20 +90,6 @@ function ListComponent({ type, reservation, className }: Props) {
       }
     });
   };
-
-  function distance(lat1: number, lon1: number, lat2: number, lon2: number) {
-    const R = 6371; // 지구 반지름 (단위: km)
-    const dLat = deg2rad(lat2 - lat1);
-    const dLon = deg2rad(lon2 - lon1);
-    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // 두 지점 간의 거리 (단위: km)
-    return distance;
-  }
-
-  function deg2rad(deg: number) {
-    return deg * (Math.PI / 180);
-  }
 
   const updateToTerminated = async (reservation: ReservationData) => {
     try {
