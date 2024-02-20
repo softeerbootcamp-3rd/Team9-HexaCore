@@ -333,7 +333,7 @@ function HostRegister() {
           <form method='POST' action='https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry' onSubmit={onSubmitCheckCarNumber}>
             <div className='flex justify-center'>
               <div className='flex w-5/12 items-center justify-between rounded-3xl bg-white px-6 py-2'>
-                <input className='w-full p-3 text-2xl focus:outline-none' name='REGINUMBER' type='text' placeholder='12가3456' />
+                <input className='w-full p-3 text-2xl focus:outline-none' name='REGINUMBER' type='text' placeholder='12가3456' autoComplete='off' />
                 <input type='image' src='/search-button.png' width={48} height={48} />
               </div>
             </div>
