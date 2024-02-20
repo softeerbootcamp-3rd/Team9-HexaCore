@@ -25,6 +25,7 @@ function Profile() {
   const onDeleteUser = async () => {
     const response = await server.delete<ResponseWithoutData>('/auth');
 
+
     if (!response.success) {
       // 회원탈퇴 실패한 경우
       alert(response.message); // TODO: 실패 시 처리
