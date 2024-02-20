@@ -14,22 +14,19 @@ import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.model.User;
 import jakarta.transaction.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -90,7 +87,8 @@ public class ReservationService {
 
     @Transactional
     public Page<Reservation> getGuestReservations(Long guestUserId, Pageable pageable) {
-        Page<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId, pageable);
+        Page<Reservation> reservations =
+                reservationRepository.findAllByGuest_idOrderByStatusAscRentDateTimeAsc(guestUserId, pageable);
         updateReservationStatusByCurrentDateTime(reservations);
 
         return reservations;
@@ -98,7 +96,8 @@ public class ReservationService {
 
     @Transactional
     public Page<Reservation> getHostReservations(Long hostUserId, Pageable pageable) {
-        Page<Reservation> reservations = reservationRepository.findAllByHost_id(hostUserId, pageable);
+        Page<Reservation> reservations =
+                reservationRepository.findAllByHost_idOrderByStatusAscRentDateTimeAsc(hostUserId, pageable);
         updateReservationStatusByCurrentDateTime(reservations);
 
         return reservations;
