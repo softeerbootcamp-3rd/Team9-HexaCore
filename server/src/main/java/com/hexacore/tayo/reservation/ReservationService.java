@@ -208,7 +208,7 @@ public class ReservationService {
 
     /* 카드 자동결제 승인 요청 */
     @Transactional
-    public void confirmBilling(Long userId, Long reservationId, Integer amount, String orderName) {
+    public void confirmBilling(Long userId, Long reservationId, Integer amount, String orderName, String customerName) {
         // user의 billingKey 가져오기
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
@@ -219,7 +219,7 @@ public class ReservationService {
         }
 
         // 결제 요청
-        TossPaymentResponse response = paymentManager.confirmBilling(amount, orderName, user.getCustomerKey(), user.getBillingKey());
+        TossPaymentResponse response = paymentManager.confirmBilling(amount, orderName, customerName, user.getCustomerKey(), user.getBillingKey());
 
         // 예약 테이블의 paymentKey 업데이트
         Reservation reservation = reservationRepository.findById(reservationId)

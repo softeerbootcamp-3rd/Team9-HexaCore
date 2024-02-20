@@ -9,13 +9,13 @@ import lombok.Getter;
 public class GetUserPaymentInfoResponseDto {
     private String customerKey;
     private String name;
-    private String billingKey;
+    private Boolean hasBillingKey;
 
     static public GetUserPaymentInfoResponseDto of(User user) {
         return GetUserPaymentInfoResponseDto.builder()
                 .customerKey(user.getCustomerKey())
                 .name(user.getName())
-                .billingKey(user.getBillingKey())
+                .hasBillingKey(!"".equals(user.getBillingKey()))
                 .build();
     }
 }

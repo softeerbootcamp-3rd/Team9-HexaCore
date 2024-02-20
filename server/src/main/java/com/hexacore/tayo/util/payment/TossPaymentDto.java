@@ -19,6 +19,7 @@ public class TossPaymentDto {
         private String customerKey;
         private String orderId;
         private String orderName;
+        private String customerName;
     }
 
     @Getter

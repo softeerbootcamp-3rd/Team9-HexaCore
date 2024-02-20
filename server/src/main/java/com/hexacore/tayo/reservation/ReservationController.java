@@ -33,6 +33,7 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<Response> createReservation(HttpServletRequest request,
             @Valid @RequestParam String orderName,
+            @Valid @RequestParam String userName,
             @Valid @RequestBody CreateReservationRequestDto createReservationRequestDto) {
         Long guestUserId = (Long) request.getAttribute("userId");
 
@@ -41,7 +42,7 @@ public class ReservationController {
 
         // 자동 결제 승인 요청
         try {
-            reservationService.confirmBilling(guestUserId, createReservationResponseDto.getReservationId(), createReservationResponseDto.getFee(), orderName);
+            reservationService.confirmBilling(guestUserId, createReservationResponseDto.getReservationId(), createReservationResponseDto.getFee(), orderName, userName);
         } catch (Exception e) {
             // 결제 실패 시 DB에 저장된 예약 정보 삭제
             reservationService.rollBackReservation(createReservationResponseDto.getReservationId());
