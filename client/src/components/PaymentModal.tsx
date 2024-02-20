@@ -8,11 +8,12 @@ import { useState } from 'react';
 type PaymentModalProps = {
   price: number;
   orderName: string;
+  userName: string;
   reservationData: ReservationData;
   onClose: () => void;
 };
 
-function PaymentModal({ onClose, reservationData, price, orderName }: PaymentModalProps) {
+function PaymentModal({ onClose, reservationData, price, orderName, userName }: PaymentModalProps) {
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState<boolean>(false);
   const [isFailed, setIsFailed] = useState<boolean>(false);
@@ -24,7 +25,7 @@ function PaymentModal({ onClose, reservationData, price, orderName }: PaymentMod
   const handlePayment = async () => {
     setIsPending(true);
     // 예약 결제 요청
-    const response = await server.post<ResponseWithoutData>(`/reservations?orderName=${orderName}`, {
+    const response = await server.post<ResponseWithoutData>(`/reservations?orderName=${orderName}&userName=${userName}`, {
       data: reservationData,
     });
 

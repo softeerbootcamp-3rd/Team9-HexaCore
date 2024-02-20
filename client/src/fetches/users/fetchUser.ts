@@ -39,7 +39,7 @@ export const fetchUserPaymentInfo = async (): Promise<UserPaymentInfoResponse> =
     return {
       customerKey: '',
       name: '',
-      billingKey: '',
+      hasBillingKey: false,
     };
   }
   return response.data;

@@ -37,6 +37,7 @@ function CarDetail() {
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [reservationData, setReservationData] = useState<ReservationData | null>(null);
+  const [userName, setUserName] = useState<string>('');
   const clientKey = import.meta.env.VITE_TOSS_PAYMENTS_CLIENT_KEY;
   const { ToastComponent, showToast } = useCustomToast();
 
@@ -131,12 +132,13 @@ function CarDetail() {
     setReservationData(reservationData);
 
     // 결제 모달창 호출
-    const { customerKey, billingKey } = await fetchUserPaymentInfo();
+    const { customerKey, name, hasBillingKey } = await fetchUserPaymentInfo();
+    setUserName(name);
 
     if (!customerKey) {
       // customerKey가 없으면 예약 실패 알람
       showToast('예약 실패', '예약을 진행할 수 없습니다.');
-    } else if (!billingKey) {
+    } else if (!hasBillingKey) {
       // billingKey가 없으면 토스 billing 모달 띄우기
       await openTossModal(customerKey);
     } else {
@@ -286,6 +288,7 @@ function CarDetail() {
             createPortal(
               <PaymentModal
                 price={totalFee}
+                userName={userName}
                 orderName={`${data.carNumber}:${reservationData.rentDateTime}-${reservationData.returnDateTime}`}
                 reservationData={reservationData}
                 onClose={() => setIsOpen(false)}
