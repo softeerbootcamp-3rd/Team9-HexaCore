@@ -3,6 +3,8 @@ package com.hexacore.tayo.notification.sse;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,4 +42,9 @@ public class SseEmitterRepository {
     public SseEmitter get(Long id) {
         return emitters.get(id);
     }
+
+    public List<SseEmitter> getAllEmitters() {
+        return new ArrayList<>(emitters.values());
+    }
+
 }
