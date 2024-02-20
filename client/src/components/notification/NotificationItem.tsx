@@ -3,9 +3,10 @@ import CloseIcon from "../svgs/CloseIcon";
 
 type Props = {
   item: NotificationData
+  onClick: () => {}
 };
 
-function NotificationItem({item}: Props) {
+function NotificationItem({item, onClick}: Props) {
   return (
     <div className='flex flex-row justify-between border-t border-background-200 px-5 py-[19px]'>
 
@@ -26,7 +27,9 @@ function NotificationItem({item}: Props) {
       </div>
 
       <div>
-        <CloseIcon />
+        <button onClick={onClick}>
+          <CloseIcon />
+        </button>
       </div>
 
     </div>

@@ -1,25 +1,95 @@
+import { NotificationData } from "@/fetches/notification/notification.type";
+import { useEffect, useState } from "react"
+import { useAuth } from "@/contexts/AuthContext";
+import { EventSourcePolyfill } from "event-source-polyfill";
+import { server } from "@/fetches/common/axios";
+import { ResponseWithData, ResponseWithoutData } from "@/fetches/common/response.type";
+import BellIcon from "../svgs/BellIcon";
 import NotificationItem from "./NotificationItem";
-import { NotificationData } from "../../fetches/notification/notification.type";
-// import { deleteAllNotifications } from "@/fetches/notification/fetchNotification";
-import { MouseEventHandler } from "react";
 
-type Props = {
-  text?: string;
-  className?: string;
-  items: NotificationData[];
-  hidden: boolean;
-  setHidden: MouseEventHandler<HTMLButtonElement>;
-};
+export default function NotificationBox() {
+  const [showBox, setShowBox] = useState(false);
+  const [notificationArr, setNotificationArr] = useState<NotificationData[]>([]);
+  const { auth } = useAuth();
 
-function NotificationBox({ className, items=[], hidden, setHidden }: Props) {
+  const onDeleteAll = async () => { 
+    if (notificationArr.length > 0) {
+      const response = await server.delete<ResponseWithoutData>('/notifications');
+    
+      if (response.success) {
+        setNotificationArr([]);
+        setShowBox(false);
+      } else {
+        alert(response.message);
+      }
+    }
+  };
+
+  const onDeleteOne = async (notificationId: number) => { 
+    const response = await server.delete<ResponseWithoutData>(`/notifications/${notificationId}`);
+    
+    if (response.success) {
+      setNotificationArr((prevList: NotificationData[]) => {
+        return prevList.filter((item) => item.id !== notificationId);
+      });
+    } else {
+      alert(response.message);
+    }
+  };
+
+  useEffect(() => {
+    if (auth.userId) {
+
+      const getNotifications = async () => {
+        const response = await server.get<ResponseWithData<NotificationData[]>>('/notifications');
+      
+        if (response.success) {
+          setNotificationArr(response.data);
+        } else {
+          alert(response.message)
+          setNotificationArr([]);
+        }
+      };
+      
+      getNotifications();
+
+      const eventSource = new EventSourcePolyfill("http://localhost:8080/api/v1/notifications/subscribe", {
+        headers: {
+          Authorization: 'Bearer ' + auth.accessToken
+        },
+      });
+
+      eventSource.addEventListener('message', (event) => {
+        if(event.data !== 'Connected') {
+          const newNotification: NotificationData = JSON.parse(event.data);
+          
+          if (newNotification.title !== '') {
+            setNotificationArr((prevList) => [newNotification, ...prevList]);
+          }
+        }
+      })
+    }
+  }, []);
+
+
   return (
-    <div 
-      className={`
-        ${hidden ? "scale-100 opacity-100" : "scale-0 opacity-0 pointer-events-none"}
+    <div className='relative transition-opacity'>
+
+      <button className="p-2 text-background-500 hover:text-background-900" onClick={() => setShowBox(!showBox)}>
+        <BellIcon />
+      </button>
+
+      <button className={`${(notificationArr.length === 0) ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"}
+        flex items-center justify-center absolute top-0 right-0 bg-primary-300 rounded-full w-[19px] h-[19px] text-center text-[13px] text-white
+        transition duration-300 ease-in-out`}
+      >
+        {notificationArr.length}
+      </button>
+
+      <div className={`${(showBox) ? "scale-100 opacity-100" : "scale-0 opacity-0 pointer-events-none"}
         flex flex-col absolute top-[42px] right-[-70px] border-solid border-[1px] border-background-200 mt-2 w-[400px] max-h-[450px] rounded-2xl shadow-md bg-white
-        transition duration-300 ease-in-out
-      `}
-    >
+        transition duration-300 ease-in-out`}
+      >
         
         <div className="flex flex-row justify-between mb-5 pt-5 px-6">
 
@@ -30,19 +100,18 @@ function NotificationBox({ className, items=[], hidden, setHidden }: Props) {
           <div className="flex flex-row">
             <div className={`
               text-[14px] text-background-400 pr-5 
-              ${(items.length !== 0) ? 'hidden' : ''}
-              ${className}
+              ${(notificationArr.length !== 0) ? 'hidden' : ''}
             `}>
               알림이 없습니다.
             </div>
             <div className="text-[14px] text-background-500">            
               {
-                (items.length !== 0) ? 
-                <button>
+                (notificationArr.length !== 0) ? 
+                <button onClick={onDeleteAll}>
                   모두 삭제 
                 </button>
                 : 
-                <button onClick={setHidden}>
+                <button onClick={() => setShowBox(false)}>
                   닫기 
                 </button>
               }
@@ -52,13 +121,17 @@ function NotificationBox({ className, items=[], hidden, setHidden }: Props) {
         </div>
 
         <div className="overflow-y-auto">
-          {items.map((item) => (
-            <NotificationItem key={item.id} item={item}/>
+          {notificationArr.map((notification) => (
+            <NotificationItem 
+              key={notification.id} 
+              item={notification}
+              onClick={() => onDeleteOne(notification.id)}
+            />
           ))}
         </div>
 
     </div>
+  </div>
   );
 }
 
-export default NotificationBox;

@@ -1,6 +1,6 @@
 export type NotificationData = {
-    id: number;
-    title: string;
-    message: string;
-  }
+  id: number;
+  title: string;
+  message: string;
+}
     
