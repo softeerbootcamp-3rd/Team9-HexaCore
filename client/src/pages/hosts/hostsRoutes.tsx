@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom';
+import { redirect, type RouteObject } from 'react-router-dom';
 import HostManage from '@/pages/hosts/HostManage';
 import HostRegister from '@/pages/hosts/HostRegister';
 import { fetchCarDetail, parseCarDetail } from '@/fetches/cars/fetchCarDetail';
@@ -19,11 +19,12 @@ const hostsRoutes: RouteObject[] = [
         carDetail: null,
         hostReservations: [],
       };
-      if (carDetailResult.status == 'fulfilled' && carDetailResult != undefined) {
+      if (carDetailResult.status == 'fulfilled' && carDetailResult.value != undefined) {
         if (carDetailResult.value.code === 200) {
           data.carDetail = parseCarDetail(carDetailResult.value.data);
+
         } else if (carDetailResult.value.code === 404) {
-          location.href = '/hosts/register';
+          return redirect('/hosts/register');
         } else {
           throw Error('예기치 못한 오류가 발생했습니다.');
         }

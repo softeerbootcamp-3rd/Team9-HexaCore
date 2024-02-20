@@ -28,9 +28,6 @@ const profileRoutes: RouteObject[] = [
         if(userResult.value.code === 200){
           data.user = parseUser(userResult.value.data);
         }
-        else{
-          throw Error("예기치 못한 오류가 발생했습니다.")
-        }
       }
       if (GuestReservationResult.status === 'fulfilled' && GuestReservationResult.value !== undefined) {
         data.reservations = parseGuestReservations(GuestReservationResult.value.data);
