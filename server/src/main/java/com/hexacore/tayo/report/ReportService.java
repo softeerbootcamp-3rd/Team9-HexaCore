@@ -33,6 +33,11 @@ public class ReportService {
             throw new GeneralException(ErrorCode.REPORTED_NOT_USING_RESERVATION);
         }
 
+        // 이미 신고된 예약에 신고를 하는 경우
+        if (reservation.getReport() != null) {
+            throw new GeneralException(ErrorCode.ALREADY_REPORTED);
+        }
+
         Report report = Report.builder()
                 .reservation(reservation)
                 .content(reportDto.getContent())
