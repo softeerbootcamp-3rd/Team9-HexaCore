@@ -7,7 +7,7 @@ import AddressButton from './AddressButton';
 import { server } from '@/fetches/common/axios';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
 import axios from 'axios';
-import { CarDetailJsonData } from '@/fetches/cars/cars.type';
+import { HostRegisterLoaderData } from './hostsRoutes';
 
 const GET_CAR_INFO_API_URL = 'https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry';
 
@@ -28,12 +28,6 @@ type CarDetailByApi = {
   mileage: number;
   type: string;
   year: number;
-};
-
-type loaderData = {
-  username: string;
-  isUpdate: boolean;
-  carDetail: CarDetailJsonData | undefined;
 };
 
 type positionLatLng = {
@@ -83,7 +77,16 @@ function HostRegister() {
   const [addressMessage, setAddressMessage] = useState<string | null>(null);
   const feeRef = useRef<HTMLInputElement>(null);
   const navigator = useNavigate();
-  const userCarInfo = useLoaderData() as loaderData;
+  const userCarInfo = useLoaderData() as HostRegisterLoaderData;
+
+  // 서버에 접근할 수 없거나 요청에 대한 응답에 오류가 발생할 경우
+  if (userCarInfo === null) {
+    return <div>{'서버에 연결할 수 없습니다. 다시 시도해 주세요.'}</div>;
+  }
+  // 인증이 안된 경우 빈 페이지를 보여준다. -> 로그인 페이지로 리다이렉트
+  if (userCarInfo.errMessage === '로그인이 필요한 요청입니다.') {
+    return <div></div>;
+  }
 
   // 만약 수정에 대한 사항이라면 차량 번호 조회 페이지를 생략한다.
   useEffect(() => {
