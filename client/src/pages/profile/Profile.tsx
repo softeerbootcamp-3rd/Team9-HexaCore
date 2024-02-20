@@ -1,21 +1,27 @@
 import Button from '@/components/Button';
 import { UserData } from '@/fetches/users/fetchUser';
 import { ReservationData } from '@/fetches/reservations/Reservation.type';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
 import { fetchGuestReservations, parseGuestReservations } from '@/fetches/reservations/fetchGuestReservations';
 import PhoneIcon from '@/components/svgs/PhoneIcon';
 import MailIcon from '@/components/svgs/MailIcon';
 import ListComponent, { TargetType } from '@/components/ListComponent';
 import { useEffect, useRef, useState } from 'react';
+import { server } from '@/fetches/common/axios';
+import { useAuth } from '@/contexts/AuthContext';
+import { ResponseWithoutData } from '@/fetches/common/response.type';
 
 function Profile() {
   const user = useLoaderData() as UserData;
-  const navigator = useNavigate();
-  if (!user) {
-    return '';
-  }
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!user) {
+      navigate('/auth/login');
+    }
+  }, [user, navigate]);
 
+  const { auth, setAuth } = useAuth();
   const loaderRefNext = useRef(null);
   const [reservations, setReservations] = useState<ReservationData[]>([]);
   var hasNext = false;
@@ -44,10 +50,23 @@ function Profile() {
     }
   }, []);
   const editProfile = () => {
-    navigator('/auth/signup/' + localStorage.getItem('userId'));
+    navigate('/auth/signup/' + localStorage.getItem('userId'));
     return;
   };
+  const deleteUser = async () => {
+    const response = await server.delete<ResponseWithoutData>('/auth');
 
+    if (!response.success) {
+      // 회원탈퇴 실패한 경우
+      alert(response.message); // TODO: 실패 시 처리
+    }
+    setAuth({
+      userId: null,
+      accessToken: null,
+      refreshToken: null,
+    });
+    navigate('/');
+  };
   const ReservationCard = reservations
     ? reservations.map((reservation, index) => (
         <ListComponent
@@ -88,10 +107,9 @@ function Profile() {
             </div>
 
             <div className='flex flex-row p-3 pb-0 pl-0'>
-              <Button
-                text='수정'
-                className='flex h-8 w-1/6 items-center justify-center whitespace-nowrap rounded-xl text-xs xl:text-sm'
-                onClick={editProfile}></Button>
+              <Link to={`/auth/signup/${auth.userId}`} className='h-8 w-1/6 '>
+                <Button text='수정' className='whitespace-nowrap rounded-xl text-xs xl:text-sm' />
+              </Link>
               <Button
                 text='탈퇴'
                 className='ml-5 flex h-8 w-1/6 items-center justify-center whitespace-nowrap rounded-xl text-xs xl:text-sm'
