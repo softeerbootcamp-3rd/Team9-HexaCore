@@ -1,6 +1,6 @@
 import { stringTupleToDateTimeRange } from '@/utils/converters';
 import { server } from '@/fetches/common/axios';
-import type { ResponseWithData } from '@/fetches/common/response.type';
+import type { ResponseWithPagination } from '@/fetches/common/response.type';
 import type { ReservationData, ReservationStatus } from "@/fetches/reservations/Reservation.type"
 
 type GuestReservationResponse = {
@@ -9,13 +9,14 @@ type GuestReservationResponse = {
   rentDateTime: string;
   returnDateTime: string;
   fee: number;
+  extraFee: number,
   status: ReservationStatus;
   carAddress: string;
   hostPhoneNumber: string;
 };
 
-export const fetchGuestReservations = async () => {
-  const response = await server.get<ResponseWithData<GuestReservationResponse[]>>('/reservations/guest', {
+export const fetchGuestReservations = async (page: number,size: number) => {
+  const response = await server.get<ResponseWithPagination<GuestReservationResponse[]>>('/reservations/guest?page='+page+'&size='+size, {
   });
   if (response.success) {
     return response;
@@ -37,6 +38,7 @@ export const parseGuestReservations = (hostReservationsResponseRaw: GuestReserva
         },
         rentPeriod: stringTupleToDateTimeRange([reservation.rentDateTime, reservation.returnDateTime]),
         rentFee: reservation.fee,
+        extraFee: reservation.extraFee,
         rentStatus: toReservationStatus(reservation.status),
       }) as ReservationData,
   );

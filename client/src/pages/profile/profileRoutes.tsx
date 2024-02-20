@@ -1,7 +1,6 @@
 import type { RouteObject } from 'react-router-dom';
 import Profile from '@/pages/profile/Profile';
 import { fetchUser, parseUser } from '@/fetches/users/fetchUser';
-import { fetchGuestReservations, parseGuestReservations } from '@/fetches/reservations/fetchGuestReservations';
 
 interface LoaderParams {
   params: {
