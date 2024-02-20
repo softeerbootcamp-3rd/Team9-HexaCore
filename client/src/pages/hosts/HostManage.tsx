@@ -22,7 +22,7 @@ function HostManage() {
   const carDetail = useLoaderData() as CarDetailData;
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
   if (!carDetail) {
-    return;
+    return "";
   }
   const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail.carDateRanges);
   const loaderRefNext = useRef(null);
