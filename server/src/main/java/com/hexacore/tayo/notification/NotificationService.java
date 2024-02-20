@@ -18,6 +18,7 @@ public class NotificationService {
 
     /**
      * 알림을 저장합니다.
+     *
      * @param notification 알림
      */
     public Notification save(Notification notification) {
@@ -26,6 +27,7 @@ public class NotificationService {
 
     /**
      * 특정 유저가 받은 모든 알람을 조회합니다.
+     *
      * @param userId 수신자 id
      * @return GetNotificationResponseDto
      */
@@ -37,7 +39,8 @@ public class NotificationService {
 
     /**
      * 특정 알림을 모두 삭제합니다.
-     * @param userId 삭제 요청한 유저 id
+     *
+     * @param userId         삭제 요청한 유저 id
      * @param notificationId 삭제하고자 하는 알림 id
      */
     @Transactional
@@ -54,6 +57,7 @@ public class NotificationService {
 
     /**
      * 특정 유저가 받은 알림을 모두 삭제합니다.
+     *
      * @param userId 수신자 id
      */
     @Transactional
