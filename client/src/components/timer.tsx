@@ -25,18 +25,6 @@ function Timer() {
       return () => clearInterval(interval);
     }
   }, [isActive]);
-
-  return (
-    <div>
-      <h2>{seconds}초</h2>
-      <button onClick={toggle}>
-        {isActive ? '일시정지' : '시작'}
-      </button>
-      <button onClick={reset}>
-        리셋
-      </button>
-    </div>
-  );
 }
 
 export default Timer;
