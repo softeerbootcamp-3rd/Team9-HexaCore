@@ -15,7 +15,7 @@ const authRoutes: RouteObject[] = [
     element: <Login />,
   },
   {
-    path: 'auth/signup/:userId',
+    path: 'auth/signup/:userId?',
     loader: async ({ params }: LoaderParams) => {
 	  const userId = params.userId ?? localStorage.getItem("userId") ?? null;
 	  var data = null;

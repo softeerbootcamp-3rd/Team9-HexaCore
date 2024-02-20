@@ -47,15 +47,18 @@ function SignUp() {
       emailInputRef.current.readOnly = true;
     }
     if (pwdInputRef.current) {
-      pwdInputRef.current.autocomplete = "new-password";
+      pwdInputRef.current.autocomplete = 'new-password';
     }
     if (fileInputRef.current) {
       fileInputRef.current.src = data.image;
     }
+    setProfilePicture(data.image);
   };
   useEffect(() => {
-    setUserInfo();
-  }, [data]);
+    if (data) {
+      setUserInfo();
+    }
+  }, []);
 
   const handleSignUp = async () => {
     const email: string = emailInputRef.current?.value || '';
@@ -121,11 +124,6 @@ function SignUp() {
     }
   };
 
-  const setEmailInputErr = (errorMsg: string): void => {
-    setIsWrongEmail(true);
-    setEmailErr(errorMsg);
-  };
-
   // 이메일 형식에 맞는지 확인
   const checkEmail = (email: string): boolean => {
     if (emailPattern.test(email)) {
@@ -140,16 +138,17 @@ function SignUp() {
 
   // 비밀번호 형식에 맞는지 확인
   const checkPwd = (pwd: string): boolean => {
-    // if (!passwordPattern.test(pwd)) {
-    if (!data && pwd === '') {
-      setIsWrongPassword(true);
-      // setPwdErr("영어, 숫자, 기호 포함 길이 6이상 입력해주세요");
-      setPwdErr('비밀번호를 입력해주세요.');
-      return false;
+    if (data && !pwdInputRef.current?.value) {
+      return true;
     }
-    setIsWrongPassword(false);
-    setPwdErr('');
-    return true;
+    if (passwordPattern.test(pwd)) {
+      setIsWrongPassword(false);
+      setPwdErr('');
+      return true;
+    }
+    setIsWrongPassword(true);
+    setPwdErr('영어, 숫자, 기호 포함 길이 6이상 입력해주세요');
+    return false;
   };
 
   // 이름 입력했는지 확인
@@ -225,7 +224,7 @@ function SignUp() {
         <div className='flex justify-between pb-4'>
           <div className='w-44'></div>
           {profilePicture === null ? (
-            <img src={data.image === null ? '/defaultProfile.png' : data.image} className='h-32 w-32 rounded-full shadow-md' onClick={handleImgButtonClick} />
+            <img src='/defaultProfile.png' className='h-32 w-32 rounded-full shadow-md' onClick={handleImgButtonClick} />
           ) : (
             <img src={profilePicture} className='h-32 w-32 rounded-full shadow-md' onClick={handleImgButtonClick} />
           )}
@@ -251,8 +250,8 @@ function SignUp() {
           isWrong={isWrongPassword}
           errorMsg={pwdErr}
         />
-        <InputBox ref={nameInputRef} title='이름' placeHolder='김타요' isWrong={isWrongName} errorMsg={nameErr} onChange={phoneNumChange} />
-        <InputBox ref={phoneNumInputRef} title='전화번호' placeHolder='010-1234-5678' isWrong={isWrongPhoneNum} errorMsg={phoneErr} />
+        <InputBox ref={nameInputRef} title='이름' placeHolder='김타요' isWrong={isWrongName} errorMsg={nameErr} />
+        <InputBox ref={phoneNumInputRef} title='전화번호' placeHolder='010-1234-5678' isWrong={isWrongPhoneNum} errorMsg={phoneErr} onChange={phoneNumChange} />
 
         <div className='flex justify-end pb-10 pr-3 pt-7'>
           {data === null ? (
