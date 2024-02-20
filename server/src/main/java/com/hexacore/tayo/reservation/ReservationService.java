@@ -5,6 +5,8 @@ import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.notification.NotificationManager;
+import com.hexacore.tayo.notification.model.NotificationType;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.TossPayment.TossApproveRequest;
 import com.hexacore.tayo.reservation.dto.TossPayment.TossCancelRequest;
@@ -41,6 +43,7 @@ public class ReservationService {
     private final CarRepository carRepository;
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
+    private final NotificationManager notificationManager;
 
     @Value("${toss.secret-key}")
     private String tossSecretKey;
@@ -86,6 +89,9 @@ public class ReservationService {
                 .status(ReservationStatus.READY)
                 .build();
         reservationRepository.save(reservation);
+
+        // 예약이 완료되면 호스트에게 에약완료 알림을 전송
+        notificationManager.notify(hostUser.getId(), guestUser.getName(), NotificationType.RESERVE);
     }
 
     @Transactional
@@ -125,17 +131,24 @@ public class ReservationService {
             // 예약 취소
             if (originStatus == ReservationStatus.READY && requestedStatus == ReservationStatus.CANCEL) {
                 reservation.setStatus(requestedStatus);
+
+                // 호스트가 예약을 거절하면 게스트에게 에약거절 알림을 전송
+                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(), NotificationType.REFUSE);
             } else {
                 invalidUpdate = true;
             }
         }
+
         // 게스트가 요청한 경우
         else if (reservation.getGuest().getId().equals(user.getId())) {
             // 예약 취소 혹은 대여 시작
-            if (originStatus == ReservationStatus.READY &&
-                    (requestedStatus == ReservationStatus.CANCEL || requestedStatus == ReservationStatus.USING)) {
+            if (originStatus == ReservationStatus.READY && requestedStatus == ReservationStatus.CANCEL) {
                 reservation.setStatus(requestedStatus);
+
+                // 게스트가 예약을 취소하면 호스트에게 에약취소 알림을 전송
+                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(), NotificationType.CANCEL);
             }
+
             // 반납 요청 및 추가 요금 과금
             else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
                 reservation.setStatus(requestedStatus);
