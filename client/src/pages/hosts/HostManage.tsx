@@ -44,6 +44,10 @@ function HostManage() {
       memberId: carDetail.id.toString(), // 유일한 값이라서 id로 지정.
       unsubscribeEmail: true,
       unsubscribeTexting: true,
+      profile: {
+        name: carDetail.host.name,
+        email: carDetail.host.email,
+      },
     });
     return () => ChannelService.shutdown();
   }, []);
