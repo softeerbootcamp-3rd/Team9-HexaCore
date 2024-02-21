@@ -59,6 +59,7 @@ public class GetHostReservationResponseDto {
                 + ", status=" + status
                 + ", rentDateTime=" + rentDateTime
                 + ", returnDateTime=" + returnDateTime
+                + ", isReviewed=" + isReviewed
                 + '}';
     }
 }
