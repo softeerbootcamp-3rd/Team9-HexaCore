@@ -9,9 +9,7 @@ export const fetchCarDetail = async () => {
   return response;  
 };
 
-export const parseCarDetail = (carDetailJsonData: CarDetailJsonData): CarDetailData => {
-  const carData = carDetailJsonData;
-
+export const parseCarDetail = (carData: CarDetailJsonData): CarDetailData => {
   return {
     id: carData.id,
     categoryName: carData.carName,
@@ -29,4 +27,3 @@ export const parseCarDetail = (carDetailJsonData: CarDetailJsonData): CarDetailD
     host: carData.host
   };
 };
-
