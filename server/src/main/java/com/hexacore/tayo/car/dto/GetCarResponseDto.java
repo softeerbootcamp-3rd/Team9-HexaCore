@@ -8,9 +8,12 @@ import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.LinkedList;
 import java.util.stream.Collectors;
 import lombok.Getter;
 
@@ -111,26 +114,44 @@ public class GetCarResponseDto {
 
     private static List<List<String>> getCarAvailableDatesForGuest(Car car) {
         List<List<String>> carAvailableDates = new ArrayList<>();
-        List<Reservation> sortedReservations = car.getReservations().stream()
+        PriorityQueue<Reservation> sortedReservations = car.getReservations().stream()
                 .filter((reservation -> reservation.getStatus() != ReservationStatus.CANCEL))
-                .sorted(Comparator.comparing(Reservation::getRentDateTime))
-                .toList();
+                .filter(reservation -> reservation.getReturnDateTime().isAfter(LocalDateTime.now()))
+                .collect(Collectors.toCollection(
+                        () -> new PriorityQueue<>(Comparator.comparing(Reservation::getRentDateTime))));
 
         for (CarDateRange carDateRange : car.getCarDateRanges()) {
             LocalDate start = carDateRange.getStartDate();
             LocalDate end;
 
-            for (Reservation reservation : sortedReservations) {
-                if (reservation.getRentDateTime().toLocalDate().isAfter(carDateRange.getEndDate())
-                        || reservation.getReturnDateTime().toLocalDate().isBefore(carDateRange.getStartDate())) {
-                    continue;
+            // 만약 end가 현재 날짜보다 전일 경우 추가하지 않음
+            if (carDateRange.getEndDate().isBefore(LocalDate.now())) {
+                continue;
+            }
+
+            // 만약 start가 현재 날짜보다 전일 경우 start를 현재 날짜로 업데이트
+            if (start.isBefore(LocalDate.now())) {
+                start = LocalDate.now();
+            }
+
+            while (!sortedReservations.isEmpty()) {
+                //queue의 첫번째값 조회
+                Reservation reservation = sortedReservations.peek();
+                if (sortedReservations.peek().getRentDateTime().toLocalDate().isAfter(carDateRange.getEndDate())
+                        || sortedReservations.peek().getReturnDateTime().toLocalDate()
+                        .isBefore(carDateRange.getStartDate())) {
+                    break;
                 }
+
+                //pop
+                sortedReservations.remove();
                 end = reservation.getRentDateTime().toLocalDate().minusDays(1);
                 if (!start.isAfter(end)) {
                     carAvailableDates.add(List.of(start.toString(), end.toString()));
                 }
                 start = reservation.getReturnDateTime().toLocalDate().plusDays(1);
             }
+
             if (!start.isAfter(carDateRange.getEndDate())) {
                 carAvailableDates.add(List.of(start.toString(), carDateRange.getEndDate().toString()));
             }
