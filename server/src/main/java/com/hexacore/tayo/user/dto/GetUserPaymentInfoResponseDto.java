@@ -15,7 +15,7 @@ public class GetUserPaymentInfoResponseDto {
         return GetUserPaymentInfoResponseDto.builder()
                 .customerKey(user.getCustomerKey())
                 .name(user.getName())
-                .hasBillingKey(!"".equals(user.getBillingKey()))
+                .hasBillingKey(user.getBillingKey() != null)
                 .build();
     }
 }

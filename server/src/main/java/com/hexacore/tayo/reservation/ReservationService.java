@@ -213,8 +213,7 @@ public class ReservationService {
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
-        if ("".equals(user.getBillingKey())) {
-            // user의 billingKey가 없는 경우
+        if (user.getBillingKey() == null) {
             throw new GeneralException(ErrorCode.USER_BILLING_KEY_NOT_EXIST);
         }
 

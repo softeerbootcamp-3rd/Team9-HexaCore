@@ -40,7 +40,7 @@ public class User extends BaseTime {
     @Column(name = "customer_key", nullable = false)
     private String customerKey;
 
-    @Column(name = "billing_key", nullable = false)
+    @Column(name = "billing_key")
     private String billingKey;
 
     @OneToMany(mappedBy = "guest")
