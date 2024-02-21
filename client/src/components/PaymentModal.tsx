@@ -108,7 +108,6 @@ function PaymentModal({ onClose, reservationData, price, orderName, userName }: 
             </>
           )}
         </div>
-        {/* <ToastComponent /> */}
       </figure>
     </>
   );
