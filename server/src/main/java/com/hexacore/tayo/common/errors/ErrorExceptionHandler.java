@@ -38,6 +38,6 @@ public class ErrorExceptionHandler {
 
     @ExceptionHandler(GeneralException.class)
     public ResponseEntity<Response> handleGeneralException(GeneralException e) {
-        return Response.of(e.getErrorCode());
+        return Response.of(e.getErrorCode(), e.getMessage());
     }
 }

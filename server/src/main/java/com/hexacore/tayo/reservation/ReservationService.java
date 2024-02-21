@@ -6,32 +6,24 @@ import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
-import com.hexacore.tayo.reservation.dto.TossPayment.TossApproveRequest;
-import com.hexacore.tayo.reservation.dto.TossPayment.TossCancelRequest;
-import com.hexacore.tayo.reservation.dto.TossPayment.TossPaymentResponse;
+import com.hexacore.tayo.reservation.dto.CreateReservationResponseDto;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.model.User;
+import com.hexacore.tayo.util.payment.PaymentManager;
+import com.hexacore.tayo.util.payment.TossPaymentDto.TossPaymentResponse;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
 @Service
@@ -40,15 +32,10 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final CarRepository carRepository;
     private final UserRepository userRepository;
-    private final RestTemplate restTemplate;
-
-    @Value("${toss.secret-key}")
-    private String tossSecretKey;
+    private final PaymentManager paymentManager;
 
     @Transactional
-    public void createReservation(CreateReservationRequestDto createReservationRequestDto,
-            Long guestUserId,
-            Integer amount) throws Exception {
+    public CreateReservationResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto, Long guestUserId) {
         User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
@@ -70,22 +57,19 @@ public class ReservationService {
         // 겹치면 RESERVATION_ALREADY_READY_OR_USING 예외 발생
         validateRentReturnInRangeElseThrow(car, rentDateTime, returnDateTime);
 
-        // 유저가 결제한 금액과 예약 fee 가 일치하는 지 확인
         Integer fee = car.getFeePerHour() * (int) rentDateTime.until(returnDateTime, ChronoUnit.HOURS);
-        if (!fee.equals(amount)) {
-            throw new GeneralException(ErrorCode.INVALID_PAYMENT_AMOUNT);
-        }
 
         Reservation reservation = Reservation.builder()
                 .guest(guestUser)
                 .host(hostUser)
                 .car(car)
-                .fee(car.getFeePerHour() * (int) rentDateTime.until(returnDateTime, ChronoUnit.HOURS))
+                .fee(fee)
                 .rentDateTime(createReservationRequestDto.getRentDateTime())
                 .returnDateTime(createReservationRequestDto.getReturnDateTime())
                 .status(ReservationStatus.READY)
                 .build();
-        reservationRepository.save(reservation);
+        Reservation createdReservation = reservationRepository.save(reservation);
+        return CreateReservationResponseDto.builder().reservationId(createdReservation.getId()).fee(fee).build();
     }
 
     @Transactional
@@ -222,53 +206,29 @@ public class ReservationService {
         }
     }
 
-    public void confirmPayments(String paymentKey, String orderId, Integer amount) {
-        String encodedCredentials = getEncodedCredentials();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Basic " + encodedCredentials);
-        HttpEntity<TossApproveRequest> requestEntity = new HttpEntity<>(
-                TossApproveRequest.builder().paymentKey(paymentKey).orderId(orderId).amount(amount).build(), headers);
+    /* 카드 자동결제 승인 요청 */
+    @Transactional
+    public void confirmBilling(Long userId, Long reservationId, Integer amount, String orderName, String customerName) {
+        // user의 billingKey 가져오기
+        User user = userRepository.findByIdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
-        try {
-            ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
-                    "https://api.tosspayments.com/v1/payments/confirm",
-                    HttpMethod.POST,
-                    requestEntity,
-                    TossPaymentResponse.class
-            );
-
-            if (response.getBody() == null || !"DONE".equals(response.getBody().getStatus())) {
-                // 결제 승인 실패
-                throw new GeneralException(ErrorCode.TOSS_PAYMENTS_FAILED);
-            }
-        } catch (Exception e) {
-            throw new GeneralException(ErrorCode.TOSS_PAYMENTS_FAILED, e.getMessage());
+        if (user.getBillingKey() == null) {
+            throw new GeneralException(ErrorCode.USER_BILLING_KEY_NOT_EXIST);
         }
+
+        // 결제 요청
+        TossPaymentResponse response = paymentManager.confirmBilling(amount, orderName, customerName, user.getCustomerKey(), user.getBillingKey());
+
+        // 예약 테이블의 paymentKey 업데이트
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
+        reservation.setPaymentKey(response.getPaymentKey());
+        reservationRepository.save(reservation);
     }
 
-    public void cancelPayments(String paymentKey, String cancelReason) {
-        String encodedCredentials = getEncodedCredentials();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Basic " + encodedCredentials);
-        HttpEntity<TossCancelRequest> requestEntity = new HttpEntity<>(
-                TossCancelRequest.builder().cancelReason(cancelReason).build(), headers);
-        try {
-            ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
-                    String.format("https://api.tosspayments.com/v1/payments/%s/cancel", paymentKey),
-                    HttpMethod.POST,
-                    requestEntity,
-                    TossPaymentResponse.class
-            );
-            if (!response.getBody().getStatus().equals("CANCELED")) {
-                throw new GeneralException(ErrorCode.TOSS_PAYMENTS_CANCEL_FAILED);
-            }
-        } catch (Exception e) {
-            throw new GeneralException(ErrorCode.TOSS_PAYMENTS_CANCEL_FAILED, e.getMessage());
-        }
-    }
-
-    public String getEncodedCredentials() {
-        String credentials = tossSecretKey + ":";
-        return new String(Base64.getEncoder().encode(credentials.getBytes()));
+    /* 결제 실패 시 예약 정보 삭제 */
+    public void rollBackReservation(Long reservationId) {
+        reservationRepository.deleteById(reservationId);
     }
 }

@@ -59,4 +59,8 @@ public class Reservation extends BaseTime {
     @Setter
     @Builder.Default
     private Integer extraFee = 0;
+
+    @Column(name = "payment_key")
+    @Setter
+    private String paymentKey;
 }
