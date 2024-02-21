@@ -312,6 +312,16 @@ function HostRegister() {
       });
 
     if (!response.success) {
+      if (response.message === '존재하지 않는 모델명입니다.') {
+        alert('타요 서비스에 사용할 수 없는 차량입니다. 다른 차량을 시도해 주세요.');
+        setCarDetail(null);
+        setCarNumberConfirmed(false);
+        setAddress('');
+        setDescription('');
+        setFee('');
+        setImages([null, null, null, null, null]);
+        return;
+      }
       alert(`차량 ${userCarInfo.isUpdate ? '수정' : '등록'}에 실패하였습니다. 다시 시도해 주세요.`);
       return;
     }
