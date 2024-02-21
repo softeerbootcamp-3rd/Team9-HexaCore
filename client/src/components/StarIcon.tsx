@@ -1,16 +1,17 @@
 type Props = {
 	filled: boolean;
 	onClick?: () => void;
+  className?: string;
 }
 
-function StarIcon({ filled, onClick }: Props) {
+function StarIcon({ filled, onClick, className }: Props) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
       fill={filled ? '#FFD400' : 'none'}
 			stroke={filled ? '#FFD400' : 'gray'}
-      className="w-6 h-6 cursor-pointer"
+      className={`w-6 h-6 cursor-pointer ${className}`}
       onClick={onClick}
     >
       <path

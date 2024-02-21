@@ -48,6 +48,7 @@ export type CarData = {
   mileage: number;
   capacity: number;
   feePerHour: number;
+  averageRate: number;
 };
 
 // ---- Request
