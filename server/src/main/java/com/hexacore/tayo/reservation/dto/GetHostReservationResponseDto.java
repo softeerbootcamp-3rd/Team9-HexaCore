@@ -20,6 +20,7 @@ public class GetHostReservationResponseDto {
     private final Integer fee;
     private final Integer extraFee;
     private final ReservationStatus status;
+    private final Boolean isReviewed;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private final LocalDateTime rentDateTime;
@@ -27,7 +28,7 @@ public class GetHostReservationResponseDto {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private final LocalDateTime returnDateTime;
 
-    public static GetHostReservationResponseDto of(Reservation reservation) {
+    public static GetHostReservationResponseDto of(Reservation reservation, boolean isReviewed) {
         User guest = reservation.getGuest();
         GetUserSimpleResponseDto userSimpleResponseDto = GetUserSimpleResponseDto.builder()
                 .id(guest.getId())
@@ -44,6 +45,7 @@ public class GetHostReservationResponseDto {
                 .status(reservation.getStatus())
                 .rentDateTime(reservation.getRentDateTime())
                 .returnDateTime(reservation.getReturnDateTime())
+                .isReviewed(isReviewed)
                 .build();
     }
 

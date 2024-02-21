@@ -46,9 +46,7 @@ public class ReviewService {
         }
 
         // 리뷰 존재 여부 확인
-        boolean reviewExists = forCar ? carReviewRepository.existsByReservation(reservation) :
-                guestReviewRepository.existsByReservation(reservation);
-        if (reviewExists) {
+        if (isReviewed(reservation, forCar)) {
             throw new GeneralException(ErrorCode.REVIEW_ALREADY_EXIST);
         }
 
@@ -108,5 +106,11 @@ public class ReviewService {
             throw new GeneralException(ErrorCode.CAR_NOT_FOUND);
         }
         return carReviewRepository.findAllByCarId(carId, pageable);
+    }
+
+    /* 리뷰 있는지 확인 */
+    public boolean isReviewed(Reservation reservation, boolean isGuest) {
+        return isGuest ? carReviewRepository.existsByReservation(reservation) :
+                guestReviewRepository.existsByReservation(reservation);
     }
 }
