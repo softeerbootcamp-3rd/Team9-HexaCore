@@ -6,7 +6,7 @@ import Button from '@/components/Button';
 import TimePicker from '@/components/TimePicker';
 import GuestCalendar from '@/components/calendar/guestCalendar/GuestCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
-import { dateTimeToString, dateToString, stringToDate, stringTupleToDateRange } from '@/utils/converters';
+import { dateTimeToString, formatDate, stringToDate, stringTupleToDateRange } from '@/utils/converters';
 import ImageGallery from '@/components/ImageGallery';
 import { fetchUserPaymentInfo } from '@/fetches/users/fetchUser';
 import { createPortal } from 'react-dom';
@@ -30,8 +30,8 @@ function CarDetail() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
 
-  const startDate = params.get('startDate') || dateToString(new Date());
-  const endDate = params.get('endDate') || dateToString(new Date());
+  const startDate = params.get('startDate') || formatDate(new Date());
+  const endDate = params.get('endDate') || formatDate(new Date());
 
   const [dateRange, setDateRange] = useState<DateRange>(stringTupleToDateRange([startDate, endDate]));
 
@@ -40,28 +40,6 @@ function CarDetail() {
   const [userName, setUserName] = useState<string>('');
   const clientKey = import.meta.env.VITE_TOSS_PAYMENTS_CLIENT_KEY;
   const { ToastComponent, showToast } = useCustomToast();
-
-  // 가격 계산 함수
-  const calculatePrice = (dateRange: DateRange) => {
-    const startDate = new Date(dateRange[0]);
-    const endDate = new Date(dateRange[1]);
-
-    // 시간 정보 업데이트
-    startDate.setHours(rentTime);
-    endDate.setHours(returnTime);
-
-    // 시간 간격 계산 (밀리초 단위)
-    const timeDiff = endDate.getTime() - startDate.getTime();
-
-    // 시간 간격을 시간 단위로 변환
-    const hourInterval = timeDiff / (1000 * 60 * 60);
-
-    // 시간당 요금과 시간 간격을 곱하여 총 요금 계산
-    const calculatedFee = data.feePerHour * hourInterval;
-
-    // 총 요금 업데이트
-    setTotalFee(calculatedFee);
-  };
 
   // 대여 시간 정보 업데이트
   const updateStartDateTime = (time: number) => {
@@ -91,17 +69,30 @@ function CarDetail() {
     setReturnTime(time);
   };
 
-  // 예약 날짜 정보 업데이트
-  const updateDateRange = (dateRange: DateRange) => {
-    setDateRange(dateRange);
-  };
-
   // TimePicker 값 변경 시 가격 재계산
   useEffect(() => {
-    calculatePrice(dateRange);
-  }, [updateStartDateTime, updateEndDateTime]);
+    const startDate = new Date(dateRange[0]);
+    const endDate = new Date(dateRange[1]);
+
+    // 시간 정보 업데이트
+    startDate.setHours(rentTime);
+    endDate.setHours(returnTime);
+
+    // 시간 간격 계산 (밀리초 단위)
+    const timeDiff = endDate.getTime() - startDate.getTime();
+
+    // 시간 간격을 시간 단위로 변환
+    const hourInterval = timeDiff / (1000 * 60 * 60);
+
+    // 시간당 요금과 시간 간격을 곱하여 총 요금 계산
+    const calculatedFee = data.feePerHour * hourInterval;
+
+    // 총 요금 업데이트
+    setTotalFee(calculatedFee);
+  }, [rentTime, returnTime, dateRange, data?.feePerHour]);
 
   if (data === null) {
+    
     return <Navigate to='..' />;
   }
 
@@ -247,7 +238,7 @@ function CarDetail() {
           <div>
             <GuestCalendar
               availableDates={data.carDateRanges}
-              onReservationChange={updateDateRange}
+              onReservationChange={setDateRange}
               initDate={stringToDate(startDate)}
               reservation={dateRange}
             />
@@ -256,11 +247,15 @@ function CarDetail() {
           <div className='grid grid-cols-2 gap-0 overflow-hidden rounded-xl border-[1px] border-background-300'>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-r-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>대여일</p>
-              <p className='text-background-500'>{dateToString(dateRange[0]) === dateToString(new Date(0)) ? '' : dateToString(dateRange[0])}</p>
+              <p className='text-background-500'>
+                {formatDate(dateRange[0]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[0])}
+              </p>
             </label>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-l-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>반납일</p>
-              <p className='text-background-500'>{dateToString(dateRange[1]) === dateToString(new Date(0)) ? '' : dateToString(dateRange[1])}</p>
+              <p className='text-background-500'>
+                {formatDate(dateRange[1]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[1])}
+              </p>
             </label>
             <div className='gap-1 border-r-[0.5px] border-t-[0.5px] border-background-300 p-3'>
               <p className='text-xs font-medium'>대여 시각</p>

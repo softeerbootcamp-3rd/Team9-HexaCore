@@ -22,13 +22,14 @@ public class SearchCarsDto {
     private final Integer maxPrice;
 
     static public SearchCarsDto of(SearchCarsRequestDto searchCarsRequestDto) {
+        String type = searchCarsRequestDto.getType();
         return SearchCarsDto.builder()
                 .distance(searchCarsRequestDto.getDistance())
                 .position(new Position(searchCarsRequestDto.getLat(), searchCarsRequestDto.getLng()))
                 .startDate(searchCarsRequestDto.getStartDate())
                 .endDate(searchCarsRequestDto.getEndDate())
                 .party(searchCarsRequestDto.getParty())
-                .type(CarType.of(searchCarsRequestDto.getType()))
+                .type(type == null ? null : CarType.valueOf(type))
                 .categoryId(searchCarsRequestDto.getCategoryId())
                 .subcategoryId(searchCarsRequestDto.getSubcategoryId())
                 .minPrice(searchCarsRequestDto.getMinPrice())

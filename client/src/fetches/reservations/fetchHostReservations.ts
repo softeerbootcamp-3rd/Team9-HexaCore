@@ -5,7 +5,7 @@ import type { ReservationData, ReservationStatus } from "@/fetches/reservations/
 
 type HostReservationResponse = {
   id: number;
-  guest: { id: number; name: string; imageUrl: string; phoneNumber: string};
+  guest: { id: number; name: string; profileImgUrl: string; phoneNumber: string};
   rentDateTime: string;
   returnDateTime: string;
   fee: number;
@@ -30,7 +30,7 @@ export const parseHostReservations = (hostReservationsResponseRaw: HostReservati
         target: {
           id: reservation.guest.id,
           name: reservation.guest.name ,
-          image: reservation.guest.imageUrl,
+          image: reservation.guest.profileImgUrl,
           phoneNumber: reservation.guest.phoneNumber,
           lat:null,
           lng:null
