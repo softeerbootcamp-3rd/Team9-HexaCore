@@ -1,5 +1,5 @@
 import Button from '@/components/Button';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 type PaymentProps = {
   message: string;
@@ -8,7 +8,8 @@ type PaymentProps = {
 };
 
 function Payment({ message, isSuccess, btnMessage }: PaymentProps) {
-  const params = new URLSearchParams(window.location.search);
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
   const carId = params.get('carId');
 
   return (
