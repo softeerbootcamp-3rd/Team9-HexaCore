@@ -10,6 +10,7 @@ import com.hexacore.tayo.reservation.dto.UpdateReservationStatusRequestDto;
 import com.hexacore.tayo.reservation.model.Reservation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,11 +40,13 @@ public class ReservationController {
         Long guestUserId = (Long) request.getAttribute("userId");
 
         // 예약 진행: DB 업데이트
-        CreateReservationResponseDto createReservationResponseDto = reservationService.createReservation(createReservationRequestDto, guestUserId);
+        CreateReservationResponseDto createReservationResponseDto = reservationService.createReservation(
+                createReservationRequestDto, guestUserId);
 
         // 자동 결제 승인 요청
         try {
-            reservationService.confirmBilling(guestUserId, createReservationResponseDto.getReservationId(), createReservationResponseDto.getFee(), orderName, userName);
+            reservationService.confirmBilling(guestUserId, createReservationResponseDto.getReservationId(),
+                    createReservationResponseDto.getFee(), orderName, userName);
         } catch (Exception e) {
             // 결제 실패 시 DB에 저장된 예약 정보 삭제
             reservationService.rollBackReservation(createReservationResponseDto.getReservationId());
@@ -63,11 +66,14 @@ public class ReservationController {
     }
 
     @GetMapping("/host")
-    public ResponseEntity<Response> hostReservations(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<Response> hostReservations(HttpServletRequest request) {
         Long hostUserId = (Long) request.getAttribute("userId");
 
-        Page<Reservation> reservations = reservationService.getHostReservations(hostUserId, pageable);
-        Page<GetHostReservationResponseDto> data = reservations.map(GetHostReservationResponseDto::of);
+        List<Reservation> reservations = reservationService.getHostReservations(hostUserId);
+        List<GetHostReservationResponseDto> data = reservations
+                .stream()
+                .map(GetHostReservationResponseDto::of)
+                .toList();
         return Response.of(HttpStatus.OK, data);
     }
 
