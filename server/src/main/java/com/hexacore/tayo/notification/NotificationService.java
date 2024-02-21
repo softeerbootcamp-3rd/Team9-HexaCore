@@ -32,7 +32,7 @@ public class NotificationService {
      * @return GetNotificationResponseDto
      */
     public List<SseNotificationDto> findAll(Long userId) {
-        List<Notification> notifications = notificationRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
+        List<Notification> notifications = notificationRepository.findAllByReceiverIdOrderByCreatedAtDesc(userId);
 
         return SseNotificationDto.listOf(notifications);
     }
@@ -48,7 +48,7 @@ public class NotificationService {
         Notification notification = notificationRepository.findById(notificationId).orElseThrow(() ->
                 new GeneralException(ErrorCode.NOTIFICATION_NOT_FOUND));
 
-        if (!notification.getUserId().equals(userId)) {
+        if (!notification.getReceiverId().equals(userId)) {
             throw new GeneralException(ErrorCode.NOTIFICATION_CANNOT_DELETED);
         }
 
@@ -62,6 +62,6 @@ public class NotificationService {
      */
     @Transactional
     public void deleteAll(Long userId) {
-        notificationRepository.deleteAllByUserId(userId);
+        notificationRepository.deleteAllByReceiverId(userId);
     }
 }

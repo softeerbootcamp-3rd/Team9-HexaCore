@@ -7,17 +7,20 @@ import { ResponseWithData, ResponseWithoutData } from "@/fetches/common/response
 import BellIcon from "../svgs/BellIcon";
 import NotificationItem from "./NotificationItem";
 
+const baseURL = import.meta.env.MODE === 'production' ? import.meta.env.BASE_URL : 'http://localhost:8080';
+const apiPrefix = import.meta.env.VITE_API_PREFIX ?? '/';
+
 export default function NotificationBox() {
   const [showBox, setShowBox] = useState(false);
-  const [notificationArr, setNotificationArr] = useState<NotificationData[]>([]);
+  const [notificationArray, setNotificationArray] = useState<NotificationData[]>([]);
   const { auth } = useAuth();
 
   const onDeleteAll = async () => { 
-    if (notificationArr.length > 0) {
+    if (notificationArray.length > 0) {
       const response = await server.delete<ResponseWithoutData>('/notifications');
     
       if (response.success) {
-        setNotificationArr([]);
+        setNotificationArray([]);
         setShowBox(false);
       } else {
         alert(response.message);
@@ -29,7 +32,7 @@ export default function NotificationBox() {
     const response = await server.delete<ResponseWithoutData>(`/notifications/${notificationId}`);
     
     if (response.success) {
-      setNotificationArr((prevList: NotificationData[]) => {
+      setNotificationArray((prevList: NotificationData[]) => {
         return prevList.filter((item) => item.id !== notificationId);
       });
     } else {
@@ -44,29 +47,27 @@ export default function NotificationBox() {
         const response = await server.get<ResponseWithData<NotificationData[]>>('/notifications');
       
         if (response.success) {
-          setNotificationArr(response.data);
+          setNotificationArray(response.data);
         } else {
           alert(response.message)
-          setNotificationArr([]);
+          setNotificationArray([]);
         }
       };
       
       getNotifications();
 
-      const eventSource = new EventSourcePolyfill("http://localhost:8080/api/v1/notifications/subscribe", {
+      const eventSource = new EventSourcePolyfill(`${baseURL}${apiPrefix}/notifications/subscribe`, {
         headers: {
           Authorization: 'Bearer ' + auth.accessToken
         },
       });
 
       eventSource.addEventListener('message', (event) => {
-        if(event.data !== 'Connected') {
-          const newNotification: NotificationData = JSON.parse(event.data);
+        if(event.data === 'Connected') return;
+        const newNotification: NotificationData = JSON.parse(event.data);
           
-          if (newNotification.title !== '') {
-            setNotificationArr((prevList) => [newNotification, ...prevList]);
-          }
-        }
+        if (newNotification.title === '') return;
+        setNotificationArray((prevList) => [newNotification, ...prevList]);
       })
     }
   }, []);
@@ -79,11 +80,11 @@ export default function NotificationBox() {
         <BellIcon />
       </button>
 
-      <button className={`${(notificationArr.length === 0) ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"}
+      <button className={`${(notificationArray.length === 0) ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"}
         flex items-center justify-center absolute top-0 right-0 bg-primary-300 rounded-full w-[19px] h-[19px] text-center text-[13px] text-white
         transition duration-300 ease-in-out`}
       >
-        {notificationArr.length}
+        {notificationArray.length}
       </button>
 
       <div className={`${(showBox) ? "scale-100 opacity-100" : "scale-0 opacity-0 pointer-events-none"}
@@ -100,13 +101,13 @@ export default function NotificationBox() {
           <div className="flex flex-row">
             <div className={`
               text-[14px] text-background-400 pr-5 
-              ${(notificationArr.length !== 0) ? 'hidden' : ''}
+              ${(notificationArray.length !== 0) ? 'hidden' : ''}
             `}>
               알림이 없습니다.
             </div>
             <div className="text-[14px] text-background-500">            
               {
-                (notificationArr.length !== 0) ? 
+                (notificationArray.length !== 0) ? 
                 <button onClick={onDeleteAll}>
                   모두 삭제 
                 </button>
@@ -121,7 +122,7 @@ export default function NotificationBox() {
         </div>
 
         <div className="overflow-y-auto">
-          {notificationArr.map((notification) => (
+          {notificationArray.map((notification) => (
             <NotificationItem 
               key={notification.id} 
               item={notification}
