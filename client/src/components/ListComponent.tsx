@@ -1,11 +1,13 @@
 import Button from './Button';
 import { ReservationData, ReservationStatus, reservationStatus } from '@/fetches/reservations/Reservation.type';
 import { server } from '@/fetches/common/axios';
+import { Link } from 'react-router-dom';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
 import { useEffect, useState } from 'react';
 import type { MouseEventHandler } from 'react';
 import { distance } from '@/utils/DistanceCalculater';
 import { dateTimeFormatter } from '@/utils/converters';
+import StarIcon from './StarIcon';
 
 type ButtonType = 'disabled' | 'enabled' | 'danger';
 
@@ -157,7 +159,7 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
       <ul role='list'>
         <li key='person.email'>
           <div className='flex gap-4 items-center justify-between'>
-            <div className='flex gap-4 items-center'>
+            <Link to={type === 'guest' ? `/cars/${reservation.target.id}` : `/profile/${reservation.target.id}`} className='flex gap-4 items-center'>
               <img
                   className={`bg-gray-50 h-12 max-w-12 ${type === 'host' ? 'rounded-full' : 'min-h-24 min-w-24 rounded-lg'}`}
                   src={reservation.target.image}
@@ -168,7 +170,13 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
                   }}
                 />
                 <div className='flex flex-col gap-2'>
-                  <p className='text-md font-semibold'>{reservation.target.name}</p>
+                  <div className='flex gap-1 items-center'>
+                    <p className='text-md font-semibold'>{reservation.target.name}</p>
+                    <div className='flex gap-1 items-center'>
+                      <StarIcon filled={true} className='w-4 h-4' />
+                      <div className='text-sm'>{reservation.target.averageRate ?? 0}</div>
+                    </div>
+                  </div>
                   <div>
                     <p className='truncate text-xs text-background-500'>{reservation.target.address}</p>
                     <p className='break-all text-xs text-background-500'>{reservation.target.phoneNumber}</p>
@@ -178,7 +186,7 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
                     </p>
                   </div>
               </div>
-            </div>
+            </Link>
             <div className='flex flex-col gap-3'>
               <div className='flex flex-col text-md text-right font-semibold mr-3'>
                   <p>
