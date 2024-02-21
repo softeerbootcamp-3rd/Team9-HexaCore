@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, redirect, useNavigate } from 'react-router-dom';
 import InputBox from '@/components/InputBox';
 import Button from '@/components/Button';
 import type { ResponseWithData } from '@/fetches/common/response.type';
@@ -9,7 +9,6 @@ import { useAuth } from '@/contexts/AuthContext';
 
 function Login() {
   const { setAuth } = useAuth();
-  const navigate = useNavigate();
   const emailInputRef = useRef<HTMLInputElement | null>(null);
   const pwdInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -36,7 +35,7 @@ function Login() {
           refreshToken: response.data.tokens.refreshToken,
           userId: response.data.loginUserInfo.userId,
         });
-        navigate('/');
+        window.location.href = '/';
       } else {
         // TODO: 로그인 실패 시 처리
         setPwdErr('올바른 이메일과 비밀번호를 입력해주세요.');
