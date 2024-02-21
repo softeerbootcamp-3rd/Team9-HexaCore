@@ -47,6 +47,7 @@ public enum ErrorCode {
     RESERVATION_ALREADY_READY_OR_USING(HttpStatus.BAD_REQUEST, "해당 예약일시 구간에 이미 예약대기 혹은 사용중인 예약이 있습니다."),
     RESERVATION_STATUS_CHANGED_BY_OTHERS(HttpStatus.BAD_REQUEST, "해당 예약과 관련된 호스트/게스트만 예약상태를 변경할 수 있습니다."),
     RESERVATION_STATUS_INVALID_CHANGE(HttpStatus.BAD_REQUEST, "요청하신 예약상태로 변경할 수 없습니다."),
+    RESERVATION_CANCEL_TOO_LATE(HttpStatus.BAD_REQUEST, "해당 예약의 시작 시간의 24시간 이전에 예약을 취소할 수 있습니다."),
     RESERVATION_STATUS_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당하는 예약상태는 존재하지 않습니다."),
     INVALID_IMAGE_TYPE(HttpStatus.BAD_REQUEST, "지원하지 않는 이미지 타입입니다."),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "입력값이 올바르지 않습니다."),

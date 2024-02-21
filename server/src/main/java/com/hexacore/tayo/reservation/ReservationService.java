@@ -16,12 +16,11 @@ import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.payment.PaymentManager;
 import com.hexacore.tayo.util.payment.TossPaymentDto.TossPaymentResponse;
 import jakarta.transaction.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -81,16 +80,20 @@ public class ReservationService {
 
     @Transactional
     public Page<Reservation> getGuestReservations(Long guestUserId, Pageable pageable) {
-        Page<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId, pageable);
-        updateReservationStatusByCurrentDateTime(reservations);
+        // Using, Ready, Cancel, Terminated 순으로 정렬하여 Page로 응답한다.
+        Page<Reservation> reservations =
+                reservationRepository.findAllByGuest_idOrderByStatusAscRentDateTimeAsc(guestUserId, pageable);
+        updateReservationStatusByCurrentDateTime(reservations.stream());
 
         return reservations;
     }
 
     @Transactional
-    public Page<Reservation> getHostReservations(Long hostUserId, Pageable pageable) {
-        Page<Reservation> reservations = reservationRepository.findAllByHost_id(hostUserId, pageable);
-        updateReservationStatusByCurrentDateTime(reservations);
+    public List<Reservation> getHostReservations(Long hostUserId) {
+        // Using, Ready, Cancel, Terminated 순으로 정렬하여 List로 응답한다.
+        List<Reservation> reservations =
+                reservationRepository.findAllByHost_idOrderByStatusAscRentDateTimeAsc(hostUserId);
+        updateReservationStatusByCurrentDateTime(reservations.stream());
 
         return reservations;
     }
@@ -127,8 +130,13 @@ public class ReservationService {
 
         // 게스트가 요청한 경우
         else if (reservation.getGuest().getId().equals(user.getId())) {
-            // 예약 취소 혹은 대여 시작
+            // 예약 취소
             if (originStatus == ReservationStatus.READY && requestedStatus == ReservationStatus.CANCEL) {
+                if (currentDateTime.isAfter(rentDateTime.minusHours(24))) {
+                    // 예약 시간 24시간 전부터 취소 금지
+                    // currentDateTime > rentDateTime - 24Hour 이면 예외 처리
+                    throw new GeneralException(ErrorCode.RESERVATION_CANCEL_TOO_LATE);
+                }
                 reservation.setStatus(requestedStatus);
 
                 // 게스트가 예약을 취소하면 호스트에게 에약취소 알림을 전송
@@ -140,9 +148,11 @@ public class ReservationService {
             else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
                 reservation.setStatus(requestedStatus);
                 Integer feePerHour = reservation.getCar().getFeePerHour();
+                // 0~59분도 1시간 추가 요금으로 책정.
                 // 연체할 경우 시간당 추가 과금 (returnDateTime <= currentDateTime)
                 if (!returnDateTime.isAfter(currentDateTime)) {
-                    reservation.setExtraFee(feePerHour * (int) returnDateTime.until(currentDateTime, ChronoUnit.HOURS));
+                    int delayedHours = (int) returnDateTime.until(currentDateTime, ChronoUnit.HOURS);
+                    reservation.setExtraFee(feePerHour * (delayedHours + 1));
                 }
             } else {
                 invalidUpdate = true;
@@ -199,18 +209,19 @@ public class ReservationService {
         throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
     }
 
-    private void updateReservationStatusByCurrentDateTime(Page<Reservation> reservations) {
+    private void updateReservationStatusByCurrentDateTime(Stream<Reservation> reservations) {
         LocalDateTime currentDateTime = LocalDateTime.now();
 
-        for (Reservation reservation : reservations) {
+        for (Reservation reservation : reservations.toList()) {
             boolean changed = false;
             ReservationStatus reservationStatus = reservation.getStatus();
             LocalDateTime rentDateTime = reservation.getRentDateTime();
             LocalDateTime returnDateTime = reservation.getReturnDateTime();
 
             if (reservationStatus == ReservationStatus.READY) {
-                // Ready 상태일 때 rentDate == currentDate 이면 (동일 날짜라면) Using 상태로 변경
-                if (rentDateTime.toLocalDate().isEqual(currentDateTime.toLocalDate())) {
+                // Ready 상태일 때 rentDateTime <= currentDateTime 이면 Using 상태로 변경
+                // if문은 !(rentDateTime > currentDateTime)
+                if (!rentDateTime.isAfter(currentDateTime)) {
                     reservation.setStatus(ReservationStatus.USING);
                     changed = true;
                 }
