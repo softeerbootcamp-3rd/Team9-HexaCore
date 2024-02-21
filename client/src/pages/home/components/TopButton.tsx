@@ -3,12 +3,10 @@ import { useEffect, useState } from 'react';
 function TopButton() {
   const [isVisible, setIsVisible] = useState(false);
 
-  // 스크롤 이벤트 리스너를 추가하여 버튼의 가시성을 제어
+  // 스크롤 이벤트 리스너를 추가
   useEffect(() => {
-    console.log('useEffect');
     const toggleVisibility = () => {
       if (window.scrollY > 20) {
-        console.log(window.scrollY);
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -24,7 +22,7 @@ function TopButton() {
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth', // 부드러운 스크롤 효과
+      behavior: 'smooth',
     });
   };
 
