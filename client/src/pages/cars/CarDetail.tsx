@@ -115,6 +115,12 @@ function CarDetail() {
       return;
     }
 
+    // 만약 returnDate가 현재 시각보다 이전일 경우 예약 불가능
+    if(endDate < new Date()) {
+      alert('최소 예약 단위는 1시간입니다.'); // TODO: 모달 컴포넌트 만들면 모달창 띄우는 방식으로 수정
+      return;
+    }
+
     const reservationData = {
       carId: data.carId,
       rentDateTime: rentDate,
@@ -247,13 +253,13 @@ function CarDetail() {
           <div className='grid grid-cols-2 gap-0 overflow-hidden rounded-xl border-[1px] border-background-300'>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-r-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>대여일</p>
-              <p className='text-background-500'>
+              <p className='text-background-500 min-h-6'>
                 {formatDate(dateRange[0]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[0])}
               </p>
             </label>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-l-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>반납일</p>
-              <p className='text-background-500'>
+              <p className='text-background-500 min-h-6'>
                 {formatDate(dateRange[1]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[1])}
               </p>
             </label>
