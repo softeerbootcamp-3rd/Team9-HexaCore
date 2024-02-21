@@ -35,7 +35,8 @@ public class ReservationService {
     private final PaymentManager paymentManager;
 
     @Transactional
-    public CreateReservationResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto, Long guestUserId) {
+    public CreateReservationResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto,
+            Long guestUserId) {
         User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
@@ -74,7 +75,9 @@ public class ReservationService {
 
     @Transactional
     public Page<Reservation> getGuestReservations(Long guestUserId, Pageable pageable) {
-        Page<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId, pageable);
+        // Using, Ready, Cancel, Terminated 순으로 정렬하여 Page로 응답한다.
+        Page<Reservation> reservations =
+                reservationRepository.findAllByGuest_idOrderByStatusAscRentDateTimeAsc(guestUserId, pageable);
         updateReservationStatusByCurrentDateTime(reservations);
 
         return reservations;
@@ -82,7 +85,9 @@ public class ReservationService {
 
     @Transactional
     public Page<Reservation> getHostReservations(Long hostUserId, Pageable pageable) {
-        Page<Reservation> reservations = reservationRepository.findAllByHost_id(hostUserId, pageable);
+        // Using, Ready, Cancel, Terminated 순으로 정렬하여 Page로 응답한다.
+        Page<Reservation> reservations =
+                reservationRepository.findAllByHost_idOrderByStatusAscRentDateTimeAsc(hostUserId, pageable);
         updateReservationStatusByCurrentDateTime(reservations);
 
         return reservations;
@@ -218,7 +223,8 @@ public class ReservationService {
         }
 
         // 결제 요청
-        TossPaymentResponse response = paymentManager.confirmBilling(amount, orderName, customerName, user.getCustomerKey(), user.getBillingKey());
+        TossPaymentResponse response = paymentManager.confirmBilling(amount, orderName, customerName,
+                user.getCustomerKey(), user.getBillingKey());
 
         // 예약 테이블의 paymentKey 업데이트
         Reservation reservation = reservationRepository.findById(reservationId)

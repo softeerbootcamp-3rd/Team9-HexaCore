@@ -4,9 +4,9 @@ import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 
 public enum ReservationStatus {
-    CANCEL("cancel"),
-    READY("ready"),
     USING("using"),
+    READY("ready"),
+    CANCEL("cancel"),
     TERMINATED("terminated");
 
     private final String status;
