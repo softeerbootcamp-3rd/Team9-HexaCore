@@ -8,7 +8,7 @@ import NotificationBox from './notification/NotificationBox';
 
 function Header() {
   const navigate = useNavigate();
-  const { setAuth } = useAuth();
+  const { auth, setAuth } = useAuth();
 
   const logout = async () => {
     const response = await server.get<ResponseWithoutData>('/auth/logout');
@@ -36,7 +36,7 @@ function Header() {
         <div className="flex flex-1 items-center justify-end gap-x-8">
 
           {
-            (localStorage.getItem("userId")) 
+            (auth.userId) 
             ?
             <button className="text-sm mr-1 text-primary-500 hover:text-primary-600" onClick={logout}>
               로그아웃
