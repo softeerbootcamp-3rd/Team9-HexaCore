@@ -1,5 +1,5 @@
 import Search from '@/components/svgs/Search';
-import { useEffect, useRef, useState } from 'react';
+import { Dispatch, useEffect, useRef, useState } from 'react';
 import Map from '@/pages/home/components/Map';
 import GuestCalendar from '@/components/calendar/guestCalendar/GuestCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
@@ -9,13 +9,15 @@ import { formatDate } from '@/utils/converters';
 type SearchBarProps = {
   searchRange: DateRange;
   setSearchRange: React.Dispatch<React.SetStateAction<DateRange>>;
-  people: React.RefObject<HTMLInputElement>;
+  party: string;
+  setParty: Dispatch<React.SetStateAction<string>>;
   latitude: React.MutableRefObject<number>;
   longitude: React.MutableRefObject<number>;
+  address: string;
+  setAddress: Dispatch<React.SetStateAction<string>>;
 };
 
-function SearchBar({ searchRange, setSearchRange, people, latitude, longitude }: SearchBarProps) {
-  const [address, setAddress] = useState<string>('차를 빌릴 위치');
+function SearchBar({ searchRange, setSearchRange, party, setParty, latitude, longitude, address, setAddress }: SearchBarProps) {
   const [isOpenMap, setIsOpenMap] = useState<boolean>(false);
   const [isOpenCalendar, setIsOpenCalendar] = useState<boolean>(false);
   const calendarRef = useRef<HTMLDivElement>(null);
@@ -49,13 +51,14 @@ function SearchBar({ searchRange, setSearchRange, people, latitude, longitude }:
   }, [calendarRef]);
 
   const handleSearch = async () => {
-    if (latitude.current !== 0 && longitude.current !== 0 && searchRange && people.current?.value) {
+    if (latitude.current !== 0 && longitude.current !== 0 && searchRange && party) {
       const queryString = new URLSearchParams({
         lat: latitude.current.toString(),
         lng: longitude.current.toString(),
         startDate: formatDate(searchRange[0]),
         endDate: formatDate(searchRange[1]),
-        party: people.current?.value,
+        party: party,
+        address: address,
       });
       navigate(`?${queryString}`);
     } else {
@@ -105,10 +108,11 @@ function SearchBar({ searchRange, setSearchRange, people, latitude, longitude }:
                 <b>인원 수</b>
               </div>
               <input
-                ref={people}
+                value={party}
                 onInput={(e) => {
                   e.currentTarget.value = e.currentTarget.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
                 }}
+                onChange={(e) => setParty(e.target.value)}
                 className='text-sm focus:outline-none'
                 placeholder='탑승 인원'></input>
             </label>

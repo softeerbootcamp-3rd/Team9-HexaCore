@@ -44,7 +44,7 @@ export const parseQueryString = (url: string) => {
   const maxPrice = params.get('maxPrice');
 
   if (lat && lng && startDate && endDate && party) {
-    const a: CarSearchParam = {
+    const searchParam: CarSearchParam = {
       lat: Number(lat),
       lng: Number(lng),
       startDate: startDate,
@@ -56,7 +56,7 @@ export const parseQueryString = (url: string) => {
       ...(minPrice && { minPrice: Number(minPrice) }),
       ...(maxPrice && { maxPrice: Number(maxPrice) }),
     };
-    return a;
+    return searchParam;
   }
 };
 
