@@ -134,9 +134,11 @@ public class ReservationService {
             else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
                 reservation.setStatus(requestedStatus);
                 Integer feePerHour = reservation.getCar().getFeePerHour();
+                // 0~59분도 1시간 추가 요금으로 책정.
                 // 연체할 경우 시간당 추가 과금 (returnDateTime <= currentDateTime)
                 if (!returnDateTime.isAfter(currentDateTime)) {
-                    reservation.setExtraFee(feePerHour * (int) returnDateTime.until(currentDateTime, ChronoUnit.HOURS));
+                    int delayedHours = (int) returnDateTime.until(currentDateTime, ChronoUnit.HOURS);
+                    reservation.setExtraFee(feePerHour * (delayedHours + 1));
                 }
             } else {
                 invalidUpdate = true;
