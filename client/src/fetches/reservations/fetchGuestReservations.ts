@@ -5,7 +5,14 @@ import type { ReservationData, ReservationStatus } from "@/fetches/reservations/
 
 type GuestReservationResponse = {
   id: number;
-  car: { id: number; name: string; imageUrl: string; lat: number; lng: number;};
+  car: {
+    id: number;
+    name: string;
+    imageUrl:
+    string;
+    lat: number;
+    lng: number; 
+    averageRate: number;};
   rentDateTime: string;
   returnDateTime: string;
   fee: number;
@@ -36,7 +43,8 @@ export const parseGuestReservations = (guestReservationsResponseRaw: GuestReserv
           phoneNumber: reservation.hostPhoneNumber,
           address: reservation.carAddress,
           lat: reservation.car.lat,
-          lng: reservation.car.lng
+          lng: reservation.car.lng,
+          averageRate: reservation.car.averageRate
         },
         rentPeriod: stringTupleToDateTimeRange([reservation.rentDateTime, reservation.returnDateTime]),
         rentFee: reservation.fee,

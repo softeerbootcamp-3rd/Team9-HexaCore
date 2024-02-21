@@ -11,7 +11,16 @@ export type ReservationStatus = keyof typeof reservationStatus
 
 export type ReservationData = {
   id: number;
-  target: { id: number; name: string; image: string; phoneNumber: string, address: string | null, lat: number | null; lng: number | null; };
+  target: { 
+    id: number;
+    name: string;
+    image: string;
+    phoneNumber: string,
+    address: string | null,
+    lat: number | null;
+    lng: number | null;
+    averageRate: number;
+  };
   rentPeriod: DateRange;
   rentFee: number;
   extraFee: number;

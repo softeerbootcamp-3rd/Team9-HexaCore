@@ -12,6 +12,7 @@ import { fetchUserPaymentInfo } from '@/fetches/users/fetchUser';
 import { createPortal } from 'react-dom';
 import PaymentModal from '@/components/PaymentModal';
 import { useCustomToast } from '@/components/Toast';
+import StarIcon from '@/components/StarIcon';
 
 export type ReservationData = {
   carId: number;
@@ -165,10 +166,16 @@ function CarDetail() {
         {/* Car Detail */}
         <div className='flex w-3/5 flex-col gap-4 rounded-3xl bg-white p-6 shadow-xl'>
           {/* Header : CarName, capacity(tag), type, mileage, fuel */}
-          <div className=''>
-            <div className='mb-2 flex items-center'>
-              <h1 className='pr-4 text-xl font-bold'>{data.categoryName}</h1>
-              <Tag className='h-6' text={`${data.capacity}인승`} />
+          <div>
+            <div className='mb-2 flex items-center justify-between'>
+              <div className='flex gap-1'>
+                <h1 className='text-xl font-bold'>{data.categoryName}</h1>
+                <div className='flex gap-1 items-center'>
+                  <StarIcon filled={true} className='w-4 h-4' />
+                  <div className='text-sm'>{data.averageRate ?? 0}</div>
+                </div>
+              </div>
+              <Tag className='h-[30px] px-4' text={`${data.capacity}인승`} />
             </div>
             <p className='text-background-500'>
               차종 {data.type} &#183; 연비 {data.mileage}km/L &#183; 연료 {data.fuel}
@@ -240,7 +247,7 @@ function CarDetail() {
         {/* Reservation */}
         <div className='flex h-fit w-2/5 flex-col justify-center gap-4 rounded-3xl bg-white p-6 shadow-xl'>
           {/* Total Fee */}
-          <p className='text-gray-900 text-3xl tracking-tight'>₩ {totalFee}</p>
+          <p className='text-gray-900 text-3xl tracking-tight'>₩ {totalFee.toLocaleString()}</p>
           <div>
             <GuestCalendar
               availableDates={data.carDateRanges}

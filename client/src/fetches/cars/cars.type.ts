@@ -20,6 +20,7 @@ export type CarDetailData = {
   description: string;
   carDateRanges: DateRange[];
 	host: HostData;
+  averageRate: number;
 };
 
 export type CarDetailJsonData = {
@@ -37,6 +38,7 @@ export type CarDetailJsonData = {
   description: string;
   carDateRanges: string[][];
 	host: HostData;
+  averageRate: number;
 }
 
 // ---- Response

@@ -24,6 +24,7 @@ export const parseCarDetail = (carData: CarDetailJsonData): CarDetailData => {
     address: carData.address,
     description: carData.description,
     carDateRanges: stringTuplesToDateRanges(carData.carDateRanges),
-    host: carData.host
+    host: carData.host,
+    averageRate: carData.averageRate
   };
 };
