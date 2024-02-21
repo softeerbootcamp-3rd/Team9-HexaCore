@@ -3,6 +3,7 @@ package com.hexacore.tayo.reservation;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
+import com.hexacore.tayo.reservation.dto.CreateReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.GetHostReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.UpdateReservationStatusRequestDto;
@@ -32,20 +33,21 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Response> createReservation(HttpServletRequest request,
-            @RequestParam String paymentKey,
-            @RequestParam String orderId,
-            @RequestParam Integer amount,
+            @Valid @RequestParam String orderName,
+            @Valid @RequestParam String userName,
             @Valid @RequestBody CreateReservationRequestDto createReservationRequestDto) {
         Long guestUserId = (Long) request.getAttribute("userId");
-        // 결제 승인 요청
-        reservationService.confirmPayments(paymentKey, orderId, amount);
-        // 결제가 성공하면 createReservation 실행
+
+        // 예약 진행: DB 업데이트
+        CreateReservationResponseDto createReservationResponseDto = reservationService.createReservation(createReservationRequestDto, guestUserId);
+
+        // 자동 결제 승인 요청
         try {
-            reservationService.createReservation(createReservationRequestDto, guestUserId, amount);
+            reservationService.confirmBilling(guestUserId, createReservationResponseDto.getReservationId(), createReservationResponseDto.getFee(), orderName, userName);
         } catch (Exception e) {
-            // 예약 내역 저장에 실패하면 결제 취소
-            reservationService.cancelPayments(paymentKey, "예약에 실패했습니다.");
-            throw new GeneralException(e);
+            // 결제 실패 시 DB에 저장된 예약 정보 삭제
+            reservationService.rollBackReservation(createReservationResponseDto.getReservationId());
+            throw new GeneralException(e.getMessage());
         }
 
         return Response.of(HttpStatus.CREATED);

@@ -19,6 +19,7 @@ public enum ErrorCode {
     USER_DELETED(HttpStatus.BAD_REQUEST, "탈퇴한 사용자입니다."),
     USER_HAS_RESERVATION(HttpStatus.BAD_REQUEST, "예약중인 차량이 있습니다."),
     USER_CAR_HAS_RESERVATION(HttpStatus.BAD_REQUEST, "등록한 차량을 예약한 사용자가 있습니다."),
+    USER_BILLING_KEY_NOT_EXIST(HttpStatus.BAD_REQUEST, "유저의 빌링키가 존재하지 않습니다."),
 
     USER_CAR_NOT_EXISTS(HttpStatus.NOT_FOUND, "등록한 차량이 존재하지 않습니다."),
     CAR_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 차량입니다."),
