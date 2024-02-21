@@ -5,6 +5,8 @@ import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.notification.NotificationManager;
+import com.hexacore.tayo.notification.model.NotificationType;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.CreateReservationResponseDto;
 import com.hexacore.tayo.reservation.model.Reservation;
@@ -14,12 +16,10 @@ import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.payment.PaymentManager;
 import com.hexacore.tayo.util.payment.TossPaymentDto.TossPaymentResponse;
 import jakarta.transaction.Transactional;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,6 +33,8 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final CarRepository carRepository;
     private final UserRepository userRepository;
+    private final NotificationManager notificationManager;
+
     private final PaymentManager paymentManager;
 
     @Transactional
@@ -70,8 +72,10 @@ public class ReservationService {
                 .returnDateTime(createReservationRequestDto.getReturnDateTime())
                 .status(ReservationStatus.READY)
                 .build();
+
         Reservation createdReservation = reservationRepository.save(reservation);
-        return CreateReservationResponseDto.builder().reservationId(createdReservation.getId()).fee(fee).build();
+        return CreateReservationResponseDto.builder().reservationId(createdReservation.getId()).fee(fee)
+                .hostId(hostUser.getId()).build();
     }
 
     @Transactional
@@ -115,10 +119,15 @@ public class ReservationService {
             // 예약 취소
             if (originStatus == ReservationStatus.READY && requestedStatus == ReservationStatus.CANCEL) {
                 reservation.setStatus(requestedStatus);
+
+                // 호스트가 예약을 거절하면 게스트에게 에약거절 알림을 전송
+                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(),
+                        NotificationType.REFUSE);
             } else {
                 invalidUpdate = true;
             }
         }
+
         // 게스트가 요청한 경우
         else if (reservation.getGuest().getId().equals(user.getId())) {
             // 예약 취소
@@ -129,7 +138,12 @@ public class ReservationService {
                     throw new GeneralException(ErrorCode.RESERVATION_CANCEL_TOO_LATE);
                 }
                 reservation.setStatus(requestedStatus);
+
+                // 게스트가 예약을 취소하면 호스트에게 에약취소 알림을 전송
+                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(),
+                        NotificationType.CANCEL);
             }
+
             // 반납 요청 및 추가 요금 과금
             else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
                 reservation.setStatus(requestedStatus);
