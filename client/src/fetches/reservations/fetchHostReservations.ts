@@ -12,12 +12,14 @@ type HostReservationResponse = {
   extraFee: number,
   status: ReservationStatus;
   address: string;
+  isReviewed: boolean;
 };
 
-export const fetchHostReservations = async (page: number, size: number) => {
-  const response = await server.get<ResponseWithPagination<HostReservationResponse[]>>('/reservations/host?page='+page+'&size='+size, {
+export const fetchHostReservations = async () => {
+  const response = await server.get<ResponseWithPagination<HostReservationResponse[]>>('/reservations/host', {
   });
   if (response.success) {
+    console.log(response);
     return response;
   }
 };
@@ -39,6 +41,7 @@ export const parseHostReservations = (hostReservationsResponseRaw: HostReservati
         rentFee: reservation.fee,
         extraFee: reservation.extraFee,
         rentStatus: toReservationStatus(reservation.status),
+        isReviewed: reservation.isReviewed,
       }) as ReservationData,
   );
 };

@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CarDetailData } from '@/fetches/cars/cars.type';
 import { useLoaderData } from 'react-router';
 import Button from '@/components/Button';
 import ListComponent from '@/components/ListComponent';
@@ -10,55 +9,29 @@ import { TargetType } from '@/components/ListComponent';
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
 import ImageGallery from '@/components/ImageGallery';
-import { reservationStatus } from '@/fetches/reservations/Reservation.type';
-import { ReservationData } from '@/fetches/reservations/Reservation.type';
-import { fetchHostReservations, parseHostReservations } from '@/fetches/reservations/fetchHostReservations';
 import { dateRangesToString } from '@/utils/converters';
+import { createPortal } from 'react-dom';
+import ReviewModal from '@/components/ReviewModal';
+import { HostManageLoaderData } from './hostsRoutes';
+import { useCustomToast } from '@/components/Toast';
 
 const TABS = ['calendar', 'reservation'] as const;
 type TabType = (typeof TABS)[number];
 
 function HostManage() {
   const navigate = useNavigate();
-  const carDetail = useLoaderData() as CarDetailData;
+  const { carDetail, reservations } = useLoaderData() as HostManageLoaderData;
   const [selectedTab, setSelectedTab] = useState<TabType>('calendar');
 
-  const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail?.carDateRanges);
-  const [reservations, setReservations] = useState<ReservationData[]>([]);
+  const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail?.carDateRanges ?? []);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const loaderRefNext = useRef(null);
-  const page = useRef(0);
-
-  let hasNext = false;
+	const { ToastComponent, showToast } = useCustomToast();
 
   if (!carDetail) {
     return "";
   }
 
-  const fetchReservations = async () => {
-    const response = await fetchHostReservations(page.current, 5);
-    console.log(response)
-    if (response && response.success) {
-      const newReservations = parseHostReservations(response.data);
-      hasNext = response.pageInfo.hasNext;
-      setReservations((prevReservations) => [...prevReservations, ...newReservations]);
-    }
-  };
-
-  const observerNext = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (!entry.isIntersecting) return;
-      if (page.current !== 0 && !hasNext) return;
-      fetchReservations();
-      page.current += 1;
-    });
-  });
-
-  useEffect(() => {
-    if (loaderRefNext.current) {
-      observerNext.observe(loaderRefNext.current);
-    }
-  }, []);
   const editCar = () => {
     navigate('/hosts/register');
   };
@@ -106,23 +79,33 @@ function HostManage() {
   };
 
   const ReservationCard = reservations.map((reservation, index) => (
-    <ListComponent
-      key={index}
-      type={'host' as TargetType}
-      reservation={{
-        id: reservation.id,
-        target: reservation.target,
-        rentPeriod: reservation.rentPeriod,
-        rentStatus: reservation.rentStatus ?? reservationStatus.UNDEFINED,
-        rentFee: reservation.rentFee ?? null,
-        extraFee: reservation.extraFee,
-        address: reservation.address ?? '',
-      }}
-    />
+    <>
+      <ListComponent
+        key={index}
+        type={'host' as TargetType}
+        reservation={reservation}
+        reviewOnClick={() => setIsModalOpen(true)}
+        isReviewed={reservation.isReviewed}
+      />
+      {isModalOpen &&
+        createPortal(
+          <ReviewModal
+            type={'host' as TargetType}
+            onClose={() => setIsModalOpen(false)}
+            reservation={reservation}
+            finished={() => {
+              showToast('리뷰 작성 성공', '작성하신 리뷰가 등록되었습니다. 감사합니다.', true);
+              reservation.isReviewed = true;
+            }}
+          />,
+          document.body,
+        )}
+    </>
   ));
+
   return (
     <div className='flex min-w-[768px] flex-col gap-8'>
-      <h2 className='mt-4 pl-3 text-3xl font-semibold'>수현님, 등록한 차량을 관리해보세요!</h2>
+      <h2 className='mt-4 pl-3 text-3xl font-semibold'>{carDetail.host.name}님, 등록한 차량을 관리해보세요!</h2>
       <div className='mb-10 flex gap-8'>
         {/* Car Info Manage */}
         <div className='flex w-1/2 flex-col gap-3'>
@@ -224,12 +207,12 @@ function HostManage() {
               내 차 예약 내역
             </button>
           </div>
-          <div className='flex flex-col gap-4 overflow-y-scroll scrollbar-hide pr-6 max-h-[660px]'>
+          <div className='flex flex-col gap-4 overflow-y-scroll scrollbar-hide pr-6 max-h-[700px] pb-3'>
             {renderSelectedComponent()}
-            <div ref={loaderRefNext}></div>
           </div>
         </div>
       </div>
+      <ToastComponent />
     </div>
   );
 }
