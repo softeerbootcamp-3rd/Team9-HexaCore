@@ -1,5 +1,6 @@
 package com.hexacore.tayo.reservation;
 
+import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.CreateReservationResponseDto;
@@ -46,6 +47,7 @@ public class ReservationController {
         } catch (Exception e) {
             // 결제 실패 시 DB에 저장된 예약 정보 삭제
             reservationService.rollBackReservation(createReservationResponseDto.getReservationId());
+            throw new GeneralException(e.getMessage());
         }
 
         return Response.of(HttpStatus.CREATED);
