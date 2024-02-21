@@ -3,7 +3,11 @@
   <Properties>
     <!-- Property : xml 파일의 내부 변수 -->
     <Property name="charset-UTF-8">UTF-8</Property>
-    <Property name="logPattern">%style{%d{yyyy-MM-dd HH:mm:ss.SSS}}{white} %highlight{%-5level} [%style{%-20t}{bright,blue}] %style{%-40c{1}}{bright,magenta}: %msg%n%throwable</Property>
+    <Property name="logPattern">%style{%d{yyyy-MM-dd HH:mm:ss.SSS}}{white} %highlight{%-5level} [%style{%-20t}{bright,blue}] %style{%-40c{1}}{bright,magenta}: %msg%n%throwable
+    </Property>
+    <Property name="fileLogPattern">[%-5level] %d{yyyy-MM-dd HH:mm:ss} [%t] %c{1} - %msg%n</Property>
+    <Property name="logPath">./logs</Property>
+    <Property name="serviceName">application</Property>
   </Properties>
 
   <Appenders>
@@ -11,22 +15,36 @@
     <Console name="console" target="SYSTEM_OUT">
       <PatternLayout pattern="${logPattern}"/>
     </Console>
+    <RollingFile
+      name="file"
+      append="true"
+      fileName="${logPath}/${serviceName}.log"
+      filePattern="${logPath}/${serviceName}.%d{yyyy-MM-dd}.%i.log.gz">
+      <PatternLayout pattern="${fileLogPattern}"/>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="5MB"/>
+        <TimeBasedTriggeringPolicy/>
+      </Policies>
+    </RollingFile>
   </Appenders>
 
   <Loggers>
     <!-- 루트 로거 설정 -->
     <Root level="INFO">
       <AppenderRef ref="console"/>
+      <AppenderRef ref="file"/>
     </Root>
 
     <!-- 비동기 로거 설정 -->
     <AsyncLogger name="com.hexacore.tayo" level="INFO" additivity="false">
       <AppenderRef ref="console"/>
+      <AppenderRef ref="file"/>
     </AsyncLogger>
 
     <!-- 동기 로거 설정 -->
     <Logger name="logger" level="DEBUG" additivity="false">
-      <AppenderRef ref="console" />
+      <AppenderRef ref="console"/>
+      <AppenderRef ref="file"/>
     </Logger>
   </Loggers>
 </Configuration>

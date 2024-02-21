@@ -1,23 +1,44 @@
-package com.hexacore.tayo.reservation.dto;
+package com.hexacore.tayo.util.payment;
 
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
-public class TossPayment {
-
+public class TossPaymentDto {
     @Getter
     @Builder
-    public static class TossApproveRequest {
-        private String paymentKey;
-        private String orderId;
-        private Integer amount;
+    public static class TossBillingRequest {
+        private String customerKey;
+        private String authKey;
     }
 
     @Getter
     @Builder
-    public static class TossCancelRequest {
-        private String cancelReason;
+    public static class TossConfirmRequest {
+        private Integer amount;
+        private String customerKey;
+        private String orderId;
+        private String orderName;
+        private String customerName;
+    }
+
+    @Getter
+    public static class TossBilling {
+        private String mid;
+        private String customerKey;
+        private String billingKey;
+        private String authenticatedAt;
+        private String method;
+        private TossBillingCard card;
+    }
+
+    @Getter
+    public static class TossBillingCard {
+        private String issuerCode;
+        private String acquirerCode;
+        private String number;
+        private String cardType;
+        private String ownerType;
     }
 
     @Getter
