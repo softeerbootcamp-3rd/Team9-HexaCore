@@ -6,6 +6,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class CreateReservationResponseDto {
+
     private Long reservationId;
     private Integer fee;
+    private Long hostId;
 }
