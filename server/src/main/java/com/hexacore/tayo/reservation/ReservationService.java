@@ -86,7 +86,7 @@ public class ReservationService {
 
     @Transactional
     public List<Reservation> getHostReservations(Long hostUserId) {
-        // Using, Ready, Cancel, Terminated 순으로 정렬하여 Page로 응답한다.
+        // Using, Ready, Cancel, Terminated 순으로 정렬하여 List로 응답한다.
         List<Reservation> reservations =
                 reservationRepository.findAllByHost_idOrderByStatusAscRentDateTimeAsc(hostUserId);
         updateReservationStatusByCurrentDateTime(reservations.stream());
