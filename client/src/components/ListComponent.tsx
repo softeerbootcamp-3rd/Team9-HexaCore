@@ -3,17 +3,23 @@ import { ReservationData, ReservationStatus, reservationStatus } from '@/fetches
 import { server } from '@/fetches/common/axios';
 import type { ResponseWithoutData } from '@/fetches/common/response.type';
 import { useEffect, useState } from 'react';
+import type { MouseEventHandler } from 'react';
 import { distance } from '@/utils/DistanceCalculater';
+import { dateTimeFormatter } from '@/utils/converters';
+
 type ButtonType = 'disabled' | 'enabled' | 'danger';
+
 export type TargetType = 'host' | 'guest';
+
 type Props = {
   type: TargetType;
   reservation: ReservationData;
   className?: string;
+  reviewOnClick: MouseEventHandler<HTMLButtonElement>;
+  isReviewed: boolean
 };
-const dateFormatter = new Intl.DateTimeFormat('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit' });
 
-function ListComponent({ type, reservation, className }: Props) {
+function ListComponent({ type, reservation, className, reviewOnClick, isReviewed }: Props) {
   const [buttonText, setButtonText] = useState('');
   const [buttonType, setButtonType] = useState<ButtonType>('disabled');
   const [buttonClick, setButtonClick] = useState<((reservation: ReservationData) => void) | null>(null);
@@ -144,56 +150,57 @@ function ListComponent({ type, reservation, className }: Props) {
       guest: { buttonText: '', buttonType: 'disabled', buttonClick: null },
     },
   };
+
   return (
     <div
-      className={`
-		flex flex-col rounded-3xl bg-white p-4 text-sm shadow-md md:text-base
-		${className}`}>
-      <ul role='list' className='divide-gray-100 min-h-20 divide-y'>
-        <li key='person.email' className='h-full'>
-          <div className='flex h-full w-full items-center justify-between'>
-            <div className='flex h-full min-w-0 items-center gap-x-4'>
+      className={`flex flex-col rounded-3xl bg-white px-6 py-4 text-sm shadow-md md:text-base ${className}`}>
+      <ul role='list'>
+        <li key='person.email'>
+          <div className='flex gap-4 items-center justify-between'>
+            <div className='flex gap-4 items-center'>
               <img
-                className={`bg-gray-50 h-12 w-12 flex-none ${type === 'host' ? 'ml-6 rounded-full' : 'min-h-24 min-w-24 rounded-lg'}`}
-                src={reservation.target.image}
-                alt=''
-                onError={(e) => {
-                  const imgElement = e.target as HTMLImageElement;
-                  imgElement.src = '/defaultProfile.png';
-                }}
-              />
-              <div className='flex flex-col justify-between'>
-                <p className='text-md leading-60 font-semibold'>{reservation.target.name}</p>
-                <div>
-                  <p className='break-all text-xs leading-5 text-background-500'>{reservation.target.phoneNumber}</p>
-                  <p className='truncate text-xs leading-5 text-background-500'>{reservation.address}</p>
-                      <p className='text-xs leading-6 text-background-500 whitespace-nowrap'>
-                        {`${dateFormatter.format(reservation.rentPeriod[0]).replace(/ /g, '').replace(/\.$/, '').replace(/\,/, ' ')} 
-                        ~ ${dateFormatter.format(reservation.rentPeriod[1]).replace(/ /g, '').replace(/\.$/, '').replace(/\,/, ' ')}`}
-                      </p>
-                </div>
+                  className={`bg-gray-50 h-12 max-w-12 ${type === 'host' ? 'rounded-full' : 'min-h-24 min-w-24 rounded-lg'}`}
+                  src={reservation.target.image}
+                  alt=''
+                  onError={(e) => {
+                    const imgElement = e.target as HTMLImageElement;
+                    imgElement.src = '/defaultProfile.png';
+                  }}
+                />
+                <div className='flex flex-col gap-2'>
+                  <p className='text-md font-semibold'>{reservation.target.name}</p>
+                  <div>
+                    <p className='truncate text-xs text-background-500'>{reservation.target.address}</p>
+                    <p className='break-all text-xs text-background-500'>{reservation.target.phoneNumber}</p>
+                    <p className='text-xs text-background-500 whitespace-nowrap'>
+                      {`${dateTimeFormatter(reservation.rentPeriod[0])} 
+                      ~ ${dateTimeFormatter(reservation.rentPeriod[1])}`}
+                    </p>
+                  </div>
               </div>
             </div>
-            <div className='ml-6 flex h-full w-11/12 flex-col items-end justify-end'>
-              <div className='mr-6 mb-2 flex w-3/4 h-3/5 flex-col justify-center'>
-                <p className='text-md truncate text-right font-semibold'>
-                  {reservation.rentFee.toLocaleString('ko-KR') || null}원
-                </p>
-                {reservation.rentStatus === 'USING' && extraFee > 0 && type === 'guest' && (
-                  <p className='text-md mb-2 truncate text-right font-semibold leading-5 text-danger'>{'+' + extraFee.toLocaleString('ko-KR') || null}원</p>
-                )}
-                {reservation.rentStatus === 'TERMINATED' && reservation.extraFee > 0 && (
-                  <p className='text-md truncate text-right font-semibold'>
-                    {'+' + reservation.extraFee.toLocaleString('ko-KR') || null}원
+            <div className='flex flex-col gap-3'>
+              <div className='flex flex-col text-md text-right font-semibold mr-3'>
+                  <p>
+                    {reservation.rentFee.toLocaleString('ko-KR') || null}원
                   </p>
-                )}
+                  {reservation.rentStatus === 'USING' && extraFee > 0 && type === 'guest' && (
+                    <p className='text-danger'>{'+' + extraFee.toLocaleString('ko-KR') || null}원</p>
+                  )}
+                  {reservation.rentStatus === 'TERMINATED' && reservation.extraFee > 0 && (
+                    <p>
+                      {'+' + reservation.extraFee.toLocaleString('ko-KR') || null}원
+                    </p>
+                  )}
               </div>
-              <div className={`flex justify-end ${type === 'guest' ? 'w-full' : ''}`}>
+              <div className='flex gap-2'>
                 <Button
-                  className={`mr-6 h-auto w-[9ch] min-w-[9ch] rounded-xl text-xs lg:text-sm ${type === 'guest' ? 'xl:w-1/4 ' : 'xl:w-full'}`}
                   type={buttonType}
                   text={buttonText}
                   onClick={() => buttonClick && buttonClick(reservation)}></Button>
+                  {isReviewed || reservation.rentStatus !== 'TERMINATED' 
+                  ? <></> 
+                  : <Button text='리뷰 작성' onClick={reviewOnClick}/>}
               </div>
             </div>
           </div>
