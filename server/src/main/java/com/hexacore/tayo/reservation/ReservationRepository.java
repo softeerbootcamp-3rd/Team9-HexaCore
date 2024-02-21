@@ -11,9 +11,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    Page<Reservation> findAllByHost_id(Long hostId, Pageable pageable);
+    List<Reservation> findAllByHost_idOrderByStatusAscRentDateTimeAsc(Long hostId);
 
-    Page<Reservation> findAllByGuest_id(Long guestId, Pageable pageable);
+    Page<Reservation> findAllByGuest_idOrderByStatusAscRentDateTimeAsc(Long guestId, Pageable pageable);
 
     List<Reservation> findAllByCar_idAndStatusInOrderByRentDateTimeAsc(Long carId, List<ReservationStatus> statusList);
 }

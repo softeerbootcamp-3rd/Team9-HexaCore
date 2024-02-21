@@ -40,12 +40,18 @@ public class User extends BaseTime {
     @Column(name = "customer_key", nullable = false)
     private String customerKey;
 
+    @Column(name = "billing_key")
+    private String billingKey;
+
     @OneToMany(mappedBy = "guest")
     @Builder.Default
     private List<Reservation> reservations = new ArrayList<>();
 
     @Column(name = "is_deleted", nullable = false, columnDefinition = "boolean default false")
     private boolean isDeleted;
+
+    @Column(name = "average_rate")
+    private Double averageRate = 0.0;
 
     @PrePersist
     protected void onCreate() {
