@@ -26,6 +26,9 @@ public class PaymentManager {
     @Value("${toss.secret-key}")
     private String tossSecretKey;
 
+    private final String TOSS_BILLING_KEY_REQUEST_URL = "https://api.tosspayments.com/v1/billing/authorizations/issue";
+    private final String TOSS_BILLING_PAYMENT_REQUEST_URL_PREFIX = "https://api.tosspayments.com/v1/billing/";
+
     /* Billing Key 발급 */
     public TossBilling requestBillingKey(String customerKey, String authKey) {
         String encodedCredentials = getEncodedCredentials();
@@ -40,7 +43,7 @@ public class PaymentManager {
 
         try {
             ResponseEntity<TossBilling> response = restTemplate.exchange(
-                    "https://api.tosspayments.com/v1/billing/authorizations/issue",
+                    TOSS_BILLING_KEY_REQUEST_URL,
                     HttpMethod.POST,
                     requestHttpEntity,
                     TossBilling.class
@@ -67,7 +70,7 @@ public class PaymentManager {
                 TossConfirmRequest.builder().amount(amount).customerKey(customerKey).orderId(orderId).orderName(orderName).customerName(customerName).build(), headers);
         try {
             ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
-                    "https://api.tosspayments.com/v1/billing/" + billingKey,
+                    TOSS_BILLING_PAYMENT_REQUEST_URL_PREFIX + billingKey,
                     HttpMethod.POST,
                     requestEntity,
                     TossPaymentResponse.class
