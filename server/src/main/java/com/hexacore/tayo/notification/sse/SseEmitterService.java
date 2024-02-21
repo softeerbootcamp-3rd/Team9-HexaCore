@@ -24,7 +24,7 @@ public class SseEmitterService {
     public SseEmitter subscribe(Long userId) {
         SseEmitter emitter = createEmitter(userId);
 
-        sendToClient(userId, "Connected"); //
+        sendToClient(userId, "Connected");
         return emitter;
     }
 
@@ -42,7 +42,7 @@ public class SseEmitterService {
                         SseEmitter
                                 .event()
                                 .id(String.valueOf(id))
-                                .name("sse")
+                                .name("message")
                                 .data(data)
                 );
             } catch (IOException e) {

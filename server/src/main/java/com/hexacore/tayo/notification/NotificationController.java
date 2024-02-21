@@ -2,7 +2,6 @@ package com.hexacore.tayo.notification;
 
 import com.hexacore.tayo.common.response.Response;
 import com.hexacore.tayo.notification.dto.SseNotificationDto;
-import com.hexacore.tayo.notification.model.NotificationType;
 import com.hexacore.tayo.notification.sse.SseEmitterService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -81,7 +80,7 @@ public class NotificationController {
      * @return Response
      */
     @DeleteMapping("/{notificationId}")
-    public ResponseEntity<Response> deleteNotification(HttpServletRequest request, @PathVariable Long notificationId) {
+    public ResponseEntity<Response> deleteOne(HttpServletRequest request, @PathVariable Long notificationId) {
         Long userId = (Long) request.getAttribute("userId");
         notificationService.delete(userId, notificationId);
 
@@ -95,7 +94,7 @@ public class NotificationController {
      * @return Response
      */
     @DeleteMapping
-    public ResponseEntity<Response> deleteAllNotifications(HttpServletRequest request) {
+    public ResponseEntity<Response> deleteAll(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         notificationService.deleteAll(userId);
 

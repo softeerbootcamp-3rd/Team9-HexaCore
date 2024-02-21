@@ -18,7 +18,7 @@ public class NotificationManager {
     public void notify(Long recipientId, String senderName, NotificationType notificationType) {
         // 알림을 저장소에 저장
         Notification notification = notificationService.save(Notification.builder()
-                        .userId(recipientId)
+                        .receiverId(recipientId)
                         .title(notificationType.title)
                         .message(senderName + notificationType.msg)
                         .build()
