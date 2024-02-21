@@ -41,9 +41,8 @@ public enum ErrorCode {
 
     RESERVATION_HOST_EQUALS_GUEST(HttpStatus.BAD_REQUEST, "호스트와 게스트가 일치하는 예약입니다."),
     RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 예약입니다."),
-    RESERVATION_DATE_NOT_IN_RANGE(HttpStatus.BAD_REQUEST, "예약 가능 날짜의 범위에 맞지 않는 대여/반납일시입니다."),
     RESERVATION_DATETIME_LEAST_HOUR(HttpStatus.BAD_REQUEST, "예약 일정은 최소 1시간 이상이어야 합니다."),
-    RESERVATION_ALREADY_READY_OR_USING(HttpStatus.BAD_REQUEST, "해당 예약일시 구간에 이미 예약대기 혹은 사용중인 예약이 있습니다."),
+    RESERVATION_OUT_OF_AVAILABLE(HttpStatus.BAD_REQUEST, "예약가능한 구간이 아닙니다."),
     RESERVATION_STATUS_CHANGED_BY_OTHERS(HttpStatus.BAD_REQUEST, "해당 예약과 관련된 호스트/게스트만 예약상태를 변경할 수 있습니다."),
     RESERVATION_STATUS_INVALID_CHANGE(HttpStatus.BAD_REQUEST, "요청하신 예약상태로 변경할 수 없습니다."),
     RESERVATION_STATUS_NOT_FOUND(HttpStatus.BAD_REQUEST, "해당하는 예약상태는 존재하지 않습니다."),

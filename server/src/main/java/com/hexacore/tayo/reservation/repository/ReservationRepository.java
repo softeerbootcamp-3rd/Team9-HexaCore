@@ -1,4 +1,4 @@
-package com.hexacore.tayo.reservation;
+package com.hexacore.tayo.reservation.repository;
 
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
@@ -16,4 +16,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Page<Reservation> findAllByGuest_id(Long guestId, Pageable pageable);
 
     List<Reservation> findAllByCar_idAndStatusInOrderByRentDateTimeAsc(Long carId, List<ReservationStatus> statusList);
+
 }

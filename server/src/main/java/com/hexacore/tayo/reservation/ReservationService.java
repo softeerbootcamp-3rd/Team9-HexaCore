@@ -1,6 +1,6 @@
 package com.hexacore.tayo.reservation;
 
-import com.hexacore.tayo.car.CarRepository;
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.common.errors.ErrorCode;
@@ -46,8 +46,7 @@ public class ReservationService {
     private String tossSecretKey;
 
     @Transactional
-    public void createReservation(CreateReservationRequestDto createReservationRequestDto,
-            Long guestId) {
+    public void createReservation(Long guestId, CreateReservationRequestDto createReservationRequestDto) {
         User guest = userRepository.findByIdAndIsDeletedFalse(guestId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
