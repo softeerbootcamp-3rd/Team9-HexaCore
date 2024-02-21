@@ -14,6 +14,7 @@ import { reservationStatus } from '@/fetches/reservations/Reservation.type';
 import { ReservationData } from '@/fetches/reservations/Reservation.type';
 import { fetchHostReservations, parseHostReservations } from '@/fetches/reservations/fetchHostReservations';
 import { dateRangesToString } from '@/utils/converters';
+import * as ChannelService from '@channel.io/channel-web-sdk-loader';
 
 const TABS = ['calendar', 'reservation'] as const;
 type TabType = (typeof TABS)[number];
@@ -32,12 +33,23 @@ function HostManage() {
   let hasNext = false;
 
   if (!carDetail) {
-    return "";
+    return '';
   }
+
+  // 채널톡 관련 스크립트 로딩
+  useEffect(() => {
+    ChannelService.loadScript();
+    ChannelService.boot({
+      pluginKey: import.meta.env.VITE_CHANNEL_TALK_API_KEY,
+      memberId: carDetail.id.toString(), // 유일한 값이라서 id로 지정.
+      unsubscribeEmail: true,
+      unsubscribeTexting: true,
+    });
+    return () => ChannelService.shutdown();
+  }, []);
 
   const fetchReservations = async () => {
     const response = await fetchHostReservations(page.current, 5);
-    console.log(response)
     if (response && response.success) {
       const newReservations = parseHostReservations(response.data);
       hasNext = response.pageInfo.hasNext;
@@ -77,7 +89,7 @@ function HostManage() {
       },
     });
   };
-  
+
   const handleTabSelect = (tab: TabType) => {
     setSelectedTab(tab);
   };
@@ -122,7 +134,7 @@ function HostManage() {
   ));
   return (
     <div className='flex min-w-[768px] flex-col gap-8'>
-      <h2 className='mt-4 pl-3 text-3xl font-semibold'>수현님, 등록한 차량을 관리해보세요!</h2>
+      <h2 className='mt-4 pl-3 text-3xl font-semibold'>{`${carDetail.host.name}님, 등록한 차량을 관리해보세요!`}</h2>
       <div className='mb-10 flex gap-8'>
         {/* Car Info Manage */}
         <div className='flex w-1/2 flex-col gap-3'>
@@ -224,7 +236,7 @@ function HostManage() {
               내 차 예약 내역
             </button>
           </div>
-          <div className='flex flex-col gap-4 overflow-y-scroll scrollbar-hide pr-6 max-h-[660px]'>
+          <div className='scrollbar-hide flex max-h-[660px] flex-col gap-4 overflow-y-scroll pr-6'>
             {renderSelectedComponent()}
             <div ref={loaderRefNext}></div>
           </div>

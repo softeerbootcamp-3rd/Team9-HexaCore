@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@channel.io/channel-web-sdk-loader": "^1.1.7",
     "@tosspayments/payment-widget-sdk": "^0.10.2",
     "@types/navermaps": "^3.7.4",
     "axios": "^1.6.7",
