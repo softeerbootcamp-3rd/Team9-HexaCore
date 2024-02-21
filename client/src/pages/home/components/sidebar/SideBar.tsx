@@ -1,9 +1,9 @@
 import Button from '@/components/Button';
 import { useRef, useState } from 'react';
-import SingleSelect from '@/pages/home/SingleSelect';
-import MultipleSelect from '@/pages/home/MultipleSelect';
-import type { CarType } from '@/pages/home/SelectCarType';
-import SelectCarType from '@/pages/home/SelectCarType';
+import SingleSelect from '@/pages/home/components/sidebar/SingleSelect';
+import MultipleSelect from '@/pages/home/components/sidebar/MultipleSelect';
+import type { CarType } from '@/pages/home/components/sidebar/SelectCarType';
+import SelectCarType from '@/pages/home/components/sidebar/SelectCarType';
 import type { Category, CategoryResponse } from '@/fetches/categories/categories.type';
 import { formatDate } from '@/utils/converters';
 import { DateRange } from '@/components/calendar/calendar.core';

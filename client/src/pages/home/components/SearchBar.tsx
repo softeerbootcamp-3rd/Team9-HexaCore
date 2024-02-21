@@ -1,6 +1,6 @@
 import Search from '@/components/svgs/Search';
 import { useEffect, useRef, useState } from 'react';
-import Map from '@/pages/home/Map';
+import Map from '@/pages/home/components/Map';
 import GuestCalendar from '@/components/calendar/guestCalendar/GuestCalendar';
 import { DateRange } from '@/components/calendar/calendar.core';
 import { useNavigate } from 'react-router-dom';

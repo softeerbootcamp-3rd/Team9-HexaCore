@@ -1,8 +1,8 @@
 import MainCar from '@/components/svgs/MainCar';
-import CarCard from '@/pages/home/CarCard';
+import CarCard from '@/pages/home/components/CarCard';
 import { useLoaderData } from 'react-router-dom';
-import SearchBar from '@/pages/home/SearchBar';
-import SideBar from '@/pages/home/SideBar';
+import SearchBar from '@/pages/home/components/SearchBar';
+import SideBar from '@/pages/home/components/sidebar/SideBar';
 import { useEffect, useRef, useState } from 'react';
 import { DateRange } from '@/components/calendar/calendar.core';
 import { parseQueryString, type HomeLoaderResponse } from './homeRoutes';
