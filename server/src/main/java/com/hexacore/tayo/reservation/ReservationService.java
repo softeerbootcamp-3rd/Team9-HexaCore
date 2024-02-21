@@ -70,8 +70,8 @@ public class ReservationService {
                 List.of(ReservationStatus.READY, ReservationStatus.USING)
         );
 
-        if (isAvailableDates(car.getCarDateRanges(), reservations, rentDateTime.toLocalDate(), returnDateTime.toLocalDate())) {
-            throw new GeneralException(ErrorCode.RESERVATION_ALREADY_READY_OR_USING);
+        if (!isAvailableDates(car.getCarDateRanges(), reservations, rentDateTime.toLocalDate(), returnDateTime.toLocalDate())) {
+            throw new GeneralException(ErrorCode.RESERVATION_OUT_OF_AVAILABLE);
         }
 
         Reservation reservation = Reservation.builder()
