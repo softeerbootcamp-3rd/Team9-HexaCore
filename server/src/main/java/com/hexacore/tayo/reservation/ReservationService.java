@@ -34,15 +34,13 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final CarRepository carRepository;
     private final UserRepository userRepository;
-    private final RestTemplate restTemplate;
     private final NotificationManager notificationManager;
 
-    @Value("${toss.secret-key}")
-    private String tossSecretKey;
     private final PaymentManager paymentManager;
 
     @Transactional
-    public CreateReservationResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto, Long guestUserId) {
+    public CreateReservationResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto,
+            Long guestUserId) {
         User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
@@ -77,10 +75,8 @@ public class ReservationService {
                 .build();
 
         Reservation createdReservation = reservationRepository.save(reservation);
-        return CreateReservationResponseDto.builder().reservationId(createdReservation.getId()).fee(fee).build();
-      
-        // 예약이 완료되면 호스트에게 에약완료 알림을 전송
-        notificationManager.notify(hostUser.getId(), guestUser.getName(), NotificationType.RESERVE);
+        return CreateReservationResponseDto.builder().reservationId(createdReservation.getId()).fee(fee)
+                .hostId(hostUser.getId()).build();
     }
 
     @Transactional
@@ -122,7 +118,8 @@ public class ReservationService {
                 reservation.setStatus(requestedStatus);
 
                 // 호스트가 예약을 거절하면 게스트에게 에약거절 알림을 전송
-                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(), NotificationType.REFUSE);
+                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(),
+                        NotificationType.REFUSE);
             } else {
                 invalidUpdate = true;
             }
@@ -135,7 +132,8 @@ public class ReservationService {
                 reservation.setStatus(requestedStatus);
 
                 // 게스트가 예약을 취소하면 호스트에게 에약취소 알림을 전송
-                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(), NotificationType.CANCEL);
+                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(),
+                        NotificationType.CANCEL);
             }
 
             // 반납 요청 및 추가 요금 과금
@@ -236,7 +234,8 @@ public class ReservationService {
         }
 
         // 결제 요청
-        TossPaymentResponse response = paymentManager.confirmBilling(amount, orderName, customerName, user.getCustomerKey(), user.getBillingKey());
+        TossPaymentResponse response = paymentManager.confirmBilling(amount, orderName, customerName,
+                user.getCustomerKey(), user.getBillingKey());
 
         // 예약 테이블의 paymentKey 업데이트
         Reservation reservation = reservationRepository.findById(reservationId)

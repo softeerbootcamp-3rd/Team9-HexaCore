@@ -2,6 +2,8 @@ package com.hexacore.tayo.reservation;
 
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.common.response.Response;
+import com.hexacore.tayo.notification.NotificationManager;
+import com.hexacore.tayo.notification.model.NotificationType;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.CreateReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final NotificationManager notificationManager;
 
     @PostMapping
     public ResponseEntity<Response> createReservation(HttpServletRequest request,
@@ -39,16 +42,21 @@ public class ReservationController {
         Long guestUserId = (Long) request.getAttribute("userId");
 
         // 예약 진행: DB 업데이트
-        CreateReservationResponseDto createReservationResponseDto = reservationService.createReservation(createReservationRequestDto, guestUserId);
+        CreateReservationResponseDto createReservationResponseDto = reservationService.createReservation(
+                createReservationRequestDto, guestUserId);
 
         // 자동 결제 승인 요청
         try {
-            reservationService.confirmBilling(guestUserId, createReservationResponseDto.getReservationId(), createReservationResponseDto.getFee(), orderName, userName);
+            reservationService.confirmBilling(guestUserId, createReservationResponseDto.getReservationId(),
+                    createReservationResponseDto.getFee(), orderName, userName);
         } catch (Exception e) {
             // 결제 실패 시 DB에 저장된 예약 정보 삭제
             reservationService.rollBackReservation(createReservationResponseDto.getReservationId());
             throw new GeneralException(e.getMessage());
         }
+
+        // 예약이 완료되면 호스트에게 에약완료 알림을 전송
+        notificationManager.notify(createReservationResponseDto.getHostId(), userName, NotificationType.RESERVE);
 
         return Response.of(HttpStatus.CREATED);
     }
