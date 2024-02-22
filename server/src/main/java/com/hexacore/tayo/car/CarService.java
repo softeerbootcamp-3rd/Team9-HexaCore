@@ -8,6 +8,7 @@ import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.FuelType;
@@ -22,6 +23,7 @@ import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -117,7 +119,7 @@ public class CarService {
         Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-        return GetCarResponseDto.guest(car);
+        return new GetCarResponseDto(car, getCarAvailableDatesForGuest(car));
     }
 
     /* 차량 정보 수정 */
@@ -345,5 +347,65 @@ public class CarService {
         return reservations.stream().anyMatch(reservation ->
                 reservation.getStatus() == ReservationStatus.READY ||
                         reservation.getStatus() == ReservationStatus.USING);
+    }
+
+    private List<List<String>> getCarAvailableDatesForGuest(Car car) {
+        List<List<String>> result = new ArrayList<>();
+        //가능일이 없으면 종료
+        if (car.getCarDateRanges().isEmpty()) {
+            return result;
+        }
+
+        List<CarDateRange> carAvailableDates = car.getCarDateRanges().stream()
+                .filter(carDateRange -> carDateRange.getEndDate().isAfter(LocalDate.now()))
+                .sorted(Comparator.comparing(CarDateRange::getStartDate))
+                .toList();
+        //status가 CANCEL이 아닌 예약 리스트를 시작날짜의 오름 차순으로 정렬
+        List<Reservation> r = car.getReservations();
+        List<Reservation> sortedReservations = car.getReservations().stream()
+                .filter((reservation -> reservation.getStatus() != ReservationStatus.CANCEL))
+                .filter(reservation -> !reservation.getReturnDateTime().isBefore(LocalDateTime.now()))
+                .sorted(Comparator.comparing(Reservation::getRentDateTime))
+                .toList();
+
+        int availableDatesIndex = 0;
+
+        LocalDate start = carAvailableDates.get(0).getStartDate();
+        LocalDate end;
+
+        if (start.isBefore(LocalDate.now())) {
+            start = LocalDate.now();
+        }
+
+        for (Reservation reservation : sortedReservations) {
+            if (carAvailableDates.get(availableDatesIndex).getStartDate()
+                    .isAfter(reservation.getRentDateTime().toLocalDate())
+                    || carAvailableDates.get(availableDatesIndex).getEndDate()
+                    .isBefore(reservation.getReturnDateTime().toLocalDate())) {
+                end = carAvailableDates.get(availableDatesIndex).getEndDate();
+                if (!start.isAfter(end)) {
+                    result.add(List.of(start.toString(), end.toString()));
+                }
+                start = carAvailableDates.get(++availableDatesIndex).getStartDate();
+                continue;
+            }
+
+            end = reservation.getRentDateTime().toLocalDate().minusDays(1);
+            if (!start.isAfter(end)) {
+                result.add(List.of(start.toString(), end.toString()));
+            }
+            start = reservation.getReturnDateTime().toLocalDate().plusDays(1);
+        }
+        end = carAvailableDates.get(availableDatesIndex++).getEndDate();
+        if (!start.isAfter(end)) {
+            result.add(List.of(start.toString(), end.toString()));
+        }
+
+        for (int i = availableDatesIndex; i < carAvailableDates.size(); i++) {
+            CarDateRange date = carAvailableDates.get(i);
+            result.add(List.of(date.getStartDate().toString(), date.getEndDate().toString()));
+        }
+
+        return result;
     }
 }

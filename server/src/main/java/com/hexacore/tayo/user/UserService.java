@@ -3,6 +3,7 @@ package com.hexacore.tayo.user;
 import com.hexacore.tayo.car.CarRepository;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.user.dto.GetUserInfoResponseDto;
@@ -15,6 +16,11 @@ import com.hexacore.tayo.util.S3Manager;
 import com.hexacore.tayo.util.payment.PaymentManager;
 import com.hexacore.tayo.util.payment.TossPaymentDto.TossBilling;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -63,7 +69,7 @@ public class UserService {
     public GetCarResponseDto getUserCar(Long userId) {
         Car car = carRepository.findByOwner_IdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_CAR_NOT_EXISTS));
-        return GetCarResponseDto.host(car);
+        return new GetCarResponseDto(car, getCarAvailableDatesForHost(car.getCarDateRanges()));
     }
 
     private GetUserInfoResponseDto getUserInfo(User user) {
@@ -91,5 +97,29 @@ public class UserService {
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
         user.setBillingKey(billingResponse.getBillingKey());
+    }
+
+    private List<List<String>> getCarAvailableDatesForHost(List<CarDateRange> carDateRanges) {
+        List<List<String>> carAvailableDates = new ArrayList<>();
+
+        for (CarDateRange carDateRange : carDateRanges) {
+            LocalDate start = carDateRange.getStartDate();
+            LocalDate end = carDateRange.getEndDate();
+
+            // 만약 end가 현재 날짜보다 전일 경우 추가하지 않음
+            if (end.isBefore(LocalDate.now())) {
+                continue;
+            }
+
+            // 만약 start가 현재 날짜보다 전일 경우 start를 현재 날짜로 업데이트
+            if (start.isBefore(LocalDate.now())) {
+                start = LocalDate.now();
+            }
+
+            carAvailableDates.add(List.of(start.toString(), end.toString()));
+        }
+
+        return carAvailableDates.stream().sorted(Comparator.comparing(list -> list.get(0)))
+                .collect(Collectors.toList());
     }
 }
