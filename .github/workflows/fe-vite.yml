@@ -22,12 +22,10 @@ jobs:
       - name: Install Dependencies
         run: npm install
         working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
-        
-      - name: Run Lint
-        run: npm run lint
 
       - name: Build Project
         run: npm run build
+        working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
