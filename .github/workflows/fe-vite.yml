@@ -32,5 +32,6 @@ jobs:
         with:
           working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
           branch: gh-pages
+          folder: /
           token: ${{ secrets.PERSONAL_ACCESS_KEY }}
 
