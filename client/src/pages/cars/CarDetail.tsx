@@ -10,7 +10,7 @@ import { dateTimeToString, formatDate, stringToDate, stringTupleToDateRange } fr
 import ImageGallery from '@/components/ImageGallery';
 import { fetchUserPaymentInfo } from '@/fetches/users/fetchUser';
 import { createPortal } from 'react-dom';
-import PaymentModal from '@/components/PaymentModal';
+import PaymentModal from '@/pages/cars/components/PaymentModal';
 import { useCustomToast } from '@/components/Toast';
 import StarIcon from '@/components/review/StarIcon';
 import { CreateReservationData } from '@/fetches/reservations/Reservation.type';

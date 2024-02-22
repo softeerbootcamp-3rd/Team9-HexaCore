@@ -3,8 +3,8 @@ import { Dispatch, useEffect, useRef, useState } from 'react';
 
 type SelectProps = {
   categoryList: Category[];
-  selectedCategory: Category | undefined;
-  setSelectedCategory: Dispatch<React.SetStateAction<Category | undefined>>;
+  selectedCategory: Category | null;
+  setSelectedCategory: Dispatch<React.SetStateAction<Category | null>>;
   setSelectedSubcategory: Dispatch<React.SetStateAction<Category[]>>;
 };
 
