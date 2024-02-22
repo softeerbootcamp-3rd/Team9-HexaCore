@@ -15,7 +15,7 @@ public class AppConfig {
     }
 
     @Bean
-    public RangeLockManager lockManager() {
+    public RangeLockManager rangeLockManager() {
         return new InMemoryRangeLockManager();
     }
 }

@@ -1,40 +1,34 @@
 package com.hexacore.tayo.reservation;
 
-import com.hexacore.tayo.car.CarRepository;
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.notification.NotificationManager;
+import com.hexacore.tayo.lock.LockKeyGenerator;
+import com.hexacore.tayo.lock.RangeLockManager;
+import com.hexacore.tayo.notification.manager.NotificationManager;
+import com.hexacore.tayo.notification.model.NotificationType;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.CreateReservationResponseDto;
-import com.hexacore.tayo.reservation.dto.TossPayment.TossApproveRequest;
-import com.hexacore.tayo.reservation.dto.TossPayment.TossCancelRequest;
-import com.hexacore.tayo.reservation.dto.TossPayment.TossPaymentResponse;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.model.User;
+import com.hexacore.tayo.util.payment.PaymentManager;
+import com.hexacore.tayo.util.payment.TossPaymentDto.TossPaymentResponse;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
 @Service
@@ -43,45 +37,43 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final CarRepository carRepository;
     private final UserRepository userRepository;
-    private final RestTemplate restTemplate;
     private final NotificationManager notificationManager;
     private final RangeLockManager lockManager;
-
     private final PaymentManager paymentManager;
 
     @Transactional
     public CreateReservationResponseDto createReservation(Long guestId, CreateReservationRequestDto createReservationRequestDto) {
-        Long carId = createReservationRequestDto.getCarId();
         LocalDateTime rentDateTime = createReservationRequestDto.getRentDateTime();
-        LocalDateTime returnDateTime =createReservationRequestDto.getReturnDateTime();
-        String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
+        LocalDateTime returnDateTime = createReservationRequestDto.getReturnDateTime();
+        if (rentDateTime.isAfter(returnDateTime.minusHours(1))) {
+            throw new GeneralException(ErrorCode.RESERVATION_DATETIME_LEAST_HOUR);
+        }
 
+        User guest = userRepository.findByIdAndIsDeletedFalse(guestId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+
+        Long carId = createReservationRequestDto.getCarId();
+        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
+
+        if (guest.getId().equals(car.getOwner().getId())) {
+            throw new GeneralException(ErrorCode.RESERVATION_HOST_EQUALS_GUEST);
+        }
+
+        List<CarDateRange> sortedCarDateRanges = car.getCarDateRanges();
+        sortedCarDateRanges.sort(CarDateRange::compareTo);
+
+        CarDateRange carDateRange = findCarDateRangeIncludesDateRange(sortedCarDateRanges, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
+        if (carDateRange == null) {
+            throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
+        }
+
+        String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
         if (!lockManager.acquireRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate())) {
             throw new GeneralException(ErrorCode.RESERVATION_CONCURRENT);
         }
+
         try {
-            User guest = userRepository.findByIdAndIsDeletedFalse(guestId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
-
-            Car car = carRepository.findByIdAndIsDeletedFalse(carId)
-                    .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-
-            if (guest.getId().equals(car.getOwner().getId())) {
-                throw new GeneralException(ErrorCode.RESERVATION_HOST_EQUALS_GUEST);
-            }
-
-            if (rentDateTime.isAfter(returnDateTime.minusHours(1))) {
-                throw new GeneralException(ErrorCode.RESERVATION_DATETIME_LEAST_HOUR);
-            }
-
-            List<CarDateRange> sortedCarDateRanges = car.getCarDateRanges();
-            sortedCarDateRanges.sort(CarDateRange::compareTo);
-
-            CarDateRange carDateRange = findCarDateRangeIncludesDateRange(sortedCarDateRanges, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
-            if (carDateRange == null) {
-                throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
-            }
-
             List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
                     car.getId(),
                     List.of(ReservationStatus.READY, ReservationStatus.USING)
@@ -91,20 +83,27 @@ public class ReservationService {
                 throw new GeneralException(ErrorCode.RESERVATION_ALREADY_READY_OR_USING);
             }
 
+            User host = car.getOwner();
+            int fee = calculateTotalPrice(car.getFeePerHour(), rentDateTime, returnDateTime);
+
             Reservation reservation = Reservation.builder()
                     .guest(guest)
-                    .host(car.getOwner())
+                    .host(host)
                     .car(car)
-                    .fee(calculateTotalPrice(car.getFeePerHour(), rentDateTime, returnDateTime))
+                    .fee(fee)
                     .rentDateTime(rentDateTime)
                     .returnDateTime(returnDateTime)
                     .status(ReservationStatus.READY)
                     .build();
-            reservationRepository.save(reservation);
 
             Reservation createdReservation = reservationRepository.save(reservation);
-            return CreateReservationResponseDto.builder().reservationId(createdReservation.getId()).fee(fee)
-                .hostId(hostUser.getId()).build();
+
+            return CreateReservationResponseDto.builder()
+                    .reservationId(createdReservation.getId())
+                    .fee(fee)
+                    .hostId(host.getId())
+                    .build();
+
         } finally {
             lockManager.releaseRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
         }

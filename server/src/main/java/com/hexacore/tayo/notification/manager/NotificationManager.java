@@ -1,5 +1,6 @@
-package com.hexacore.tayo.notification;
+package com.hexacore.tayo.notification.manager;
 
+import com.hexacore.tayo.notification.NotificationService;
 import com.hexacore.tayo.notification.dto.SseNotificationDto;
 import com.hexacore.tayo.notification.model.Notification;
 import com.hexacore.tayo.notification.model.NotificationType;

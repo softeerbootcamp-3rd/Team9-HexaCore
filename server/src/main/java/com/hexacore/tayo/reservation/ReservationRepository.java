@@ -1,4 +1,4 @@
-package com.hexacore.tayo.reservation.repository;
+package com.hexacore.tayo.reservation;
 
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
