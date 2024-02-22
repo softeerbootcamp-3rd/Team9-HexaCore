@@ -3,9 +3,9 @@ import { PaymentWidgetInstance, loadPaymentWidget } from '@tosspayments/payment-
 import Button from '@/components/Button';
 import { server } from '@/fetches/common/axios';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
-import { ReservationData } from './CarDetail';
 import { useNavigate } from 'react-router-dom';
 import { useCustomToast } from '@/components/Toast';
+import { ReservationData } from '@/fetches/reservations/Reservation.type';
 
 type PaymentProps = {
   price: number;
