@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CarDateRangeRepository extends JpaRepository<CarDateRange, Long> {
 
+    void deleteAllByCar_Id(Long CarId);
 }

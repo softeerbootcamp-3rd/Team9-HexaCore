@@ -1,5 +1,6 @@
 package com.hexacore.tayo.category.dto;
 
+import com.hexacore.tayo.category.model.Category;
 import com.hexacore.tayo.category.model.Subcategory;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -9,21 +10,46 @@ public class GetCategoriesResponseDto {
 
     @Getter
     @AllArgsConstructor
-    public static class CategoryListDto {
+    public static class CategoryDto {
 
-        private List<CategoryDto> models;
+        private Long id;
+        private String name;
+        private List<SubcategoryDto> subcategories;
+
+        public CategoryDto(Category category) {
+            this.id = category.getId();
+            this.name = category.getName();
+            this.subcategories = category.getSubcategories().stream().map(SubcategoryDto::new).toList();
+        }
+
+        @Override
+        public String toString() {
+            return "{"
+                    + "id=" + id
+                    + ", name='" + name + '\''
+                    + ", subcategories=" + subcategories
+                    + '}';
+        }
     }
 
     @Getter
     @AllArgsConstructor
-    public static class CategoryDto {
+    public static class SubcategoryDto {
 
-        private String category;
-        private String subcategory;
+        private Long id;
+        private String name;
 
-        public CategoryDto(Subcategory subcategory) {
-            this.category = subcategory.getCategory().getName();
-            this.subcategory = subcategory.getName();
+        public SubcategoryDto(Subcategory subcategory) {
+            this.id = subcategory.getId();
+            this.name = subcategory.getName();
+        }
+
+        @Override
+        public String toString() {
+            return "{"
+                    + "id=" + id
+                    + ", name='" + name + '\''
+                    + '}';
         }
     }
 }

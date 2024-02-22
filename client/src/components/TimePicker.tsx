@@ -24,7 +24,7 @@ function TimePicker({ onTimeChange, id, className, time }: Props) {
       onChange={handleHourChange} >
       {
         Array.from({ length: 24 }, (_, i) => {
-          const hour = (i + 1).toString().padStart(2, '0');
+          const hour = (i).toString().padStart(2, '0');
           return <option key={hour} value={hour}>{hour}</option>;
         })
       }

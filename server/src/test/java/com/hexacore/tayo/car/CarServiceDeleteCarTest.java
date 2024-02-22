@@ -5,6 +5,8 @@ import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 
+import com.hexacore.tayo.user.model.User;
+import com.hexacore.tayo.util.S3Manager;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,24 +27,30 @@ public class CarServiceDeleteCarTest {
     private CarRepository carRepository;
     @Mock
     private CarImageRepository carImageRepository;
+    @Mock
+    private CarDateRangeRepository carDateRangeRepository;
+    @Mock
+    private S3Manager s3Manager;
     @InjectMocks
     private CarService carService;
 
     @Test
-    @DisplayName("차량 삭제 요청을 하면 차량과 이미지를 soft delete 한다")
+    @DisplayName("차량 삭제 요청을 하면 차량을 soft delete한다.")
     void deleteCar() {
         // given
         Long carId = 0L;
-        BDDMockito.given(carRepository.findById(carId)).willReturn(Optional.of(new Car()));
+        Long userId = 0L;
+        BDDMockito.given(carRepository.findByIdAndIsDeletedFalse(carId)).willReturn(Optional.of(Car.builder().owner(User.builder().id(userId).build()).build()));
         BDDMockito.given(carImageRepository.findByCar_Id(Mockito.any()))
                 .willReturn(List.of(new CarImage(), new CarImage()));
 
         // when
-        carService.deleteCar(carId);
+        carService.deleteCar(carId, userId);
 
         // then
         BDDMockito.verify(carRepository, Mockito.times(1)).save(Mockito.any(Car.class));
-        BDDMockito.verify(carImageRepository, Mockito.times(2)).save(Mockito.any(CarImage.class));
+        BDDMockito.verify(carDateRangeRepository, Mockito.times(1)).deleteAll(Mockito.any());
+
     }
 
     @Test
@@ -50,11 +58,26 @@ public class CarServiceDeleteCarTest {
     void deleteCar_throwCarNotFound() {
         // given
         Long carId = 0L;
-        BDDMockito.given(carRepository.findById(carId)).willReturn(Optional.empty());
+        Long userId = 0L;
+        BDDMockito.given(carRepository.findByIdAndIsDeletedFalse(carId)).willReturn(Optional.empty());
 
         // when & then
-        Assertions.assertThatThrownBy(() -> carService.deleteCar(carId))
+        Assertions.assertThatThrownBy(() -> carService.deleteCar(carId, userId))
                 .isInstanceOf(GeneralException.class)
                 .hasMessage(ErrorCode.CAR_NOT_FOUND.getErrorMessage());
+    }
+
+    @Test
+    @DisplayName("차량의 주인이 아닌 경우 CAR_UPDATED_BY_OTHERS 에러가 발생한다.")
+    void deleteCar_throwCarUpdatedByOthers() {
+        // given
+        Long carId = 0L;
+        Long userId = 0L;
+        BDDMockito.given(carRepository.findByIdAndIsDeletedFalse(carId)).willReturn(Optional.of(Car.builder().owner(User.builder().id(1L).build()).build()));
+
+        // when & then
+        Assertions.assertThatThrownBy(() -> carService.deleteCar(carId, userId))
+                .isInstanceOf(GeneralException.class)
+                .hasMessage(ErrorCode.CAR_UPDATED_BY_OTHERS.getErrorMessage());
     }
 }

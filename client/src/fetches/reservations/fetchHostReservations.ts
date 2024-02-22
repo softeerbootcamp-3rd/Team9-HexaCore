@@ -1,47 +1,57 @@
-import { DateRange } from '@/components/calendar/calendar.core';
-import HostReservationsDummy from './HostReservationData.dummy.json';
-import { stringTupleToDateRange } from '@/utils/converters';
+import { stringTupleToDateTimeRange } from '@/utils/converters';
+import { server } from '@/fetches/common/axios';
+import type { ResponseWithPagination } from '@/fetches/common/response.type';
+import type { ReservationData, ReservationStatus } from "@/fetches/reservations/Reservation.type"
 
-type HostReservationsResponseRaw = typeof HostReservationsDummy; // TODO: 응답 형식 타입 정의
-
-export type ReservationStatus = 'cancel' | 'ready' | 'using' | 'terminated';
-
-export type ReservationData = {
+type HostReservationResponse = {
   id: number;
-  target: { id: number; name: string; image: string; phoneNumber: string};
-  rentPeriod: DateRange;
-  rentFee: number;
-  rentStatus: ReservationStatus;
+  guest: {
+    id: number;
+    name: string;
+    profileImgUrl: string;
+    phoneNumber: string
+    averageRate: number;
+  };
+  rentDateTime: string;
+  returnDateTime: string;
+  fee: number;
+  extraFee: number,
+  status: ReservationStatus;
   address: string;
+  isReviewed: boolean;
 };
 
 export const fetchHostReservations = async () => {
-  return HostReservationsDummy;
+  const response = await server.get<ResponseWithPagination<HostReservationResponse[]>>('/reservations/host', {
+  });
+  if (response.success) {
+    return response;
+  }
 };
 
-export const parseHostReservations = (hostReservationsResponseRaw: HostReservationsResponseRaw): ReservationData[] => {
-  return hostReservationsResponseRaw.data.reservations.map(
+export const parseHostReservations = (hostReservationsResponseRaw: HostReservationResponse[]): ReservationData[] => {
+  return hostReservationsResponseRaw.map(
     (reservation) =>
       ({
         id: reservation.id,
         target: {
           id: reservation.guest.id,
-          name: reservation.guest.nickname ,
-          image: reservation.guest.image,
+          name: reservation.guest.name ,
+          image: reservation.guest.profileImgUrl,
           phoneNumber: reservation.guest.phoneNumber,
+          lat:null,
+          lng:null,
+          averageRate: reservation.guest.averageRate
         },
-        rentPeriod: stringTupleToDateRange([reservation.rentDate, reservation.returnDate]),
+        rentPeriod: stringTupleToDateTimeRange([reservation.rentDateTime, reservation.returnDateTime]),
         rentFee: reservation.fee,
+        extraFee: reservation.extraFee,
         rentStatus: toReservationStatus(reservation.status),
+        isReviewed: reservation.isReviewed,
       }) as ReservationData,
   );
 };
 
-const toReservationStatus = (status: string): ReservationStatus => {
-  const validStatuses: ReservationStatus[] = ['cancel', 'ready', 'using', 'terminated'];
-  if (validStatuses.includes(status as ReservationStatus)) {
-    return status as ReservationStatus;
-  }
-  return "disabled" as ReservationStatus;
+const toReservationStatus = (status: ReservationStatus) => {
+  return status;
 };
-

@@ -22,7 +22,7 @@ axiosInstance.interceptors.request.use(
   function (error) {
     // 요청이 실패한 경우에 대한 처리
     return Promise.reject(error);
-  }
+  },
 );
 
 axiosInstance.interceptors.response.use(
@@ -33,12 +33,14 @@ axiosInstance.interceptors.response.use(
 
     if (status === 403) {
       // 403 유효하지 않은 토큰
+      localStorage.clear();
       window.location.href = '/auth/login';
       return;
     }
 
     if (status === 401) {
       // 401 만료된 토큰
+      localStorage.clear();
       window.location.href = '/auth/login'; // TODO: refresh 토큰으로 토큰 재발급
     }
 

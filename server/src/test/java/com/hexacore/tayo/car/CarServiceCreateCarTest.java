@@ -2,13 +2,13 @@ package com.hexacore.tayo.car;
 
 import static org.mockito.BDDMockito.given;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.category.SubcategoryRepository;
+import com.hexacore.tayo.category.model.Category;
+import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.Position;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.category.CategoryRepository;
-import com.hexacore.tayo.category.SubCategoryRepository;
-import com.hexacore.tayo.category.model.SubCategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.util.S3Manager;
@@ -35,13 +35,13 @@ public class CarServiceCreateCarTest {
     @Mock
     private S3Manager mockS3Manager;
     @Mock
-    private CarImageRepository carImageRepository;
+    private CarImageRepository mockCarImageRepository;
     @Mock
     private CarRepository mockCarRepository;
     @Mock
     private CategoryRepository mockCategoryRepository;
     @Mock
-    private SubCategoryRepository mockSubCategoryRepository;
+    private SubcategoryRepository mockSubcategoryRepository;
     @InjectMocks
     private CarService carService;
 
@@ -60,9 +60,9 @@ public class CarServiceCreateCarTest {
                         new MockMultipartFile("image5", "filename5.png", "image/png", "dummy".getBytes())),
                 List.of(1, 2, 3, 4, 5));
 
-        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
-        given(mockSubCategoryRepository.findByName(createCarRequestDto.getCarName()))
-                .willReturn(Optional.of(SubCategory.builder().name("서브모델명").build()));
+        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
+        given(mockSubcategoryRepository.findByName(createCarRequestDto.getCarName()))
+                .willReturn(Optional.of(Subcategory.builder().name("서브모델명").build()));
         given(mockCarRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(0L, createCarRequestDto.getCarNumber()))
                 .willReturn(Optional.empty());
         given(mockS3Manager.uploadImage(Mockito.any())).willReturn("url");
@@ -89,11 +89,11 @@ public class CarServiceCreateCarTest {
                         new MockMultipartFile("image5", "filename5.png", "image/png", "dummy".getBytes())),
                 List.of(1, 2, 3, 4, 5));
 
-        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
+        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
         given(mockCarRepository.findByCarNumberAndIsDeletedFalse(createCarRequestDto.getCarNumber()))
                 .willReturn(Collections.emptyList());
-        given(mockSubCategoryRepository.findByName(createCarRequestDto.getCarName()))
-                .willReturn(Optional.of(SubCategory.builder().name("모델명").build()));
+        given(mockSubcategoryRepository.findByName(createCarRequestDto.getCarName()))
+                .willReturn(Optional.of(Subcategory.builder().name("모델명").build()));
         given(mockCarRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(0L, createCarRequestDto.getCarNumber()))
                 .willReturn(Optional.of(new Car())); //
         given(mockS3Manager.uploadImage(Mockito.any())).willReturn("url");
@@ -106,25 +106,35 @@ public class CarServiceCreateCarTest {
     }
 
     @Test
-    @DisplayName("차량의 모델명이 등록되어 있지 않은 경우 CAR_MODEL_NOT_FOUND 에러가 발생한다")
+    @DisplayName("차량의 모델명이 등록되어 있지 않은 경우 해당 모델명을 새롭게 등록한다.")
     void createCar_throwCarModelNotFound() {
         // given
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "모델명 서브모델명", 10.0, "휘발유", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
                 new Position(10.0, 10.0), "설명",
-                List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
-                List.of(1));
+                List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy".getBytes()),
+                        new MockMultipartFile("image2", "filename2.png", "image/png", "dummy".getBytes()),
+                        new MockMultipartFile("image3", "filename3.png", "image/png", "dummy".getBytes()),
+                        new MockMultipartFile("image4", "filename4.png", "image/png", "dummy".getBytes()),
+                        new MockMultipartFile("image5", "filename5.png", "image/png", "dummy".getBytes())),
+                List.of(1, 2, 3, 4, 5));
 
-        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
+        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
         given(mockCarRepository.findByCarNumberAndIsDeletedFalse(createCarRequestDto.getCarNumber()))
                 .willReturn(Collections.emptyList());
-        given(mockSubCategoryRepository.findByName(createCarRequestDto.getCarName()))
+        given(mockSubcategoryRepository.findByName(createCarRequestDto.getCarName()))
                 .willReturn(Optional.empty());
+        given(mockCategoryRepository.findAll()).willReturn(List.of(Category.builder().name("ETC").build()));
+        given(mockCarRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(0L, createCarRequestDto.getCarNumber()))
+                .willReturn(Optional.empty()); //
+        given(mockS3Manager.uploadImage(Mockito.any())).willReturn("url");
+
+        // when
+        carService.createCar(createCarRequestDto, 0L);
 
         // when & then
-        Assertions.assertThatThrownBy(() -> carService.createCar(createCarRequestDto, 0L))
-                .isInstanceOf(GeneralException.class)
-                .hasMessage(ErrorCode.CAR_MODEL_NOT_FOUND.getErrorMessage());
+        BDDMockito.verify(mockSubcategoryRepository, Mockito.times(1)).save(Mockito.any());
+        BDDMockito.verify(mockCarRepository, Mockito.times(1)).save(Mockito.any(Car.class));
     }
 
     @Test
@@ -137,7 +147,7 @@ public class CarServiceCreateCarTest {
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
                 List.of(1));
 
-        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(List.of(new Car()));
+        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.of(new Car()));
 
         // when & then
         Assertions.assertThatThrownBy(() -> carService.createCar(createCarRequestDto, 0L))
@@ -156,7 +166,7 @@ public class CarServiceCreateCarTest {
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
                 List.of(1));
 
-        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
+        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
         given(mockCarRepository.findByCarNumberAndIsDeletedFalse(createCarRequestDto.getCarNumber()))
                 .willReturn(List.of(new Car()));
 
@@ -176,7 +186,7 @@ public class CarServiceCreateCarTest {
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
                 List.of(1, 2, 3));
 
-        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
+        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
         given(mockCarRepository.findByCarNumberAndIsDeletedFalse(createCarRequestDto.getCarNumber()))
                 .willReturn(Collections.emptyList());
 
@@ -196,11 +206,11 @@ public class CarServiceCreateCarTest {
                 List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
                 List.of(1));
 
-        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
+        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
         given(mockCarRepository.findByCarNumberAndIsDeletedFalse(createCarRequestDto.getCarNumber()))
                 .willReturn(Collections.emptyList());
-        given(mockSubCategoryRepository.findByName(createCarRequestDto.getCarName()))
-                .willReturn(Optional.of(SubCategory.builder().name("세부모델명").build()));
+        given(mockSubcategoryRepository.findByName(createCarRequestDto.getCarName()))
+                .willReturn(Optional.of(Subcategory.builder().name("세부모델명").build()));
         given(mockCarRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(0L, createCarRequestDto.getCarNumber()))
                 .willReturn(Optional.of(new Car())); //
 
@@ -224,9 +234,10 @@ public class CarServiceCreateCarTest {
                         new MockMultipartFile("image5", "filename5.txt", "text/plain", "dummy".getBytes())),
                 List.of(1, 2, 3, 4, 5));
 
-        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
+        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
         given(mockCarRepository.findByCarNumberAndIsDeletedFalse(createCarRequestDto.getCarNumber()))
                 .willReturn(Collections.emptyList());
+        given(mockSubcategoryRepository.findByName(createCarRequestDto.getCarName())).willReturn(Optional.of(new Subcategory()));
 
         // when & then
         Assertions.assertThatThrownBy(() -> carService.createCar(createCarRequestDto, 0L))
@@ -235,12 +246,12 @@ public class CarServiceCreateCarTest {
     }
 
     @Test
-    @DisplayName("지원하지 않는 차량 타입인 경우 INVALID_Car_TYPE 에러가 발생한다")
+    @DisplayName("지원하지 않는 차량 타입인 경우 INVALID_CAR_TYPE 에러가 발생한다")
     void createCar_throwInvalidCarType() {
         // given
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "휘발유", "중중형차", 2,
                 2020, 10000, "경기도 테스트 주소",
-                new CreatePositionRequestDto(10.0, 10.0), "설명",
+                new Position(10.0, 10.0), "설명",
                 List.of(new MockMultipartFile("image1", "filename1.txt", "text/plain", "dummy".getBytes()),
                         new MockMultipartFile("image2", "filename2.txt", "text/plain", "dummy".getBytes()),
                         new MockMultipartFile("image3", "filename3.txt", "text/plain", "dummy".getBytes()),
@@ -248,13 +259,14 @@ public class CarServiceCreateCarTest {
                         new MockMultipartFile("image5", "filename5.txt", "text/plain", "dummy".getBytes())),
                 List.of(1, 2, 3, 4, 5));
 
-        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Collections.emptyList());
+        given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
         given(mockCarRepository.findByCarNumberAndIsDeletedFalse(createCarRequestDto.getCarNumber()))
                 .willReturn(Collections.emptyList());
+        given(mockSubcategoryRepository.findByName(createCarRequestDto.getCarName())).willReturn(Optional.of(new Subcategory()));
 
         // when & then
         Assertions.assertThatThrownBy(() -> carService.createCar(createCarRequestDto, 0L))
                 .isInstanceOf(GeneralException.class)
-                .hasMessage(ErrorCode.INAVALID_CAR_TYPE.getErrorMessage());
+                .hasMessage(ErrorCode.INVALID_CAR_TYPE.getErrorMessage());
     }
 }

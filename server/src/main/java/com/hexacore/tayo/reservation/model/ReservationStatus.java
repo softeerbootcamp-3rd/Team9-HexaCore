@@ -1,11 +1,13 @@
 package com.hexacore.tayo.reservation.model;
 
+import com.hexacore.tayo.common.errors.ErrorCode;
+import com.hexacore.tayo.common.errors.GeneralException;
+
 public enum ReservationStatus {
-    CANCEL("cancel"),
-    READY("ready"),
     USING("using"),
-    TERMINATED("terminated"),
-    NOT_FOUND("not found");
+    READY("ready"),
+    CANCEL("cancel"),
+    TERMINATED("terminated");
 
     private final String status;
 
@@ -17,13 +19,12 @@ public enum ReservationStatus {
         return status;
     }
 
-    public ReservationStatus getReservationStatus(String status) {
+    public static ReservationStatus getReservationStatus(String status) {
         for (ReservationStatus r : values()) {
             if (r.status.equals(status)) {
                 return r;
             }
         }
-
-        return NOT_FOUND;
+        throw new GeneralException(ErrorCode.RESERVATION_STATUS_NOT_FOUND);
     }
 }

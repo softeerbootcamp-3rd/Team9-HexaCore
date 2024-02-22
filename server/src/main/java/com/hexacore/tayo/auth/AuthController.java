@@ -9,6 +9,7 @@ import com.hexacore.tayo.user.dto.LoginResponseDto;
 import com.hexacore.tayo.user.dto.SignUpRequestDto;
 import com.hexacore.tayo.user.model.User;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +27,7 @@ public class AuthController {
 
     // 회원가입
     @PostMapping("/signup")
-    public ResponseEntity<Response> signUp(@ModelAttribute SignUpRequestDto signUpRequestDto) {
+    public ResponseEntity<Response> signUp(@Valid @ModelAttribute SignUpRequestDto signUpRequestDto) {
         User user = authService.signUp(signUpRequestDto);
 
         if (user == null) {
@@ -38,7 +39,7 @@ public class AuthController {
 
     // 로그인
     @PostMapping("/login")
-    public ResponseEntity<Response> login(@RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity<Response> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
         LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
 
         return Response.of(HttpStatus.OK, loginResponseDto);
@@ -53,7 +54,7 @@ public class AuthController {
     }
 
     // 회원 탈퇴
-    @DeleteMapping("/users")
+    @DeleteMapping
     public ResponseEntity<Response> deleteUser(HttpServletRequest request) {
         authService.delete((Long) request.getAttribute(USER_ID));
 
@@ -76,4 +77,5 @@ public class AuthController {
 
         return Response.of(HttpStatus.OK, arr);
     }
+
 }

@@ -12,4 +12,19 @@ public class GetCarSimpleResponseDto {
     private final Long id;
     private final String name;
     private final String imageUrl;
+    private final Double lat;
+    private final Double lng;
+    private final Double averageRate;
+
+    @Override
+    public String toString() {
+        return "{"
+                + "id=" + id
+                + ", name='" + name + '\''
+                + ", imageUrl='" + imageUrl + '\''
+                + ", lat=" + lat
+                + ", lng=" + lng
+                + ", averageRate=" + averageRate
+                + '}';
+    }
 }

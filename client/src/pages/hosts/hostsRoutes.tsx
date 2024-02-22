@@ -1,34 +1,46 @@
-import type { RouteObject } from 'react-router-dom';
+import { redirect, type RouteObject } from 'react-router-dom';
 import HostManage from '@/pages/hosts/HostManage';
 import HostRegister from '@/pages/hosts/HostRegister';
 import { fetchCarDetail, parseCarDetail } from '@/fetches/cars/fetchCarDetail';
+import { fetchUser } from '@/fetches/users/fetchUser';
+import { CarDetailJsonData } from '@/fetches/cars/cars.type';
 import { fetchHostReservations, parseHostReservations } from '@/fetches/reservations/fetchHostReservations';
 
 export type HostManageLoaderData = {
-  carDetail: ReturnType<typeof parseCarDetail>;
-  hostReservations: ReturnType<typeof parseHostReservations>;
+  carDetail: ReturnType<typeof parseCarDetail> | undefined;
+  reservations: ReturnType<typeof parseHostReservations>;
+};
+
+export type HostRegisterLoaderData = {
+  username: string;
+  isUpdate: boolean;
+  carDetail: CarDetailJsonData | undefined;
+  errMessage: string | null;
 };
 
 const hostsRoutes: RouteObject[] = [
   {
     path: 'hosts/manage',
     loader: async () => {
-      const carId = 1;
-      const [carDetailResult, HostReservationResult] = await Promise.allSettled([fetchCarDetail(carId), fetchHostReservations()]);
-
-      if (carDetailResult.status === 'rejected') {
-        throw new Error('차량 정보를 불러오는데 실패했습니다'); // TODO: retry and default value
-      }
-      if (HostReservationResult.status === 'rejected') {
-        throw new Error('예약 정보를 불러오는데 실패했습니다');
-      }
-
-      const carDetail = parseCarDetail(carDetailResult.value);
-      const hostReservations = parseHostReservations(HostReservationResult.value);
-      const data: HostManageLoaderData = {
-        carDetail,
-        hostReservations,
+      const [carDetailResult, HostReservationResult] = await Promise.allSettled([fetchCarDetail(), fetchHostReservations()]);
+      const data : HostManageLoaderData = {
+        carDetail: undefined,
+        reservations: []
       };
+      if (carDetailResult.status == 'fulfilled' && carDetailResult != undefined) {
+        if (carDetailResult.value.code === 200) {
+          data.carDetail = parseCarDetail(carDetailResult.value.data);
+        } else if (carDetailResult.value.code === 404) {
+          return redirect('/hosts/register');
+        } else {
+          throw Error('예기치 못한 오류가 발생했습니다.');
+        }
+      }
+
+      if (HostReservationResult.status === 'fulfilled' && HostReservationResult.value !== undefined) {
+        data.reservations = parseHostReservations(HostReservationResult.value.data);
+      }
+
       return data;
     },
     element: <HostManage />,
@@ -36,7 +48,31 @@ const hostsRoutes: RouteObject[] = [
   {
     path: 'hosts/register',
     element: <HostRegister />,
+    loader: async () => {
+      // fetchUser(NaN)이면 로그인한 사용자의 정보를 받아온다.
+      const [response, carResponse] = await Promise.allSettled([fetchUser(NaN), fetchCarDetail()]);
+
+      if (response.status !== 'fulfilled' || carResponse.status !== 'fulfilled') return null;
+      if (response.status === 'fulfilled' && response.value === undefined) {
+        return {
+          username: null,
+          isUpdate: null,
+          carDetail: null,
+          errMessage: '로그인이 필요한 요청입니다.',
+        };
+      }
+      const isUpdate: boolean = carResponse.value.success;
+
+      const data: HostRegisterLoaderData = {
+        username: response.value.data.name,
+        isUpdate: isUpdate,
+        carDetail: carResponse.value.data,
+        errMessage: null,
+      };
+      return data;
+    },
   },
 ];
 
 export default hostsRoutes;
+

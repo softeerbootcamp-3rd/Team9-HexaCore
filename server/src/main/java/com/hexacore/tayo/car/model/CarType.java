@@ -1,5 +1,8 @@
 package com.hexacore.tayo.car.model;
 
+import com.hexacore.tayo.common.errors.ErrorCode;
+import com.hexacore.tayo.common.errors.GeneralException;
+
 public enum CarType {
     LIGHT("경차"),
     SMALL("소형차"),
@@ -9,8 +12,7 @@ public enum CarType {
     SUV("SUV"),
 
     RV("캠핑카"),
-    VAN("VAN"),
-    NOT_FOUND("not found");
+    VAN("VAN");
     private final String value;
 
     CarType(String value) {
@@ -27,6 +29,6 @@ public enum CarType {
                 return c;
             }
         }
-        return NOT_FOUND;
+        throw new GeneralException(ErrorCode.INVALID_CAR_TYPE);
     }
 }

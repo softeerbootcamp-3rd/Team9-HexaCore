@@ -11,14 +11,19 @@ import org.locationtech.jts.geom.Point;
 @AllArgsConstructor
 public class Position {
 
-    final private int SRID = 4326;
+    static public final Integer SRID = 4326;
 
     private Double lat;
     private Double lng;
 
-    public Point toPoint() {
+    public String toWKT() {
         GeometryFactory geometryFactory = new GeometryFactory();
         Point position = geometryFactory.createPoint(new Coordinate(lat, lng));
+        return position.toText();
+    }
+    public Point toPoint() {
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Point position = geometryFactory.createPoint(new Coordinate(lng, lat));
         position.setSRID(SRID);
         return position;
     }

@@ -4,12 +4,15 @@ import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import jakarta.validation.constraints.NotNull;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import lombok.Getter;
 
 @Getter
 public class GetCarResponseDto {
+
+    @NotNull
+    private final Long id;
 
     @NotNull
     private final GetUserSimpleResponseDto host;
@@ -49,10 +52,15 @@ public class GetCarResponseDto {
 
     private final String description;
 
-    private GetCarResponseDto(Car car) {
+    private final Double averageRate;
+
+    public GetCarResponseDto(Car car, List<List<String>> carDateRanges) {
+        this.id = car.getId();
         this.carName = car.getSubcategory().getName();
         this.carNumber = car.getCarNumber();
-        this.imageUrls = car.getCarImages().stream().map(CarImage::getUrl).toList();
+        this.imageUrls = car.getCarImages().stream()
+                .sorted(Comparator.comparing(CarImage::getOrderIdx))
+                .map(CarImage::getUrl).toList();
         this.mileage = car.getMileage();
         this.fuel = car.getFuel().getValue();
         this.type = car.getType().getValue();
@@ -61,14 +69,27 @@ public class GetCarResponseDto {
         this.feePerHour = car.getFeePerHour();
         this.address = car.getAddress();
         this.description = car.getDescription();
-        this.carDateRanges = car.getCarDateRanges().stream().reduce(new ArrayList<>(), (acc, carDateRange) -> {
-            acc.add(List.of(carDateRange.getStartDate().toString(), carDateRange.getEndDate().toString()));
-            return acc;
-        }, (acc, carDateRange) -> acc);
+        this.carDateRanges = carDateRanges;
         this.host = new GetUserSimpleResponseDto(car.getOwner());
+        this.averageRate = car.getAverageRate();
     }
 
-    public static GetCarResponseDto of(Car car) {
-        return new GetCarResponseDto(car);
+    @Override
+    public String toString() {
+        return "{"
+                + "id=" + id
+                + ", host=" + host
+                + ", carName='" + carName + '\''
+                + ", carNumber='" + carNumber + '\''
+                + ", imageUrls=" + imageUrls
+                + ", fuel='" + fuel + '\''
+                + ", type='" + type + '\''
+                + ", capacity=" + capacity
+                + ", year=" + year
+                + ", feePerHour=" + feePerHour
+                + ", address='" + address + '\''
+                + ", carDateRanges=" + carDateRanges
+                + ", description='" + description + '\''
+                + '}';
     }
 }
