@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import java.sql.Timestamp;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -29,20 +30,20 @@ public class S3Manager {
             // Content-Type이 이미지 파일이 아닌 경우
             throw new GeneralException(ErrorCode.INVALID_IMAGE_TYPE);
         }
-        String originalFilename = image.getOriginalFilename();
+        String fileName = image.getOriginalFilename() + new Timestamp(System.currentTimeMillis());
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(image.getSize());
         metadata.setContentType(image.getContentType());
 
         try {
             amazonS3Client.putObject(
-                    new PutObjectRequest(bucket, originalFilename, image.getInputStream(), metadata)
+                    new PutObjectRequest(bucket, fileName, image.getInputStream(), metadata)
             );
         } catch (IOException e) {
             throw new GeneralException(ErrorCode.S3_UPLOAD_FAILED);
         }
 
-        return amazonS3Client.getUrl(bucket, originalFilename).toString();
+        return amazonS3Client.getUrl(bucket, fileName).toString();
     }
 
     /* 이미지 파일을 S3에서 삭제 */
