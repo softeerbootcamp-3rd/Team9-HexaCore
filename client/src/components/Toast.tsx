@@ -5,13 +5,13 @@ type ToastProps = {
   message: string;
   info: boolean;
   duration?: number;
+  isVisible: boolean;
+  setIsVisible: (isVisible: boolean) => void;
 };
 
-function Toast({ title, message, info = false, duration = 2000 }: ToastProps) {
-  const [isVisible, setIsVisible] = useState(false);
+function Toast({ title, message, info = false, duration = 2000, isVisible, setIsVisible }: ToastProps) {
 
   useEffect(() => {
-    setIsVisible(true);
     const timer = setTimeout(() => {
       setIsVisible(false);
     }, duration);
@@ -46,8 +46,10 @@ export const useCustomToast = () => {
   const [key, setKey] = useState(0);
   const [info, setInfo] = useState(false);
   const [duration, setDuration] = useState<number | undefined>(2000);
+  const [isVisible, setIsVisible] = useState(false);
 
   const showToast = (title: string, newMessage: string, info?: boolean, duration?: number) => {
+    setIsVisible(true);
     setTitle(title);
     setMessage(newMessage);
     setKey((prevKey) => prevKey + 1);
@@ -56,7 +58,7 @@ export const useCustomToast = () => {
   };
 
   return {
-    ToastComponent: () => <Toast key={key} title={title} message={message} duration={duration} info={info} />,
+    ToastComponent: () => <Toast key={key} title={title} message={message} duration={duration} info={info} isVisible={isVisible} setIsVisible={setIsVisible} />,
     showToast,
   };
 };
