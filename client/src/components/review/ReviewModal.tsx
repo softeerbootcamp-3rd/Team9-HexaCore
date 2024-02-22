@@ -1,12 +1,12 @@
 import { ReservationData } from "@/fetches/reservations/Reservation.type";
-import Button from "./Button";
+import Button from "../Button";
 import { dateTimeFormatter } from "@/utils/converters";
 import { useRef, useState } from "react";
 import { fetchCreateReview } from "@/fetches/reviews/fetchReviews";
 import { ReviewData } from "@/fetches/reviews/Review.type";
-import { useCustomToast } from "./Toast";
+import { useCustomToast } from "../Toast";
 import StarRating from "./StarRating";
-import { TargetType } from "./ListComponent";
+import { TargetType } from "../ListComponent";
 
 type ReviewModalProps = {
 	type: TargetType;

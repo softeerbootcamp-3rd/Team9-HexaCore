@@ -11,7 +11,7 @@ import type { ResponseWithoutData } from '@/fetches/common/response.type';
 import ImageGallery from '@/components/ImageGallery';
 import { dateRangesToString } from '@/utils/converters';
 import { createPortal } from 'react-dom';
-import ReviewModal from '@/components/ReviewModal';
+import ReviewModal from '@/components/review/ReviewModal';
 import { HostManageLoaderData } from './hostsRoutes';
 import { useCustomToast } from '@/components/Toast';
 

@@ -1,4 +1,4 @@
-import StarIcon from '@/components/StarIcon';
+import StarIcon from '@/components/review/StarIcon';
 import Tag from '@/components/Tag';
 import type { CarData } from '@/fetches/cars/cars.type';
 import { Link } from 'react-router-dom';

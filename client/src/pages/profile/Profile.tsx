@@ -12,7 +12,7 @@ import { server } from '@/fetches/common/axios';
 import { useAuth } from '@/contexts/AuthContext';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
 import { createPortal } from 'react-dom';
-import ReviewModal from '@/components/ReviewModal';
+import ReviewModal from '@/components/review/ReviewModal';
 import { useCustomToast } from '@/components/Toast';
 
 function Profile() {

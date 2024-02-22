@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import type { MouseEventHandler } from 'react';
 import { distance } from '@/utils/DistanceCalculater';
 import { dateTimeFormatter } from '@/utils/converters';
-import StarIcon from './StarIcon';
+import StarIcon from './review/StarIcon';
 
 type ButtonType = 'disabled' | 'enabled' | 'danger';
 
