@@ -29,6 +29,7 @@ jobs:
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
+        working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
         with:
           branch: gh-pages
           folder: dist
