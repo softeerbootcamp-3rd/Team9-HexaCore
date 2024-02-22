@@ -14,14 +14,13 @@ const profileRoutes: RouteObject[] = [
     loader: async ({ params }: LoaderParams) => {
       const userId = params.userId ?? localStorage.getItem("userId") ?? '';
       const [userResult] = await Promise.allSettled([fetchUser(parseInt(userId))]);
-      var data = null;
+
       if (userResult.status == 'fulfilled' && userResult.value != undefined){
         if(userResult.value.code === 200){
-          data = parseUser(userResult.value.data);
+          return parseUser(userResult.value.data);
         }
         //TODO:통신실패시 동작
       }
-      return data;
     },
     element: <Profile />,
   },
