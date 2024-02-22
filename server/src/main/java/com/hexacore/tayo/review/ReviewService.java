@@ -30,12 +30,12 @@ public class ReviewService {
     private final CarRepository carRepository;
 
     @Transactional
-    public void createReview(Long writerId, CreateReviewRequestDto createReviewRequestDto, boolean forCar) {
+    public void createReview(Long writerId, CreateReviewRequestDto createReviewRequestDto, boolean isGuest) {
         Reservation reservation = reservationRepository.findById(createReviewRequestDto.getReservationId())
                 .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
 
         // 리뷰 작성자 확인
-        User writer = forCar ? reservation.getGuest() : reservation.getHost();
+        User writer = isGuest ? reservation.getGuest() : reservation.getHost();
         if (!writer.getId().equals(writerId)) {
             throw new GeneralException(ErrorCode.RESERVATION_REVIEWED_BY_OTHERS);
         }
@@ -46,14 +46,12 @@ public class ReviewService {
         }
 
         // 리뷰 존재 여부 확인
-        boolean reviewExists = forCar ? carReviewRepository.existsByReservation(reservation) :
-                guestReviewRepository.existsByReservation(reservation);
-        if (reviewExists) {
+        if (isReviewed(reservation, isGuest)) {
             throw new GeneralException(ErrorCode.REVIEW_ALREADY_EXIST);
         }
 
         // 리뷰 작성
-        if (forCar) {
+        if (isGuest) {
             createCarReview(writerId, reservation, createReviewRequestDto);
         } else {
             createGuestReview(writerId, reservation, createReviewRequestDto);
@@ -108,5 +106,11 @@ public class ReviewService {
             throw new GeneralException(ErrorCode.CAR_NOT_FOUND);
         }
         return carReviewRepository.findAllByCarId(carId, pageable);
+    }
+
+    /* 리뷰 있는지 확인 */
+    public boolean isReviewed(Reservation reservation, boolean isGuest) {
+        return isGuest ? carReviewRepository.existsByReservation(reservation) :
+                guestReviewRepository.existsByReservation(reservation);
     }
 }

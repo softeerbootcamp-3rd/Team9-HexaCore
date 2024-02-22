@@ -52,6 +52,8 @@ public class GetCarResponseDto {
 
     private final String description;
 
+    private final Double averageRate;
+
     public GetCarResponseDto(Car car, List<List<String>> carDateRanges) {
         this.id = car.getId();
         this.carName = car.getSubcategory().getName();
@@ -69,6 +71,7 @@ public class GetCarResponseDto {
         this.description = car.getDescription();
         this.carDateRanges = carDateRanges;
         this.host = new GetUserSimpleResponseDto(car.getOwner());
+        this.averageRate = car.getAverageRate();
     }
 
     @Override

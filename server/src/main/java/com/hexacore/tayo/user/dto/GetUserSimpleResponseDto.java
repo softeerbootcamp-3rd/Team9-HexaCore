@@ -14,6 +14,7 @@ public class GetUserSimpleResponseDto {
     private String name;
     private String profileImgUrl;
     private String phoneNumber;
+    private Double averageRate;
     private String email;
 
     public GetUserSimpleResponseDto(User user) {
@@ -21,6 +22,7 @@ public class GetUserSimpleResponseDto {
         this.name = user.getName();
         this.profileImgUrl = user.getProfileImgUrl();
         this.phoneNumber = user.getPhoneNumber();
+        this.averageRate = user.getAverageRate();
         this.email = user.getEmail();
     }
 
@@ -31,6 +33,7 @@ public class GetUserSimpleResponseDto {
                 + ", name='" + name + '\''
                 + ", profileImgUrl='" + profileImgUrl + '\''
                 + ", phoneNumber='" + phoneNumber + '\''
+                + ", averageRate=" + averageRate
                 + ", email='" + email + '\''
                 + '}';
     }
