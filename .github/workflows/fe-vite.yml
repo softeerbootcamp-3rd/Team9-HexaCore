@@ -11,6 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Change directory
+        run: cd client
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
