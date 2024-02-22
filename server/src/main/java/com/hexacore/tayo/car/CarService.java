@@ -112,6 +112,7 @@ public class CarService {
     }
 
     /* 서브 카테고리 추가 */
+    @Transactional
     public Subcategory createSubcategory(String subcategoryName) {
         List<Category> categories = categoryRepository.findAll();
 
