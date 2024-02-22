@@ -138,12 +138,12 @@ public class GetCarResponseDto {
         }
 
         while (reservationsIndex < sortedReservations.size()) {
-
+            Reservation reservation = sortedReservations.get(reservationsIndex);
             //예약이 예약 가능일의 범위에 포함되지 않으면 다음 예약 가능일로 이동
             if (carAvailableDates.get(availableDatesIndex).getStartDate()
                     .isAfter(sortedReservations.get(reservationsIndex).getRentDateTime().toLocalDate())
                     || carAvailableDates.get(availableDatesIndex).getEndDate()
-                    .isBefore(sortedReservations.get(reservationsIndex).getReturnDateTime().toLocalDate())) {
+                    .isBefore(reservation.getReturnDateTime().toLocalDate())) {
                 end = carAvailableDates.get(availableDatesIndex).getEndDate();
                 if (start.isBefore(end)) {
                     result.add(List.of(start.toString(), end.toString()));
@@ -152,11 +152,11 @@ public class GetCarResponseDto {
                 continue;
             }
 
-            end = sortedReservations.get(reservationsIndex).getRentDateTime().toLocalDate().minusDays(1);
+            end = reservation.getRentDateTime().toLocalDate().minusDays(1);
             if (start.isBefore(end)) {
                 result.add(List.of(start.toString(), end.toString()));
             }
-            start = sortedReservations.get(reservationsIndex++).getReturnDateTime().toLocalDate().plusDays(1);
+            start = reservation.getReturnDateTime().toLocalDate().plusDays(1);
         }
         end = carAvailableDates.get(availableDatesIndex).getEndDate();
         if (start.isBefore(end)) {
