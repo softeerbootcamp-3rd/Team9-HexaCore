@@ -1,4 +1,5 @@
-export type UserCustomerKeyResponse = {
+export type UserPaymentInfoResponse = {
   customerKey: string;
   name: string;
-};
+  hasBillingKey: boolean;
+}

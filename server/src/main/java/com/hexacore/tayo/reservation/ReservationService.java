@@ -1,27 +1,29 @@
 package com.hexacore.tayo.reservation;
 
-import com.hexacore.tayo.car.carRepository.CarRepository;
+import com.hexacore.tayo.car.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.lock.LockKeyGenerator;
-import com.hexacore.tayo.lock.RangeLockManager;
+import com.hexacore.tayo.notification.NotificationManager;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
+import com.hexacore.tayo.reservation.dto.CreateReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.TossPayment.TossApproveRequest;
 import com.hexacore.tayo.reservation.dto.TossPayment.TossCancelRequest;
 import com.hexacore.tayo.reservation.dto.TossPayment.TossPaymentResponse;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
-import com.hexacore.tayo.reservation.repository.ReservationRepository;
 import com.hexacore.tayo.user.UserRepository;
 import com.hexacore.tayo.user.model.User;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.stream.Stream;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,7 +34,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
@@ -43,13 +44,13 @@ public class ReservationService {
     private final CarRepository carRepository;
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
+    private final NotificationManager notificationManager;
     private final RangeLockManager lockManager;
 
-    @Value("${toss.secret-key}")
-    private String tossSecretKey;
+    private final PaymentManager paymentManager;
 
     @Transactional
-    public void createReservation(Long guestId, CreateReservationRequestDto createReservationRequestDto) {
+    public CreateReservationResponseDto createReservation(Long guestId, CreateReservationRequestDto createReservationRequestDto) {
         Long carId = createReservationRequestDto.getCarId();
         LocalDateTime rentDateTime = createReservationRequestDto.getRentDateTime();
         LocalDateTime returnDateTime =createReservationRequestDto.getReturnDateTime();
@@ -100,6 +101,10 @@ public class ReservationService {
                     .status(ReservationStatus.READY)
                     .build();
             reservationRepository.save(reservation);
+
+            Reservation createdReservation = reservationRepository.save(reservation);
+            return CreateReservationResponseDto.builder().reservationId(createdReservation.getId()).fee(fee)
+                .hostId(hostUser.getId()).build();
         } finally {
             lockManager.releaseRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
         }
@@ -137,16 +142,20 @@ public class ReservationService {
 
     @Transactional
     public Page<Reservation> getGuestReservations(Long guestUserId, Pageable pageable) {
-        Page<Reservation> reservations = reservationRepository.findAllByGuest_id(guestUserId, pageable);
-        updateReservationStatusByCurrentDateTime(reservations);
+        // Using, Ready, Cancel, Terminated 순으로 정렬하여 Page로 응답한다.
+        Page<Reservation> reservations =
+                reservationRepository.findAllByGuest_idOrderByStatusAscRentDateTimeAsc(guestUserId, pageable);
+        updateReservationStatusByCurrentDateTime(reservations.stream());
 
         return reservations;
     }
 
     @Transactional
-    public Page<Reservation> getHostReservations(Long hostUserId, Pageable pageable) {
-        Page<Reservation> reservations = reservationRepository.findAllByHost_id(hostUserId, pageable);
-        updateReservationStatusByCurrentDateTime(reservations);
+    public List<Reservation> getHostReservations(Long hostUserId) {
+        // Using, Ready, Cancel, Terminated 순으로 정렬하여 List로 응답한다.
+        List<Reservation> reservations =
+                reservationRepository.findAllByHost_idOrderByStatusAscRentDateTimeAsc(hostUserId);
+        updateReservationStatusByCurrentDateTime(reservations.stream());
 
         return reservations;
     }
@@ -172,24 +181,40 @@ public class ReservationService {
             // 예약 취소
             if (originStatus == ReservationStatus.READY && requestedStatus == ReservationStatus.CANCEL) {
                 reservation.setStatus(requestedStatus);
+
+                // 호스트가 예약을 거절하면 게스트에게 에약거절 알림을 전송
+                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(),
+                        NotificationType.REFUSE);
             } else {
                 invalidUpdate = true;
             }
         }
+
         // 게스트가 요청한 경우
         else if (reservation.getGuest().getId().equals(user.getId())) {
-            // 예약 취소 혹은 대여 시작
-            if (originStatus == ReservationStatus.READY &&
-                    (requestedStatus == ReservationStatus.CANCEL || requestedStatus == ReservationStatus.USING)) {
+            // 예약 취소
+            if (originStatus == ReservationStatus.READY && requestedStatus == ReservationStatus.CANCEL) {
+                if (currentDateTime.isAfter(rentDateTime.minusHours(24))) {
+                    // 예약 시간 24시간 전부터 취소 금지
+                    // currentDateTime > rentDateTime - 24Hour 이면 예외 처리
+                    throw new GeneralException(ErrorCode.RESERVATION_CANCEL_TOO_LATE);
+                }
                 reservation.setStatus(requestedStatus);
+
+                // 게스트가 예약을 취소하면 호스트에게 에약취소 알림을 전송
+                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(),
+                        NotificationType.CANCEL);
             }
+
             // 반납 요청 및 추가 요금 과금
             else if (originStatus == ReservationStatus.USING && requestedStatus == ReservationStatus.TERMINATED) {
                 reservation.setStatus(requestedStatus);
                 Integer feePerHour = reservation.getCar().getFeePerHour();
+                // 0~59분도 1시간 추가 요금으로 책정.
                 // 연체할 경우 시간당 추가 과금 (returnDateTime <= currentDateTime)
                 if (!returnDateTime.isAfter(currentDateTime)) {
-                    reservation.setExtraFee(feePerHour * (int) returnDateTime.until(currentDateTime, ChronoUnit.HOURS));
+                    int delayedHours = (int) returnDateTime.until(currentDateTime, ChronoUnit.HOURS);
+                    reservation.setExtraFee(feePerHour * (delayedHours + 1));
                 }
             } else {
                 invalidUpdate = true;
@@ -206,18 +231,19 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
-    private void updateReservationStatusByCurrentDateTime(Page<Reservation> reservations) {
+    private void updateReservationStatusByCurrentDateTime(Stream<Reservation> reservations) {
         LocalDateTime currentDateTime = LocalDateTime.now();
 
-        for (Reservation reservation : reservations) {
+        for (Reservation reservation : reservations.toList()) {
             boolean changed = false;
             ReservationStatus reservationStatus = reservation.getStatus();
             LocalDateTime rentDateTime = reservation.getRentDateTime();
             LocalDateTime returnDateTime = reservation.getReturnDateTime();
 
             if (reservationStatus == ReservationStatus.READY) {
-                // Ready 상태일 때 rentDate == currentDate 이면 (동일 날짜라면) Using 상태로 변경
-                if (rentDateTime.toLocalDate().isEqual(currentDateTime.toLocalDate())) {
+                // Ready 상태일 때 rentDateTime <= currentDateTime 이면 Using 상태로 변경
+                // if문은 !(rentDateTime > currentDateTime)
+                if (!rentDateTime.isAfter(currentDateTime)) {
                     reservation.setStatus(ReservationStatus.USING);
                     changed = true;
                 }
@@ -229,53 +255,30 @@ public class ReservationService {
         }
     }
 
-    public void confirmPayments(String paymentKey, String orderId, Integer amount) {
-        String encodedCredentials = getEncodedCredentials();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Basic " + encodedCredentials);
-        HttpEntity<TossApproveRequest> requestEntity = new HttpEntity<>(
-                TossApproveRequest.builder().paymentKey(paymentKey).orderId(orderId).amount(amount).build(), headers);
+    /* 카드 자동결제 승인 요청 */
+    @Transactional
+    public void confirmBilling(Long userId, Long reservationId, Integer amount, String orderName, String customerName) {
+        // user의 billingKey 가져오기
+        User user = userRepository.findByIdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
-        try {
-            ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
-                    "https://api.tosspayments.com/v1/payments/confirm",
-                    HttpMethod.POST,
-                    requestEntity,
-                    TossPaymentResponse.class
-            );
-
-            if (response.getBody() == null || !"DONE".equals(response.getBody().getStatus())) {
-                // 결제 승인 실패
-                throw new GeneralException(ErrorCode.TOSS_PAYMENTS_FAILED);
-            }
-        } catch (Exception e) {
-            throw new GeneralException(ErrorCode.TOSS_PAYMENTS_FAILED, e.getMessage());
+        if (user.getBillingKey() == null) {
+            throw new GeneralException(ErrorCode.USER_BILLING_KEY_NOT_EXIST);
         }
+
+        // 결제 요청
+        TossPaymentResponse response = paymentManager.confirmBilling(amount, orderName, customerName,
+                user.getCustomerKey(), user.getBillingKey());
+
+        // 예약 테이블의 paymentKey 업데이트
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.RESERVATION_NOT_FOUND));
+        reservation.setPaymentKey(response.getPaymentKey());
+        reservationRepository.save(reservation);
     }
 
-    public void cancelPayments(String paymentKey, String cancelReason) {
-        String encodedCredentials = getEncodedCredentials();
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Basic " + encodedCredentials);
-        HttpEntity<TossCancelRequest> requestEntity = new HttpEntity<>(
-                TossCancelRequest.builder().cancelReason(cancelReason).build(), headers);
-        try {
-            ResponseEntity<TossPaymentResponse> response = restTemplate.exchange(
-                    String.format("https://api.tosspayments.com/v1/payments/%s/cancel", paymentKey),
-                    HttpMethod.POST,
-                    requestEntity,
-                    TossPaymentResponse.class
-            );
-            if (!response.getBody().getStatus().equals("CANCELED")) {
-                throw new GeneralException(ErrorCode.TOSS_PAYMENTS_CANCEL_FAILED);
-            }
-        } catch (Exception e) {
-            throw new GeneralException(ErrorCode.TOSS_PAYMENTS_CANCEL_FAILED, e.getMessage());
-        }
-    }
-
-    public String getEncodedCredentials() {
-        String credentials = tossSecretKey + ":";
-        return new String(Base64.getEncoder().encode(credentials.getBytes()));
+    /* 결제 실패 시 예약 정보 삭제 */
+    public void rollBackReservation(Long reservationId) {
+        reservationRepository.deleteById(reservationId);
     }
 }

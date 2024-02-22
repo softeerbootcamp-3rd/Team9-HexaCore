@@ -5,12 +5,15 @@ import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.user.dto.GetUserCustomerKeyResponseDto;
 import com.hexacore.tayo.user.dto.GetUserInfoResponseDto;
+import com.hexacore.tayo.user.dto.GetUserPaymentInfoResponseDto;
+import com.hexacore.tayo.user.dto.UpdateUserBillingKeyRequestDto;
 import com.hexacore.tayo.user.dto.UpdateUserRequestDto;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.Encryptor;
 import com.hexacore.tayo.util.S3Manager;
+import com.hexacore.tayo.util.payment.PaymentManager;
+import com.hexacore.tayo.util.payment.TossPaymentDto.TossBilling;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final CarRepository carRepository;
     private final S3Manager s3Manager;
+    private final PaymentManager paymentManager;
 
     @Transactional
     public void update(Long userId, UpdateUserRequestDto updateRequestDto) {
@@ -31,7 +35,9 @@ public class UserService {
 
         // 시용자 프로필 이미지 수정시 - s3에서 원래 이미지 삭제 후 새로 업로드
         if (updateRequestDto.getProfileImg() != null && !updateRequestDto.getProfileImg().isEmpty()) {
-            s3Manager.deleteImage(user.getProfileImgUrl());
+            if (user.getProfileImgUrl() != null) {
+                s3Manager.deleteImage(user.getProfileImgUrl());
+            }
             String newProfileImgUrl = s3Manager.uploadImage(updateRequestDto.getProfileImg());
             user.setProfileImgUrl(newProfileImgUrl);
         }
@@ -41,8 +47,10 @@ public class UserService {
             user.setPassword(Encryptor.encryptPwd(updateRequestDto.getPassword()));
         }
 
-        // todo null 체크를 해줘야할지 클라이언트 상에서 확인 후 수정
-        user.setPhoneNumber(updateRequestDto.getPhoneNumber());
+        // 새로운 전화번호를 입력한 경우
+        if (updateRequestDto.getPhoneNumber() != null && !updateRequestDto.getPhoneNumber().isEmpty()) {
+            user.setPhoneNumber(updateRequestDto.getPhoneNumber());
+        }
     }
 
     public GetUserInfoResponseDto getUser(Long userId) {
@@ -68,9 +76,20 @@ public class UserService {
                 .build();
     }
 
-    public GetUserCustomerKeyResponseDto getUserCustomerKey(Long userId) {
+    public GetUserPaymentInfoResponseDto getUserPaymentInfo(Long userId) {
         User user = userRepository.findByIdAndIsDeletedFalse(userId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
-        return GetUserCustomerKeyResponseDto.builder().customerKey(user.getCustomerKey()).name(user.getName()).build();
+        return GetUserPaymentInfoResponseDto.of(user);
+    }
+
+    @Transactional
+    public void updateUserBillingKey(Long userId, UpdateUserBillingKeyRequestDto updateUserBillingKeyRequestDto) {
+        // 빌링 키 발급
+        TossBilling billingResponse = paymentManager.requestBillingKey(updateUserBillingKeyRequestDto.getCustomerKey(),
+                updateUserBillingKeyRequestDto.getAuthKey());
+        // 유저의 빌링 키 업데이트
+        User user = userRepository.findByIdAndIsDeletedFalse(userId)
+                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+        user.setBillingKey(billingResponse.getBillingKey());
     }
 }

@@ -2,10 +2,8 @@ package com.hexacore.tayo.reservation;
 
 import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.common.response.Response;
-import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
-import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
-import com.hexacore.tayo.reservation.dto.GetHostReservationResponseDto;
-import com.hexacore.tayo.reservation.dto.UpdateReservationStatusRequestDto;
+import com.hexacore.tayo.notification.NotificationManager;
+import com.hexacore.tayo.reservation.dto.*;
 import com.hexacore.tayo.reservation.model.Reservation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -29,24 +27,31 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final NotificationManager notificationManager;
 
     @PostMapping
     public ResponseEntity<Response> createReservation(HttpServletRequest request,
-            @RequestParam String paymentKey,
-            @RequestParam String orderId,
-            @RequestParam Integer amount,
+            @Valid @RequestParam String orderName,
+            @Valid @RequestParam String userName,
             @Valid @RequestBody CreateReservationRequestDto createReservationRequestDto) {
         Long guestUserId = (Long) request.getAttribute("userId");
-        // 결제 승인 요청
-        reservationService.confirmPayments(paymentKey, orderId, amount);
-        // 결제가 성공하면 createReservation 실행
+
+        // 예약 진행: DB 업데이트
+        CreateReservationResponseDto createReservationResponseDto = reservationService.createReservation(
+                createReservationRequestDto, guestUserId);
+
+        // 자동 결제 승인 요청
         try {
-            reservationService.createReservation(guestUserId, createReservationRequestDto);
+            reservationService.confirmBilling(guestUserId, createReservationResponseDto.getReservationId(),
+                    createReservationResponseDto.getFee(), orderName, userName);
         } catch (Exception e) {
-            // 예약 내역 저장에 실패하면 결제 취소
-            reservationService.cancelPayments(paymentKey, "예약에 실패했습니다.");
-            throw new GeneralException(e);
+            // 결제 실패 시 DB에 저장된 예약 정보 삭제
+            reservationService.rollBackReservation(createReservationResponseDto.getReservationId());
+            throw new GeneralException(e.getMessage());
         }
+
+        // 예약이 완료되면 호스트에게 에약완료 알림을 전송
+        notificationManager.notify(createReservationResponseDto.getHostId(), userName, NotificationType.RESERVE);
 
         return Response.of(HttpStatus.CREATED);
     }
@@ -61,11 +66,14 @@ public class ReservationController {
     }
 
     @GetMapping("/host")
-    public ResponseEntity<Response> hostReservations(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<Response> hostReservations(HttpServletRequest request) {
         Long hostUserId = (Long) request.getAttribute("userId");
 
-        Page<Reservation> reservations = reservationService.getHostReservations(hostUserId, pageable);
-        Page<GetHostReservationResponseDto> data = reservations.map(GetHostReservationResponseDto::of);
+        List<Reservation> reservations = reservationService.getHostReservations(hostUserId);
+        List<GetHostReservationResponseDto> data = reservations
+                .stream()
+                .map(GetHostReservationResponseDto::of)
+                .toList();
         return Response.of(HttpStatus.OK, data);
     }
 

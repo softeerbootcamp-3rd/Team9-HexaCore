@@ -229,9 +229,14 @@ public class CarService {
 
     /* 이미지 엔티티 저장 */
     private void saveImages(List<Integer> indexes, List<MultipartFile> files, Car car) {
+        if (indexes == null || files == null) {
+            return;
+        }
+
         if (!carImageRepository.existsByCar_Id(car.getId()) && indexes.size() < 5) {
             throw new GeneralException(ErrorCode.CAR_IMAGE_INSUFFICIENT);
         }
+
         List<Map<String, Object>> datas = IntStream.range(0, Math.min(indexes.size(), files.size()))
                 .mapToObj(i -> {
                     String url = s3Manager.uploadImage(files.get(i));
@@ -276,6 +281,11 @@ public class CarService {
 
     /* 인덱스 리스트와 이미지 리스트의 사이즈가 같은지 체크 */
     private Boolean isIndexSizeEqualsToImageSize(List<Integer> imageIndexes, List<MultipartFile> imageFiles) {
+        if (imageIndexes == null && imageFiles == null) {
+            return true;
+        } else if (imageIndexes == null || imageFiles == null) {
+            return false;
+        }
         return imageIndexes.size() == imageFiles.size();
     }
 
