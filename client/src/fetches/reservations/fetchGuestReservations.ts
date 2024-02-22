@@ -8,8 +8,7 @@ type GuestReservationResponse = {
   car: {
     id: number;
     name: string;
-    imageUrl:
-    string;
+    imageUrl: string;
     lat: number;
     lng: number; 
     averageRate: number;};

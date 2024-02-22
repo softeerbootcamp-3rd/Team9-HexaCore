@@ -4,3 +4,12 @@ export type ReviewData = {
 	rate: number;
 };
 
+export type CarReviewResponse = {
+	id: number;
+	writer: {
+		name: string;
+		profileImgUrl: string;
+	};
+	contents: string;
+	rate: number;
+}

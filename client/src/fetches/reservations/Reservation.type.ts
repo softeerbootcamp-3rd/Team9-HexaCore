@@ -28,3 +28,9 @@ export type ReservationData = {
   address: string;
   isReviewed: boolean;
 };
+
+export type CreateReservationData = {
+  carId: number;
+  rentDateTime: string;
+  returnDateTime: string;
+};
