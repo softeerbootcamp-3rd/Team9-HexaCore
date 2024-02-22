@@ -10,6 +10,7 @@ import com.hexacore.tayo.reservation.dto.GetGuestReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.GetHostReservationResponseDto;
 import com.hexacore.tayo.reservation.dto.UpdateReservationStatusRequestDto;
 import com.hexacore.tayo.reservation.model.Reservation;
+import com.hexacore.tayo.review.ReviewService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +35,7 @@ import java.util.List;
 public class ReservationController {
 
     private final ReservationService reservationService;
+    private final ReviewService reviewService;
     private final NotificationManager notificationManager;
 
     @PostMapping
@@ -68,7 +70,9 @@ public class ReservationController {
         Long guestUserId = (Long) request.getAttribute("userId");
 
         Page<Reservation> reservations = reservationService.getGuestReservations(guestUserId, pageable);
-        Page<GetGuestReservationResponseDto> data = reservations.map(GetGuestReservationResponseDto::of);
+        Page<GetGuestReservationResponseDto> data = reservations.map(
+                (reservation -> GetGuestReservationResponseDto.of(reservation,
+                        reviewService.isReviewed(reservation, true))));
         return Response.of(HttpStatus.OK, data);
     }
 
@@ -79,7 +83,8 @@ public class ReservationController {
         List<Reservation> reservations = reservationService.getHostReservations(hostUserId);
         List<GetHostReservationResponseDto> data = reservations
                 .stream()
-                .map(GetHostReservationResponseDto::of)
+                .map(reservation -> GetHostReservationResponseDto.of(reservation,
+                        reviewService.isReviewed(reservation, false)))
                 .toList();
         return Response.of(HttpStatus.OK, data);
     }

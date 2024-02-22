@@ -1,12 +1,14 @@
 import { DateRange } from '@/components/calendar/calendar.core';
 
 export type HostData = {
-	name: string;
-	profileImg: string;
-}
+  id: string;
+  name: string;
+  email: string;
+  profileImg: string;
+};
 
 export type CarDetailData = {
-  id: number,
+  id: number;
   categoryName: string;
   carNumber: string;
   imageUrls: string[];
@@ -20,6 +22,7 @@ export type CarDetailData = {
   description: string;
   carDateRanges: DateRange[];
 	host: HostData;
+  averageRate: number;
 };
 
 export type CarDetailJsonData = {
@@ -37,6 +40,7 @@ export type CarDetailJsonData = {
   description: string;
   carDateRanges: string[][];
 	host: HostData;
+  averageRate: number;
 }
 
 // ---- Response
@@ -48,6 +52,7 @@ export type CarData = {
   mileage: number;
   capacity: number;
   feePerHour: number;
+  averageRate: number;
 };
 
 // ---- Request
@@ -72,3 +77,4 @@ export type CarSearchParam = PageRequestParam & {
   size?: number;
   sort?: string;
 };
+

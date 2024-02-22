@@ -9,9 +9,7 @@ export const fetchCarDetail = async () => {
   return response;  
 };
 
-export const parseCarDetail = (carDetailJsonData: CarDetailJsonData): CarDetailData => {
-  const carData = carDetailJsonData;
-
+export const parseCarDetail = (carData: CarDetailJsonData): CarDetailData => {
   return {
     id: carData.id,
     categoryName: carData.carName,
@@ -26,7 +24,7 @@ export const parseCarDetail = (carDetailJsonData: CarDetailJsonData): CarDetailD
     address: carData.address,
     description: carData.description,
     carDateRanges: stringTuplesToDateRanges(carData.carDateRanges),
-    host: carData.host
+    host: carData.host,
+    averageRate: carData.averageRate
   };
 };
-

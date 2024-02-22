@@ -13,6 +13,7 @@ export type ResponseWithPagination<T = unknown> = ResponseWithData<T> & {
     page: number;
     size: number;
     hasNext: boolean;
+    totalElements: number;
   };
 };
 

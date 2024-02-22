@@ -9,10 +9,13 @@ import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangesDto;
 import com.hexacore.tayo.car.dto.UpdateCarRequestDto;
 import com.hexacore.tayo.car.model.Car;
+import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.FuelType;
+import com.hexacore.tayo.category.CategoryRepository;
 import com.hexacore.tayo.category.SubcategoryRepository;
+import com.hexacore.tayo.category.model.Category;
 import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
@@ -23,6 +26,7 @@ import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -44,6 +48,7 @@ public class CarService {
     private final CarImageRepository carImageRepository;
     private final CarDateRangeRepository carDateRangeRepository;
     private final SubcategoryRepository subcategoryRepository;
+    private final CategoryRepository categoryRepository;
     private final ReservationRepository reservationRepository;
     private final S3Manager s3Manager;
 
@@ -65,8 +70,8 @@ public class CarService {
 
         // 등록에 필요한 정보 가져오기
         Subcategory subcategory = subcategoryRepository.findByName(createCarRequestDto.getCarName())
-                // 존재하지 않는 모델인 경우
-                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
+                // 존재하지 않는 모델인 경우 새로운 row 추가
+                .orElseGet(() -> createSubcategory(createCarRequestDto.getCarName()));
 
         Car car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId, createCarRequestDto.getCarNumber())
                 .orElse(null);
@@ -109,6 +114,22 @@ public class CarService {
         }
     }
 
+    /* 서브 카테고리 추가 */
+    @Transactional
+    public Subcategory createSubcategory(String subcategoryName) {
+        List<Category> categories = categoryRepository.findAll();
+
+        Category category = categories.stream()
+                .filter(c -> subcategoryName.contains(c.getName()))
+                .findFirst()
+                // 해당하는 카테고리가 없는 경우 ETC 카테고리로 등록
+                .orElseGet(() -> categories.stream()
+                        .filter(c -> "ETC".equals(c.getName()))
+                        .findFirst().orElseThrow(() -> new GeneralException(ErrorCode.ETC_MODEL_NOT_FOUND)));
+
+        return subcategoryRepository.save(Subcategory.builder().name(subcategoryName).category(category).build());
+    }
+
     public Slice<SearchCarsResultDto> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
         return carRepository.search(searchCarsDto, pageable);
     }
@@ -118,7 +139,7 @@ public class CarService {
         Car car = carRepository.findByIdAndIsDeletedFalse(carId)
                 // 차량 조회가 안 되는 경우
                 .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-        return GetCarResponseDto.guest(car);
+        return new GetCarResponseDto(car, getCarAvailableDatesForGuest(car));
     }
 
     /* 차량 정보 수정 */
@@ -228,7 +249,8 @@ public class CarService {
     }
 
     /* 이미지 엔티티 저장 */
-    private void saveImages(List<Integer> indexes, List<MultipartFile> files, Car car) {
+    @Transactional
+    public void saveImages(List<Integer> indexes, List<MultipartFile> files, Car car) {
         if (indexes == null || files == null) {
             return;
         }
@@ -346,5 +368,66 @@ public class CarService {
         return reservations.stream().anyMatch(reservation ->
                 reservation.getStatus() == ReservationStatus.READY ||
                         reservation.getStatus() == ReservationStatus.USING);
+    }
+
+    private List<List<String>> getCarAvailableDatesForGuest(Car car) {
+        List<List<String>> result = new ArrayList<>();
+        List<CarDateRange> carAvailableDates = car.getCarDateRanges().stream()
+                .filter(carDateRange -> carDateRange.getEndDate().isAfter(LocalDate.now()))
+                .sorted(Comparator.comparing(CarDateRange::getStartDate))
+                .toList();
+
+        //가능일이 없으면 종료
+        if (carAvailableDates.isEmpty()) {
+            return result;
+        }
+        //status가 CANCEL이 아닌 예약 리스트를 시작날짜의 오름 차순으로 정렬
+        List<Reservation> sortedReservations = car.getReservations().stream()
+                .filter((reservation -> reservation.getStatus() != ReservationStatus.CANCEL))
+                .filter(reservation -> !reservation.getReturnDateTime().isBefore(LocalDateTime.now()))
+                .sorted(Comparator.comparing(Reservation::getRentDateTime))
+                .toList();
+
+        int availableDatesIndex = 0;
+        int reservationsIndex = 0;
+
+        LocalDate start = carAvailableDates.get(0).getStartDate();
+        LocalDate end;
+
+        if (start.isBefore(LocalDate.now())) {
+            start = LocalDate.now();
+        }
+
+        while (reservationsIndex < sortedReservations.size()) {
+            Reservation reservation = sortedReservations.get(reservationsIndex);
+            //예약이 예약 가능일의 범위에 포함되지 않으면 다음 예약 가능일로 이동
+            if (carAvailableDates.get(availableDatesIndex).getEndDate()
+                    .isBefore(reservation.getReturnDateTime().toLocalDate())) {
+                end = carAvailableDates.get(availableDatesIndex).getEndDate();
+                if (!start.isAfter(end)) {
+                    result.add(List.of(start.toString(), end.toString()));
+                }
+                start = carAvailableDates.get(++availableDatesIndex).getStartDate();
+                continue;
+            }
+
+            end = reservation.getRentDateTime().toLocalDate().minusDays(1);
+            if (!start.isAfter(end)) {
+                result.add(List.of(start.toString(), end.toString()));
+            }
+            start = reservation.getReturnDateTime().toLocalDate().plusDays(1);
+            reservationsIndex++;
+        }
+        end = carAvailableDates.get(availableDatesIndex++).getEndDate();
+        if (!start.isAfter(end)) {
+            result.add(List.of(start.toString(), end.toString()));
+        }
+
+        for (int i = availableDatesIndex; i < carAvailableDates.size(); i++) {
+            CarDateRange date = carAvailableDates.get(i);
+            result.add(List.of(date.getStartDate().toString(), date.getEndDate().toString()));
+        }
+
+        return result;
     }
 }

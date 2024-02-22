@@ -21,6 +21,7 @@ public class GetGuestReservationResponseDto {
     private final String carAddress;
     private final ReservationStatus status;
     private final String hostPhoneNumber;
+    private final Boolean isReviewed;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private final LocalDateTime rentDateTime;
@@ -28,7 +29,7 @@ public class GetGuestReservationResponseDto {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private final LocalDateTime returnDateTime;
 
-    public static GetGuestReservationResponseDto of(Reservation reservation) {
+    public static GetGuestReservationResponseDto of(Reservation reservation, boolean isReviewed) {
         Car car = reservation.getCar();
         GetCarSimpleResponseDto carSimpleResponseDto = GetCarSimpleResponseDto.builder()
                 .id(car.getId())
@@ -36,6 +37,7 @@ public class GetGuestReservationResponseDto {
                 .imageUrl(car.getCarImages().get(0).getUrl()) // 대표 이미지 1장
                 .lat(car.getPosition().getY())
                 .lng(car.getPosition().getX())
+                .averageRate(car.getAverageRate())
                 .build();
 
         return GetGuestReservationResponseDto.builder()
@@ -48,6 +50,7 @@ public class GetGuestReservationResponseDto {
                 .hostPhoneNumber(reservation.getHost().getPhoneNumber())
                 .rentDateTime(reservation.getRentDateTime())
                 .returnDateTime(reservation.getReturnDateTime())
+                .isReviewed(isReviewed)
                 .build();
     }
 
@@ -63,6 +66,7 @@ public class GetGuestReservationResponseDto {
                 + ", hostPhoneNumber='" + hostPhoneNumber + '\''
                 + ", rentDateTime=" + rentDateTime
                 + ", returnDateTime=" + returnDateTime
+                + ", isReviewed=" + isReviewed
                 + '}';
     }
 }

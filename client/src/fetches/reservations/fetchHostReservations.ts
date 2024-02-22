@@ -5,17 +5,24 @@ import type { ReservationData, ReservationStatus } from "@/fetches/reservations/
 
 type HostReservationResponse = {
   id: number;
-  guest: { id: number; name: string; profileImgUrl: string; phoneNumber: string};
+  guest: {
+    id: number;
+    name: string;
+    profileImgUrl: string;
+    phoneNumber: string
+    averageRate: number;
+  };
   rentDateTime: string;
   returnDateTime: string;
   fee: number;
   extraFee: number,
   status: ReservationStatus;
   address: string;
+  isReviewed: boolean;
 };
 
-export const fetchHostReservations = async (page: number, size: number) => {
-  const response = await server.get<ResponseWithPagination<HostReservationResponse[]>>('/reservations/host?page='+page+'&size='+size, {
+export const fetchHostReservations = async () => {
+  const response = await server.get<ResponseWithPagination<HostReservationResponse[]>>('/reservations/host', {
   });
   if (response.success) {
     return response;
@@ -33,12 +40,14 @@ export const parseHostReservations = (hostReservationsResponseRaw: HostReservati
           image: reservation.guest.profileImgUrl,
           phoneNumber: reservation.guest.phoneNumber,
           lat:null,
-          lng:null
+          lng:null,
+          averageRate: reservation.guest.averageRate
         },
         rentPeriod: stringTupleToDateTimeRange([reservation.rentDateTime, reservation.returnDateTime]),
         rentFee: reservation.fee,
         extraFee: reservation.extraFee,
         rentStatus: toReservationStatus(reservation.status),
+        isReviewed: reservation.isReviewed,
       }) as ReservationData,
   );
 };

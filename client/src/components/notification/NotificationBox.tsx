@@ -60,6 +60,7 @@ export default function NotificationBox() {
         headers: {
           Authorization: 'Bearer ' + auth.accessToken
         },
+        heartbeatTimeout: 1000 * 60 * 60
       });
 
       eventSource.addEventListener('message', (event) => {

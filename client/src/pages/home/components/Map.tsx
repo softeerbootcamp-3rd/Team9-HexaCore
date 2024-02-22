@@ -1,4 +1,5 @@
 import Button from '@/components/Button';
+import { useCustomToast } from '@/components/Toast';
 import { Dispatch, useEffect, useRef, useState } from 'react';
 
 type MapProps = {
@@ -11,6 +12,7 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
   const mapElement = useRef<HTMLDivElement | null>(null);
   const searchAddress = useRef<HTMLInputElement | null>(null);
   const [item, setItem] = useState<naver.maps.Service.AddressItemV2>();
+  const { ToastComponent, showToast } = useCustomToast();
 
   useEffect(() => {
     const center: naver.maps.LatLng = new naver.maps.LatLng(37.3595704, 127.105399);
@@ -40,13 +42,11 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
 
       const htmlAddresses: string[] = [];
       if (item.roadAddress) {
-        console.log(item.roadAddress);
         htmlAddresses.push('[도로명 주소] ' + item.roadAddress);
         setAddress(item.roadAddress);
       }
 
       if (item.jibunAddress) {
-        console.log(item.jibunAddress);
         htmlAddresses.push('[지번 주소] ' + item.jibunAddress);
       }
 
@@ -74,11 +74,13 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
       },
       function (status, response) {
         if (status === naver.maps.Service.Status.ERROR) {
-          return alert('Something Wrong!');
+          showToast('에러 발생', 'NAVER API 에러가 발생했습니다.');
+          return;
         }
 
         if (response.v2.meta.totalCount === 0) {
-          return alert('totalCount' + response.v2.meta.totalCount);
+          showToast('에러 발생', '주소 검색 결과가 존재하지 않습니다.');
+          return;
         }
 
         const item = response.v2.addresses[0];
@@ -97,6 +99,7 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
         <Button text='검색' onClick={() => searchAddressToCoordinate(searchAddress.current ? searchAddress.current.value : '')} />
       </div>
       <div id='map' ref={mapElement} className='h-[500px] w-[500px] p-2' />
+      <ToastComponent />
     </div>
   );
 }

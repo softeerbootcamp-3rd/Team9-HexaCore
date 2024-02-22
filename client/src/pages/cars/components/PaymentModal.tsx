@@ -1,15 +1,15 @@
 import Button from '@/components/Button';
-import { ReservationData } from '../pages/cars/CarDetail';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
 import { server } from '@/fetches/common/axios';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+import { CreateReservationData } from '@/fetches/reservations/Reservation.type';
 
 type PaymentModalProps = {
   price: number;
   orderName: string;
   userName: string;
-  reservationData: ReservationData;
+  reservationData: CreateReservationData;
   onClose: () => void;
 };
 
@@ -108,7 +108,6 @@ function PaymentModal({ onClose, reservationData, price, orderName, userName }: 
             </>
           )}
         </div>
-        {/* <ToastComponent /> */}
       </figure>
     </>
   );
