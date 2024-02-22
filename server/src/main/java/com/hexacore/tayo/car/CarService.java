@@ -368,6 +368,7 @@ public class CarService {
                 .toList();
 
         int availableDatesIndex = 0;
+        int reservationsIndex = 0;
 
         LocalDate start = carAvailableDates.get(0).getStartDate();
         LocalDate end;
@@ -376,10 +377,10 @@ public class CarService {
             start = LocalDate.now();
         }
 
-        for (Reservation reservation : sortedReservations) {
-            if (carAvailableDates.get(availableDatesIndex).getStartDate()
-                    .isAfter(reservation.getRentDateTime().toLocalDate())
-                    || carAvailableDates.get(availableDatesIndex).getEndDate()
+        while (reservationsIndex < sortedReservations.size()) {
+            Reservation reservation = sortedReservations.get(reservationsIndex);
+            //예약이 예약 가능일의 범위에 포함되지 않으면 다음 예약 가능일로 이동
+            if (carAvailableDates.get(availableDatesIndex).getEndDate()
                     .isBefore(reservation.getReturnDateTime().toLocalDate())) {
                 end = carAvailableDates.get(availableDatesIndex).getEndDate();
                 if (!start.isAfter(end)) {
@@ -394,6 +395,7 @@ public class CarService {
                 result.add(List.of(start.toString(), end.toString()));
             }
             start = reservation.getReturnDateTime().toLocalDate().plusDays(1);
+            reservationsIndex++;
         }
         end = carAvailableDates.get(availableDatesIndex++).getEndDate();
         if (!start.isAfter(end)) {
