@@ -37,9 +37,9 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Response> createReservation(HttpServletRequest request,
-                                                      @Valid @RequestParam String orderName,
-                                                      @Valid @RequestParam String userName,
-                                                      @Valid @RequestBody CreateReservationRequestDto createReservationRequestDto) {
+            @Valid @RequestParam String orderName,
+            @Valid @RequestParam String userName,
+            @Valid @RequestBody CreateReservationRequestDto createReservationRequestDto) {
         Long guestUserId = (Long) request.getAttribute("userId");
 
         // 예약 진행: DB 업데이트
@@ -85,8 +85,8 @@ public class ReservationController {
 
     @PatchMapping("/{reservationId}")
     public ResponseEntity<Response> updateReservationStatus(HttpServletRequest request,
-                                                            @PathVariable Long reservationId,
-                                                            @RequestBody UpdateReservationStatusRequestDto statusDto) {
+            @PathVariable Long reservationId,
+            @RequestBody UpdateReservationStatusRequestDto statusDto) {
         Long userId = (Long) request.getAttribute("userId");
         String status = statusDto.getStatus();
 
