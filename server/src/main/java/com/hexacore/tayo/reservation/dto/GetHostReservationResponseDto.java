@@ -34,6 +34,7 @@ public class GetHostReservationResponseDto {
                 .name(guest.getName())
                 .phoneNumber(guest.getPhoneNumber())
                 .profileImgUrl(guest.getProfileImgUrl())
+                .email(guest.getEmail())
                 .build();
 
         return GetHostReservationResponseDto.builder()

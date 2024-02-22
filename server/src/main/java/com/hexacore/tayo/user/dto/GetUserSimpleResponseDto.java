@@ -14,12 +14,14 @@ public class GetUserSimpleResponseDto {
     private String name;
     private String profileImgUrl;
     private String phoneNumber;
+    private String email;
 
     public GetUserSimpleResponseDto(User user) {
         this.id = user.getId();
         this.name = user.getName();
         this.profileImgUrl = user.getProfileImgUrl();
         this.phoneNumber = user.getPhoneNumber();
+        this.email = user.getEmail();
     }
 
     @Override
@@ -29,6 +31,7 @@ public class GetUserSimpleResponseDto {
                 + ", name='" + name + '\''
                 + ", profileImgUrl='" + profileImgUrl + '\''
                 + ", phoneNumber='" + phoneNumber + '\''
+                + ", email='" + email + '\''
                 + '}';
     }
 }
