@@ -14,6 +14,7 @@ public class GetCarSimpleResponseDto {
     private final String imageUrl;
     private final Double lat;
     private final Double lng;
+    private final Double averageRate;
 
     @Override
     public String toString() {
@@ -23,6 +24,7 @@ public class GetCarSimpleResponseDto {
                 + ", imageUrl='" + imageUrl + '\''
                 + ", lat=" + lat
                 + ", lng=" + lng
+                + ", averageRate=" + averageRate
                 + '}';
     }
 }

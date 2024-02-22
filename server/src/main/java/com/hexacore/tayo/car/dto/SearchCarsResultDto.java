@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class SearchCarsResultDto {
+
     private Long id;
     private String subcategory;
     private String imageUrl;
@@ -13,6 +14,7 @@ public class SearchCarsResultDto {
     private Double mileage;
     private Integer capacity;
     private Integer feePerHour;
+    private Double averageRate;
 
     @Override
     public String toString() {
@@ -24,6 +26,7 @@ public class SearchCarsResultDto {
                 + ", mileage=" + mileage
                 + ", capacity=" + capacity
                 + ", feePerHour=" + feePerHour
+                + ", averageRate=" + averageRate
                 + '}';
     }
 }

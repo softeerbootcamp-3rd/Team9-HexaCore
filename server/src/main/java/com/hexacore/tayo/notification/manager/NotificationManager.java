@@ -1,5 +1,6 @@
-package com.hexacore.tayo.notification;
+package com.hexacore.tayo.notification.manager;
 
+import com.hexacore.tayo.notification.NotificationService;
 import com.hexacore.tayo.notification.dto.SseNotificationDto;
 import com.hexacore.tayo.notification.model.Notification;
 import com.hexacore.tayo.notification.model.NotificationType;
@@ -18,10 +19,10 @@ public class NotificationManager {
     public void notify(Long recipientId, String senderName, NotificationType notificationType) {
         // 알림을 저장소에 저장
         Notification notification = notificationService.save(Notification.builder()
-                        .receiverId(recipientId)
-                        .title(notificationType.title)
-                        .message(senderName + notificationType.msg)
-                        .build()
+                .receiverId(recipientId)
+                .title(notificationType.title)
+                .message(senderName + notificationType.msg)
+                .build()
         );
 
         // 클라이언트에 해당 알림을 SSE 이벤트 전송

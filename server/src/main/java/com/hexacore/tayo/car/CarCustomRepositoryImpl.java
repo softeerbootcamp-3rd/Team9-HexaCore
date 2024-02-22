@@ -40,8 +40,8 @@ public class CarCustomRepositoryImpl implements CarCustomRepository {
 
         Expression<String> subcategoryName = ExpressionUtils.as(
                 JPAExpressions.select(subcategory.name)
-                .from(subcategory)
-                .where(subcategory.id.eq(car.subcategory.id))
+                        .from(subcategory)
+                        .where(subcategory.id.eq(car.subcategory.id))
                 , "subcategory");
 
         Expression<String> imageUrlSubQuery = ExpressionUtils.as(
@@ -62,7 +62,8 @@ public class CarCustomRepositoryImpl implements CarCustomRepository {
                         car.address,
                         car.mileage,
                         car.capacity,
-                        car.feePerHour
+                        car.feePerHour,
+                        car.averageRate
                 ))
                 .from(car)
                 .join(car.carDateRanges, carDateRange)
@@ -87,7 +88,6 @@ public class CarCustomRepositoryImpl implements CarCustomRepository {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
-
 
         boolean hasNext = results.size() > pageable.getPageSize();
         if (hasNext) {
