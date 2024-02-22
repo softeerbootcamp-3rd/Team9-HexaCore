@@ -41,7 +41,7 @@ function HostManage() {
     ChannelService.loadScript();
     ChannelService.boot({
       pluginKey: import.meta.env.VITE_CHANNEL_TALK_API_KEY,
-      memberId: carDetail.id.toString(), // 유일한 값이라서 id로 지정.
+      memberId: carDetail.host.id.toString(), // 유일한 값이라서 id로 지정.
       unsubscribeEmail: true,
       unsubscribeTexting: true,
       profile: {

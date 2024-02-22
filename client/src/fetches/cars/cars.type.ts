@@ -1,6 +1,7 @@
 import { DateRange } from '@/components/calendar/calendar.core';
 
 export type HostData = {
+  id: string;
   name: string;
   email: string;
   profileImg: string;
