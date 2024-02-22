@@ -8,6 +8,7 @@ import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -110,33 +111,59 @@ public class GetCarResponseDto {
     }
 
     private static List<List<String>> getCarAvailableDatesForGuest(Car car) {
-        List<List<String>> carAvailableDates = new ArrayList<>();
+        List<List<String>> result = new ArrayList<>();
+        //가능일이 없으면 종료
+        if (car.getCarDateRanges().isEmpty()) {
+            return result;
+        }
+
+        List<CarDateRange> carAvailableDates = car.getCarDateRanges().stream()
+                .filter(carDateRange -> carDateRange.getEndDate().isAfter(LocalDate.now()))
+                .sorted(Comparator.comparing(CarDateRange::getStartDate))
+                .toList();
+        //status가 CANCEL이 아닌 예약 리스트를 시작날짜의 오름 차순으로 정렬
         List<Reservation> sortedReservations = car.getReservations().stream()
                 .filter((reservation -> reservation.getStatus() != ReservationStatus.CANCEL))
+                .filter(reservation -> reservation.getReturnDateTime().isAfter(LocalDateTime.now()))
                 .sorted(Comparator.comparing(Reservation::getRentDateTime))
                 .toList();
 
-        for (CarDateRange carDateRange : car.getCarDateRanges()) {
-            LocalDate start = carDateRange.getStartDate();
-            LocalDate end;
+        int availableDatesIndex = 0;
+        int reservationsIndex = 0;
+        LocalDate start = carAvailableDates.get(0).getStartDate();
+        LocalDate end;
 
-            for (Reservation reservation : sortedReservations) {
-                if (reservation.getRentDateTime().toLocalDate().isAfter(carDateRange.getEndDate())
-                        || reservation.getReturnDateTime().toLocalDate().isBefore(carDateRange.getStartDate())) {
-                    continue;
-                }
-                end = reservation.getRentDateTime().toLocalDate().minusDays(1);
-                if (!start.isAfter(end)) {
-                    carAvailableDates.add(List.of(start.toString(), end.toString()));
-                }
-                start = reservation.getReturnDateTime().toLocalDate().plusDays(1);
-            }
-            if (!start.isAfter(carDateRange.getEndDate())) {
-                carAvailableDates.add(List.of(start.toString(), carDateRange.getEndDate().toString()));
-            }
+        if (start.isBefore(LocalDate.now())) {
+            start = LocalDate.now();
         }
-        return carAvailableDates.stream().sorted(Comparator.comparing(list -> list.get(0)))
-                .collect(Collectors.toList());
+
+        while (reservationsIndex < sortedReservations.size()) {
+            Reservation reservation = sortedReservations.get(reservationsIndex);
+            //예약이 예약 가능일의 범위에 포함되지 않으면 다음 예약 가능일로 이동
+            if (carAvailableDates.get(availableDatesIndex).getStartDate()
+                    .isAfter(sortedReservations.get(reservationsIndex).getRentDateTime().toLocalDate())
+                    || carAvailableDates.get(availableDatesIndex).getEndDate()
+                    .isBefore(reservation.getReturnDateTime().toLocalDate())) {
+                end = carAvailableDates.get(availableDatesIndex).getEndDate();
+                if (start.isBefore(end)) {
+                    result.add(List.of(start.toString(), end.toString()));
+                }
+                start = carAvailableDates.get(++availableDatesIndex).getStartDate();
+                continue;
+            }
+
+            end = reservation.getRentDateTime().toLocalDate().minusDays(1);
+            if (start.isBefore(end)) {
+                result.add(List.of(start.toString(), end.toString()));
+            }
+            start = reservation.getReturnDateTime().toLocalDate().plusDays(1);
+        }
+        end = carAvailableDates.get(availableDatesIndex).getEndDate();
+        if (start.isBefore(end)) {
+            result.add(List.of(start.toString(), end.toString()));
+        }
+
+        return result;
     }
 
     @Override
