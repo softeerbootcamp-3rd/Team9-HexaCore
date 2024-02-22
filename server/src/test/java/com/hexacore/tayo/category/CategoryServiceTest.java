@@ -24,7 +24,7 @@ public class CategoryServiceTest {
     @DisplayName("getCategories(): Model 테이블에 존재하는 모든 모델, 세부모델명을 조회한다.")
     void getCategoriesTest() {
         // given
-        BDDMockito.given(categoryRepository.findAll())
+        BDDMockito.given(categoryRepository.findAllFetch())
                 .willReturn(List.of(Category.builder().name("모델명")
                         .subcategories(List.of(Subcategory.builder().name("모델명 세부모델명").build())).build()));
         // when
