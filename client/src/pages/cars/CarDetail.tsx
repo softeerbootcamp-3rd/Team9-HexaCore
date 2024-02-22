@@ -149,7 +149,6 @@ function CarDetail() {
 
     // 만약 rentDate와 returnDate가 동일할 경우 예약 불가능
     if (rentDate === returnDate) {
-      console.log('ddzsaddsas')
       showToast('예약 실패', '최소 예약 단위는 1시간입니다.');
       return;
     }
