@@ -2,7 +2,7 @@ import { ReservationData } from "@/fetches/reservations/Reservation.type";
 import Button from "./Button";
 import { dateTimeFormatter } from "@/utils/converters";
 import { useRef, useState } from "react";
-import { fetchReviews } from "@/fetches/reviews/fetchReviews";
+import { fetchCreateReview } from "@/fetches/reviews/fetchReviews";
 import { ReviewData } from "@/fetches/reviews/Review.type";
 import { useCustomToast } from "./Toast";
 import StarRating from "./StarRating";
@@ -27,7 +27,7 @@ function ReviewModal({ type, reservation, onClose, finished }: ReviewModalProps)
 			rate: rate
 		};
 
-		const response = await fetchReviews(reviewData, type);
+		const response = await fetchCreateReview(reviewData, type);
 
 		if(!response || !response.success) {
 			showToast('리뷰 작성 실패', response?.message || '다시 한 번 시도해주세요');
