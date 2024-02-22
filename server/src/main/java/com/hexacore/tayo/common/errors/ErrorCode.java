@@ -24,7 +24,6 @@ public enum ErrorCode {
     USER_CAR_NOT_EXISTS(HttpStatus.NOT_FOUND, "등록한 차량이 존재하지 않습니다."),
     CAR_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 차량입니다."),
     CAR_IMAGE_INSUFFICIENT(HttpStatus.BAD_REQUEST, "이미지를 5개 이상 등록해야 합니다."),
-    CAR_MODEL_NOT_FOUND(HttpStatus.BAD_REQUEST, "존재하지 않는 모델명입니다."),
     ETC_MODEL_NOT_FOUND(HttpStatus.BAD_REQUEST, "DB에 ETC 모델 데이터가 존재하지 않습니다."),
     CAR_NUMBER_DUPLICATED(HttpStatus.BAD_REQUEST, "중복된 차량 번호입니다."),
     CAR_UPDATED_BY_OTHERS(HttpStatus.BAD_REQUEST, "해당 차량을 소유한 사용자만 차량 정보를 변경할 수 있습니다."),
