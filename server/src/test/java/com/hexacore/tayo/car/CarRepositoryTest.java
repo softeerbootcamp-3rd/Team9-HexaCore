@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car;
 
+import com.hexacore.tayo.TestConfig;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.category.CategoryRepository;
@@ -18,8 +19,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 
 @DataJpaTest
+@Import(TestConfig.class)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class CarRepositoryTest {
 
@@ -38,7 +41,7 @@ public class CarRepositoryTest {
     @BeforeEach
     void createUserAndModel() {
         User user = userRepository.save(
-                User.builder().email("test@test.com").name("테스트").phoneNumber("010-0000-0000")
+                User.builder().email("test_code@test.com").name("테스트").phoneNumber("010-0000-0000")
                         .password("1234")
                         .build());
         Category category = categoryRepository.save(
@@ -53,7 +56,7 @@ public class CarRepositoryTest {
     @DisplayName("ownerId와 carNumber로 검색해서 isDelete = true인 CarEntity를 반환한다")
     void findByOwner_IdAndCarNumberAndIsDeletedTrue() {
         // given
-        String carNumber = "11주 1111";
+        String carNumber = "00주 0000";
         carRepository.save(
                 Car.builder().owner(user).subcategory(subcategory).carNumber(carNumber).type(CarType.LIGHT).capacity(2)
                         .address("경기도 테스트 주소")
@@ -81,19 +84,19 @@ public class CarRepositoryTest {
                         .isDeleted(false).build());
 
         // when
-        List<Car> cars = carRepository.findByOwner_IdAndIsDeletedFalse(user.getId());
+       Optional<Car> car = carRepository.findByOwner_IdAndIsDeletedFalse(user.getId());
 
         // then
-        Assertions.assertThat(cars.size()).isEqualTo(1);
-        Assertions.assertThat(cars.get(0).getOwner().getId()).isEqualTo(user.getId());
-        Assertions.assertThat(cars.get(0).getIsDeleted()).isFalse();
+        Assertions.assertThat(car).isPresent();
+        Assertions.assertThat(car.get().getOwner().getId()).isEqualTo(user.getId());
+        Assertions.assertThat(car.get().getIsDeleted()).isFalse();
     }
 
     @Test
     @DisplayName("carNumber로 검색해서 isDeleted = false인 CarEntity 리스트를 반환한다")
     void findByCarNumberAndIsDeletedFalse() {
         // given
-        String carNumber = "11주 1111";
+        String carNumber = "00주 0000";
         carRepository.save(
                 Car.builder().owner(user).subcategory(subcategory).carNumber(carNumber).type(CarType.LIGHT).capacity(2)
                         .address("경기도 테스트 주소")

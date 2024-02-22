@@ -12,7 +12,9 @@ import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.car.model.CarType;
 import com.hexacore.tayo.car.model.FuelType;
+import com.hexacore.tayo.category.CategoryRepository;
 import com.hexacore.tayo.category.SubcategoryRepository;
+import com.hexacore.tayo.category.model.Category;
 import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
@@ -45,6 +47,7 @@ public class CarService {
     private final CarImageRepository carImageRepository;
     private final CarDateRangeRepository carDateRangeRepository;
     private final SubcategoryRepository subcategoryRepository;
+    private final CategoryRepository categoryRepository;
     private final ReservationRepository reservationRepository;
     private final S3Manager s3Manager;
 
@@ -66,8 +69,8 @@ public class CarService {
 
         // 등록에 필요한 정보 가져오기
         Subcategory subcategory = subcategoryRepository.findByName(createCarRequestDto.getCarName())
-                // 존재하지 않는 모델인 경우
-                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_MODEL_NOT_FOUND));
+                // 존재하지 않는 모델인 경우 새로운 row 추가
+                .orElseGet(() -> createSubcategory(createCarRequestDto.getCarName()));
 
         Car car = carRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(userId, createCarRequestDto.getCarNumber())
                 .orElse(null);
@@ -108,6 +111,22 @@ public class CarService {
             // 이미지 저장
             saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles(), carEntity);
         }
+    }
+
+    /* 서브 카테고리 추가 */
+    @Transactional
+    public Subcategory createSubcategory(String subcategoryName) {
+        List<Category> categories = categoryRepository.findAll();
+
+        Category category = categories.stream()
+                .filter(c -> subcategoryName.contains(c.getName()))
+                .findFirst()
+                // 해당하는 카테고리가 없는 경우 ETC 카테고리로 등록
+                .orElseGet(() -> categories.stream()
+                        .filter(c -> "ETC".equals(c.getName()))
+                        .findFirst().orElseThrow(() -> new GeneralException(ErrorCode.ETC_MODEL_NOT_FOUND)));
+
+        return subcategoryRepository.save(Subcategory.builder().name(subcategoryName).category(category).build());
     }
 
     public Slice<SearchCarsResultDto> searchCars(SearchCarsDto searchCarsDto, Pageable pageable) {
@@ -229,7 +248,8 @@ public class CarService {
     }
 
     /* 이미지 엔티티 저장 */
-    private void saveImages(List<Integer> indexes, List<MultipartFile> files, Car car) {
+    @Transactional
+    public void saveImages(List<Integer> indexes, List<MultipartFile> files, Car car) {
         if (indexes == null || files == null) {
             return;
         }
