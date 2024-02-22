@@ -5,7 +5,7 @@ import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.notification.NotificationManager;
+import com.hexacore.tayo.notification.manager.NotificationManager;
 import com.hexacore.tayo.notification.model.NotificationType;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.CreateReservationResponseDto;
@@ -40,7 +40,7 @@ public class ReservationService {
 
     @Transactional
     public CreateReservationResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto,
-            Long guestUserId) {
+                                                          Long guestUserId) {
         User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
@@ -160,8 +160,8 @@ public class ReservationService {
     }
 
     private void validateRentReturnInRangeElseThrow(Car car,
-            LocalDateTime rentDateTime,
-            LocalDateTime returnDateTime) throws GeneralException {
+                                                    LocalDateTime rentDateTime,
+                                                    LocalDateTime returnDateTime) throws GeneralException {
         if (rentDateTime.isAfter(returnDateTime)) {
             throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
         }
