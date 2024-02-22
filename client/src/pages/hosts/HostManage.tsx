@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLoaderData } from 'react-router';
 import Button from '@/components/Button';
@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom';
 import ReviewModal from '@/components/review/ReviewModal';
 import { HostManageLoaderData } from './hostsRoutes';
 import { useCustomToast } from '@/components/Toast';
+import * as ChannelService from '@channel.io/channel-web-sdk-loader';
 
 const TABS = ['calendar', 'reservation'] as const;
 type TabType = (typeof TABS)[number];
@@ -28,10 +29,28 @@ function HostManage() {
 
 	const { ToastComponent, showToast } = useCustomToast();
 
-  if (!carDetail) {
-    return "";
-  }
 
+  // 채널톡 관련 스크립트 로딩
+  useEffect(() => {
+    if (!carDetail) return;
+    ChannelService.loadScript();
+    ChannelService.boot({
+      pluginKey: import.meta.env.VITE_CHANNEL_TALK_API_KEY,
+      memberId: carDetail.host.id.toString(), // 유일한 값이라서 id로 지정.
+      unsubscribeEmail: true,
+      unsubscribeTexting: true,
+      profile: {
+        name: carDetail.host.name,
+        email: carDetail.host.email,
+      },
+    });
+    return () => ChannelService.shutdown();
+  }, []);
+
+  if (!carDetail) {
+    return '';
+  }
+  
   const editCar = () => {
     navigate('/hosts/register');
   };
@@ -50,7 +69,7 @@ function HostManage() {
       },
     });
   };
-  
+
   const handleTabSelect = (tab: TabType) => {
     setSelectedTab(tab);
   };
@@ -105,7 +124,7 @@ function HostManage() {
 
   return (
     <div className='flex min-w-[768px] flex-col gap-8'>
-      <h2 className='mt-4 pl-3 text-3xl font-semibold'>{carDetail.host.name}님, 등록한 차량을 관리해보세요!</h2>
+      <h2 className='mt-4 pl-3 text-3xl font-semibold'>{`${carDetail.host.name}님, 등록한 차량을 관리해보세요!`}</h2>
       <div className='mb-10 flex gap-8'>
         {/* Car Info Manage */}
         <div className='flex w-1/2 flex-col gap-3'>

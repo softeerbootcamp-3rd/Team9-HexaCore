@@ -1,12 +1,14 @@
 import { DateRange } from '@/components/calendar/calendar.core';
 
 export type HostData = {
-	name: string;
-	profileImg: string;
-}
+  id: string;
+  name: string;
+  email: string;
+  profileImg: string;
+};
 
 export type CarDetailData = {
-  id: number,
+  id: number;
   categoryName: string;
   carNumber: string;
   imageUrls: string[];
@@ -75,3 +77,4 @@ export type CarSearchParam = PageRequestParam & {
   size?: number;
   sort?: string;
 };
+
