@@ -9,6 +9,7 @@ import { ResponseWithoutData } from '@/fetches/common/response.type';
 import axios from 'axios';
 import { HostRegisterLoaderData } from './hostsRoutes';
 import LoadingCircle from '@/components/svgs/LoadingCircle';
+import { useCustomToast } from '@/components/Toast';
 
 const GET_CAR_INFO_API_URL = 'https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry';
 
@@ -80,6 +81,10 @@ function HostRegister() {
   const feeRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const userCarInfo = useLoaderData() as HostRegisterLoaderData;
+
+  // 두개의 토스트를 사용하기 위해 나누어 관리한다.
+  const { ToastComponent: toast1, showToast: showToast1 } = useCustomToast();
+  const { ToastComponent: toast2, showToast: showToast2 } = useCustomToast();
 
   // 서버에 접근할 수 없거나 요청에 대한 응답에 오류가 발생할 경우
   if (userCarInfo === null) {
@@ -176,17 +181,18 @@ function HostRegister() {
 
   const onSubmitCheckCarNumber = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    showToast2('', '', 0);
 
     const formData = new FormData(e.currentTarget);
     const registerNumber = formData.get('REGINUMBER')?.toString();
 
     if (registerNumber === undefined || registerNumber === '') {
-      alert('차량번호는 반드시 입력해야 합니다!');
+      showToast1('차량번호 미입력', '차량번호는 반드시 입력해야 합니다!');
       return;
     }
 
     if (!registerNumber.match(/^[0-9]{2,3}[가-힣][0-9]{4}$/g)) {
-      alert('차량번호의 형식이 아닙니다.');
+      showToast1('차량번호 형식이 아님', '차량번호의 형식이 아닙니다. (예시: 12가1234)');
       return;
     }
 
@@ -221,7 +227,7 @@ function HostRegister() {
 
       setCarNumberConfirmed(true);
     } else {
-      alert('등록번호로 조회에 실패하였습니다. 다시 시도해주세요.');
+      showToast1('등록번호로 차량조회 실패', '등록번호로 조회에 실패하였습니다. 다시 시도해주세요.');
     }
   };
 
@@ -230,14 +236,15 @@ function HostRegister() {
     setFeeMessage(null);
     setImageMessage(null);
     setAddressMessage(null);
+    showToast1('', '', 0);
 
     const formData = new FormData();
     let formFailed = false;
     let feeValue: number = 0;
 
     if (carDetail === null) {
-      alert('차량 조회가 되지 않은 상태입니다.');
       setCarNumberConfirmed(false);
+      showToast1('차량 조회 필요', '차량 조회가 되지 않은 상태입니다.');
       return;
     }
 
@@ -311,22 +318,34 @@ function HostRegister() {
         data: formData,
       });
 
+    const currentActionMesssage = `차량 ${userCarInfo.isUpdate ? '수정' : '등록'}`;
+
+    const resetInfo = () => {
+      setCarDetail(null);
+      setAddress('');
+      setDescription('');
+      setFee('');
+      setImages([null, null, null, null, null]);
+      setCarNumberConfirmed(false);
+    };
+
     if (!response.success) {
       if (response.message === '존재하지 않는 모델명입니다.') {
-        alert('타요 서비스에 사용할 수 없는 차량입니다. 다른 차량을 시도해 주세요.');
-        setCarDetail(null);
-        setCarNumberConfirmed(false);
-        setAddress('');
-        setDescription('');
-        setFee('');
-        setImages([null, null, null, null, null]);
+        showToast1('미지원 차종', '타요 서비스에 사용할 수 없는 차량입니다. 다른 차량으로 시도해 주세요.');
+        resetInfo();
         return;
       }
-      alert(`차량 ${userCarInfo.isUpdate ? '수정' : '등록'}에 실패하였습니다. 다시 시도해 주세요.`);
+      if (response.message === '중복된 차량 번호입니다.') {
+        showToast1(`이미 등록된 차량`, `이미 등록된 차량입니다. 다른 차량으로 시도해 주세요.`);
+        resetInfo();
+        return;
+      }
+
+      showToast2(`${currentActionMesssage} 실패`, `${currentActionMesssage}을 실패하였습니다. 다시 시도해 주세요.`);
       return;
     }
 
-    alert(`차량 ${userCarInfo.isUpdate ? '수정' : '등록'}을 완료하였습니다.`);
+    showToast2(`${currentActionMesssage} 완료`, `${currentActionMesssage}을 완료하였습니다.`);
     navigate('/hosts/manage');
   };
 
@@ -356,10 +375,11 @@ function HostRegister() {
             <LoadingCircle />
             <div className='text-white'>{'차량정보를 불러오는 중입니다...'}</div>
           </div>
+          {toast1()}
+          {/* <ToastComponent /> */}
         </div>
       </div>
     );
-
   return (
     <div className='flex min-h-full flex-col justify-between gap-5'>
       <div className='grid grid-cols-1 gap-8 md:grid-cols-5'>
@@ -449,6 +469,8 @@ function HostRegister() {
         </div>
       </div>
       <div className='mb-8 flex justify-end'>
+        {toast2()}
+        {/* <ToastComponent /> */}
         <Button text='등록하기' onClick={onSubmitRequestCarRegister} />
       </div>
     </div>
