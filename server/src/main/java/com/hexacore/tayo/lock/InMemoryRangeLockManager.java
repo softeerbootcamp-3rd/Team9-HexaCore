@@ -38,7 +38,7 @@ public class InMemoryRangeLockManager implements RangeLockManager {
         }
     }
 
-    private final Map<String, SortedSet<Range>> rangeLocks = new ConcurrentHashMap<>();
+    static private final Map<String, SortedSet<Range>> rangeLocks = new ConcurrentHashMap<>();
 
     @Override
     public synchronized boolean acquireRangeLock(String key, LocalDate start, LocalDate end) {
