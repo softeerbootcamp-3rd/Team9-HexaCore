@@ -40,13 +40,11 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
 
       const htmlAddresses: string[] = [];
       if (item.roadAddress) {
-        console.log(item.roadAddress);
         htmlAddresses.push('[도로명 주소] ' + item.roadAddress);
         setAddress(item.roadAddress);
       }
 
       if (item.jibunAddress) {
-        console.log(item.jibunAddress);
         htmlAddresses.push('[지번 주소] ' + item.jibunAddress);
       }
 
