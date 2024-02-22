@@ -37,6 +37,7 @@ public class GetGuestReservationResponseDto {
                 .imageUrl(car.getCarImages().get(0).getUrl()) // 대표 이미지 1장
                 .lat(car.getPosition().getY())
                 .lng(car.getPosition().getX())
+                .averageRate(car.getAverageRate())
                 .build();
 
         return GetGuestReservationResponseDto.builder()

@@ -19,7 +19,7 @@ public class GetCarReviewsResponseDto {
     }
 
     @AllArgsConstructor
-//    @Getter
+    @Getter
     private static class Writer {
 
         private String name;
