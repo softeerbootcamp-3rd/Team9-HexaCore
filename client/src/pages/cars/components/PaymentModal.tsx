@@ -1,5 +1,5 @@
 import Button from '@/components/Button';
-import { ReservationData } from '../pages/cars/CarDetail';
+import { ReservationData } from '../CarDetail';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
 import { server } from '@/fetches/common/axios';
 import { useNavigate } from 'react-router-dom';
@@ -108,7 +108,6 @@ function PaymentModal({ onClose, reservationData, price, orderName, userName }: 
             </>
           )}
         </div>
-        {/* <ToastComponent /> */}
       </figure>
     </>
   );

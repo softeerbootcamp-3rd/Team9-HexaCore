@@ -1,17 +1,11 @@
 package com.hexacore.tayo.car.dto;
 
 import com.hexacore.tayo.car.model.Car;
-import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.car.model.CarImage;
-import com.hexacore.tayo.reservation.model.Reservation;
-import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.dto.GetUserSimpleResponseDto;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.Getter;
 
 @Getter
@@ -58,7 +52,9 @@ public class GetCarResponseDto {
 
     private final String description;
 
-    private GetCarResponseDto(Car car, List<List<String>> carDateRanges) {
+    private final Double averageRate;
+
+    public GetCarResponseDto(Car car, List<List<String>> carDateRanges) {
         this.id = car.getId();
         this.carName = car.getSubcategory().getName();
         this.carNumber = car.getCarNumber();
@@ -75,68 +71,7 @@ public class GetCarResponseDto {
         this.description = car.getDescription();
         this.carDateRanges = carDateRanges;
         this.host = new GetUserSimpleResponseDto(car.getOwner());
-    }
-
-    public static GetCarResponseDto host(Car car) {
-        return new GetCarResponseDto(car, getCarAvailableDatesForHost(car.getCarDateRanges()));
-    }
-
-    public static GetCarResponseDto guest(Car car) {
-        return new GetCarResponseDto(car, getCarAvailableDatesForGuest(car));
-    }
-
-    private static List<List<String>> getCarAvailableDatesForHost(List<CarDateRange> carDateRanges) {
-        List<List<String>> carAvailableDates = new ArrayList<>();
-
-        for (CarDateRange carDateRange : carDateRanges) {
-            LocalDate start = carDateRange.getStartDate();
-            LocalDate end = carDateRange.getEndDate();
-
-            // 만약 end가 현재 날짜보다 전일 경우 추가하지 않음
-            if (end.isBefore(LocalDate.now())) {
-                continue;
-            }
-
-            // 만약 start가 현재 날짜보다 전일 경우 start를 현재 날짜로 업데이트
-            if (start.isBefore(LocalDate.now())) {
-                start = LocalDate.now();
-            }
-
-            carAvailableDates.add(List.of(start.toString(), end.toString()));
-        }
-
-        return carAvailableDates.stream().sorted(Comparator.comparing(list -> list.get(0)))
-                .collect(Collectors.toList());
-    }
-
-    private static List<List<String>> getCarAvailableDatesForGuest(Car car) {
-        List<List<String>> carAvailableDates = new ArrayList<>();
-        List<Reservation> sortedReservations = car.getReservations().stream()
-                .filter((reservation -> reservation.getStatus() != ReservationStatus.CANCEL))
-                .sorted(Comparator.comparing(Reservation::getRentDateTime))
-                .toList();
-
-        for (CarDateRange carDateRange : car.getCarDateRanges()) {
-            LocalDate start = carDateRange.getStartDate();
-            LocalDate end;
-
-            for (Reservation reservation : sortedReservations) {
-                if (reservation.getRentDateTime().toLocalDate().isAfter(carDateRange.getEndDate())
-                        || reservation.getReturnDateTime().toLocalDate().isBefore(carDateRange.getStartDate())) {
-                    continue;
-                }
-                end = reservation.getRentDateTime().toLocalDate().minusDays(1);
-                if (!start.isAfter(end)) {
-                    carAvailableDates.add(List.of(start.toString(), end.toString()));
-                }
-                start = reservation.getReturnDateTime().toLocalDate().plusDays(1);
-            }
-            if (!start.isAfter(carDateRange.getEndDate())) {
-                carAvailableDates.add(List.of(start.toString(), carDateRange.getEndDate().toString()));
-            }
-        }
-        return carAvailableDates.stream().sorted(Comparator.comparing(list -> list.get(0)))
-                .collect(Collectors.toList());
+        this.averageRate = car.getAverageRate();
     }
 
     @Override

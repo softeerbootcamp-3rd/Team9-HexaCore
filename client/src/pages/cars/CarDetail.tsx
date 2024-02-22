@@ -10,7 +10,7 @@ import { dateTimeToString, formatDate, stringToDate, stringTupleToDateRange } fr
 import ImageGallery from '@/components/ImageGallery';
 import { fetchUserPaymentInfo } from '@/fetches/users/fetchUser';
 import { createPortal } from 'react-dom';
-import PaymentModal from '@/components/PaymentModal';
+import PaymentModal from '@/pages/cars/components/PaymentModal';
 import { useCustomToast } from '@/components/Toast';
 
 export type ReservationData = {
@@ -92,7 +92,6 @@ function CarDetail() {
   }, [rentTime, returnTime, dateRange, data?.feePerHour]);
 
   if (data === null) {
-    
     return <Navigate to='..' />;
   }
 
@@ -236,26 +235,17 @@ function CarDetail() {
           {/* Total Fee */}
           <p className='text-gray-900 text-3xl tracking-tight'>₩ {totalFee}</p>
           <div>
-            <GuestCalendar
-              availableDates={data.carDateRanges}
-              onReservationChange={setDateRange}
-              initDate={stringToDate(startDate)}
-              reservation={dateRange}
-            />
+            <GuestCalendar availableDates={data.carDateRanges} onReservationChange={setDateRange} initDate={stringToDate(startDate)} reservation={dateRange} />
           </div>
           {/* Date + Time Info */}
           <div className='grid grid-cols-2 gap-0 overflow-hidden rounded-xl border-[1px] border-background-300'>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-r-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>대여일</p>
-              <p className='text-background-500'>
-                {formatDate(dateRange[0]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[0])}
-              </p>
+              <p className='text-background-500'>{formatDate(dateRange[0]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[0])}</p>
             </label>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-l-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>반납일</p>
-              <p className='text-background-500'>
-                {formatDate(dateRange[1]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[1])}
-              </p>
+              <p className='text-background-500'>{formatDate(dateRange[1]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[1])}</p>
             </label>
             <div className='gap-1 border-r-[0.5px] border-t-[0.5px] border-background-300 p-3'>
               <p className='text-xs font-medium'>대여 시각</p>
