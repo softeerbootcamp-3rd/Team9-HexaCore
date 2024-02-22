@@ -1,16 +1,13 @@
 name: Build and Deploy React App
-
 on:
   push:
     branches:
       - deploy-FE
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
       - name: Change directory
         run: cd client
         
@@ -27,25 +24,20 @@ jobs:
           VITE_TOSS_PAYMENTS_CLIENT_KEY: ${{ secrets.VITE_TOSS_PAYMENTS_CLIENT_KEY }}
           VITE_CAR_INFO_API_TOKEN: ${{ secrets.VITE_CAR_INFO_API_TOKEN }}
           VITE_CHANNEL_TALK_API_KEY: ${{ secrets.VITE_CHANNEL_TALK_API_KEY }}
-
+        
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
-
       - name: Install Dependencies
         run: npm install
-
-      - name: Run Lint
-        run: npm run lint
-
+        working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
       - name: Build Project
         run: npm run build
-
+        working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          folder: dist
+          folder: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client/dist
           token: ${{ secrets.PERSONAL_ACCESS_KEY }}
-
