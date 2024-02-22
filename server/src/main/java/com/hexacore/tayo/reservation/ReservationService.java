@@ -8,7 +8,6 @@ import com.hexacore.tayo.common.errors.GeneralException;
 import com.hexacore.tayo.lock.LockKeyGenerator;
 import com.hexacore.tayo.lock.RangeLockManager;
 import com.hexacore.tayo.notification.manager.NotificationManager;
-import com.hexacore.tayo.notification.manager.NotificationManager;
 import com.hexacore.tayo.notification.model.NotificationType;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
 import com.hexacore.tayo.reservation.dto.CreateReservationResponseDto;

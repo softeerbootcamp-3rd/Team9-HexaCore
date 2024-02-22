@@ -2,6 +2,7 @@ package com.hexacore.tayo.car;
 
 import static org.mockito.BDDMockito.given;
 
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.category.SubcategoryRepository;
 import com.hexacore.tayo.category.model.Category;
