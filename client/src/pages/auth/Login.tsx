@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Link, redirect, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import InputBox from '@/components/InputBox';
 import Button from '@/components/Button';
 import type { ResponseWithData } from '@/fetches/common/response.type';
