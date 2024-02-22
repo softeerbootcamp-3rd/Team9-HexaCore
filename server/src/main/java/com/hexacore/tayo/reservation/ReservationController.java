@@ -12,6 +12,7 @@ import com.hexacore.tayo.reservation.dto.UpdateReservationStatusRequestDto;
 import com.hexacore.tayo.reservation.model.Reservation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -71,11 +72,14 @@ public class ReservationController {
     }
 
     @GetMapping("/host")
-    public ResponseEntity<Response> hostReservations(HttpServletRequest request, Pageable pageable) {
+    public ResponseEntity<Response> hostReservations(HttpServletRequest request) {
         Long hostUserId = (Long) request.getAttribute("userId");
 
-        Page<Reservation> reservations = reservationService.getHostReservations(hostUserId, pageable);
-        Page<GetHostReservationResponseDto> data = reservations.map(GetHostReservationResponseDto::of);
+        List<Reservation> reservations = reservationService.getHostReservations(hostUserId);
+        List<GetHostReservationResponseDto> data = reservations
+                .stream()
+                .map(GetHostReservationResponseDto::of)
+                .toList();
         return Response.of(HttpStatus.OK, data);
     }
 
