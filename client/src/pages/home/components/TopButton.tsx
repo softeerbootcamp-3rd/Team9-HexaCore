@@ -15,7 +15,7 @@ function TopButton() {
 
     document.addEventListener('scroll', toggleVisibility);
 
-    return () => window.removeEventListener('scroll', toggleVisibility);
+    return () => document.removeEventListener('scroll', toggleVisibility);
   }, []);
 
   // 페이지 상단으로 스크롤하는 함수
