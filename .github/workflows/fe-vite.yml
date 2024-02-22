@@ -21,7 +21,8 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
-
+        working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
+        
       - name: Run Lint
         run: npm run lint
 
