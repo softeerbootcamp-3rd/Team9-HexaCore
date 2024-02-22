@@ -21,7 +21,8 @@ export type CarDetailData = {
   address: string;
   description: string;
   carDateRanges: DateRange[];
-  host: HostData;
+	host: HostData;
+  averageRate: number;
 };
 
 export type CarDetailJsonData = {
@@ -38,8 +39,9 @@ export type CarDetailJsonData = {
   address: string;
   description: string;
   carDateRanges: string[][];
-  host: HostData;
-};
+	host: HostData;
+  averageRate: number;
+}
 
 // ---- Response
 export type CarData = {
@@ -50,6 +52,7 @@ export type CarData = {
   mileage: number;
   capacity: number;
   feePerHour: number;
+  averageRate: number;
 };
 
 // ---- Request

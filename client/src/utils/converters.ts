@@ -43,6 +43,12 @@ export const dateTimeToString = (dateTime: Date) => {
   return `${date}T${time}`;
 };
 
+export const dateTimeFormatter = (dateTime: Date) => {
+  const date = formatDate(dateTime);
+  const hours = dateTime.getHours().toString().padStart(2, '0');
+  return `${date} ${hours}시`
+}
+
 const dateRangeToString = (dateRange: DateRange) => {
   return dateRange.map(dateTimeToString)
 }

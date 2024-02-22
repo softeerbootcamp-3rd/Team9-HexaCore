@@ -11,10 +11,16 @@ import { useEffect, useRef, useState } from 'react';
 import { server } from '@/fetches/common/axios';
 import { useAuth } from '@/contexts/AuthContext';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
+import { createPortal } from 'react-dom';
+import ReviewModal from '@/components/review/ReviewModal';
+import { useCustomToast } from '@/components/Toast';
 
 function Profile() {
   const user = useLoaderData() as UserData;
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+	const { ToastComponent, showToast } = useCustomToast();
+
   useEffect(() => {
     if (!user) {
       navigate('/auth/login');
@@ -24,7 +30,7 @@ function Profile() {
   const { auth, setAuth } = useAuth();
   const loaderRefNext = useRef(null);
   const [reservations, setReservations] = useState<ReservationData[]>([]);
-  var hasNext = false;
+  let hasNext = false;
   const page = useRef(0);
 
   const fetchReservations = async () => {
@@ -70,19 +76,28 @@ function Profile() {
   };
   const ReservationCard = reservations
     ? reservations.map((reservation, index) => (
+      <>
         <ListComponent
           key={index}
           type={'guest' as TargetType}
-          reservation={{
-            id: reservation.id,
-            target: reservation.target,
-            rentPeriod: reservation.rentPeriod,
-            rentStatus: reservation.rentStatus ?? '',
-            rentFee: reservation.rentFee ?? null,
-            extraFee: reservation.extraFee,
-            address: reservation.address ?? '',
-          }}
+          reservation={reservation}
+          reviewOnClick={() => setIsModalOpen(true)}
+          isReviewed={reservation.isReviewed}
         />
+        {isModalOpen &&
+          createPortal(
+            <ReviewModal
+              type={'guest' as TargetType}
+              onClose={() => setIsModalOpen(false)}
+              reservation={reservation}
+              finished={() => {
+                showToast('리뷰 작성 성공', '작성하신 리뷰가 등록되었습니다. 감사합니다.', true);
+                reservation.isReviewed = true;
+              }}
+            />,
+            document.body,
+          )}
+      </>
       ))
     : null;
 
@@ -92,7 +107,7 @@ function Profile() {
         <h2 className='w-[10%] text-lg font-bold'>내 정보</h2>
 
         <div className='flex h-auto w-full items-start pt-2'>
-          <img className='h-[150px] w-[150px] rounded-2xl shadow-md' src={user?.image || '../public/defaultProfile.png'}></img>
+          <img className='h-[150px] w-[150px] rounded-2xl shadow-md' src={user?.image || '/defaultProfile.png'}></img>
 
           <div className='ml-8 flex w-2/5 flex-col'>
             <p className='text-md m-1 py-1 font-semibold'>{user?.name}</p>
@@ -107,13 +122,13 @@ function Profile() {
               <p className='ml-4 text-sm'>{user?.phoneNum}</p>
             </div>
 
-            <div className='flex flex-row p-3 pb-0 pl-0'>
+            <div className='flex flex-row pt-3 gap-2'>
               <Link to={`/auth/signup/${auth.userId}`} className='h-8 w-1/6 '>
                 <Button text='수정' className='whitespace-nowrap rounded-xl text-xs xl:text-sm' onClick={editProfile}/>
               </Link>
               <Button
                 text='탈퇴'
-                className='ml-5 flex h-8 items-center justify-center whitespace-nowrap rounded-xl text-xs xl:text-sm'
+                className='flex h-8 items-center justify-center whitespace-nowrap rounded-xl text-xs xl:text-sm'
                 onClick={deleteUser}
                 type='danger'
               />
@@ -130,6 +145,7 @@ function Profile() {
           {ReservationCard}
           <div ref={loaderRefNext}></div>
         </div>
+        <ToastComponent />
       </div>
     </div>
   );
