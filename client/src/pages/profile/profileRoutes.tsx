@@ -21,6 +21,8 @@ const profileRoutes: RouteObject[] = [
         }
         //TODO:통신실패시 동작
       }
+
+      return null;
     },
     element: <Profile />,
   },
