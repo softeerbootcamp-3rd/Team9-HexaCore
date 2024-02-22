@@ -361,7 +361,6 @@ public class CarService {
                 .sorted(Comparator.comparing(CarDateRange::getStartDate))
                 .toList();
         //status가 CANCEL이 아닌 예약 리스트를 시작날짜의 오름 차순으로 정렬
-        List<Reservation> r = car.getReservations();
         List<Reservation> sortedReservations = car.getReservations().stream()
                 .filter((reservation -> reservation.getStatus() != ReservationStatus.CANCEL))
                 .filter(reservation -> !reservation.getReturnDateTime().isBefore(LocalDateTime.now()))
