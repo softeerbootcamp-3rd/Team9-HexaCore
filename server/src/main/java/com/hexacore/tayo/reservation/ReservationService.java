@@ -39,7 +39,7 @@ public class ReservationService {
 
     @Transactional
     public CreateReservationResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto,
-            Long guestUserId) {
+                                                          Long guestUserId) {
         User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
@@ -170,8 +170,8 @@ public class ReservationService {
     }
 
     private void validateRentReturnInRangeElseThrow(Car car,
-            LocalDateTime rentDateTime,
-            LocalDateTime returnDateTime) throws GeneralException {
+                                                    LocalDateTime rentDateTime,
+                                                    LocalDateTime returnDateTime) throws GeneralException {
         if (rentDateTime.isAfter(returnDateTime)) {
             throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
         }
