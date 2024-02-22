@@ -137,8 +137,7 @@ public class GetCarResponseDto {
             start = LocalDate.now();
         }
 
-        while (availableDatesIndex <= carAvailableDates.size() - 1
-                && reservationsIndex <= sortedReservations.size() - 1) {
+        while (reservationsIndex < sortedReservations.size()) {
 
             //예약이 예약 가능일의 범위에 포함되지 않으면 다음 예약 가능일로 이동
             if (carAvailableDates.get(availableDatesIndex).getStartDate()
