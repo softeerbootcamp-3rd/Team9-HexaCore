@@ -13,6 +13,20 @@ jobs:
 
       - name: Change directory
         run: cd client
+        
+      - name: Generate Environment Variables File for Production
+        run: |
+          echo "VITE_NAVER_API_CLIENT_ID=$VITE_NAVER_API_CLIENT_ID" >> .env.production
+          echo "VITE_API_PREFIX=$VITE_API_PREFIX" >> .env.production
+          echo "VITE_TOSS_PAYMENTS_CLIENT_KEY=$VITE_TOSS_PAYMENTS_CLIENT_KEY" >> .env.production
+          echo "VITE_CAR_INFO_API_TOKEN=$VITE_CAR_INFO_API_TOKEN" >> .env.production
+          echo "VITE_CHANNEL_TALK_API_KEY=$VITE_CHANNEL_TALK_API_KEY" >> .env.production
+        env:
+          VITE_NAVER_API_CLIENT_ID: ${{ secrets.VITE_NAVER_API_CLIENT_ID }}
+          VITE_API_PREFIX: ${{ secrets.VITE_API_PREFIX }}
+          VITE_TOSS_PAYMENTS_CLIENT_KEY: ${{ secrets.VITE_TOSS_PAYMENTS_CLIENT_KEY }}
+          VITE_CAR_INFO_API_TOKEN: ${{ secrets.VITE_CAR_INFO_API_TOKEN }}
+          VITE_CHANNEL_TALK_API_KEY: ${{ secrets.VITE_CHANNEL_TALK_API_KEY }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -21,16 +35,17 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
-        working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
+
+      - name: Run Lint
+        run: npm run lint
 
       - name: Build Project
         run: npm run build
-        working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          folder: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client/dist
+          folder: dist
           token: ${{ secrets.PERSONAL_ACCESS_KEY }}
 
