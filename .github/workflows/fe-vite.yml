@@ -28,6 +28,11 @@ jobs:
       - name: Build Project
         run: npm run build
         working-directory: ./client
+
+      - name: List files in the dist directory
+        run: |
+          echo "Listing files in ./client/dist/"
+          ls -al ./client/dist/
   
   deploy:
     needs: build
@@ -57,9 +62,8 @@ jobs:
           port: 22
           username: ${{ secrets.EC2_NGINX_USERNAME }}
           key: ${{ secrets.EC2_NGINX_PRIVATE_KEY }}
-          source: "./client/dist"
-          target: "/usr/share/nginx/html"
-          
+          source: "./client/dist/*"
+          target: "/usr/share/nginx/html"          
       - name: Remove Github Actions IP From Security Group
         run: |
           aws ec2 revoke-security-group-ingress --group-id ${{ secrets.EC2_NGINX_SG }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
