@@ -63,11 +63,17 @@ function HostManage() {
   };
 
   const updateDates = async () => {
-    await server.put<ResponseWithoutData>('/cars/' + carDetail?.id + '/date', {
+    const response = await server.put<ResponseWithoutData>('/cars/' + carDetail?.id + '/date', {
       data: {
         dates: dateRangesToString(availableDates),
       },
     });
+
+    if (!response || !response.success) {
+      showToast('수정 실패', response.message ?? '예약 가능한 날짜 구간 수정이 실패하였습니다.')
+    } else {
+      showToast('수정 성공', '예약 가능 날짜 수정이 반영되었습니다.', true);
+    }
   };
 
   const handleTabSelect = (tab: TabType) => {
@@ -226,7 +232,7 @@ function HostManage() {
               내 차 예약 내역
             </button>
           </div>
-          <div className='flex flex-col gap-4 overflow-y-scroll scrollbar-hide pr-6 max-h-[700px] pb-3'>
+          <div className='flex flex-col gap-4 pr-6 pb-3'>
             {renderSelectedComponent()}
           </div>
         </div>
