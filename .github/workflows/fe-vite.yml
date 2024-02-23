@@ -24,7 +24,7 @@ jobs:
         run: |
           touch ./client/.env.production
           echo "${{ secrets.VITE_SECRET }}" > ./client/.env
-          ls ./client
+          ls -al ./client
 
       - name: Build Project
         run: npm run build
