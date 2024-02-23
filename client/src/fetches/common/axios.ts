@@ -42,6 +42,7 @@ axiosInstance.interceptors.response.use(
       // 401 만료된 토큰
       localStorage.clear();
       window.location.href = '/auth/login'; // TODO: refresh 토큰으로 토큰 재발급
+      return;
     }
 
     return data;
