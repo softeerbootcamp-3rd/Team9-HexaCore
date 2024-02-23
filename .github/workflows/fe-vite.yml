@@ -1,43 +1,88 @@
 name: Build and Deploy React App
+
 on:
   push:
     branches:
       - deploy-FE
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Change directory
         run: cd client
-        
-      - name: Generate Environment Variables File for Production
-        run: |
-          echo "VITE_NAVER_API_CLIENT_ID=$VITE_NAVER_API_CLIENT_ID" >> .env.production
-          echo "VITE_API_PREFIX=$VITE_API_PREFIX" >> .env.production
-          echo "VITE_TOSS_PAYMENTS_CLIENT_KEY=$VITE_TOSS_PAYMENTS_CLIENT_KEY" >> .env.production
-          echo "VITE_CAR_INFO_API_TOKEN=$VITE_CAR_INFO_API_TOKEN" >> .env.production
-          echo "VITE_CHANNEL_TALK_API_KEY=$VITE_CHANNEL_TALK_API_KEY" >> .env.production
-        env:
-          VITE_NAVER_API_CLIENT_ID: ${{ secrets.VITE_NAVER_API_CLIENT_ID }}
-          VITE_API_PREFIX: ${{ secrets.VITE_API_PREFIX }}
-          VITE_TOSS_PAYMENTS_CLIENT_KEY: ${{ secrets.VITE_TOSS_PAYMENTS_CLIENT_KEY }}
-          VITE_CAR_INFO_API_TOKEN: ${{ secrets.VITE_CAR_INFO_API_TOKEN }}
-          VITE_CHANNEL_TALK_API_KEY: ${{ secrets.VITE_CHANNEL_TALK_API_KEY }}
-        
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+
       - name: Install Dependencies
         run: npm install
-        working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
+
+      - name: Create application-secret.yml
+        run: |
+          touch ./client/.env
+          echo "${{ secrets.VITE_SECRET }}" > ./client/.env
+
       - name: Build Project
         run: npm run build
-        working-directory: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
         with:
-          branch: gh-pages
-          folder: /home/runner/work/Team9-HexaCore/Team9-HexaCore/client/dist
-          token: ${{ secrets.PERSONAL_ACCESS_KEY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./client
+          file: ./client/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}_client:latest
+  
+  deploy:
+    needs: build
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Get Github Actions IP
+        id: ip
+        uses: haythem/public-ip@v1.2
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+          
+      - name: Add Github Actions IP to Security group
+        run: |
+          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.EC2_NGINX_SG }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+      - name: Deploy
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_NGINX_HOST }}
+          port: 22
+          username: ${{ secrets.EC2_NGINX_USERNAME }}
+          key: ${{ secrets.EC2_NGINX_PRIVATE_KEY }}
+          script: |
+            docker stop $(docker ps -a -q)
+            docker rm $(docker ps -a -q -f status=exited)
+            docker rm $(docker ps -a -q -f status=created)
+            docker rmi $(docker images -q)
+            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}_client
+            docker run -d -p 443:80 -p 80:80 -v /home/${{ secrets.EC2_NGINX_USERNAME }} --name tayoClient ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}_client
+            sudo systemctl restart nginx
+      - name: Remove Github Actions IP From Security Group
+        run: |
+          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_EC2_SG }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+
