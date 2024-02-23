@@ -30,11 +30,6 @@ jobs:
         run: npm run build
         working-directory: ./client
   
-      - name: List files in the dist directory
-        run: |
-          pwd
-          echo "Listing files in ./client/dist/"
-          ls
       - name: Get Github Actions IP
         id: ip
         uses: haythem/public-ip@v1.2
