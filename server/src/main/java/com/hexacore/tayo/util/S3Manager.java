@@ -30,7 +30,7 @@ public class S3Manager {
             // Content-Type이 이미지 파일이 아닌 경우
             throw new GeneralException(ErrorCode.INVALID_IMAGE_TYPE);
         }
-        String fileName = image.getOriginalFilename() + new Timestamp(System.currentTimeMillis());
+        String fileName = new Timestamp(System.currentTimeMillis()) + image.getOriginalFilename();
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(image.getSize());
         metadata.setContentType(image.getContentType());
