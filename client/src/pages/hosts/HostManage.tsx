@@ -15,6 +15,7 @@ import ReviewModal from '@/components/review/ReviewModal';
 import { HostManageLoaderData } from './hostsRoutes';
 import { useCustomToast } from '@/components/Toast';
 import * as ChannelService from '@channel.io/channel-web-sdk-loader';
+import { ReservationData } from '@/fetches/reservations/Reservation.type';
 
 const TABS = ['calendar', 'reservation'] as const;
 type TabType = (typeof TABS)[number];
@@ -26,6 +27,7 @@ function HostManage() {
 
   const [availableDates, setAvailableDates] = useState<DateRange[]>(carDetail?.carDateRanges ?? []);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalData, setModalData] = useState<ReservationData | null>(null);
 
 	const { ToastComponent, showToast } = useCustomToast();
 
@@ -103,30 +105,21 @@ function HostManage() {
     }
   };
 
-  const ReservationCard = reservations.map((reservation, index) => (
-    <>
-      <ListComponent
-        key={index}
-        type={'host' as TargetType}
-        reservation={reservation}
-        reviewOnClick={() => setIsModalOpen(true)}
-        isReviewed={reservation.isReviewed}
-      />
-      {isModalOpen &&
-        createPortal(
-          <ReviewModal
-            type={'host' as TargetType}
-            onClose={() => setIsModalOpen(false)}
-            reservation={reservation}
-            finished={() => {
-              showToast('리뷰 작성 성공', '작성하신 리뷰가 등록되었습니다. 감사합니다.', true);
-              reservation.isReviewed = true;
-            }}
-          />,
-          document.body,
-        )}
-    </>
-  ));
+  const ReservationCard = reservations.length !== 0 ? reservations.map((reservation, index) => (
+    <ListComponent
+      key={index}
+      type={'host' as TargetType}
+      reservation={reservation}
+      reviewOnClick={() => {
+        setIsModalOpen(true);
+        setModalData(reservation);
+      }}
+      isReviewed={reservation.isReviewed}
+    />
+  ))
+  : <div className='flex justify-center items-center h-full text-background-400'>
+      예약 내역이 없습니다.
+    </div>;
 
   return (
     <div className='flex min-w-[768px] flex-col gap-8'>
@@ -234,6 +227,19 @@ function HostManage() {
           </div>
           <div className='flex flex-col gap-4 pr-6 pb-3'>
             {renderSelectedComponent()}
+            {isModalOpen && modalData &&
+              createPortal(
+                <ReviewModal
+                  type={'host' as TargetType}
+                  onClose={() => setIsModalOpen(false)}
+                  reservation={modalData}
+                  finished={() => {
+                    showToast('리뷰 작성 성공', '작성하신 리뷰가 등록되었습니다. 감사합니다.', true);
+                    modalData.isReviewed = true;
+                  }}
+                />,
+                document.body,
+              )}
           </div>
         </div>
       </div>

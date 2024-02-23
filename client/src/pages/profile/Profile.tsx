@@ -76,20 +76,22 @@ function Profile() {
     });
     navigate('/');
   };
-  const ReservationCard = reservations
+  const ReservationCard = reservations && reservations.length !== 0
     ? reservations.map((reservation, index) => (
       <ListComponent
         key={index}
         type={'guest' as TargetType}
         reservation={reservation}
         reviewOnClick={() => {
-          setIsModalOpen(true)
-          setModalData(reservation)
+          setIsModalOpen(true);
+          setModalData(reservation);
         }}
         isReviewed={reservation.isReviewed}
       />
     ))
-    : null;
+    : <div className='flex justify-center items-center h-full text-background-400'>
+      예약 내역이 없습니다.
+    </div>;
 
   return (
     <div className='flex h-full min-w-[640px] flex-col overflow-hidden'>
@@ -129,9 +131,9 @@ function Profile() {
 
       <hr className='border-background-200'></hr>
 
-      <div className='max-h-[460px] w-full mt-4 flex h-2/3'>
+      <div className='w-full mt-4 flex h-2/3'>
         <h2 className='w-[10%] text-lg font-bold'>예약 내역</h2>
-        <div className='flex max-h-[460px] grow flex-col gap-5 overflow-y-scroll scrollbar-hide pb-5 pr-6'>
+        <div className='flex grow flex-col gap-5 overflow-y-scroll scrollbar-hide pb-5 pr-6'>
           {ReservationCard}
           {isModalOpen && modalData &&
             createPortal(
