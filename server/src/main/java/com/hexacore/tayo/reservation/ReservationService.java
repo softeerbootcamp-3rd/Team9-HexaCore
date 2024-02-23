@@ -47,31 +47,31 @@ public class ReservationService {
             throw new GeneralException(ErrorCode.RESERVATION_DATETIME_LEAST_HOUR);
         }
 
-        User guest = userRepository.findByIdAndIsDeletedFalse(guestId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
-
         Long carId = createReservationRequestDto.getCarId();
-        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-
-        if (guest.getId().equals(car.getOwner().getId())) {
-            throw new GeneralException(ErrorCode.RESERVATION_HOST_EQUALS_GUEST);
-        }
-
-        List<CarDateRange> sortedCarDateRanges = car.getCarDateRanges();
-        sortedCarDateRanges.sort(CarDateRange::compareTo);
-
-        CarDateRange carDateRange = findCarDateRangeIncludesDateRange(sortedCarDateRanges, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
-        if (carDateRange == null) {
-            throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
-        }
-
         String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
         if (!lockManager.acquireRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate())) {
             throw new GeneralException(ErrorCode.RESERVATION_CONCURRENT);
         }
 
         try {
+            User guest = userRepository.findByIdAndIsDeletedFalse(guestId)
+                    .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
+
+            Car car = carRepository.findByIdAndIsDeletedFalse(carId)
+                    .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
+
+            if (guest.getId().equals(car.getOwner().getId())) {
+                throw new GeneralException(ErrorCode.RESERVATION_HOST_EQUALS_GUEST);
+            }
+
+            List<CarDateRange> sortedCarDateRanges = car.getCarDateRanges();
+            sortedCarDateRanges.sort(CarDateRange::compareTo);
+
+            CarDateRange carDateRange = findCarDateRangeIncludesDateRange(sortedCarDateRanges, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
+            if (carDateRange == null) {
+                throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
+            }
+
             List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
                     car.getId(),
                     List.of(ReservationStatus.READY, ReservationStatus.USING)
