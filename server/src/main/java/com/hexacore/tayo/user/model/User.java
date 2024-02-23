@@ -51,6 +51,7 @@ public class User extends BaseTime {
     private boolean isDeleted;
 
     @Column(name = "average_rate")
+    @Builder.Default
     private Double averageRate = 0.0;
 
     @PrePersist
