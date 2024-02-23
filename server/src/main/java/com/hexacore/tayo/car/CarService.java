@@ -19,6 +19,8 @@ import com.hexacore.tayo.category.model.Category;
 import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.lock.LockKeyGenerator;
+import com.hexacore.tayo.lock.RangeLockManager;
 import com.hexacore.tayo.reservation.ReservationRepository;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
@@ -51,6 +53,7 @@ public class CarService {
     private final CategoryRepository categoryRepository;
     private final ReservationRepository reservationRepository;
     private final S3Manager s3Manager;
+    private final RangeLockManager lockManager;
 
     /* 차량 등록 */
     @Transactional
@@ -166,86 +169,104 @@ public class CarService {
     /* 차량 삭제 */
     @Transactional
     public void deleteCar(Long carId, Long userId) {
-        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-
-        // 차량 주인이 아닌 경우 삭제불가
-        if (!userId.equals(car.getOwner().getId())) {
-            throw new GeneralException(ErrorCode.CAR_UPDATED_BY_OTHERS);
+        String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
+        if (!lockManager.acquireRangeLock(lockKey)) {
+            throw new GeneralException(ErrorCode.RESERVATION_CONCURRENT);
         }
 
-        // 차량에 연결된 READY, USING 상태의 예약이 있는 경우 삭제불가
-        if (isCarHavingReservation(car.getReservations())) {
-            throw new GeneralException(ErrorCode.CAR_HAVE_ACTIVE_RESERVATIONS);
+        try {
+            Car car = carRepository.findByIdAndIsDeletedFalse(carId)
+                    .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
+
+            // 차량 주인이 아닌 경우 삭제불가
+            if (!userId.equals(car.getOwner().getId())) {
+                throw new GeneralException(ErrorCode.CAR_UPDATED_BY_OTHERS);
+            }
+
+            // 차량에 연결된 READY, USING 상태의 예약이 있는 경우 삭제불가
+            if (isCarHavingReservation(car.getReservations())) {
+                throw new GeneralException(ErrorCode.CAR_HAVE_ACTIVE_RESERVATIONS);
+            }
+
+            // 차량 삭제: isDeleted = true
+            car.setIsDeleted(true);
+            carRepository.save(car);
+
+            // CarDateRange 삭제
+            carDateRangeRepository.deleteAll(car.getCarDateRanges());
+
+            // 이미지 삭제
+            carImageRepository.findByCar_Id(car.getId()).forEach((image) -> {
+                // s3 버킷 객체 삭제
+                s3Manager.deleteImage(image.getUrl());
+                carImageRepository.delete(image);
+            });
+        } finally {
+            lockManager.releaseRangeLock(lockKey);
         }
-
-        // 차량 삭제: isDeleted = true
-        car.setIsDeleted(true);
-        carRepository.save(car);
-
-        // CarDateRange 삭제
-        carDateRangeRepository.deleteAll(car.getCarDateRanges());
-
-        // 이미지 삭제
-        carImageRepository.findByCar_Id(car.getId()).forEach((image) -> {
-            // s3 버킷 객체 삭제
-            s3Manager.deleteImage(image.getUrl());
-            carImageRepository.delete(image);
-        });
     }
 
     /* 예약 가능 날짜 수정 */
     @Transactional
     public void updateDateRanges(Long hostUserId, Long carId,
             CarDateRangesDto carDateRangesDto) {
-        // 차량 조회가 안 되는 경우
-        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-
-        // 차량 소유자와 일치하지 않을 경우
-        if (!car.getOwner().getId().equals(hostUserId)) {
-            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
+        String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
+        if (!lockManager.acquireRangeLock(lockKey)) {
+            throw new GeneralException(ErrorCode.RESERVATION_CONCURRENT);
         }
 
-        // CarDateRanges 검증하고 인접한 구역을 합친다.
-        // 검증 요소: List<LocalDate>의 길이는 2이고, 시작일자 <= 종료일자, 그리고 겹치는 부분이 없어야 한다.
-        List<CarDateRangeDto> sortedCarDateRanges = checkDateRangesDtoValidAndMerge(carDateRangesDto);
+        try {
+            // 차량 조회가 안 되는 경우
+            Car car = carRepository.findByIdAndIsDeletedFalse(carId)
+                    .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
-        List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
-                car.getId(),
-                List.of(ReservationStatus.USING, ReservationStatus.READY)
-        );
+            // 차량 소유자와 일치하지 않을 경우
+            if (!car.getOwner().getId().equals(hostUserId)) {
+                throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
+            }
 
-        int reservationIdx = 0, dateRangeIdx = 0;
-        while (dateRangeIdx < sortedCarDateRanges.size() && reservationIdx < reservations.size()) {
-            CarDateRangeDto dateRange = sortedCarDateRanges.get(dateRangeIdx);
-            Reservation reservation = reservations.get(reservationIdx);
-            LocalDate dateRangeStartDate = dateRange.getStartDate();
-            LocalDate dateRangeEndDate = dateRange.getEndDate();
-            LocalDate reservationStartDate = reservation.getRentDateTime().toLocalDate();
-            LocalDate reservationEndDate = reservation.getReturnDateTime().toLocalDate();
+            // CarDateRanges 검증하고 인접한 구역을 합친다.
+            // 검증 요소: List<LocalDate>의 길이는 2이고, 시작일자 <= 종료일자, 그리고 겹치는 부분이 없어야 한다.
+            List<CarDateRangeDto> sortedCarDateRanges = checkDateRangesDtoValidAndMerge(carDateRangesDto);
 
-            // dateRangeStartDate <= reservationStartDate <= reservationEndDate <= dateRangeEndDate
-            if (!dateRangeStartDate.isAfter(reservationStartDate) // 예약 가능한 구간에 예약이 포함하면 다음 예약 확인
-                    && !reservationEndDate.isAfter(dateRangeEndDate)) {
-                reservationIdx++;
-            } else if (reservationStartDate.isAfter(dateRangeEndDate)) { // 다음 예약 가능한 구간 확인
-                dateRangeIdx++;
-            } else {
+            List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
+                    car.getId(),
+                    List.of(ReservationStatus.USING, ReservationStatus.READY)
+            );
+
+            int reservationIdx = 0, dateRangeIdx = 0;
+            while (dateRangeIdx < sortedCarDateRanges.size() && reservationIdx < reservations.size()) {
+                CarDateRangeDto dateRange = sortedCarDateRanges.get(dateRangeIdx);
+                Reservation reservation = reservations.get(reservationIdx);
+                LocalDate dateRangeStartDate = dateRange.getStartDate();
+                LocalDate dateRangeEndDate = dateRange.getEndDate();
+                LocalDate reservationStartDate = reservation.getRentDateTime().toLocalDate();
+                LocalDate reservationEndDate = reservation.getReturnDateTime().toLocalDate();
+
+                // dateRangeStartDate <= reservationStartDate <= reservationEndDate <= dateRangeEndDate
+                if (!dateRangeStartDate.isAfter(reservationStartDate) // 예약 가능한 구간에 예약이 포함하면 다음 예약 확인
+                        && !reservationEndDate.isAfter(dateRangeEndDate)) {
+                    reservationIdx++;
+                } else if (reservationStartDate.isAfter(dateRangeEndDate)) { // 다음 예약 가능한 구간 확인
+                    dateRangeIdx++;
+                } else {
+                    throw new GeneralException(ErrorCode.CAR_DATE_RANGE_NOT_CONTAIN_RESERVATIONS);
+                }
+            }
+
+            if (reservationIdx < reservations.size()) { // 예약 가능한 구간이 남지 않았는데 예약이 남은 경우
                 throw new GeneralException(ErrorCode.CAR_DATE_RANGE_NOT_CONTAIN_RESERVATIONS);
             }
+
+            // 기존 구간을 모두 삭제한다.
+            carDateRangeRepository.deleteAllByCar_Id(car.getId());
+
+            sortedCarDateRanges.stream()
+                    .map(carDateRangeDto -> carDateRangeDto.toEntity(car))
+                    .forEach(carDateRangeRepository::save);
+        } finally {
+            lockManager.releaseRangeLock(lockKey);
         }
-
-        if (reservationIdx < reservations.size()) { // 예약 가능한 구간이 남지 않았는데 예약이 남은 경우
-            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_NOT_CONTAIN_RESERVATIONS);
-        }
-
-        // 기존 구간을 모두 삭제한다.
-        carDateRangeRepository.deleteAllByCar_Id(car.getId());
-
-        sortedCarDateRanges.stream()
-                .map(carDateRangeDto -> carDateRangeDto.toEntity(car))
-                .forEach(carDateRangeRepository::save);
     }
 
     /* 이미지 엔티티 저장 */
