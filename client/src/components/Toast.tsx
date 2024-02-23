@@ -20,8 +20,8 @@ function Toast({ title, message, info = false, duration = 2000, isVisible, setIs
   }, [message, duration]);
 
   return isVisible && title && message ? (
-    <div className={`fixed bottom-0 mb-4 flex w-full justify-center transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className={`flex gap-4 justify-between rounded-lg px-4 py-2 text-white shadow ${info ? 'bg-info-400' : 'bg-danger-500'}`}>
+    <div className={`absolute bottom-0 left-1/2 -translate-x-1/2 mb-4 bg-primary-50 justify-center transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+      <div className={`flex gap-4 rounded-lg px-4 py-2 text-white shadow ${info ? 'bg-info-400' : 'bg-danger-500'}`}>
         <div className='flex flex-col'>
           <div className='justify-center text-base font-bold'>{title}</div>
           <div className='text-sm'>{message}</div>
