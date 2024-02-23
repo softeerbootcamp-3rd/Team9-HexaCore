@@ -23,8 +23,8 @@ jobs:
       - name: Create env file
         run: |
           touch ./client/.env.production
-          echo "${{ secrets.VITE_SECRET }}" > ./client/.env
-          ls -al ./client
+          echo "${{ secrets.VITE_SECRET }}" > ./client/.env.production
+          sudo cat ./client/.env.production
 
       - name: Build Project
         run: npm run build
