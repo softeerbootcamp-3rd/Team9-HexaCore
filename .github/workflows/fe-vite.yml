@@ -11,9 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Change directory
-        run: cd client
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -60,12 +57,11 @@ jobs:
           port: 22
           username: ${{ secrets.EC2_NGINX_USERNAME }}
           key: ${{ secrets.EC2_NGINX_PRIVATE_KEY }}
-          script: |
-            sudo rm -rf ${EC2_NGINX_USERNAME}@${EC2_NGINX_HOST}:/usr/share/nginx/html/*
-            sudo scp -r ./client/dist/* ${EC2_NGINX_USERNAME}@${EC2_NGINX_HOST}:/usr/share/nginx/html/
-            sudo systemctl restart nginx
+          source: "./client/dist/"
+          target: "/usr/share/nginx/html"
+          
       - name: Remove Github Actions IP From Security Group
         run: |
-          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_EC2_SG }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.EC2_NGINX }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
 
