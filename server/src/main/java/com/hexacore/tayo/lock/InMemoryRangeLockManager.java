@@ -4,11 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryRangeLockManager implements RangeLockManager {
 
@@ -38,29 +37,34 @@ public class InMemoryRangeLockManager implements RangeLockManager {
         }
     }
 
-    static private final Map<String, SortedSet<Range>> rangeLocks = new ConcurrentHashMap<>();
+    private static final Map<String, TreeSet<Range>> rangeLocks = new HashMap<>();
 
     @Override
     public synchronized boolean acquireRangeLock(String key, LocalDate start, LocalDate end) {
-        SortedSet<Range> sortedRanges = rangeLocks.computeIfAbsent(key, k -> new TreeSet<>());
+        TreeSet<Range> sortedRanges = rangeLocks.computeIfAbsent(key, k -> new TreeSet<>());
 
-        for (Range range : sortedRanges) {
-            if (end.isBefore(range.getStart())) {
-                break;
-            }
-            if (start.isAfter(range.getEnd())) {
-                continue;
-            }
+        Range newRange = new Range(start, end);
+        if (sortedRanges.contains(newRange)) {
             return false;
         }
 
-        sortedRanges.add(new Range(start, end));
+        Range higher = sortedRanges.higher(newRange);
+        if (!(higher == null || higher.start.isAfter(end))) {
+            return false;
+        }
+
+        Range lower = sortedRanges.lower(newRange);
+        if (!(lower == null || lower.end.isBefore(start))) {
+            return false;
+        }
+
+        sortedRanges.add(newRange);
         return true;
     }
 
     @Override
     public synchronized void releaseRangeLock(String key, LocalDate start, LocalDate end) {
-        SortedSet<Range> ranges = rangeLocks.get(key);
+        TreeSet<Range> ranges = rangeLocks.get(key);
         if (ranges == null) {
             return;
         }
