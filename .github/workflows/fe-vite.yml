@@ -37,6 +37,7 @@ jobs:
     steps:
       - name: List files in the dist directory
         run: |
+          pwd
           echo "Listing files in ./client/dist/"
           ls -al ./client/dist/
       - name: Get Github Actions IP
