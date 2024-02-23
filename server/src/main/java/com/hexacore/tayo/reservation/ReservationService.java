@@ -39,7 +39,7 @@ public class ReservationService {
 
     @Transactional
     public CreateReservationResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto,
-                                                          Long guestUserId) {
+            Long guestUserId) {
         User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
                 .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
@@ -121,7 +121,7 @@ public class ReservationService {
                 reservation.setStatus(requestedStatus);
 
                 // 호스트가 예약을 거절하면 게스트에게 에약거절 알림을 전송
-                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(),
+                notificationManager.notify(reservation.getGuest().getId(), reservation.getHost().getName(),
                         NotificationType.REFUSE);
             } else {
                 invalidUpdate = true;
@@ -170,8 +170,8 @@ public class ReservationService {
     }
 
     private void validateRentReturnInRangeElseThrow(Car car,
-                                                    LocalDateTime rentDateTime,
-                                                    LocalDateTime returnDateTime) throws GeneralException {
+            LocalDateTime rentDateTime,
+            LocalDateTime returnDateTime) throws GeneralException {
         if (rentDateTime.isAfter(returnDateTime)) {
             throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
         }
