@@ -21,6 +21,7 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+        working-directory: ./client
 
       - name: Create application-secret.yml
         run: |
