@@ -191,8 +191,8 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
                   </div>
               </div>
             </Link>
-            <div className='flex flex-col gap-3'>
-              <div className='flex flex-col text-md text-right font-semibold mr-3'>
+            <div className='flex flex-col gap-3 items-center'>
+              <div className='flex flex-col text-md text-right font-semibold'>
                   <p>
                     {reservation.rentFee.toLocaleString('ko-KR') || null}원
                   </p>
