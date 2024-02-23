@@ -34,7 +34,7 @@ function Profile() {
   const page = useRef(0);
 
   const fetchReservations = async () => {
-    const response = await fetchGuestReservations(page.current, 3);
+    const response = await fetchGuestReservations(page.current, 10);
     if (response && response.success) {
       const newReservations = parseGuestReservations(response.data);
       hasNext = response.pageInfo.hasNext;
@@ -67,6 +67,7 @@ function Profile() {
       // 회원탈퇴 실패한 경우
       alert(response.message); // TODO: 실패 시 처리
     }
+    // TODO: 성공 시 처리
     setAuth({
       userId: null,
       accessToken: null,
