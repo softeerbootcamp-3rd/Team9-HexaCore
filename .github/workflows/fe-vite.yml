@@ -21,28 +21,14 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
-        working-directory: ./client
 
-      - name: Create application-secret.yml
+      - name: Create env file
         run: |
           touch ./client/.env
           echo "${{ secrets.VITE_SECRET }}" > ./client/.env
 
       - name: Build Project
         run: npm run build
-        working-directory: ./client
-
-      - name: Build Docker image
-        run: docker build . -t ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}_client:latest
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-
-      - name: Push Docker image to DockerHub
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}_client:latest
   
   deploy:
     needs: build
@@ -73,12 +59,8 @@ jobs:
           username: ${{ secrets.EC2_NGINX_USERNAME }}
           key: ${{ secrets.EC2_NGINX_PRIVATE_KEY }}
           script: |
-            docker stop $(docker ps -a -q)
-            docker rm $(docker ps -a -q -f status=exited)
-            docker rm $(docker ps -a -q -f status=created)
-            docker rmi $(docker images -q)
-            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}_client
-            docker run -d -p 443:80 -p 80:80 -v /home/${{ secrets.EC2_NGINX_USERNAME }} --name tayoClient ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}_client
+            sudo rm -rf ${EC2_NGINX_USERNAME}@${EC2_NGINX_HOST}:/usr/share/nginx/html/*
+            sudo scp -r ./client/dist/* ${EC2_NGINX_USERNAME}@${EC2_NGINX_HOST}:/usr/share/nginx/html/
             sudo systemctl restart nginx
       - name: Remove Github Actions IP From Security Group
         run: |
