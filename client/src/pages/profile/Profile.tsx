@@ -30,6 +30,7 @@ function Profile() {
   const { auth, setAuth } = useAuth();
   const loaderRefNext = useRef(null);
   const [reservations, setReservations] = useState<ReservationData[]>([]);
+  const [modalData, setModalData] = useState<ReservationData | null>(null);
   let hasNext = false;
   const page = useRef(0);
 
@@ -77,29 +78,17 @@ function Profile() {
   };
   const ReservationCard = reservations
     ? reservations.map((reservation, index) => (
-      <>
-        <ListComponent
-          key={index}
-          type={'guest' as TargetType}
-          reservation={reservation}
-          reviewOnClick={() => setIsModalOpen(true)}
-          isReviewed={reservation.isReviewed}
-        />
-        {isModalOpen &&
-          createPortal(
-            <ReviewModal
-              type={'guest' as TargetType}
-              onClose={() => setIsModalOpen(false)}
-              reservation={reservation}
-              finished={() => {
-                showToast('리뷰 작성 성공', '작성하신 리뷰가 등록되었습니다. 감사합니다.', true);
-                reservation.isReviewed = true;
-              }}
-            />,
-            document.body,
-          )}
-      </>
-      ))
+      <ListComponent
+        key={index}
+        type={'guest' as TargetType}
+        reservation={reservation}
+        reviewOnClick={() => {
+          setIsModalOpen(true)
+          setModalData(reservation)
+        }}
+        isReviewed={reservation.isReviewed}
+      />
+    ))
     : null;
 
   return (
@@ -144,6 +133,19 @@ function Profile() {
         <h2 className='w-[10%] text-lg font-bold'>예약 내역</h2>
         <div className='flex max-h-[460px] grow flex-col gap-5 overflow-y-scroll scrollbar-hide pb-5 pr-6'>
           {ReservationCard}
+          {isModalOpen && modalData &&
+            createPortal(
+              <ReviewModal
+                type={'guest' as TargetType}
+                onClose={() => setIsModalOpen(false)}
+                reservation={modalData}
+                finished={() => {
+                  showToast('리뷰 작성 성공', '작성하신 리뷰가 등록되었습니다. 감사합니다.', true);
+                  modalData.isReviewed = true;
+                }}
+              />,
+              document.body,
+            )}
           <div ref={loaderRefNext}></div>
         </div>
         <ToastComponent />
