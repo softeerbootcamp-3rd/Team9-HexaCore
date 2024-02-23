@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.EC2_NGINX_USERNAME }}
           key: ${{ secrets.EC2_NGINX_PRIVATE_KEY }}
           source: "./client/dist/"
-          target: "/usr/share/nginx/html"
+          target: "${EC2_NGINX_USERNAME}@${EC2_NGINX_HOST}:/usr/share/nginx/html"
           
       - name: Remove Github Actions IP From Security Group
         run: |
