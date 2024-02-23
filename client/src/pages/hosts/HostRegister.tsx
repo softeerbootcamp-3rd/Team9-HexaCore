@@ -88,6 +88,8 @@ function HostRegister() {
   useEffect(() => {
     setCarDetail(null);
     setCarNumberConfirmed(false);
+    // 서버에서 받을 수 있는 정보가 없을 때
+    if (userCarInfo === null) return;
 
     if (userCarInfo.isUpdate && userCarInfo.carDetail) {
       const carDetail = userCarInfo.carDetail;
@@ -202,7 +204,6 @@ function HostRegister() {
         { headers: { Authorization: `Token ${import.meta.env.VITE_CAR_INFO_API_TOKEN}` } },
       )
       .finally(() => setLoadingCarNumber(false));
-
 
     const resultMessage = response.data.result;
     const responseData: CarDetailResponseByApi = response.data.data;
