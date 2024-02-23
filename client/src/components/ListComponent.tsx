@@ -159,10 +159,9 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
   };
 
   return (
-    <div
-      className={`flex flex-col rounded-3xl bg-white px-6 py-4 text-sm shadow-md md:text-base ${className}`}>
+    <div className={`flex flex-col rounded-3xl bg-white px-6 py-4 text-sm shadow-md md:text-base ${className}`}>
       <ul role='list'>
-        <li key='person.email'>
+        <li key={reservation.target.id}>
           <div className='flex gap-4 items-center justify-between'>
             <Link to={type === 'guest' ? `/cars/${reservation.target.id}` : `/profile/${reservation.target.id}`} className='flex gap-4 items-center'>
               <img
