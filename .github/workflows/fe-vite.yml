@@ -51,7 +51,7 @@ jobs:
           aws ec2 authorize-security-group-ingress --group-id ${{ secrets.EC2_NGINX_SG }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
       - name: Deploy
-        uses: appleboy/ssh-action@v0.1.6
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_NGINX_HOST }}
           port: 22
