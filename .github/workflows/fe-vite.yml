@@ -21,6 +21,7 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+        working-directory: ./client
 
       - name: Create env file
         run: |
@@ -29,6 +30,7 @@ jobs:
 
       - name: Build Project
         run: npm run build
+        working-directory: ./client
   
   deploy:
     needs: build
