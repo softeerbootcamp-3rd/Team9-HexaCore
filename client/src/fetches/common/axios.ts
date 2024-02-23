@@ -2,7 +2,7 @@ import type { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import type { ResponseWithoutData } from './response.type';
 import axios, { isAxiosError } from 'axios';
 
-const baseURL = import.meta.env.MODE === 'production' ? import.meta.env.BASE_URL : 'http://localhost:8080';
+const baseURL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_BASE_URL : 'http://localhost:8080';
 const apiPrefix = import.meta.env.VITE_API_PREFIX ?? '/';
 
 const axiosInstance = axios.create({
