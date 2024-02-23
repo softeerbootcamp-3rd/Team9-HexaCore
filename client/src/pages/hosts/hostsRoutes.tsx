@@ -15,7 +15,6 @@ export type HostRegisterLoaderData = {
   username: string;
   isUpdate: boolean;
   carDetail: CarDetailJsonData | undefined;
-  errMessage: string | null;
 };
 
 const hostsRoutes: RouteObject[] = [
@@ -55,12 +54,7 @@ const hostsRoutes: RouteObject[] = [
       if (userResponse.status !== 'fulfilled' || carResponse.status !== 'fulfilled') return null;
       if (userResponse.status === 'fulfilled') {
         if (userResponse.value === undefined) {
-          return {
-            username: null,
-            isUpdate: null,
-            carDetail: null,
-            errMessage: '로그인이 필요한 요청입니다.',
-          };
+          return null;
         }
       }
 
@@ -70,7 +64,6 @@ const hostsRoutes: RouteObject[] = [
         username: userResponse.value.data.name,
         isUpdate: isUpdate,
         carDetail: carResponse.value.data,
-        errMessage: null,
       };
       return data;
     },

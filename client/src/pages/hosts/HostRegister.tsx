@@ -88,10 +88,10 @@ function HostRegister() {
   useEffect(() => {
     setCarDetail(null);
     setCarNumberConfirmed(false);
-    // 서버에서 받을 수 있는 정보가 없을 때
-    if (userCarInfo === null) return;
 
-    if (userCarInfo.isUpdate && userCarInfo.carDetail) {
+    // 서버에서 받을 수 있는 정보가 없을 때는 (userCarInfo === null)
+    // 실행하지 않는다.
+    if (userCarInfo && userCarInfo.isUpdate && userCarInfo.carDetail) {
       const carDetail = userCarInfo.carDetail;
       setAddress(carDetail.address);
       setDescription(carDetail.description);
@@ -129,11 +129,8 @@ function HostRegister() {
   }, [address]);
 
   // 서버에 접근할 수 없거나 요청에 대한 응답에 오류가 발생할 경우
+  // 로그인한 상태가 아닌 경우도 포함
   if (userCarInfo === null) {
-    return <div>{'서버에 연결할 수 없습니다. 다시 시도해 주세요.'}</div>;
-  }
-  // 인증이 안된 경우 빈 페이지를 보여준다. -> 로그인 페이지로 리다이렉트
-  if (userCarInfo.errMessage === '로그인이 필요한 요청입니다.') {
     return <div></div>;
   }
 
