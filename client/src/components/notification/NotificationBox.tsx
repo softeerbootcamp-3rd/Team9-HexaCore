@@ -13,6 +13,8 @@ const apiPrefix = import.meta.env.VITE_API_PREFIX ?? '/';
 export default function NotificationBox() {
   const [showBox, setShowBox] = useState(false);
   const [notificationArray, setNotificationArray] = useState<NotificationData[]>([]);
+  const [currentNotification, setCurrentNotification] = useState<NotificationData | null>(null);
+  const [showCurrentNotification, setShowCurrentNotification] = useState(false);
   const { auth } = useAuth();
 
   const onDeleteAll = async () => { 
@@ -66,9 +68,18 @@ export default function NotificationBox() {
       eventSource.addEventListener('message', (event) => {
         if(event.data === 'Connected') return;
         const newNotification: NotificationData = JSON.parse(event.data);
+        setCurrentNotification(newNotification);
           
         if (newNotification.title === '') return;
         setNotificationArray((prevList) => [newNotification, ...prevList]);
+
+        setShowBox(false);
+        setShowCurrentNotification(true);
+        const timer = setTimeout(() => {
+          setShowCurrentNotification(false);
+        }, 2000);
+    
+        return () => clearTimeout(timer);
       })
     }
   }, []);
@@ -77,16 +88,18 @@ export default function NotificationBox() {
   return (
     <div className='relative transition-opacity'>
 
-      <button className="p-2 text-background-500 hover:text-background-900" onClick={() => setShowBox(!showBox)}>
-        <BellIcon />
-      </button>
+      <div className={`${(showCurrentNotification) ? 'pointer-events-none' : ''}`} onClick={() => setShowBox(!showBox)}>
+        <button className="p-2 text-background-500 hover:text-background-900">
+          <BellIcon />
+        </button>
 
-      <button className={`${(notificationArray.length === 0) ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"}
-        flex items-center justify-center absolute top-0 right-0 bg-primary-300 rounded-full w-[19px] h-[19px] text-center text-[13px] text-white
-        transition duration-300 ease-in-out`}
-      >
-        {notificationArray.length}
-      </button>
+        <button className={`${(notificationArray.length === 0) ? "scale-0 opacity-0 pointer-events-none" : "scale-100 opacity-100"}
+          flex items-center justify-center absolute top-0 right-0 bg-primary-300 rounded-full w-[19px] h-[19px] text-center text-[13px] text-white
+          transition duration-300 ease-in-out`}
+        >
+          {notificationArray.length}
+        </button>
+      </div>
 
       <div className={`${(showBox) ? "scale-100 opacity-100" : "scale-0 opacity-0 pointer-events-none"}
         flex flex-col absolute top-[42px] right-[-70px] border-solid border-[1px] border-background-200 mt-2 w-[400px] max-h-[450px] rounded-2xl shadow-md bg-white
@@ -132,8 +145,24 @@ export default function NotificationBox() {
           ))}
         </div>
 
+      </div>
+
+      <div className={`${(showCurrentNotification) ? 'scale-100' : 'scale-0 pointer-events-none'} 
+            flex absolute top-[42px] right-[-70px] border-solid border-[1px] border-background-200 mt-2 w-[400px] rounded-2xl shadow-md bg-white
+            transition duration-300 ease-in-out overflow-y-auto`}>
+        {
+          (currentNotification) ?
+          <NotificationItem 
+            item={currentNotification}
+            onClick={() => setShowCurrentNotification(false)}
+            onlyOne
+          />
+          :
+          <></>
+        }  
+      </div>
+
     </div>
-  </div>
   );
 }
 

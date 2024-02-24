@@ -2,13 +2,14 @@ import { NotificationData } from "@/fetches/notification/notification.type";
 import CloseIcon from "../svgs/CloseIcon";
 
 type Props = {
-  item: NotificationData
-  onClick: () => {}
+  item: NotificationData;
+  onClick?: () => void;
+  onlyOne?: boolean;
 };
 
-function NotificationItem({item, onClick}: Props) {
+function NotificationItem({item, onClick, onlyOne=false}: Props) {
   return (
-    <div className='flex flex-row justify-between border-t border-background-200 px-5 py-[19px]'>
+    <div className={`${(onlyOne) ? '' : 'border-t border-background-200'} flex flex-row justify-between px-5 py-[19px] w-[400px]`}>
 
       <div className='flex flex-col'>
         <div className='flex flex-row items-center'>
