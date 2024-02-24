@@ -30,11 +30,12 @@ function Profile() {
   const { auth, setAuth } = useAuth();
   const loaderRefNext = useRef(null);
   const [reservations, setReservations] = useState<ReservationData[]>([]);
+  const [modalData, setModalData] = useState<ReservationData | null>(null);
   let hasNext = false;
   const page = useRef(0);
 
   const fetchReservations = async () => {
-    const response = await fetchGuestReservations(page.current, 3);
+    const response = await fetchGuestReservations(page.current, 10);
     if (response && response.success) {
       const newReservations = parseGuestReservations(response.data);
       hasNext = response.pageInfo.hasNext;
@@ -67,6 +68,7 @@ function Profile() {
       // 회원탈퇴 실패한 경우
       alert(response.message); // TODO: 실패 시 처리
     }
+    // TODO: 성공 시 처리
     setAuth({
       userId: null,
       accessToken: null,
@@ -74,32 +76,22 @@ function Profile() {
     });
     navigate('/');
   };
-  const ReservationCard = reservations
+  const ReservationCard = reservations && reservations.length !== 0
     ? reservations.map((reservation, index) => (
-      <>
-        <ListComponent
-          key={index}
-          type={'guest' as TargetType}
-          reservation={reservation}
-          reviewOnClick={() => setIsModalOpen(true)}
-          isReviewed={reservation.isReviewed}
-        />
-        {isModalOpen &&
-          createPortal(
-            <ReviewModal
-              type={'guest' as TargetType}
-              onClose={() => setIsModalOpen(false)}
-              reservation={reservation}
-              finished={() => {
-                showToast('리뷰 작성 성공', '작성하신 리뷰가 등록되었습니다. 감사합니다.', true);
-                reservation.isReviewed = true;
-              }}
-            />,
-            document.body,
-          )}
-      </>
-      ))
-    : null;
+      <ListComponent
+        key={index}
+        type={'guest' as TargetType}
+        reservation={reservation}
+        reviewOnClick={() => {
+          setIsModalOpen(true);
+          setModalData(reservation);
+        }}
+        isReviewed={reservation.isReviewed}
+      />
+    ))
+    : <div className='flex justify-center items-center h-full text-background-400'>
+      예약 내역이 없습니다.
+    </div>;
 
   return (
     <div className='flex h-full min-w-[640px] flex-col overflow-hidden'>
@@ -139,10 +131,23 @@ function Profile() {
 
       <hr className='border-background-200'></hr>
 
-      <div className='max-h-[460px] w-full mt-4 flex h-2/3'>
+      <div className='w-full mt-4 flex h-2/3'>
         <h2 className='w-[10%] text-lg font-bold'>예약 내역</h2>
-        <div className='flex max-h-[460px] grow flex-col gap-5 overflow-y-scroll scrollbar-hide pb-5 pr-6'>
+        <div className='flex grow flex-col gap-5 overflow-y-scroll scrollbar-hide pb-5 pr-6'>
           {ReservationCard}
+          {isModalOpen && modalData &&
+            createPortal(
+              <ReviewModal
+                type={'guest' as TargetType}
+                onClose={() => setIsModalOpen(false)}
+                reservation={modalData}
+                finished={() => {
+                  showToast('리뷰 작성 성공', '작성하신 리뷰가 등록되었습니다. 감사합니다.', true);
+                  modalData.isReviewed = true;
+                }}
+              />,
+              document.body,
+            )}
           <div ref={loaderRefNext}></div>
         </div>
         <ToastComponent />
