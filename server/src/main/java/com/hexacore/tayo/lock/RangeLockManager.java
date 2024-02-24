@@ -4,9 +4,9 @@ import java.time.LocalDate;
 
 public interface RangeLockManager {
 
-    boolean acquireRangeLock(String key);
-    boolean acquireRangeLock(String key, LocalDate start, LocalDate end);
+    boolean acquireFullRangeLock(String key);
+    boolean acquireFullRangeLock(String key, LocalDate start, LocalDate end);
 
-    void releaseRangeLock(String key);
-    void releaseRangeLock(String key, LocalDate start, LocalDate end);
+    void releaseFullRangeLock(String key);
+    void releaseFullRangeLock(String key, LocalDate start, LocalDate end);
 }

@@ -170,7 +170,7 @@ public class CarService {
     @Transactional
     public void deleteCar(Long carId, Long userId) {
         String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
-        if (!lockManager.acquireRangeLock(lockKey)) {
+        if (!lockManager.acquireFullRangeLock(lockKey)) {
             throw new GeneralException(ErrorCode.RESERVATION_CONCURRENT);
         }
 
@@ -202,7 +202,7 @@ public class CarService {
                 carImageRepository.delete(image);
             });
         } finally {
-            lockManager.releaseRangeLock(lockKey);
+            lockManager.releaseFullRangeLock(lockKey);
         }
     }
 
@@ -211,7 +211,7 @@ public class CarService {
     public void updateDateRanges(Long hostUserId, Long carId,
             CarDateRangesDto carDateRangesDto) {
         String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
-        if (!lockManager.acquireRangeLock(lockKey)) {
+        if (!lockManager.acquireFullRangeLock(lockKey)) {
             throw new GeneralException(ErrorCode.RESERVATION_CONCURRENT);
         }
 
@@ -265,7 +265,7 @@ public class CarService {
                     .map(carDateRangeDto -> carDateRangeDto.toEntity(car))
                     .forEach(carDateRangeRepository::save);
         } finally {
-            lockManager.releaseRangeLock(lockKey);
+            lockManager.releaseFullRangeLock(lockKey);
         }
     }
 

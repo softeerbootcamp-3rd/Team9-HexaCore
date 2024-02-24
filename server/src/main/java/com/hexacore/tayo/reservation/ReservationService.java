@@ -49,7 +49,7 @@ public class ReservationService {
 
         Long carId = createReservationRequestDto.getCarId();
         String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
-        if (!lockManager.acquireRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate())) {
+        if (!lockManager.acquireFullRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate())) {
             throw new GeneralException(ErrorCode.RESERVATION_CONCURRENT);
         }
 
@@ -103,7 +103,7 @@ public class ReservationService {
                     .build();
 
         } finally {
-            lockManager.releaseRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
+            lockManager.releaseFullRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
         }
     }
 
