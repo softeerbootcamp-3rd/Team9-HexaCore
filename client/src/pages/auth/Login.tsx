@@ -37,7 +37,6 @@ function Login() {
         });
         window.location.href = '/';
       } else {
-        // TODO: 로그인 실패 시 처리
         setPwdErr('올바른 이메일과 비밀번호를 입력해주세요.');
       }
     }

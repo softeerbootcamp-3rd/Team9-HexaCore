@@ -2,7 +2,7 @@ import type { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 import type { ResponseWithoutData } from './response.type';
 import axios, { isAxiosError } from 'axios';
 
-const baseURL = import.meta.env.MODE === 'production' ? import.meta.env.BASE_URL : 'http://localhost:8080';
+const baseURL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_BASE_URL : 'http://localhost:8080';
 const apiPrefix = import.meta.env.VITE_API_PREFIX ?? '/';
 
 const axiosInstance = axios.create({
@@ -42,6 +42,7 @@ axiosInstance.interceptors.response.use(
       // 401 만료된 토큰
       localStorage.clear();
       window.location.href = '/auth/login'; // TODO: refresh 토큰으로 토큰 재발급
+      return;
     }
 
     return data;

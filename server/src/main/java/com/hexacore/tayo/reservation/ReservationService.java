@@ -228,6 +228,46 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
+    private void validateRentReturnInRangeElseThrow(Car car,
+                                                    LocalDateTime rentDateTime,
+                                                    LocalDateTime returnDateTime) throws GeneralException {
+        if (rentDateTime.isAfter(returnDateTime)) {
+            throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
+        }
+
+        // 최소 1시간이어야 한다.
+        // rentDateTime + 1Hour <= returnDateTime
+        // rentDateTime + 1Hour > returnDateTime 일때 에러
+        if (rentDateTime.plusHours(1).isAfter(returnDateTime)) {
+            throw new GeneralException(ErrorCode.RESERVATION_DATETIME_LEAST_HOUR);
+        }
+
+        List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
+                car.getId(),
+                List.of(ReservationStatus.READY, ReservationStatus.USING)
+        );
+
+        for (CarDateRange carDateRange : car.getCarDateRanges()) {
+            LocalDate startDate = carDateRange.getStartDate();
+            LocalDate endDate = carDateRange.getEndDate();
+
+            // 포함되는 예약 가능 구간을 찾을 때 까지는 continue;
+            if (startDate.isAfter(rentDateTime.toLocalDate()) || endDate.isBefore(rentDateTime.toLocalDate())) {
+                continue;
+            }
+
+            for (Reservation reservation : reservations) {
+                // 기존의 예약과 겹치는지
+                if (!(returnDateTime.isBefore(reservation.getRentDateTime())
+                        || rentDateTime.isAfter(reservation.getReturnDateTime()))) {
+                    throw new GeneralException(ErrorCode.RESERVATION_ALREADY_READY_OR_USING);
+                }
+            }
+            return;
+        }
+        throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
+    }
+
     private void updateReservationStatusByCurrentDateTime(Stream<Reservation> reservations) {
         LocalDateTime currentDateTime = LocalDateTime.now();
 
