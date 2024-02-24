@@ -269,6 +269,7 @@ public class CarService {
         }
     }
 
+    @Transactional
     public void saveImages(List<Integer> indexes, List<String> imageUrls, Car car) {
         if (imageUrls == null || indexes == null) {
             return;
