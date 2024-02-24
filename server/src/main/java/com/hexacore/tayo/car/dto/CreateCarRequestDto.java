@@ -32,8 +32,10 @@ public class CreateCarRequestDto {
     @NotNull
     private Position position;
     private String description;
+//    @NotNull
+//    private List<MultipartFile> imageFiles;
     @NotNull
-    private List<MultipartFile> imageFiles;
+    private List<String> imageUrls;
     @NotNull
     private List<Integer> imageIndexes;
 

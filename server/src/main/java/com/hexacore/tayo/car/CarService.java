@@ -1,8 +1,11 @@
 package com.hexacore.tayo.car;
 
+import com.amazonaws.HttpMethod;
 import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.dto.GetPresignedUrlsRequestDto;
+import com.hexacore.tayo.car.dto.GetPresignedUrlsResposneDto;
 import com.hexacore.tayo.car.dto.SearchCarsDto;
 import com.hexacore.tayo.car.dto.SearchCarsResultDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
@@ -27,20 +30,18 @@ import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -56,7 +57,6 @@ public class CarService {
     private final RangeLockManager lockManager;
 
     /* 차량 등록 */
-    @Transactional
     public void createCar(CreateCarRequestDto createCarRequestDto, Long userId) {
         if (isUserHavingCar(userId)) {
             // 유저가 이미 차량을 등록한 경우
@@ -66,7 +66,7 @@ public class CarService {
             // 중복되는 차량 번호가 있을 경우
             throw new GeneralException(ErrorCode.CAR_NUMBER_DUPLICATED);
         }
-        if (!isIndexSizeEqualsToImageSize(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles())) {
+        if (!isIndexSizeEqualsToImageSize(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageUrls())) {
             // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
             throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
         }
@@ -93,7 +93,7 @@ public class CarService {
             car.setDescription(createCarRequestDto.getDescription());
             car.setIsDeleted(false);
             // 이미지 저장
-            saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles(), car);
+            saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageUrls(), car);
         } else {
             // 유저가 이전에 등록한 같은 번호의 차가 없는 경우 CREATE
             Car carEntity = Car.builder()
@@ -113,7 +113,7 @@ public class CarService {
 
             carRepository.save(carEntity);
             // 이미지 저장
-            saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles(), carEntity);
+            saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageUrls(), carEntity);
         }
     }
 
@@ -148,7 +148,7 @@ public class CarService {
     /* 차량 정보 수정 */
     @Transactional
     public void updateCar(Long carId, UpdateCarRequestDto updateCarRequestDto, Long userId) {
-        if (!isIndexSizeEqualsToImageSize(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles())) {
+        if (!isIndexSizeEqualsToImageSize(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageUrls())) {
             // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
             throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
         }
@@ -162,7 +162,7 @@ public class CarService {
         car.setAddress(updateCarRequestDto.getAddress());
         car.setPosition(updateCarRequestDto.getPosition().toPoint());
         car.setDescription(updateCarRequestDto.getDescription());
-        saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles(), car);
+        saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageUrls(), car);
         carRepository.save(car);
     }
 
@@ -269,10 +269,8 @@ public class CarService {
         }
     }
 
-    /* 이미지 엔티티 저장 */
-    @Transactional
-    public void saveImages(List<Integer> indexes, List<MultipartFile> files, Car car) {
-        if (indexes == null || files == null) {
+    public void saveImages(List<Integer> indexes, List<String> imageUrls, Car car) {
+        if (imageUrls == null || indexes == null) {
             return;
         }
 
@@ -280,18 +278,9 @@ public class CarService {
             throw new GeneralException(ErrorCode.CAR_IMAGE_INSUFFICIENT);
         }
 
-        List<Map<String, Object>> datas = IntStream.range(0, Math.min(indexes.size(), files.size()))
-                .mapToObj(i -> {
-                    String url = s3Manager.uploadImage(files.get(i));
-                    Object index = indexes.get(i);
-                    return Map.of("index", index, "url", url);
-                })
-                .toList();
-
-        for (Map<String, Object> data : datas) {
-            int idx = (int) data.get("index");
-            String url = (String) data.get("url");
-
+        for (int i = 0; i < indexes.size(); i++) {
+            int idx = indexes.get(i);
+            String url = imageUrls.get(i);
             Optional<CarImage> optionalImage = carImageRepository.findByCar_IdAndOrderIdx(
                     car.getId(), idx);
             CarImage carImage;
@@ -323,7 +312,7 @@ public class CarService {
     }
 
     /* 인덱스 리스트와 이미지 리스트의 사이즈가 같은지 체크 */
-    private Boolean isIndexSizeEqualsToImageSize(List<Integer> imageIndexes, List<MultipartFile> imageFiles) {
+    private Boolean isIndexSizeEqualsToImageSize(List<Integer> imageIndexes, List<String> imageFiles) {
         if (imageIndexes == null && imageFiles == null) {
             return true;
         } else if (imageIndexes == null || imageFiles == null) {
@@ -450,5 +439,20 @@ public class CarService {
         }
 
         return result;
+    }
+
+    public GetPresignedUrlsResposneDto generatePresignedUrl(GetPresignedUrlsRequestDto getPresignedUrlsRequestDto) {
+        URL originalPresignedUrl = s3Manager.generatePresignedUrl(getPresignedUrlsRequestDto.getFileName(),
+                getPresignedUrlsRequestDto.getFileType(), HttpMethod.PUT);
+
+        if (!getPresignedUrlsRequestDto.getPrefix().isEmpty()) {
+            URL downscaledPresignedUrl = s3Manager.generatePresignedUrl(getPresignedUrlsRequestDto.getPrefix() + getPresignedUrlsRequestDto.getFileName(),
+                    getPresignedUrlsRequestDto.getFileType(), HttpMethod.PUT);
+            return GetPresignedUrlsResposneDto.builder()
+                    .originalPresignedUrl(originalPresignedUrl.toString())
+                    .downscaledPresignedURl(downscaledPresignedUrl.toString()).build();
+        }
+        return GetPresignedUrlsResposneDto.builder()
+                .originalPresignedUrl(originalPresignedUrl.toString()).build();
     }
 }
