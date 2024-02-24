@@ -171,7 +171,7 @@ public class CarService {
     public void deleteCar(Long carId, Long userId) {
         String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
         if (!lockManager.acquireFullRangeLock(lockKey)) {
-            throw new GeneralException(ErrorCode.RESERVATION_CONCURRENT);
+            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_LOCK_ACQUIRE_FAIL);
         }
 
         try {
@@ -212,7 +212,7 @@ public class CarService {
             CarDateRangesDto carDateRangesDto) {
         String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
         if (!lockManager.acquireFullRangeLock(lockKey)) {
-            throw new GeneralException(ErrorCode.RESERVATION_CONCURRENT);
+            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_LOCK_ACQUIRE_FAIL);
         }
 
         try {

@@ -38,7 +38,7 @@ public enum ErrorCode {
     CANNOT_ADD_REVIEW(HttpStatus.BAD_REQUEST, "해당 예약에 대한 리뷰를 작성할 수 없습니다."),
     RESERVATION_REVIEWED_BY_OTHERS(HttpStatus.BAD_REQUEST, "해당 예약과 관련된 게스트/호스트만 리뷰를 작성할 수 있습니다."),
     REVIEW_ALREADY_EXIST(HttpStatus.BAD_REQUEST, "이미 작성된 리뷰가 있습니다."),
-
+    CAR_DATE_RANGE_LOCK_ACQUIRE_FAIL(HttpStatus.BAD_REQUEST, "현재 예약 중인 사용자가 있거나 차량 정보가 수정 중입니다. 잠시 후 다시 시도해주세요."),
     DATE_SIZE_MISMATCH(HttpStatus.BAD_REQUEST, "날짜 구간이 맞지 않습니다."),
     DATE_FORMAT_MISMATCH(HttpStatus.BAD_REQUEST, "날짜 형식이 맞지 않습니다."),
     START_DATE_AFTER_END_DATE(HttpStatus.BAD_REQUEST, "예약 시작 날짜가 끝 날짜보다 뒤에 있을 수 없습니다."),
@@ -48,7 +48,6 @@ public enum ErrorCode {
     RESERVATION_DATETIME_LEAST_HOUR(HttpStatus.BAD_REQUEST, "예약 일정은 최소 1시간 이상이어야 합니다."),
     RESERVATION_DATE_NOT_IN_RANGE(HttpStatus.BAD_REQUEST, "예약 가능 날짜의 범위에 맞지 않는 대여/반납일시입니다."),
     RESERVATION_ALREADY_READY_OR_USING(HttpStatus.BAD_REQUEST, "해당 예약일시 구간에 이미 예약대기 혹은 사용중인 예약이 있습니다."),
-    RESERVATION_CONCURRENT(HttpStatus.BAD_REQUEST, "다른 사용자가 예약 중입니다. 다시 시도해주세요."),
     RESERVATION_STATUS_CHANGED_BY_OTHERS(HttpStatus.BAD_REQUEST, "해당 예약과 관련된 호스트/게스트만 예약상태를 변경할 수 있습니다."),
     RESERVATION_STATUS_INVALID_CHANGE(HttpStatus.BAD_REQUEST, "요청하신 예약상태로 변경할 수 없습니다."),
     RESERVATION_CANCEL_TOO_LATE(HttpStatus.BAD_REQUEST, "해당 예약의 시작 시간의 24시간 이전에 예약을 취소할 수 있습니다."),
