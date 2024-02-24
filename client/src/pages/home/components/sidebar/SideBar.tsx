@@ -112,7 +112,7 @@ function SideBar({ models }: SideBarProps) {
   };
 
   return (
-    <div className='h-min-[800px] flex w-[300px] flex-shrink-0 flex-col bg-white p-4'>
+    <div className='h-screen-80 flex w-[300px] flex-shrink-0 flex-col bg-white p-4'>
       <div>
         <Button text='필터 적용하기' type='enabled' className='h-12 w-full' onClick={handleFilter} />
       </div>
