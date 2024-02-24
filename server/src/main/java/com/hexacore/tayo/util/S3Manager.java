@@ -25,7 +25,7 @@ import java.util.Arrays;
 public class S3Manager {
 
     private final AmazonS3 amazonS3Client;
-    private final String DOWNSCALED_PREFIX = "downscaled_";
+    private final Integer PRESIGNED_URL_EXPIRATION_MINUTE = 3;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -62,7 +62,7 @@ public class S3Manager {
     }
 
     public URL generatePresignedUrl(String fileName, String contentType, HttpMethod method) {
-        Date expiration = new Date(System.currentTimeMillis() + Duration.ofMinutes(5).toMillis());
+        Date expiration = new Date(System.currentTimeMillis() + Duration.ofMinutes(PRESIGNED_URL_EXPIRATION_MINUTE).toMillis());
 
         GeneratePresignedUrlRequest generatePresignedUrlRequest =
                 new GeneratePresignedUrlRequest(bucket, fileName)
