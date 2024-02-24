@@ -1,5 +1,6 @@
 package com.hexacore.tayo.car;
 
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.common.errors.ErrorCode;

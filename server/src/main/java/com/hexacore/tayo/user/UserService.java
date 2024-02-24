@@ -1,6 +1,6 @@
 package com.hexacore.tayo.user;
 
-import com.hexacore.tayo.car.CarRepository;
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;

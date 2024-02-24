@@ -22,7 +22,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "car_date_range")
-public class CarDateRange {
+public class CarDateRange implements Comparable<CarDateRange> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +39,10 @@ public class CarDateRange {
     @Column(name = "end_date", nullable = false)
     @Setter
     private LocalDate endDate;
+
+    @Override
+    public int compareTo(CarDateRange o) {
+        int cmp = this.startDate.compareTo(o.startDate);
+        return cmp == 0 ? this.endDate.compareTo(o.endDate) : cmp;
+    }
 }
