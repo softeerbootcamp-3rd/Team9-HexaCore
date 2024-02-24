@@ -10,6 +10,8 @@ import axios from 'axios';
 import { HostRegisterLoaderData } from './hostsRoutes';
 import LoadingCircle from '@/components/svgs/LoadingCircle';
 import { useCustomToast } from '@/components/Toast';
+import { uploadToS3WithDownscaled } from '@/utils/ImageManger';
+import { CreateCarReuqestParam, UpdateCarRequestParam } from '@/fetches/cars/cars.type';
 
 const GET_CAR_INFO_API_URL = 'https://datahub-dev.scraping.co.kr/assist/common/carzen/CarAllInfoInquiry';
 
@@ -203,7 +205,6 @@ function HostRegister() {
       )
       .finally(() => setLoadingCarNumber(false));
 
-
     const resultMessage = response.data.result;
     const responseData: CarDetailResponseByApi = response.data.data;
 
@@ -230,6 +231,44 @@ function HostRegister() {
     }
   };
 
+  const formDataToPostJson = (formData: FormData) => {
+    const createCarReuqestParam: CreateCarReuqestParam = {
+      carNumber: formData.get('carNumber') as string,
+      carName: formData.get('carName') as string,
+      mileage: Number(formData.get('mileage')),
+      fuel: formData.get('fuel') as string,
+      type: formData.get('type') as string,
+      capacity: Number(formData.get('capacity')),
+      year: Number(formData.get('year')),
+      feePerHour: Number(formData.get('feePerHour')),
+      address: formData.get('address') as string,
+      position: {
+        lat: formData.get('position.lat') as string,
+        lng: formData.get('position.lng') as string,
+      },
+      description: formData.get('description') as string,
+      imageUrls: formData.getAll('imageUrls').map((url) => url.toString()),
+      imageIndexes: formData.getAll('imageIndexes').map((idx) => idx.toString()),
+    };
+    return createCarReuqestParam;
+  };
+
+  const formDataToUpdateJson = (formData: FormData) => {
+    const updateCarRequestParam: UpdateCarRequestParam = {
+      feePerHour: Number(formData.get('feePerHour')),
+      address: formData.get('address') as string,
+      position: {
+        lat: formData.get('position.lat') as string,
+        lng: formData.get('position.lng') as string,
+      },
+      description: formData.get('description') as string,
+      imageUrls: formData.getAll('imageUrls').map((url) => url.toString()),
+      imageIndexes: formData.getAll('imageIndexes').map((idx) => idx.toString()),
+    };
+    return updateCarRequestParam;
+  };
+
+  // TODO
   const onSubmitRequestCarRegister = async () => {
     if (feeRef.current === null) return;
     setFeeMessage(null);
@@ -247,17 +286,29 @@ function HostRegister() {
       return;
     }
 
-    images.forEach((image, index) => {
-      if (image !== null) {
-        formData.append(`imageFiles`, image);
-        formData.append('imageIndexes', index.toString());
-      }
-    });
-
-    if (!userCarInfo.isUpdate && formData.getAll('imageFiles').length != 5) {
+    if (!userCarInfo.isUpdate && images.length != 5) {
       setImageMessage('등록 시 차량 사진은 반드시 5장을 제출해야합니다.');
       formFailed = true;
     }
+
+    const imageUploadPromises = images.map((image, index) => {
+      if (image !== null) {
+        return uploadToS3WithDownscaled(image).then((imageUrl) => {
+          if (imageUrl) {
+            return { imageUrl, index };
+          }
+        });
+      }
+      return Promise.resolve(null);
+    });
+
+    const uploadedImages = await Promise.all(imageUploadPromises);
+    uploadedImages.forEach((imageData) => {
+      if (imageData) {
+        formData.append('imageUrls', imageData.imageUrl);
+        formData.append('imageIndexes', imageData.index.toString());
+      }
+    });
 
     if (feeRef.current.validity.valueMissing) {
       setFeeMessage('대여료는 필수로 입력하셔야 합니다.');
@@ -307,15 +358,13 @@ function HostRegister() {
 
     if (userCarInfo.isUpdate) {
       response = await server.put<ResponseWithoutData>(`/cars/${userCarInfo.carDetail?.id}`, {
-        data: formData,
+        data: formDataToUpdateJson(formData),
       });
-    } else
+    } else {
       response = await server.post<ResponseWithoutData>('/cars', {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        data: formData,
+        data: formDataToPostJson(formData),
       });
+    }
 
     const currentActionMesssage = `차량 ${userCarInfo.isUpdate ? '수정' : '등록'}`;
 
@@ -344,7 +393,7 @@ function HostRegister() {
       return;
     }
 
-    showToast(`${currentActionMesssage} 완료`, `${currentActionMesssage}을 완료하였습니다.`);
+    showToast(`${currentActionMesssage} 완료`, `${currentActionMesssage}을 완료하였습니다.`, true);
     navigate('/hosts/manage');
   };
 
@@ -374,7 +423,6 @@ function HostRegister() {
             <LoadingCircle />
             <div className='text-white'>{'차량정보를 불러오는 중입니다...'}</div>
           </div>
-          {/* {toast1()} */}
           <ToastComponent />
         </div>
       </div>
@@ -468,7 +516,6 @@ function HostRegister() {
         </div>
       </div>
       <div className='mb-8 flex justify-end'>
-        {/* {toast2()} */}
         <ToastComponent />
         <Button text='등록하기' onClick={onSubmitRequestCarRegister} />
       </div>
