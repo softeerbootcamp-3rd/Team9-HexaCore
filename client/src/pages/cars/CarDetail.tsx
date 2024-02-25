@@ -23,8 +23,8 @@ function CarDetail() {
   const data = useLoaderData() as CarDetailLoaderData;
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const [rentTime, setRentTime] = useState(params.get('rentTime') ?? 9);
-  const [returnTime, setReturnTime] = useState(params.get('returnTime') ?? 9);
+  const [rentTime, setRentTime] = useState(params.get('rentTime') ? Number(params.get('rentTime')) : 9);
+  const [returnTime, setReturnTime] = useState(params.get('returnTime') ? Number(params.get('returnTime')) : 9);
   const [totalFee, setTotalFee] = useState(0);
 
   const startDate = params.get('startDate') ?? formatDate(new Date());
