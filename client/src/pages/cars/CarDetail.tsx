@@ -120,7 +120,7 @@ function CarDetail() {
     const hourInterval = timeDiff / (1000 * 60 * 60);
 
     // 잘못된 예약 구간일 경우 시간 초기화
-    if(hourInterval < 0) {
+    if (hourInterval < 0) {
       setRentTime(9);
       setReturnTime(9);
 
@@ -149,13 +149,13 @@ function CarDetail() {
     endDate.setHours(returnTime);
 
     // 만약 returnDate가 현재 시각보다 이전일 경우 예약 불가능
-    if(endDate < new Date()) {
+    if (endDate < new Date()) {
       showToast('예약 실패', '현재 시각 이후 부터 대여 가능합니다.');
       return;
     }
 
     // endDate가 startDate보다 이전일 경우 예약 불가능
-    if(endDate < startDate) {
+    if (endDate < startDate) {
       showToast('예약 실패', '잘못된 예약 정보입니다.');
       return;
     }
