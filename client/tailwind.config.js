@@ -5,6 +5,11 @@ import colors from 'tailwindcss/colors';
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
+    extend: {
+      height: {
+        'screen-80': 'calc(100vh - 80px)',
+      },
+    },
     colors: {
       primary: {
         DEFAULT: colors.indigo[500],
@@ -26,8 +31,6 @@ export default {
       transparent: colors.transparent,
     },
   },
-  plugins: [
-    require('tailwind-scrollbar-hide')
-  ],
+  plugins: [require('tailwind-scrollbar-hide')],
 };
 
