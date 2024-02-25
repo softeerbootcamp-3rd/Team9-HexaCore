@@ -13,7 +13,6 @@ import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.review.ReviewService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +26,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,15 +43,15 @@ public class ReservationController {
             @Valid @RequestParam String orderName,
             @Valid @RequestParam String userName,
             @Valid @RequestBody CreateReservationRequestDto createReservationRequestDto) {
-        Long guestUserId = (Long) request.getAttribute("userId");
+        Long guestId = (Long) request.getAttribute("userId");
 
         // 예약 진행: DB 업데이트
         CreateReservationResponseDto createReservationResponseDto = reservationService.createReservation(
-                createReservationRequestDto, guestUserId);
+                guestId, createReservationRequestDto);
 
         // 자동 결제 승인 요청
         try {
-            reservationService.confirmBilling(guestUserId, createReservationResponseDto.getReservationId(),
+            reservationService.confirmBilling(guestId, createReservationResponseDto.getReservationId(),
                     createReservationResponseDto.getFee(), orderName, userName);
         } catch (Exception e) {
             // 결제 실패 시 DB에 저장된 예약 정보 삭제

@@ -9,6 +9,7 @@ import { parseQueryString, type HomeLoaderResponse } from './homeRoutes';
 import type { CarData, CarSearchParam } from '@/fetches/cars/cars.type';
 import { fetchCars } from '@/fetches/cars/fetchCars';
 import TopButton from '@/pages/home/components/TopButton';
+import { addDownscaledPrefix } from '@/utils/ImageManger';
 
 function Home() {
   const location = useLocation();
@@ -66,6 +67,10 @@ function Home() {
       });
 
       if (newCarData?.data) {
+        newCarData.data = newCarData.data.map((car) => ({
+          ...car,
+          imageUrl: addDownscaledPrefix(car.imageUrl),
+        }));
         setCarDataList((prevCarDataList) => [...prevCarDataList, ...newCarData.data]);
       }
     };

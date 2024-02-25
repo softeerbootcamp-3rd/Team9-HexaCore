@@ -1,12 +1,12 @@
 package com.hexacore.tayo.review;
 
-import com.hexacore.tayo.car.CarRepository;
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
-import com.hexacore.tayo.reservation.ReservationRepository;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
+import com.hexacore.tayo.reservation.ReservationRepository;
 import com.hexacore.tayo.review.dto.CreateReviewRequestDto;
 import com.hexacore.tayo.review.dto.GetCarReviewsResponseDto;
 import com.hexacore.tayo.review.model.CarReview;

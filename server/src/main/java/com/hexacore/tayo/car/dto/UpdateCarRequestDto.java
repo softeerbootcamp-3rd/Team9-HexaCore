@@ -23,7 +23,7 @@ public class UpdateCarRequestDto {
     @NotNull
     private String description;
 
-    private List<MultipartFile> imageFiles;
+    private List<String> imageUrls;
 
     private List<Integer> imageIndexes;
 

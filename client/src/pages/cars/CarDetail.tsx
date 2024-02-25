@@ -103,10 +103,6 @@ function CarDetail() {
     const endDateTime = new Date(dateRange[1]);
     endDateTime.setHours(time);
 
-    if (startDateTime > endDateTime) {
-      setRentTime(time);
-    }
-
     setReturnTime(time);
   };
 
@@ -122,6 +118,15 @@ function CarDetail() {
     // 시간 간격 계산 (밀리초 단위)
     const timeDiff = endDate.getTime() - startDate.getTime();
     const hourInterval = timeDiff / (1000 * 60 * 60);
+
+    // 잘못된 예약 구간일 경우 시간 초기화
+    if(hourInterval < 0) {
+      setRentTime(9);
+      setReturnTime(9);
+
+      setTotalFee(0);
+      return;
+    }
 
     // 시간당 요금과 시간 간격을 곱하여 총 요금 계산
     const calculatedFee = data.carData.feePerHour * hourInterval;
@@ -143,6 +148,18 @@ function CarDetail() {
     startDate.setHours(rentTime);
     endDate.setHours(returnTime);
 
+    // 만약 returnDate가 현재 시각보다 이전일 경우 예약 불가능
+    if(endDate < new Date()) {
+      showToast('예약 실패', '현재 시각 이후 부터 대여 가능합니다.');
+      return;
+    }
+
+    // endDate가 startDate보다 이전일 경우 예약 불가능
+    if(endDate < startDate) {
+      showToast('예약 실패', '잘못된 예약 정보입니다.');
+      return;
+    }
+
     // date를 string으로 변환
     const rentDate = dateTimeToString(startDate);
     const returnDate = dateTimeToString(endDate);
@@ -150,12 +167,6 @@ function CarDetail() {
     // 만약 rentDate와 returnDate가 동일할 경우 예약 불가능
     if (rentDate === returnDate) {
       showToast('예약 실패', '최소 예약 단위는 1시간입니다.');
-      return;
-    }
-
-    // 만약 returnDate가 현재 시각보다 이전일 경우 예약 불가능
-    if (endDate < new Date()) {
-      showToast('예약 실패', '현재 시각 이후 부터 대여 가능합니다.');
       return;
     }
 

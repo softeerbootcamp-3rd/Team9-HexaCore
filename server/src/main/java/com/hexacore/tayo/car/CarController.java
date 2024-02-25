@@ -2,6 +2,8 @@ package com.hexacore.tayo.car;
 
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.dto.GetPresignedUrlsRequestDto;
+import com.hexacore.tayo.car.dto.GetPresignedUrlsResposneDto;
 import com.hexacore.tayo.car.dto.SearchCarsDto;
 import com.hexacore.tayo.car.dto.SearchCarsRequestDto;
 import com.hexacore.tayo.car.dto.SearchCarsResultDto;
@@ -44,12 +46,20 @@ public class CarController {
 
     @PostMapping
     public ResponseEntity<Response> createCar(HttpServletRequest request,
-            @Valid @ModelAttribute CreateCarRequestDto createCarRequestDto) {
+            @Valid @RequestBody CreateCarRequestDto createCarRequestDto) {
         Long userId = (Long) request.getAttribute("userId");
         carService.createCar(createCarRequestDto, userId);
 
         return Response.of(HttpStatus.CREATED);
     }
+
+    @GetMapping("/presigned-urls")
+    public ResponseEntity<Response> getPresignedUrls(@Valid @ModelAttribute GetPresignedUrlsRequestDto getPresignedUrlsRequestDto) {
+        GetPresignedUrlsResposneDto getPresignedUrlsResposneDto = carService.generatePresignedUrl(getPresignedUrlsRequestDto);
+        return Response.of(HttpStatus.OK, getPresignedUrlsResposneDto);
+    }
+
+
 
     @DeleteMapping("/{carId}")
     public ResponseEntity<Response> deleteCar(HttpServletRequest request, @PathVariable Long carId) {
@@ -66,7 +76,7 @@ public class CarController {
 
     @PutMapping("{carId}")
     public ResponseEntity<Response> updateCar(@PathVariable Long carId,
-            @Valid @ModelAttribute UpdateCarRequestDto updateCarRequestDto, HttpServletRequest request) {
+            @Valid @RequestBody UpdateCarRequestDto updateCarRequestDto, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         carService.updateCar(carId, updateCarRequestDto, userId);
         return Response.of(HttpStatus.OK);

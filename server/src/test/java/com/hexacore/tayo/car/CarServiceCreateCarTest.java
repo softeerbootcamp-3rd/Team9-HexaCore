@@ -2,6 +2,7 @@ package com.hexacore.tayo.car;
 
 import static org.mockito.BDDMockito.given;
 
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.category.SubcategoryRepository;
 import com.hexacore.tayo.category.model.Category;
@@ -27,7 +28,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 public class CarServiceCreateCarTest {
@@ -53,11 +53,7 @@ public class CarServiceCreateCarTest {
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "모델명 서브모델명", 10.0, "휘발유", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
                 new Position(10.0, 10.0), "설명",
-                List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image2", "filename2.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image3", "filename3.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image4", "filename4.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image5", "filename5.png", "image/png", "dummy".getBytes())),
+                List.of("https://1", "https://2", "https://3", "https://4", "https://5"),
                 List.of(1, 2, 3, 4, 5));
 
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
@@ -65,7 +61,6 @@ public class CarServiceCreateCarTest {
                 .willReturn(Optional.of(Subcategory.builder().name("서브모델명").build()));
         given(mockCarRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(0L, createCarRequestDto.getCarNumber()))
                 .willReturn(Optional.empty());
-        given(mockS3Manager.uploadImage(Mockito.any())).willReturn("url");
 
         // when
         carService.createCar(createCarRequestDto, 0L);
@@ -82,11 +77,7 @@ public class CarServiceCreateCarTest {
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "모델명 서브모델명", 10.0, "휘발유", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
                 new Position(10.0, 10.0), "설명",
-                List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image2", "filename2.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image3", "filename3.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image4", "filename4.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image5", "filename5.png", "image/png", "dummy".getBytes())),
+                List.of("https://1", "https://2", "https://3", "https://4", "https://5"),
                 List.of(1, 2, 3, 4, 5));
 
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
@@ -96,7 +87,6 @@ public class CarServiceCreateCarTest {
                 .willReturn(Optional.of(Subcategory.builder().name("모델명").build()));
         given(mockCarRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(0L, createCarRequestDto.getCarNumber()))
                 .willReturn(Optional.of(new Car())); //
-        given(mockS3Manager.uploadImage(Mockito.any())).willReturn("url");
 
         // when
         carService.createCar(createCarRequestDto, 0L);
@@ -112,11 +102,7 @@ public class CarServiceCreateCarTest {
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "모델명 서브모델명", 10.0, "휘발유", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
                 new Position(10.0, 10.0), "설명",
-                List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image2", "filename2.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image3", "filename3.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image4", "filename4.png", "image/png", "dummy".getBytes()),
-                        new MockMultipartFile("image5", "filename5.png", "image/png", "dummy".getBytes())),
+                List.of("https://1", "https://2", "https://3", "https://4", "https://5"),
                 List.of(1, 2, 3, 4, 5));
 
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
@@ -127,7 +113,6 @@ public class CarServiceCreateCarTest {
         given(mockCategoryRepository.findAll()).willReturn(List.of(Category.builder().name("ETC").build()));
         given(mockCarRepository.findByOwner_IdAndCarNumberAndIsDeletedTrue(0L, createCarRequestDto.getCarNumber()))
                 .willReturn(Optional.empty()); //
-        given(mockS3Manager.uploadImage(Mockito.any())).willReturn("url");
 
         // when
         carService.createCar(createCarRequestDto, 0L);
@@ -144,7 +129,7 @@ public class CarServiceCreateCarTest {
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "모델명 서브모델명", 10.0, "휘발유", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
                 new Position(10.0, 10.0), "설명",
-                List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
+                List.of("https://1"),
                 List.of(1));
 
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.of(new Car()));
@@ -163,7 +148,7 @@ public class CarServiceCreateCarTest {
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "휘발유", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
                 new Position(10.0, 10.0), "설명",
-                List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
+                List.of("https://1"),
                 List.of(1));
 
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
@@ -183,7 +168,7 @@ public class CarServiceCreateCarTest {
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "휘발유", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
                 new Position(10.0, 10.0), "설명",
-                List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
+                List.of("https://1"),
                 List.of(1, 2, 3));
 
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
@@ -203,7 +188,7 @@ public class CarServiceCreateCarTest {
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "휘발유", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
                 new Position(10.0, 10.0), "설명",
-                List.of(new MockMultipartFile("image1", "filename1.png", "image/png", "dummy image".getBytes())),
+                List.of("https://1"),
                 List.of(1));
 
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
@@ -227,11 +212,7 @@ public class CarServiceCreateCarTest {
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "가솔린", "경차", 2,
                 2020, 10000, "경기도 테스트 주소",
                 new Position(10.0, 10.0), "설명",
-                List.of(new MockMultipartFile("image1", "filename1.txt", "text/plain", "dummy".getBytes()),
-                        new MockMultipartFile("image2", "filename2.txt", "text/plain", "dummy".getBytes()),
-                        new MockMultipartFile("image3", "filename3.txt", "text/plain", "dummy".getBytes()),
-                        new MockMultipartFile("image4", "filename4.txt", "text/plain", "dummy".getBytes()),
-                        new MockMultipartFile("image5", "filename5.txt", "text/plain", "dummy".getBytes())),
+                List.of("https://1", "https://2", "https://3", "https://4", "https://5"),
                 List.of(1, 2, 3, 4, 5));
 
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
@@ -252,11 +233,7 @@ public class CarServiceCreateCarTest {
         CreateCarRequestDto createCarRequestDto = new CreateCarRequestDto("11주 1111", "서브모델명", 10.0, "휘발유", "중중형차", 2,
                 2020, 10000, "경기도 테스트 주소",
                 new Position(10.0, 10.0), "설명",
-                List.of(new MockMultipartFile("image1", "filename1.txt", "text/plain", "dummy".getBytes()),
-                        new MockMultipartFile("image2", "filename2.txt", "text/plain", "dummy".getBytes()),
-                        new MockMultipartFile("image3", "filename3.txt", "text/plain", "dummy".getBytes()),
-                        new MockMultipartFile("image4", "filename4.txt", "text/plain", "dummy".getBytes()),
-                        new MockMultipartFile("image5", "filename5.txt", "text/plain", "dummy".getBytes())),
+                List.of("https://1", "https://2", "https://3", "https://4", "https://5"),
                 List.of(1, 2, 3, 4, 5));
 
         given(mockCarRepository.findByOwner_IdAndIsDeletedFalse(0L)).willReturn(Optional.empty());
