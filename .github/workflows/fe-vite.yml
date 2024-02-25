@@ -11,9 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Change directory
-        run: cd client
-
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -21,17 +18,45 @@ jobs:
 
       - name: Install Dependencies
         run: npm install
+        working-directory: ./client
 
-      - name: Run Lint
-        run: npm run lint
+      - name: Create env file
+        run: |
+          touch ./client/.env.production
+          echo "${{ secrets.VITE_SECRET }}" > ./client/.env.production
+          sudo cat ./client/.env.production
 
       - name: Build Project
         run: npm run build
-
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
+        working-directory: ./client
+  
+      - name: Get Github Actions IP
+        id: ip
+        uses: haythem/public-ip@v1.2
+        
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          branch: gh-pages
-          folder: dist
-          token: ${{ secrets.PERSONAL_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+          
+      - name: Add Github Actions IP to Security group
+        run: |
+          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.EC2_NGINX_SG }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+      - name: Deploy
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_NGINX_HOST }}
+          port: 22
+          username: ${{ secrets.EC2_NGINX_USERNAME }}
+          key: ${{ secrets.EC2_NGINX_PRIVATE_KEY }}
+          source: ./client/dist
+          target: /usr/share/nginx/html
+          overwrite: true
+      - name: Remove Github Actions IP From Security Group
+        run: |
+          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.EC2_NGINX_SG }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
 
