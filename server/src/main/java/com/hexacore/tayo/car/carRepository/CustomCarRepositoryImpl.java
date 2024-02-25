@@ -1,4 +1,4 @@
-package com.hexacore.tayo.car;
+package com.hexacore.tayo.car.carRepository;
 
 import com.hexacore.tayo.car.dto.SearchCarsDto;
 import com.hexacore.tayo.car.dto.SearchCarsResultDto;
@@ -26,7 +26,7 @@ import java.util.List;
 
 
 @RequiredArgsConstructor
-public class CarCustomRepositoryImpl implements CarCustomRepository {
+public class CustomCarRepositoryImpl implements CustomCarRepository {
 
     private final JPAQueryFactory queryFactory;
 

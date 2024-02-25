@@ -1,7 +1,11 @@
 package com.hexacore.tayo.car;
 
+import com.amazonaws.HttpMethod;
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.dto.CreateCarRequestDto;
 import com.hexacore.tayo.car.dto.GetCarResponseDto;
+import com.hexacore.tayo.car.dto.GetPresignedUrlsRequestDto;
+import com.hexacore.tayo.car.dto.GetPresignedUrlsResposneDto;
 import com.hexacore.tayo.car.dto.SearchCarsDto;
 import com.hexacore.tayo.car.dto.SearchCarsResultDto;
 import com.hexacore.tayo.car.dto.UpdateCarDateRangeRequestDto.CarDateRangeDto;
@@ -18,26 +22,26 @@ import com.hexacore.tayo.category.model.Category;
 import com.hexacore.tayo.category.model.Subcategory;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.lock.LockKeyGenerator;
+import com.hexacore.tayo.lock.RangeLockManager;
 import com.hexacore.tayo.reservation.ReservationRepository;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import jakarta.transaction.Transactional;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -50,9 +54,9 @@ public class CarService {
     private final CategoryRepository categoryRepository;
     private final ReservationRepository reservationRepository;
     private final S3Manager s3Manager;
+    private final RangeLockManager lockManager;
 
     /* 차량 등록 */
-    @Transactional
     public void createCar(CreateCarRequestDto createCarRequestDto, Long userId) {
         if (isUserHavingCar(userId)) {
             // 유저가 이미 차량을 등록한 경우
@@ -62,7 +66,7 @@ public class CarService {
             // 중복되는 차량 번호가 있을 경우
             throw new GeneralException(ErrorCode.CAR_NUMBER_DUPLICATED);
         }
-        if (!isIndexSizeEqualsToImageSize(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles())) {
+        if (!isIndexSizeEqualsToImageSize(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageUrls())) {
             // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
             throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
         }
@@ -89,7 +93,7 @@ public class CarService {
             car.setDescription(createCarRequestDto.getDescription());
             car.setIsDeleted(false);
             // 이미지 저장
-            saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles(), car);
+            saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageUrls(), car);
         } else {
             // 유저가 이전에 등록한 같은 번호의 차가 없는 경우 CREATE
             Car carEntity = Car.builder()
@@ -109,7 +113,7 @@ public class CarService {
 
             carRepository.save(carEntity);
             // 이미지 저장
-            saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageFiles(), carEntity);
+            saveImages(createCarRequestDto.getImageIndexes(), createCarRequestDto.getImageUrls(), carEntity);
         }
     }
 
@@ -144,7 +148,7 @@ public class CarService {
     /* 차량 정보 수정 */
     @Transactional
     public void updateCar(Long carId, UpdateCarRequestDto updateCarRequestDto, Long userId) {
-        if (!isIndexSizeEqualsToImageSize(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles())) {
+        if (!isIndexSizeEqualsToImageSize(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageUrls())) {
             // index 리스트 길이와 image 리스트 길이가 같지 않은 경우
             throw new GeneralException(ErrorCode.IMAGE_INDEX_MISMATCH);
         }
@@ -158,99 +162,116 @@ public class CarService {
         car.setAddress(updateCarRequestDto.getAddress());
         car.setPosition(updateCarRequestDto.getPosition().toPoint());
         car.setDescription(updateCarRequestDto.getDescription());
-        saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageFiles(), car);
+        saveImages(updateCarRequestDto.getImageIndexes(), updateCarRequestDto.getImageUrls(), car);
         carRepository.save(car);
     }
 
     /* 차량 삭제 */
     @Transactional
     public void deleteCar(Long carId, Long userId) {
-        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-
-        // 차량 주인이 아닌 경우 삭제불가
-        if (!userId.equals(car.getOwner().getId())) {
-            throw new GeneralException(ErrorCode.CAR_UPDATED_BY_OTHERS);
+        String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
+        if (!lockManager.acquireFullRangeLock(lockKey)) {
+            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_LOCK_ACQUIRE_FAIL);
         }
 
-        // 차량에 연결된 READY, USING 상태의 예약이 있는 경우 삭제불가
-        if (isCarHavingReservation(car.getReservations())) {
-            throw new GeneralException(ErrorCode.CAR_HAVE_ACTIVE_RESERVATIONS);
+        try {
+            Car car = carRepository.findByIdAndIsDeletedFalse(carId)
+                    .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
+
+            // 차량 주인이 아닌 경우 삭제불가
+            if (!userId.equals(car.getOwner().getId())) {
+                throw new GeneralException(ErrorCode.CAR_UPDATED_BY_OTHERS);
+            }
+
+            // 차량에 연결된 READY, USING 상태의 예약이 있는 경우 삭제불가
+            if (isCarHavingReservation(car.getReservations())) {
+                throw new GeneralException(ErrorCode.CAR_HAVE_ACTIVE_RESERVATIONS);
+            }
+
+            // 차량 삭제: isDeleted = true
+            car.setIsDeleted(true);
+            carRepository.save(car);
+
+            // CarDateRange 삭제
+            carDateRangeRepository.deleteAll(car.getCarDateRanges());
+
+            // 이미지 삭제
+            carImageRepository.findByCar_Id(car.getId()).forEach((image) -> {
+                // s3 버킷 객체 삭제
+                s3Manager.deleteImage(image.getUrl());
+                carImageRepository.delete(image);
+            });
+        } finally {
+            lockManager.releaseFullRangeLock(lockKey);
         }
-
-        // 차량 삭제: isDeleted = true
-        car.setIsDeleted(true);
-        carRepository.save(car);
-
-        // CarDateRange 삭제
-        carDateRangeRepository.deleteAll(car.getCarDateRanges());
-
-        // 이미지 삭제
-        carImageRepository.findByCar_Id(car.getId()).forEach((image) -> {
-            // s3 버킷 객체 삭제
-            s3Manager.deleteImage(image.getUrl());
-            carImageRepository.delete(image);
-        });
     }
 
     /* 예약 가능 날짜 수정 */
     @Transactional
     public void updateDateRanges(Long hostUserId, Long carId,
             CarDateRangesDto carDateRangesDto) {
-        // 차량 조회가 안 되는 경우
-        Car car = carRepository.findByIdAndIsDeletedFalse(carId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-
-        // 차량 소유자와 일치하지 않을 경우
-        if (!car.getOwner().getId().equals(hostUserId)) {
-            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
+        String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
+        if (!lockManager.acquireFullRangeLock(lockKey)) {
+            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_LOCK_ACQUIRE_FAIL);
         }
 
-        // CarDateRanges 검증하고 인접한 구역을 합친다.
-        // 검증 요소: List<LocalDate>의 길이는 2이고, 시작일자 <= 종료일자, 그리고 겹치는 부분이 없어야 한다.
-        List<CarDateRangeDto> sortedCarDateRanges = checkDateRangesDtoValidAndMerge(carDateRangesDto);
+        try {
+            // 차량 조회가 안 되는 경우
+            Car car = carRepository.findByIdAndIsDeletedFalse(carId)
+                    .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
-        List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
-                car.getId(),
-                List.of(ReservationStatus.USING, ReservationStatus.READY)
-        );
+            // 차량 소유자와 일치하지 않을 경우
+            if (!car.getOwner().getId().equals(hostUserId)) {
+                throw new GeneralException(ErrorCode.CAR_DATE_RANGE_UPDATED_BY_OTHERS);
+            }
 
-        int reservationIdx = 0, dateRangeIdx = 0;
-        while (dateRangeIdx < sortedCarDateRanges.size() && reservationIdx < reservations.size()) {
-            CarDateRangeDto dateRange = sortedCarDateRanges.get(dateRangeIdx);
-            Reservation reservation = reservations.get(reservationIdx);
-            LocalDate dateRangeStartDate = dateRange.getStartDate();
-            LocalDate dateRangeEndDate = dateRange.getEndDate();
-            LocalDate reservationStartDate = reservation.getRentDateTime().toLocalDate();
-            LocalDate reservationEndDate = reservation.getReturnDateTime().toLocalDate();
+            // CarDateRanges 검증하고 인접한 구역을 합친다.
+            // 검증 요소: List<LocalDate>의 길이는 2이고, 시작일자 <= 종료일자, 그리고 겹치는 부분이 없어야 한다.
+            List<CarDateRangeDto> sortedCarDateRanges = checkDateRangesDtoValidAndMerge(carDateRangesDto);
 
-            // dateRangeStartDate <= reservationStartDate <= reservationEndDate <= dateRangeEndDate
-            if (!dateRangeStartDate.isAfter(reservationStartDate) // 예약 가능한 구간에 예약이 포함하면 다음 예약 확인
-                    && !reservationEndDate.isAfter(dateRangeEndDate)) {
-                reservationIdx++;
-            } else if (reservationStartDate.isAfter(dateRangeEndDate)) { // 다음 예약 가능한 구간 확인
-                dateRangeIdx++;
-            } else {
+            List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
+                    car.getId(),
+                    List.of(ReservationStatus.USING, ReservationStatus.READY)
+            );
+
+            int reservationIdx = 0, dateRangeIdx = 0;
+            while (dateRangeIdx < sortedCarDateRanges.size() && reservationIdx < reservations.size()) {
+                CarDateRangeDto dateRange = sortedCarDateRanges.get(dateRangeIdx);
+                Reservation reservation = reservations.get(reservationIdx);
+                LocalDate dateRangeStartDate = dateRange.getStartDate();
+                LocalDate dateRangeEndDate = dateRange.getEndDate();
+                LocalDate reservationStartDate = reservation.getRentDateTime().toLocalDate();
+                LocalDate reservationEndDate = reservation.getReturnDateTime().toLocalDate();
+
+                // dateRangeStartDate <= reservationStartDate <= reservationEndDate <= dateRangeEndDate
+                if (!dateRangeStartDate.isAfter(reservationStartDate) // 예약 가능한 구간에 예약이 포함하면 다음 예약 확인
+                        && !reservationEndDate.isAfter(dateRangeEndDate)) {
+                    reservationIdx++;
+                } else if (reservationStartDate.isAfter(dateRangeEndDate)) { // 다음 예약 가능한 구간 확인
+                    dateRangeIdx++;
+                } else {
+                    throw new GeneralException(ErrorCode.CAR_DATE_RANGE_NOT_CONTAIN_RESERVATIONS);
+                }
+            }
+
+            if (reservationIdx < reservations.size()) { // 예약 가능한 구간이 남지 않았는데 예약이 남은 경우
                 throw new GeneralException(ErrorCode.CAR_DATE_RANGE_NOT_CONTAIN_RESERVATIONS);
             }
+
+            // 기존 구간을 모두 삭제한다.
+            carDateRangeRepository.deleteAllByCar_Id(car.getId());
+
+            sortedCarDateRanges.stream()
+                    .map(carDateRangeDto -> carDateRangeDto.toEntity(car))
+                    .forEach(carDateRangeRepository::save);
+        } finally {
+            lockManager.releaseFullRangeLock(lockKey);
         }
-
-        if (reservationIdx < reservations.size()) { // 예약 가능한 구간이 남지 않았는데 예약이 남은 경우
-            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_NOT_CONTAIN_RESERVATIONS);
-        }
-
-        // 기존 구간을 모두 삭제한다.
-        carDateRangeRepository.deleteAllByCar_Id(car.getId());
-
-        sortedCarDateRanges.stream()
-                .map(carDateRangeDto -> carDateRangeDto.toEntity(car))
-                .forEach(carDateRangeRepository::save);
     }
 
-    /* 이미지 엔티티 저장 */
     @Transactional
-    public void saveImages(List<Integer> indexes, List<MultipartFile> files, Car car) {
-        if (indexes == null || files == null) {
+    public void saveImages(List<Integer> indexes, List<String> imageUrls, Car car) {
+        if (imageUrls == null || indexes == null) {
             return;
         }
 
@@ -258,18 +279,9 @@ public class CarService {
             throw new GeneralException(ErrorCode.CAR_IMAGE_INSUFFICIENT);
         }
 
-        List<Map<String, Object>> datas = IntStream.range(0, Math.min(indexes.size(), files.size()))
-                .mapToObj(i -> {
-                    String url = s3Manager.uploadImage(files.get(i));
-                    Object index = indexes.get(i);
-                    return Map.of("index", index, "url", url);
-                })
-                .toList();
-
-        for (Map<String, Object> data : datas) {
-            int idx = (int) data.get("index");
-            String url = (String) data.get("url");
-
+        for (int i = 0; i < indexes.size(); i++) {
+            int idx = indexes.get(i);
+            String url = imageUrls.get(i);
             Optional<CarImage> optionalImage = carImageRepository.findByCar_IdAndOrderIdx(
                     car.getId(), idx);
             CarImage carImage;
@@ -301,7 +313,7 @@ public class CarService {
     }
 
     /* 인덱스 리스트와 이미지 리스트의 사이즈가 같은지 체크 */
-    private Boolean isIndexSizeEqualsToImageSize(List<Integer> imageIndexes, List<MultipartFile> imageFiles) {
+    private Boolean isIndexSizeEqualsToImageSize(List<Integer> imageIndexes, List<String> imageFiles) {
         if (imageIndexes == null && imageFiles == null) {
             return true;
         } else if (imageIndexes == null || imageFiles == null) {
@@ -428,5 +440,20 @@ public class CarService {
         }
 
         return result;
+    }
+
+    public GetPresignedUrlsResposneDto generatePresignedUrl(GetPresignedUrlsRequestDto getPresignedUrlsRequestDto) {
+        URL originalPresignedUrl = s3Manager.generatePresignedUrl(getPresignedUrlsRequestDto.getFileName(),
+                getPresignedUrlsRequestDto.getFileType(), HttpMethod.PUT);
+
+        if (!getPresignedUrlsRequestDto.getPrefix().isEmpty()) {
+            URL downscaledPresignedUrl = s3Manager.generatePresignedUrl(getPresignedUrlsRequestDto.getPrefix() + getPresignedUrlsRequestDto.getFileName(),
+                    getPresignedUrlsRequestDto.getFileType(), HttpMethod.PUT);
+            return GetPresignedUrlsResposneDto.builder()
+                    .originalPresignedUrl(originalPresignedUrl.toString())
+                    .downscaledPresignedURl(downscaledPresignedUrl.toString()).build();
+        }
+        return GetPresignedUrlsResposneDto.builder()
+                .originalPresignedUrl(originalPresignedUrl.toString()).build();
     }
 }

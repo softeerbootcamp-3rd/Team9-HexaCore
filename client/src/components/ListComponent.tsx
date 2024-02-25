@@ -8,6 +8,7 @@ import type { MouseEventHandler } from 'react';
 import { distance } from '@/utils/DistanceCalculater';
 import { dateTimeFormatter } from '@/utils/converters';
 import StarIcon from './review/StarIcon';
+import { useCustomToast } from './Toast';
 
 type ButtonType = 'disabled' | 'enabled' | 'danger';
 
@@ -28,6 +29,8 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
   const [rentStatus, setRentStatus] = useState(reservation.rentStatus);
   const [timeDifference, setTimeDifference] = useState(0);
   const [extraFee, setExtraFee] = useState(0);
+
+  const { ToastComponent, showToast } = useCustomToast();
 
   useEffect(() => {
     const updateTimeDifference = () => {
@@ -83,8 +86,9 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
       },
     });
     if (response && !response.success) {
-      //TODO: 에러나면 어떻게 할지 논의 필요
+      showToast('예약 취소 실패', response.message ?? '다음에 다시 시도해주세요.');
     } else {
+      showToast('예약 취소 성공', '예약이 성공적으로 취소되었습니다.', true);
       setRentStatus('CANCEL');
     }
   };
@@ -114,15 +118,16 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
           });
 
           if (response && !response.success) {
-            //TODO: 에러 처리
+            showToast('반납 실패', response.message ?? '다음에 다시 시도해주세요.');
           } else {
+            showToast('반납 성공', '차량이 성공적으로 반납되었습니다.', true);
             setRentStatus('TERMINATED');
           }
         }
-        //TODO: 너무 멀어서 반납 못한다고 표시
+        showToast('반납 실패', '현재 위치가 반납하려는 위치와 맞지 않습니다.');
       }
     } catch (error) {
-      //Todo: 위치 정보 획득 실패 모달 띄우기
+      showToast('반납 실패', '위치 정보를 불러올 수 없습니다. 다음에 다시 시도해주세요.');
     }
   };
 
@@ -154,10 +159,9 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
   };
 
   return (
-    <div
-      className={`flex flex-col rounded-3xl bg-white px-6 py-4 text-sm shadow-md md:text-base ${className}`}>
+    <div className={`flex flex-col rounded-3xl bg-white px-6 py-4 text-sm shadow-md md:text-base ${className}`}>
       <ul role='list'>
-        <li key='person.email'>
+        <li key={reservation.target.id}>
           <div className='flex gap-4 items-center justify-between'>
             <Link to={type === 'guest' ? `/cars/${reservation.target.id}` : `/profile/${reservation.target.id}`} className='flex gap-4 items-center'>
               <img
@@ -187,8 +191,8 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
                   </div>
               </div>
             </Link>
-            <div className='flex flex-col gap-3'>
-              <div className='flex flex-col text-md text-right font-semibold mr-3'>
+            <div className='flex flex-col gap-3 items-center'>
+              <div className='flex flex-col text-md text-right font-semibold'>
                   <p>
                     {reservation.rentFee.toLocaleString('ko-KR') || null}원
                   </p>
@@ -214,6 +218,7 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
           </div>
         </li>
       </ul>
+      <ToastComponent />
     </div>
   );
 }

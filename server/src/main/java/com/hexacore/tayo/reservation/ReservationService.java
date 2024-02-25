@@ -1,10 +1,12 @@
 package com.hexacore.tayo.reservation;
 
-import com.hexacore.tayo.car.CarRepository;
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarDateRange;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import com.hexacore.tayo.lock.LockKeyGenerator;
+import com.hexacore.tayo.lock.RangeLockManager;
 import com.hexacore.tayo.notification.manager.NotificationManager;
 import com.hexacore.tayo.notification.model.NotificationType;
 import com.hexacore.tayo.reservation.dto.CreateReservationRequestDto;
@@ -34,48 +36,105 @@ public class ReservationService {
     private final CarRepository carRepository;
     private final UserRepository userRepository;
     private final NotificationManager notificationManager;
-
+    private final RangeLockManager lockManager;
     private final PaymentManager paymentManager;
 
     @Transactional
-    public CreateReservationResponseDto createReservation(CreateReservationRequestDto createReservationRequestDto,
-                                                          Long guestUserId) {
-        User guestUser = userRepository.findByIdAndIsDeletedFalse(guestUserId)
-                .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
-
-        Car car = carRepository.findByIdAndIsDeletedFalse(createReservationRequestDto.getCarId())
-                .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
-
-        if (guestUser.getId().equals(car.getOwner().getId())) {
-            throw new GeneralException(ErrorCode.RESERVATION_HOST_EQUALS_GUEST);
-        }
-
-        User hostUser = car.getOwner();
-
+    public CreateReservationResponseDto createReservation(Long guestId, CreateReservationRequestDto createReservationRequestDto) {
         LocalDateTime rentDateTime = createReservationRequestDto.getRentDateTime();
         LocalDateTime returnDateTime = createReservationRequestDto.getReturnDateTime();
+        if (rentDateTime.isAfter(returnDateTime.minusHours(1))) {
+            throw new GeneralException(ErrorCode.RESERVATION_DATETIME_LEAST_HOUR);
+        }
 
-        // rentDateTime, returnDateTime이 범위안에 있는지 검증
-        // 아니라면 RESERVATION_DATE_NOT_IN_RANGE 예외 발생
-        // 범위 안이라면 이미 있는 예약과 겹치는 지 검증
-        // 겹치면 RESERVATION_ALREADY_READY_OR_USING 예외 발생
-        validateRentReturnInRangeElseThrow(car, rentDateTime, returnDateTime);
+        Long carId = createReservationRequestDto.getCarId();
+        String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
+        if (!lockManager.acquireFullRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate())) {
+            throw new GeneralException(ErrorCode.CAR_DATE_RANGE_LOCK_ACQUIRE_FAIL);
+        }
 
-        Integer fee = car.getFeePerHour() * (int) rentDateTime.until(returnDateTime, ChronoUnit.HOURS);
+        try {
+            User guest = userRepository.findByIdAndIsDeletedFalse(guestId)
+                    .orElseThrow(() -> new GeneralException(ErrorCode.USER_NOT_FOUND));
 
-        Reservation reservation = Reservation.builder()
-                .guest(guestUser)
-                .host(hostUser)
-                .car(car)
-                .fee(fee)
-                .rentDateTime(createReservationRequestDto.getRentDateTime())
-                .returnDateTime(createReservationRequestDto.getReturnDateTime())
-                .status(ReservationStatus.READY)
-                .build();
+            Car car = carRepository.findByIdAndIsDeletedFalse(carId)
+                    .orElseThrow(() -> new GeneralException(ErrorCode.CAR_NOT_FOUND));
 
-        Reservation createdReservation = reservationRepository.save(reservation);
-        return CreateReservationResponseDto.builder().reservationId(createdReservation.getId()).fee(fee)
-                .hostId(hostUser.getId()).build();
+            if (guest.getId().equals(car.getOwner().getId())) {
+                throw new GeneralException(ErrorCode.RESERVATION_HOST_EQUALS_GUEST);
+            }
+
+            List<CarDateRange> sortedCarDateRanges = car.getCarDateRanges();
+            sortedCarDateRanges.sort(CarDateRange::compareTo);
+
+            CarDateRange carDateRange = findCarDateRangeIncludesDateRange(sortedCarDateRanges, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
+            if (carDateRange == null) {
+                throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
+            }
+
+            List<Reservation> reservations = reservationRepository.findAllByCar_idAndStatusInOrderByRentDateTimeAsc(
+                    car.getId(),
+                    List.of(ReservationStatus.READY, ReservationStatus.USING)
+            );
+
+            if (isOverlappedReservation(reservations, rentDateTime.toLocalDate(), returnDateTime.toLocalDate())) {
+                throw new GeneralException(ErrorCode.RESERVATION_ALREADY_READY_OR_USING);
+            }
+
+            User host = car.getOwner();
+            int fee = calculateTotalPrice(car.getFeePerHour(), rentDateTime, returnDateTime);
+
+            Reservation reservation = Reservation.builder()
+                    .guest(guest)
+                    .host(host)
+                    .car(car)
+                    .fee(fee)
+                    .rentDateTime(rentDateTime)
+                    .returnDateTime(returnDateTime)
+                    .status(ReservationStatus.READY)
+                    .build();
+
+            Reservation createdReservation = reservationRepository.save(reservation);
+
+            return CreateReservationResponseDto.builder()
+                    .reservationId(createdReservation.getId())
+                    .fee(fee)
+                    .hostId(host.getId())
+                    .build();
+
+        } finally {
+            lockManager.releaseFullRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
+        }
+    }
+
+    private CarDateRange findCarDateRangeIncludesDateRange(List<CarDateRange> sortedCarDateRanges, LocalDate rentDate, LocalDate returnDate) {
+        for (CarDateRange carDateRange : sortedCarDateRanges) {
+            if (rentDate.isBefore(carDateRange.getStartDate())) {
+                return null;
+            }
+            if (returnDate.isAfter(carDateRange.getEndDate())) {
+                continue;
+            }
+            return carDateRange;
+        }
+        return null;
+    }
+
+    private boolean isOverlappedReservation(List<Reservation> sortedReservations, LocalDate rentDate, LocalDate returnDate) {
+        for (Reservation reservation : sortedReservations) {
+            if (returnDate.isBefore(reservation.getRentDateTime().toLocalDate())) {
+                return false;
+            }
+            if (rentDate.isAfter(reservation.getReturnDateTime().toLocalDate())) {
+                continue;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private int calculateTotalPrice(Integer fee, LocalDateTime rentDateTime, LocalDateTime returnDateTime) {
+        return fee * (int) rentDateTime.until(returnDateTime, ChronoUnit.HOURS);
     }
 
     @Transactional

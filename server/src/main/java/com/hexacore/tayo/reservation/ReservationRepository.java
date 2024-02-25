@@ -16,4 +16,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Page<Reservation> findAllByGuest_idOrderByStatusAscRentDateTimeAsc(Long guestId, Pageable pageable);
 
     List<Reservation> findAllByCar_idAndStatusInOrderByRentDateTimeAsc(Long carId, List<ReservationStatus> statusList);
+
 }
