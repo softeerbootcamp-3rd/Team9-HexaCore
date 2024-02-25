@@ -1,6 +1,6 @@
 import { server } from '@/fetches/common/axios';
-import { ResponseWithPagination } from '@/fetches/common/response.type';
-import type { CarData, CarSearchParam } from '@/fetches/cars/cars.type';
+import { ResponseWithData, ResponseWithPagination } from '@/fetches/common/response.type';
+import type { CarData, CarSearchParam, PresignedUrl, PresignedUrlRequestParam } from '@/fetches/cars/cars.type';
 
 export const PAGE_SORT = 'id,DESC';
 export const PAGE_SIZE = 20;
@@ -29,5 +29,14 @@ export const fetchCars = async ({ lat, lng, startDate, endDate, party, type, cat
     return null;
   }
   return { data: response.data, pageInfo: response.pageInfo };
+};
+
+export const fetchPresignedUrls = async ({ fileName, fileType, prefix }: PresignedUrlRequestParam) => {
+  const response = await server.get<ResponseWithData<PresignedUrl>>(`/cars/presigned-urls?fileName=${fileName}&fileType=${fileType}&prefix=${prefix}`);
+
+  if (!response || !response.success) {
+    return null;
+  }
+  return response.data;
 };
 

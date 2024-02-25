@@ -21,7 +21,7 @@ export type CarDetailData = {
   address: string;
   description: string;
   carDateRanges: DateRange[];
-	host: HostData;
+  host: HostData;
   averageRate: number;
 };
 
@@ -39,9 +39,9 @@ export type CarDetailJsonData = {
   address: string;
   description: string;
   carDateRanges: string[][];
-	host: HostData;
+  host: HostData;
   averageRate: number;
-}
+};
 
 // ---- Response
 export type CarData = {
@@ -53,6 +53,11 @@ export type CarData = {
   capacity: number;
   feePerHour: number;
   averageRate: number;
+};
+
+export type PresignedUrl = {
+  originalPresignedUrl: string;
+  downscaledPresignedURl: string | null;
 };
 
 // ---- Request
@@ -76,5 +81,41 @@ export type CarSearchParam = PageRequestParam & {
   page?: number;
   size?: number;
   sort?: string;
+};
+
+export type PresignedUrlRequestParam = {
+  fileName: string;
+  fileType: string;
+  prefix?: string;
+};
+
+type Position = {
+  lat: string;
+  lng: string;
+};
+
+export type CreateCarReuqestParam = {
+  carNumber: string;
+  carName: string;
+  mileage: number;
+  fuel: string;
+  type: string;
+  capacity: number;
+  year: number;
+  feePerHour: number;
+  address: string;
+  position: Position;
+  description?: string;
+  imageUrls: string[];
+  imageIndexes: string[];
+};
+
+export type UpdateCarRequestParam = {
+  feePerHour: number;
+  address: string;
+  position: Position;
+  description: string;
+  imageUrls?: string[];
+  imageIndexes?: string[];
 };
 
