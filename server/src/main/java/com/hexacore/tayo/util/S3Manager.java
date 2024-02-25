@@ -1,12 +1,17 @@
 package com.hexacore.tayo.util;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
+import java.net.URL;
 import java.sql.Timestamp;
+import java.time.Duration;
+import java.util.Date;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -20,6 +25,7 @@ import java.util.Arrays;
 public class S3Manager {
 
     private final AmazonS3 amazonS3Client;
+    private final Integer PRESIGNED_URL_EXPIRATION_MINUTE = 3;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -53,5 +59,17 @@ public class S3Manager {
         String key = String.join("/", Arrays.copyOfRange(urlParts, 3, urlParts.length));
 
         amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, key));
+    }
+
+    public URL generatePresignedUrl(String fileName, String contentType, HttpMethod method) {
+        Date expiration = new Date(System.currentTimeMillis() + Duration.ofMinutes(PRESIGNED_URL_EXPIRATION_MINUTE).toMillis());
+
+        GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                new GeneratePresignedUrlRequest(bucket, fileName)
+                        .withMethod(method)
+                        .withExpiration(expiration)
+                        .withContentType(contentType);
+
+        return amazonS3Client.generatePresignedUrl(generatePresignedUrlRequest);
     }
 }
