@@ -85,5 +85,6 @@ public class Car extends BaseTime {
     private List<Reservation> reservations = new ArrayList<>();
 
     @Column(name = "average_rate")
+    @Builder.Default
     private Double averageRate = 0.0;
 }

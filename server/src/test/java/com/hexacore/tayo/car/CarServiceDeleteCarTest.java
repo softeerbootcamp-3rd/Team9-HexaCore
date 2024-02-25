@@ -1,10 +1,12 @@
 package com.hexacore.tayo.car;
 
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.car.model.Car;
 import com.hexacore.tayo.car.model.CarImage;
 import com.hexacore.tayo.common.errors.ErrorCode;
 import com.hexacore.tayo.common.errors.GeneralException;
 
+import com.hexacore.tayo.lock.RangeLockManager;
 import com.hexacore.tayo.user.model.User;
 import com.hexacore.tayo.util.S3Manager;
 import java.util.List;
@@ -31,6 +33,8 @@ public class CarServiceDeleteCarTest {
     private CarDateRangeRepository carDateRangeRepository;
     @Mock
     private S3Manager s3Manager;
+    @Mock
+    private RangeLockManager lockManager;
     @InjectMocks
     private CarService carService;
 
@@ -43,6 +47,7 @@ public class CarServiceDeleteCarTest {
         BDDMockito.given(carRepository.findByIdAndIsDeletedFalse(carId)).willReturn(Optional.of(Car.builder().owner(User.builder().id(userId).build()).build()));
         BDDMockito.given(carImageRepository.findByCar_Id(Mockito.any()))
                 .willReturn(List.of(new CarImage(), new CarImage()));
+        BDDMockito.given(lockManager.acquireFullRangeLock(Mockito.anyString())).willReturn(true);
 
         // when
         carService.deleteCar(carId, userId);
@@ -60,6 +65,7 @@ public class CarServiceDeleteCarTest {
         Long carId = 0L;
         Long userId = 0L;
         BDDMockito.given(carRepository.findByIdAndIsDeletedFalse(carId)).willReturn(Optional.empty());
+        BDDMockito.given(lockManager.acquireFullRangeLock(Mockito.anyString())).willReturn(true);
 
         // when & then
         Assertions.assertThatThrownBy(() -> carService.deleteCar(carId, userId))
@@ -74,6 +80,7 @@ public class CarServiceDeleteCarTest {
         Long carId = 0L;
         Long userId = 0L;
         BDDMockito.given(carRepository.findByIdAndIsDeletedFalse(carId)).willReturn(Optional.of(Car.builder().owner(User.builder().id(1L).build()).build()));
+        BDDMockito.given(lockManager.acquireFullRangeLock(Mockito.anyString())).willReturn(true);
 
         // when & then
         Assertions.assertThatThrownBy(() -> carService.deleteCar(carId, userId))

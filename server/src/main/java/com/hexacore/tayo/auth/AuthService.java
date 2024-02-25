@@ -4,7 +4,7 @@ import com.hexacore.tayo.auth.jwt.RefreshTokenService;
 import com.hexacore.tayo.auth.jwt.dto.GetTokenResponseDto;
 import com.hexacore.tayo.auth.jwt.util.JwtProvider;
 import com.hexacore.tayo.car.CarImageRepository;
-import com.hexacore.tayo.car.CarRepository;
+import com.hexacore.tayo.car.carRepository.CarRepository;
 import com.hexacore.tayo.reservation.model.Reservation;
 import com.hexacore.tayo.reservation.model.ReservationStatus;
 import com.hexacore.tayo.util.Encryptor;
