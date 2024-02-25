@@ -11,6 +11,10 @@ function Payment({ message, isSuccess, btnMessage }: PaymentProps) {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const carId = params.get('carId');
+  const startDate = params.get('startDate');
+  const endDate = params.get('endDate');
+  const rentTime = params.get('rentTime');
+  const returnTime = params.get('returnTime');
 
   return (
     <div className='m-auto mt-10 max-w-sm rounded-2xl border border-background-200 bg-white p-6 shadow'>
@@ -44,7 +48,7 @@ function Payment({ message, isSuccess, btnMessage }: PaymentProps) {
       )}
 
       <div className='flex w-full justify-center space-x-4'>
-        <Link to={`/cars/${carId}`}>
+        <Link to={`/cars/${carId}?startDate=${startDate}&endDate=${endDate}&rentTime=${rentTime}&returnTime=${returnTime}`}>
           <Button text={btnMessage} className='block w-full px-4 py-2 text-center font-semibold' isRounded></Button>
         </Link>
       </div>
