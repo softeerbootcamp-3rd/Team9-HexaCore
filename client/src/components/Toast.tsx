@@ -18,25 +18,25 @@ function Toast({ title, message, info = false, duration = 2000, isVisible, setIs
 
     return () => clearTimeout(timer);
   }, [message, duration]);
-
-  return isVisible && title && message ? (
-    <div className={`fixed bottom-0 mb-4 flex w-full justify-center transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className={`flex gap-4 justify-between rounded-lg px-4 py-2 text-white shadow ${info ? 'bg-info-400' : 'bg-danger-500'}`}>
-        <div className='flex flex-col'>
-          <div className='justify-center text-base font-bold'>{title}</div>
-          <div className='text-sm'>{message}</div>
-        </div>
-        <button
-          onClick={() => setIsVisible(false)}
-          type='button'
-          className='inline-flex h-8 w-8 items-center justify-end rounded-lg bg-transparent text-sm text-white'
-          data-modal-hide='default-modal'>
-          <svg className='h-3 w-3' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 14 14'>
-            <path stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6' />
-          </svg>
-        </button>
-      </div>
+  
+  return isVisible && title && message?
+  ( <div className={`fixed bottom-0 mb-4 flex left-0 right-0 justify-center transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+  <div className={`flex gap-4 justify-between rounded-lg px-4 py-2 text-white shadow ${info ? 'bg-info-400' : 'bg-danger-500'}`}>
+    <div className='flex flex-col'>
+      <div className='justify-center text-base font-bold'>{title}</div>
+      <div className='text-xs'>{message}</div>
     </div>
+    <button
+      onClick={() => setIsVisible(false)}
+      type='button'
+      className='inline-flex h-8 w-8 items-center justify-end rounded-lg bg-transparent text-sm text-white'
+      data-modal-hide='default-modal'>
+      <svg className='h-3 w-3' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 14 14'>
+        <path stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6' />
+      </svg>
+    </button>
+  </div>
+</div>
   ) : null;
 }
 

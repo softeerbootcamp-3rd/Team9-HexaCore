@@ -21,6 +21,7 @@ function Profile() {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUserDelModalOpen, setIsUserDelModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 	const { ToastComponent, showToast } = useCustomToast();
 
   useEffect(() => {
@@ -64,11 +65,12 @@ function Profile() {
   const deleteUser = async () => {
     const response = await server.delete<ResponseWithoutData>('/auth');
 
-
     if (!response.success) {
       // 회원탈퇴 실패한 경우
       showToast('회원탈퇴 실패', response.message);
     }
+
+    showToast('회원탈퇴 성공', '회원 탈퇴 되었습니다. 이후 2년간 재가입은 불가능합니다.', true);
     setAuth({
       userId: null,
       accessToken: null,
@@ -161,9 +163,22 @@ function Profile() {
         (isUserDelModalOpen) ?
         <CheckModal
           title='정말로 탈퇴하시겠습니까?'
-          content='한 번 탈퇴하면 2년간 재가입하실 수 없으십니다.'
+          content='한 번 탈퇴하면 2년간 재가입하실 수 없습니다.'
           onCancel={() => {setIsUserDelModalOpen(false)}}
           confirmMsg='탈퇴'
+          onConfirm={() => {deleteUser()}} 
+        />
+        :
+        <></>
+      }
+
+      {
+        (isCancelModalOpen) ?
+        <CheckModal
+          title='정말로 취소하시겠습니까?'
+          content='예약을 취소하면 차주에게 예약 취소 알림이 전송됩니다.'
+          onCancel={() => {setIsCancelModalOpen(false)}}
+          confirmMsg='예약 취소'
           onConfirm={() => {deleteUser()}} 
         />
         :

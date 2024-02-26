@@ -195,61 +195,61 @@ function CarDetail() {
   };
 
   return (
-    <div className='flex flex-col gap-8 px-40 mx-10 mb-10'>
+    <div className='flex flex-col gap-8 px-16 mx-10 mb-10'>
       {/* Image Gallery */}
-      <ImageGallery imageUrls={data.carData.imageUrls} className='h-[500px] rounded-xl' />
+      <ImageGallery imageUrls={data.carData.imageUrls} className='h-[450px] rounded-xl' />
       {/* Car Detail + Reservation */}
       <div className='flex gap-9'>
         {/* Car Detail */}
         <div className='flex w-3/5 flex-col gap-4 rounded-3xl bg-white p-6 shadow-xl'>
           {/* Header : CarName, capacity(tag), type, mileage, fuel */}
           <div>
-            <div className='mb-2 flex items-center justify-between'>
-              <div className='flex gap-1'>
+            <div className='p-2 flex items-center justify-between'>
+              <div className='flex gap-3'>
                 <h1 className='text-xl font-bold'>{data.carData.categoryName}</h1>
                 <div className='flex gap-1 items-center'>
                   <StarIcon filled={true} className='w-4 h-4' />
                   <div className='text-sm'>{data.carData.averageRate?.toFixed(1) ?? 0}</div>
                 </div>
               </div>
-              <Tag className='h-[30px] px-4' text={`${data.carData.capacity}인승`} />
+              <Tag className='h-[32px] px-4 py-1' text={`${data.carData.capacity}인승`} />
             </div>
-            <p className='text-background-500'>
+            <p className='text-background-500 p-2'>
               차종 {data.carData.type} &#183; 연비 {data.carData.mileage}km/L &#183; 연료 {data.carData.fuel}
             </p>
           </div>
 
           {/* Line */}
-          <div className='h-0 w-full border-[0.5px] border-background-300'></div>
+          <div className='my-3 h-0 w-full border-[0.5px] border-background-300'></div>
 
           {/* Host Info */}
           <ImageInfo img={data.carData.host.profileImg ?? '/defaultProfile.png'} alt='host-profile'
             title='호스트' info={`${data.carData.host.name}님`} />
 
           {/* Line */}
-          <div className='h-0 w-full border-[0.5px] border-background-300'></div>
+          <div className='my-3 h-0 w-full border-[0.5px] border-background-300'></div>
 
           {/* Car Info year, carAddress */}
           <div className='flex flex-col gap-3'>
             {/* carNumber */}
             <ImageInfo img='/truck.svg' alt='car-number'
-              title='차량 번호' info={data.carData.carNumber} className='pl-2' />
+              title='차량 번호' info={data.carData.carNumber} className='pl-3' />
 
             {/* Year */}
             <ImageInfo img='/year.svg' alt='year'
-              title='연식' info={`${data.carData.year}년`} className='pl-2'/>
+              title='연식' info={`${data.carData.year}년`} className='pl-3'/>
 
             {/* Address */}
             <ImageInfo img='/location.svg' alt='car-address'
-              title='픽업 위치' info={data.carData.address} className='pl-2' />
+              title='픽업 위치' info={data.carData.address} className='pl-3' />
           </div>
 
           {/* Line */}
-          <div className='h-0 w-full border-[0.5px] border-background-300'></div>
+          <div className='my-3 h-0 w-full border-[0.5px] border-background-300'></div>
 
           {/* Description */}
           <div className=''>
-            <p className='whitespace-pre-line leading-8 text-background-500'>{data.carData.description}</p>
+            <p className='px-4 whitespace-pre-line leading-8 text-background-500'>{data.carData.description}</p>
           </div>
         </div>
 
@@ -316,7 +316,7 @@ function CarDetail() {
       </div>
       {/* Review */}
       <div className='flex flex-col gap-4 rounded-3xl bg-white shadow-xl p-6 '>
-        <p className='font-bold'>{reviews.length === 0 ? '아직 작성된 리뷰가 없습니다' : `후기 ${data.totalReviews}개`}</p>
+        <p className='font-bold p-4 text-[18px]'>{reviews.length === 0 ? '아직 작성된 리뷰가 없습니다' : `후기 ${data.totalReviews}개`}</p>
           {reviews.length !== 0 &&
             <div className='grid grid-cols-2 gap-10'>
             {reviews.map((review, i) => (

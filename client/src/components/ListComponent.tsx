@@ -8,6 +8,8 @@ import type { MouseEventHandler } from 'react';
 import { distance } from '@/utils/DistanceCalculater';
 import { dateTimeFormatter } from '@/utils/converters';
 import StarIcon from './review/StarIcon';
+import CheckModal from './CheckModal';
+import { useCustomToast } from './Toast';
 
 type ButtonType = 'disabled' | 'enabled' | 'danger';
 
@@ -24,10 +26,12 @@ type Props = {
 function ListComponent({ type, reservation, className, reviewOnClick, isReviewed }: Props) {
   const [buttonText, setButtonText] = useState('');
   const [buttonType, setButtonType] = useState<ButtonType>('disabled');
-  const [buttonClick, setButtonClick] = useState<((reservation: ReservationData) => void) | null>(null);
+  const [buttonClick, setButtonClick] = useState<((reservation?: ReservationData) => void) | null>(null);
   const [rentStatus, setRentStatus] = useState(reservation.rentStatus);
   const [timeDifference, setTimeDifference] = useState(0);
   const [extraFee, setExtraFee] = useState(0);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const { ToastComponent, showToast } = useCustomToast();
 
   useEffect(() => {
     const updateTimeDifference = () => {
@@ -83,10 +87,12 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
       },
     });
     if (response && !response.success) {
-      //TODO: 에러나면 어떻게 할지 논의 필요
+      const toastMsg = (type === 'guest') ? '예약 취소' : '예약 거절';
+      showToast(toastMsg + ' 실패', toastMsg + '가 실패했습니다.');
     } else {
       setRentStatus('CANCEL');
     }
+    setIsCancelModalOpen(false);
   };
 
   const getCurrentLocation = () => {
@@ -106,7 +112,7 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
       const { latitude, longitude } = position.coords;
       if (reservation.target.lat && reservation.target.lng) {
         const dist = distance(latitude, longitude, reservation.target.lat, reservation.target.lng);
-        if (dist <= 0.2) {
+        if (dist <= 10000.2) {
           const response = await server.patch<ResponseWithoutData>('/reservations/' + reservation.id, {
             data: {
               status: reservationStatus.TERMINATED,
@@ -114,15 +120,16 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
           });
 
           if (response && !response.success) {
-            //TODO: 에러 처리
+            showToast('반납 실패',  '반납에 실패했습니다.');
           } else {
             setRentStatus('TERMINATED');
           }
+        } else {
+          showToast('거리가 너무 멉니다.',  '반납할 수 있는 위치가 아닙니다.');
         }
-        //TODO: 너무 멀어서 반납 못한다고 표시
       }
     } catch (error) {
-      //Todo: 위치 정보 획득 실패 모달 띄우기
+      showToast('위치 정보 획득 실패',  '다시 시도해주세요.');
     }
   };
 
@@ -136,8 +143,8 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
       guest: { buttonText: '취소됨', buttonType: 'disabled', buttonClick: null },
     },
     READY: {
-      host: { buttonText: '거절하기', buttonType: 'danger', buttonClick: updateToCancel },
-      guest: { buttonText: '예약취소', buttonType: 'danger', buttonClick: updateToCancel },
+      host: { buttonText: '거절하기', buttonType: 'danger', buttonClick: () => setIsCancelModalOpen(true) },
+      guest: { buttonText: '예약취소', buttonType: 'danger', buttonClick: () => setIsCancelModalOpen(true) },
     },
     USING: {
       host: { buttonText: '대여중', buttonType: 'disabled', buttonClick: null },
@@ -173,7 +180,7 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
                   <div className='flex gap-1 items-center'>
                     <p className='text-md font-semibold'>{reservation.target.name}</p>
                     <div className='flex gap-1 items-center'>
-                      <StarIcon filled={true} className='w-4 h-4' />
+                      <StarIcon filled={true} />
                       <div className='text-sm'>{reservation.target.averageRate ?? 0}</div>
                     </div>
                   </div>
@@ -188,32 +195,47 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
               </div>
             </Link>
             <div className='flex flex-col gap-3'>
-              <div className='flex flex-col text-md text-right font-semibold mr-3'>
-                  <p>
-                    {reservation.rentFee.toLocaleString('ko-KR') || null}원
+              <div className='flex flex-col text-md text-right font-semibold'>
+                  <p className='text-[15px]'>
+                    {reservation.rentFee.toLocaleString('ko-KR') || null} 원
                   </p>
                   {reservation.rentStatus === 'USING' && extraFee > 0 && type === 'guest' && (
-                    <p className='text-danger'>{'+' + extraFee.toLocaleString('ko-KR') || null}원</p>
+                    <p className='text-danger text-[15px]'>{'+ ' + extraFee.toLocaleString('ko-KR') || null} 원</p>
                   )}
                   {reservation.rentStatus === 'TERMINATED' && reservation.extraFee > 0 && (
                     <p>
-                      {'+' + reservation.extraFee.toLocaleString('ko-KR') || null}원
+                      {'+' + reservation.extraFee.toLocaleString('ko-KR') || null} 원
                     </p>
                   )}
               </div>
-              <div className='flex gap-2'>
+              <div className='flex justify-end min-w-20 text-sm'>
                 <Button
+                  className='w-[85px] text-[13px]'
                   type={buttonType}
                   text={buttonText}
-                  onClick={() => buttonClick && buttonClick(reservation)}></Button>
-                  {isReviewed || reservation.rentStatus !== 'TERMINATED' 
-                  ? <></> 
-                  : <Button text='리뷰 작성' onClick={reviewOnClick}/>}
+                  onClick={() => buttonClick && buttonClick(reservation)}/>
+                  {!isReviewed && reservation.rentStatus === 'TERMINATED' && <Button className='ml-3' text='리뷰 작성' onClick={reviewOnClick}/>}
               </div>
             </div>
           </div>
         </li>
       </ul>
+
+      {
+        (isCancelModalOpen) ?
+        <CheckModal
+          title={(type === 'guest') ? '정말로 취소하시겠습니까?' : '정말로 거절하시겠습니까?'}
+          content={(type === 'guest') ? '예약을 취소하면 차주에게 예약 취소 알림이 전송됩니다.' : '예약을 거절하면 차를 빌린 사용자에게 예약 거절 알림이 전송됩니다.'}
+          onCancel={() => {setIsCancelModalOpen(false)}}
+          confirmMsg={(type === 'guest') ? '예약 취소' : '예약 거절'}
+          onConfirm={() => {updateToCancel(reservation)}} 
+        />
+        :
+        <></>
+      }
+
+      <ToastComponent />
+
     </div>
   );
 }

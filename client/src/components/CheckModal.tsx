@@ -24,7 +24,7 @@ const CheckModal: React.FC<ModalProps> = ({ title, content, onCancel, confirmMsg
             </button>
           </div>
 
-          <p className='text-xs mb-8 text-background-700'>
+          <p className='text-sm mb-8 text-background-700'>
             {content}
           </p>
           
