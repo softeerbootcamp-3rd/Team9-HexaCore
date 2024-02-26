@@ -14,11 +14,13 @@ import { ResponseWithoutData } from '@/fetches/common/response.type';
 import { createPortal } from 'react-dom';
 import ReviewModal from '@/components/review/ReviewModal';
 import { useCustomToast } from '@/components/Toast';
+import CheckModal from '@/components/CheckModal';
 
 function Profile() {
   const user = useLoaderData() as UserData;
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isUserDelModalOpen, setIsUserDelModalOpen] = useState(false);
 	const { ToastComponent, showToast } = useCustomToast();
 
   useEffect(() => {
@@ -65,7 +67,7 @@ function Profile() {
 
     if (!response.success) {
       // 회원탈퇴 실패한 경우
-      alert(response.message); // TODO: 실패 시 처리
+      showToast('회원탈퇴 실패', response.message);
     }
     setAuth({
       userId: null,
@@ -109,7 +111,7 @@ function Profile() {
         <div className='flex h-auto w-full items-start pt-2'>
           <img className='h-[150px] w-[150px] rounded-2xl shadow-md' src={user?.image || '/defaultProfile.png'}></img>
 
-          <div className='ml-8 flex w-2/5 flex-col'>
+          <div className='ml-8 flex w-3/5 flex-col'>
             <p className='text-md m-1 py-1 font-semibold'>{user?.name}</p>
 
             <div className='m-1 flex flex-row items-center text-background-400'>
@@ -122,14 +124,19 @@ function Profile() {
               <p className='ml-4 text-sm'>{user?.phoneNum}</p>
             </div>
 
-            <div className='flex flex-row pt-3 gap-2'>
-              <Link to={`/auth/signup/${auth.userId}`} className='h-8 w-1/6 '>
-                <Button text='수정' className='whitespace-nowrap rounded-xl text-xs xl:text-sm' onClick={editProfile}/>
+            <div className='flex flex-row pt-3 gap-5'>
+              <Link to={`/auth/signup/${auth.userId}`}>
+                <Button 
+                  text='수정' 
+                  className='flex h-8 w-20 items-center justify-center whitespace-nowrap rounded-lg text-xs xl:text-sm' 
+                  onClick={editProfile}
+                />
               </Link>
+
               <Button
                 text='탈퇴'
-                className='flex h-8 items-center justify-center whitespace-nowrap rounded-xl text-xs xl:text-sm'
-                onClick={deleteUser}
+                className='flex h-8 w-20 items-center justify-center whitespace-nowrap rounded-lg text-xs xl:text-sm'
+                onClick={() => {setIsUserDelModalOpen(true)}}
                 type='danger'
               />
             </div>
@@ -145,8 +152,23 @@ function Profile() {
           {ReservationCard}
           <div ref={loaderRefNext}></div>
         </div>
+
         <ToastComponent />
+
       </div>
+
+      {
+        (isUserDelModalOpen) ?
+        <CheckModal
+          title='정말로 탈퇴하시겠습니까?'
+          content='한 번 탈퇴하면 2년간 재가입하실 수 없으십니다.'
+          onCancel={() => {setIsUserDelModalOpen(false)}}
+          confirmMsg='탈퇴'
+          onConfirm={() => {deleteUser()}} 
+        />
+        :
+        <></>
+      }
     </div>
   );
 }
