@@ -69,8 +69,7 @@ function Profile() {
       // 회원탈퇴 실패한 경우
       showToast('회원탈퇴 실패', response.message);
     }
-
-    showToast('회원탈퇴 성공', '회원 탈퇴 되었습니다. 이후 2년간 재가입은 불가능합니다.', true);
+    
     setAuth({
       userId: null,
       accessToken: null,
