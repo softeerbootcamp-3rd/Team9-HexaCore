@@ -21,10 +21,10 @@ function Toast({ title, message, info = false, duration = 2000, isVisible, setIs
   
   return isVisible && title && message?
   ( <div className={`fixed bottom-0 mb-4 flex left-0 right-0 justify-center transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-  <div className={`flex gap-4 justify-between rounded-lg px-4 py-2 text-white shadow ${info ? 'bg-info-400' : 'bg-danger-500'}`}>
-    <div className='flex flex-col'>
+  <div className={`flex gap-4 justify-between rounded-lg px-4 py-2 text-white shadow ${info ? 'bg-info-500' : 'bg-danger-500'}`}>
+    <div className='p-1 flex flex-col'>
       <div className='justify-center text-base font-bold'>{title}</div>
-      <div className='text-xs'>{message}</div>
+      <div className='text-xs pt-2'>{message}</div>
     </div>
     <button
       onClick={() => setIsVisible(false)}

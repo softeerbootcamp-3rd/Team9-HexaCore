@@ -86,10 +86,12 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
         status: reservationStatus.CANCEL,
       },
     });
+
+    const toastMsg = (type === 'guest') ? '예약 취소' : '예약 거절';
     if (response && !response.success) {
-      const toastMsg = (type === 'guest') ? '예약 취소' : '예약 거절';
-      showToast(toastMsg + ' 실패', toastMsg + '가 실패했습니다.');
+      showToast(toastMsg + ' 실패', response.message);
     } else {
+      showToast(toastMsg + ' 성공', toastMsg + '되었습니다.');
       setRentStatus('CANCEL');
     }
     setIsCancelModalOpen(false);
