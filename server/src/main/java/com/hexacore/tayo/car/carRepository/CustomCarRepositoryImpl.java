@@ -84,6 +84,7 @@ public class CustomCarRepositoryImpl implements CustomCarRepository {
                         optionalFeePerHourInRange(searchCondition.getMinPrice(), searchCondition.getMaxPrice())
                 )
                 .groupBy(car)
+                .having(QReservation.reservation.id.count().loe(0))
                 .orderBy(car.id.desc()) // TODO: pagable.getSort()를 이용하여 정렬 조건을 추가
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
