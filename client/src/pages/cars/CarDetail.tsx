@@ -21,12 +21,12 @@ import Review from '@/components/review/Review';
 
 function CarDetail() {
   const data = useLoaderData() as CarDetailLoaderData;
-  const [rentTime, setRentTime] = useState(9);
-  const [returnTime, setReturnTime] = useState(9);
-  const [totalFee, setTotalFee] = useState(0);
-
   const location = useLocation();
   const params = new URLSearchParams(location.search);
+  const [rentTime, setRentTime] = useState(params.get('rentTime') ? Number(params.get('rentTime')) : 9);
+  const [returnTime, setReturnTime] = useState(params.get('returnTime') ? Number(params.get('returnTime')) : 9);
+  const [totalFee, setTotalFee] = useState(0);
+
   const startDate = params.get('startDate') ?? formatDate(new Date());
   const endDate = params.get('endDate') ?? formatDate(new Date());
   const [dateRange, setDateRange] = useState<DateRange>(stringTupleToDateRange([startDate, endDate]));
@@ -46,7 +46,7 @@ function CarDetail() {
   useEffect(() => {
     const fetchReviews = async () => {
       const response = await fetchCarReviews(data.carData.carId, page, 10, 'id,DESC');
-      if(!response || !response.success) {
+      if (!response || !response.success) {
         showToast('리뷰 조회 실패', '리뷰를 불러오는데 실패하였습니다.');
         return;
       }
@@ -55,10 +55,10 @@ function CarDetail() {
       setHasNext(response.pageInfo.hasNext);
     };
 
-    if(hasNext) {
+    if (hasNext) {
       fetchReviews();
     }
-  }, [page])
+  }, [page]);
 
   useEffect(() => {
     setHasNext(data.hasNext);
@@ -103,10 +103,6 @@ function CarDetail() {
     const endDateTime = new Date(dateRange[1]);
     endDateTime.setHours(time);
 
-    if (startDateTime > endDateTime) {
-      setRentTime(time);
-    }
-
     setReturnTime(time);
   };
 
@@ -122,6 +118,15 @@ function CarDetail() {
     // 시간 간격 계산 (밀리초 단위)
     const timeDiff = endDate.getTime() - startDate.getTime();
     const hourInterval = timeDiff / (1000 * 60 * 60);
+
+    // 잘못된 예약 구간일 경우 시간 초기화
+    if (hourInterval < 0) {
+      setRentTime(9);
+      setReturnTime(9);
+
+      setTotalFee(0);
+      return;
+    }
 
     // 시간당 요금과 시간 간격을 곱하여 총 요금 계산
     const calculatedFee = data.carData.feePerHour * hourInterval;
@@ -143,6 +148,18 @@ function CarDetail() {
     startDate.setHours(rentTime);
     endDate.setHours(returnTime);
 
+    // 만약 returnDate가 현재 시각보다 이전일 경우 예약 불가능
+    if (endDate < new Date()) {
+      showToast('예약 실패', '현재 시각 이후 부터 대여 가능합니다.');
+      return;
+    }
+
+    // endDate가 startDate보다 이전일 경우 예약 불가능
+    if (endDate < startDate) {
+      showToast('예약 실패', '잘못된 예약 정보입니다.');
+      return;
+    }
+
     // date를 string으로 변환
     const rentDate = dateTimeToString(startDate);
     const returnDate = dateTimeToString(endDate);
@@ -150,12 +167,6 @@ function CarDetail() {
     // 만약 rentDate와 returnDate가 동일할 경우 예약 불가능
     if (rentDate === returnDate) {
       showToast('예약 실패', '최소 예약 단위는 1시간입니다.');
-      return;
-    }
-
-    // 만약 returnDate가 현재 시각보다 이전일 경우 예약 불가능
-    if(endDate < new Date()) {
-      showToast('예약 실패', '현재 시각 이후 부터 대여 가능합니다.');
       return;
     }
 
@@ -189,7 +200,7 @@ function CarDetail() {
     const tossPayments = window.TossPayments(clientKey);
     tossPayments.requestBillingAuth('카드', {
       customerKey: customerKey,
-      successUrl: `${window.location.origin}/payment/pending?carId=${data.carData.carId}`,
+      successUrl: `${window.location.origin}/payment/pending?carId=${data.carData.carId}&startDate=${startDate}&endDate=${endDate}&rentTime=${rentTime}&returnTime=${returnTime}`,
       failUrl: `${window.location.origin}/payment/fail`,
     });
   };
@@ -207,8 +218,8 @@ function CarDetail() {
             <div className='p-2 flex items-center justify-between'>
               <div className='flex gap-3'>
                 <h1 className='text-xl font-bold'>{data.carData.categoryName}</h1>
-                <div className='flex gap-1 items-center'>
-                  <StarIcon filled={true} className='w-4 h-4' />
+                <div className='flex items-center gap-1'>
+                  <StarIcon filled={true} className='h-4 w-4' />
                   <div className='text-sm'>{data.carData.averageRate?.toFixed(1) ?? 0}</div>
                 </div>
               </div>
@@ -223,8 +234,7 @@ function CarDetail() {
           <div className='my-3 h-0 w-full border-[0.5px] border-background-300'></div>
 
           {/* Host Info */}
-          <ImageInfo img={data.carData.host.profileImg ?? '/defaultProfile.png'} alt='host-profile'
-            title='호스트' info={`${data.carData.host.name}님`} />
+          <ImageInfo img={data.carData.host.profileImg ?? '/defaultProfile.png'} alt='host-profile' title='호스트' info={`${data.carData.host.name}님`} />
 
           {/* Line */}
           <div className='my-3 h-0 w-full border-[0.5px] border-background-300'></div>
@@ -269,15 +279,11 @@ function CarDetail() {
           <div className='grid grid-cols-2 gap-0 overflow-hidden rounded-xl border-[1px] border-background-300'>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-r-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>대여일</p>
-              <p className='text-background-500 min-h-6'>
-                {formatDate(dateRange[0]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[0])}
-              </p>
+              <p className='min-h-6 text-background-500'>{formatDate(dateRange[0]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[0])}</p>
             </label>
             <label className='flex flex-col gap-1 border-b-[0.5px] border-l-[0.5px] border-background-300 p-3' htmlFor='rentHourSelect'>
               <p className='text-xs font-medium'>반납일</p>
-              <p className='text-background-500 min-h-6'>
-                {formatDate(dateRange[1]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[1])}
-              </p>
+              <p className='min-h-6 text-background-500'>{formatDate(dateRange[1]) === formatDate(new Date(0)) ? '' : formatDate(dateRange[1])}</p>
             </label>
             <div className='gap-1 border-r-[0.5px] border-t-[0.5px] border-background-300 p-3'>
               <p className='text-xs font-medium'>대여 시각</p>
@@ -317,19 +323,13 @@ function CarDetail() {
       {/* Review */}
       <div className='flex flex-col gap-4 rounded-3xl bg-white shadow-xl p-6 '>
         <p className='font-bold p-4 text-[18px]'>{reviews.length === 0 ? '아직 작성된 리뷰가 없습니다' : `후기 ${data.totalReviews}개`}</p>
-          {reviews.length !== 0 &&
+          {reviews.length !== 0 && (
             <div className='grid grid-cols-2 gap-10'>
             {reviews.map((review, i) => (
-              <Review
-                key={i}
-                imgUrl={review.writer.profileImgUrl}
-                name={review.writer.name}
-                rate={review.rate}
-                contents={review.contents}
-              />
+              <Review key={i} imgUrl={review.writer.profileImgUrl} name={review.writer.name} rate={review.rate} contents={review.contents} />
             ))}
           </div>
-          }
+        )}
       </div>
       <div ref={loaderRefNext}></div>
       <ToastComponent />
@@ -338,3 +338,4 @@ function CarDetail() {
 }
 
 export default CarDetail;
+

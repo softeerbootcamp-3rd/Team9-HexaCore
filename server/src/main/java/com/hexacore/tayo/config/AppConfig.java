@@ -1,5 +1,7 @@
 package com.hexacore.tayo.config;
 
+import com.hexacore.tayo.lock.InMemoryRangeLockManager;
+import com.hexacore.tayo.lock.RangeLockManager;
 import com.hexacore.tayo.notification.NotificationService;
 import com.hexacore.tayo.notification.manager.InMemoryNotificationManager;
 import com.hexacore.tayo.notification.manager.NotificationManager;
@@ -12,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @RequiredArgsConstructor
 public class AppConfig {
+
     private final SseEmitterService sseEmitterService;
     private final NotificationService notificationService;
 
@@ -23,5 +26,10 @@ public class AppConfig {
     @Bean
     public NotificationManager notificationManager() {
         return new InMemoryNotificationManager(sseEmitterService, notificationService);
+    }
+
+    @Bean
+    public RangeLockManager rangeLockManager() {
+        return new InMemoryRangeLockManager();
     }
 }

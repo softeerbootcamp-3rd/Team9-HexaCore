@@ -1,4 +1,4 @@
-package com.hexacore.tayo.car;
+package com.hexacore.tayo.car.carRepository;
 
 import com.hexacore.tayo.car.dto.SearchCarsDto;
 import com.hexacore.tayo.car.dto.SearchCarsResultDto;
@@ -26,7 +26,7 @@ import java.util.List;
 
 
 @RequiredArgsConstructor
-public class CarCustomRepositoryImpl implements CarCustomRepository {
+public class CustomCarRepositoryImpl implements CustomCarRepository {
 
     private final JPAQueryFactory queryFactory;
 
@@ -78,12 +78,13 @@ public class CarCustomRepositoryImpl implements CarCustomRepository {
                                 .or(reservation.returnDateTime.lt(searchCondition.getStartDate().atStartOfDay()))
                                 .or(reservation.rentDateTime.gt(searchCondition.getEndDate().atStartOfDay())),
 
-                        optionalCarTypeEq(searchCondition.getType()),
+                        optionalCarTypeIn(searchCondition.getTypes()),
                         optionalCategoryEq(searchCondition.getCategoryId(), searchCondition.getSubcategoryId()),
                         optionalCapacityGoe(searchCondition.getParty()),
                         optionalFeePerHourInRange(searchCondition.getMinPrice(), searchCondition.getMaxPrice())
                 )
                 .groupBy(car)
+                .having(QReservation.reservation.id.count().loe(0))
                 .orderBy(car.id.desc()) // TODO: pagable.getSort()를 이용하여 정렬 조건을 추가
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -107,17 +108,18 @@ public class CarCustomRepositoryImpl implements CarCustomRepository {
         );
     }
 
-    private BooleanExpression optionalCarTypeEq(CarType type) {
-        if (type != null) {
-            return QCar.car.type.eq(type);
+    private BooleanExpression optionalCarTypeIn(List<CarType> types) {
+        if (types == null || types.isEmpty()) {
+            return null;
         }
-        return null;
+        return QCar.car.type.in(types);
     }
 
     private BooleanExpression optionalCategoryEq(Long categoryId, Long subcategoryId) {
         if (subcategoryId != null) {
             return QCar.car.subcategory.id.eq(subcategoryId);
-        } else if (categoryId != null) {
+        }
+        if (categoryId != null) {
             return QCar.car.subcategory.category.id.eq(categoryId);
         }
         return null;

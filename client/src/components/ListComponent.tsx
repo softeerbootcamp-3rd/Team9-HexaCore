@@ -112,7 +112,7 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
       const { latitude, longitude } = position.coords;
       if (reservation.target.lat && reservation.target.lng) {
         const dist = distance(latitude, longitude, reservation.target.lat, reservation.target.lng);
-        if (dist <= 10000.2) {
+        if (dist <= 0.2) {
           const response = await server.patch<ResponseWithoutData>('/reservations/' + reservation.id, {
             data: {
               status: reservationStatus.TERMINATED,
