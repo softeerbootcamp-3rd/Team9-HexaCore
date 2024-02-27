@@ -7,8 +7,6 @@ import com.hexacore.tayo.notification.manager.InMemoryNotificationManager;
 import com.hexacore.tayo.notification.manager.NotificationManager;
 import com.hexacore.tayo.notification.sse.SseEmitterService;
 import lombok.RequiredArgsConstructor;
-import com.hexacore.tayo.lock.InMemoryRangeLockManager;
-import com.hexacore.tayo.lock.RangeLockManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
@@ -16,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @RequiredArgsConstructor
 public class AppConfig {
+
     private final SseEmitterService sseEmitterService;
     private final NotificationService notificationService;
 
