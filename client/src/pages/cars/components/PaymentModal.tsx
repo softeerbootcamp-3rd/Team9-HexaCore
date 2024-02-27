@@ -10,10 +10,11 @@ type PaymentModalProps = {
   orderName: string;
   userName: string;
   reservationData: CreateReservationData;
+  carNumber: string;
   onClose: () => void;
 };
 
-function PaymentModal({ onClose, reservationData, price, orderName, userName }: PaymentModalProps) {
+function PaymentModal({ onClose, reservationData, price, orderName, userName, carNumber }: PaymentModalProps) {
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState<boolean>(false);
   const [isFailed, setIsFailed] = useState<boolean>(false);
@@ -59,8 +60,8 @@ function PaymentModal({ onClose, reservationData, price, orderName, userName }: 
               type='button'
               className='ms-auto inline-flex aspect-square w-10 items-center justify-center rounded-lg bg-transparent p-1 text-sm text-background-400'
               data-modal-hide='default-modal'>
-              <svg className='h-3 w-3' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 14 14'>
-                <path stroke='currentColor' strokeLinecap='round' strokeLinejoin='round' strokeWidth='2' d='m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6' />
+              <svg className='mt-5 h-4 w-4' aria-hidden='true' xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 14 14'>
+                <path stroke='currentColor' strokeLinecap='round' strokeLinejoin='round' strokeWidth='1' d='m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6' />
               </svg>
               <span className='sr-only'>Close modal</span>
             </button>
@@ -94,17 +95,17 @@ function PaymentModal({ onClose, reservationData, price, orderName, userName }: 
               <div className='ali flex flex-col justify-center gap-4'>
                 <div className='mb-2 text-xl font-bold'>예약 확인</div>
                 <div className='text-lg'>
-                  <span className='font-semibold'>차량 번호:</span> 11주 1111
+                  <span className='font-semibold'>차량 번호:</span> <span>{carNumber}</span>
                 </div>
-                <div className='text-lg'>
-                  <span className='font-semibold'>예약 날짜:</span> {formatDate(reservationData.rentDateTime)} ~ {formatDate(reservationData.returnDateTime)}
+                <div className='mb-2 text-md text-background-700'>
+                  <span className='font-semibold'> 예약 날짜:</span> {formatDate(reservationData.rentDateTime)} ~ {formatDate(reservationData.returnDateTime)}
                 </div>
-                <div className='text-lg'>
-                  <span className='font-semibold'>결제 금액: </span>
-                  {price.toLocaleString()} ₩
+                <div className='mb-2 text-md text-background-700'>
+                  <span className='font-semibold'> 결제 금액: </span>
+                  {price.toLocaleString()} 원
                 </div>
               </div>
-              <Button text='결제하기' isRounded className='mt-4 h-10' onClick={handlePayment} />
+              <Button text='결제하기' className='mt-6 h-11' onClick={handlePayment} />
             </>
           )}
         </div>

@@ -48,26 +48,26 @@ function SideBar({ models }: SideBarProps) {
       showToast('검색 실패', '최고 가격은 최저 가격보다 높아야합니다.');
       return;
     }
-    
+
     const activeKeys = Array.from(activeCarTypes.entries())
       .filter(([, value]) => value === true)
       .map(([key]) => key);
 
     const queryString = new URLSearchParams(location.search);
     if (activeKeys.length !== 0) {
-      queryString.append('type', activeKeys.toString());
+      queryString.set('type', activeKeys.toString());
     }
     if (selectedCategory) {
-      queryString.append('category', selectedCategory.id.toString());
+      queryString.set('category', selectedCategory.id.toString());
     }
     if (selectedSubcategory.length !== 0) {
-      queryString.append('subcategory', selectedSubcategory.map((c) => c.id).toString());
+      queryString.set('subcategory', selectedSubcategory.map((c) => c.id).toString());
     }
     if (minPriceNumber) {
-      queryString.append('minPrice', minPriceNumber.toString());
+      queryString.set('minPrice', minPriceNumber.toString());
     }
     if (maxPriceNumber) {
-      queryString.append('maxPrice', maxPriceNumber.toString());
+      queryString.set('maxPrice', maxPriceNumber.toString());
     }
     navigate(`?${queryString}`);
   };

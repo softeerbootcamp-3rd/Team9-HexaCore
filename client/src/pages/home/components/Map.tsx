@@ -96,7 +96,7 @@ function Map({ setAddress, latitude, longitude }: MapProps) {
           ref={searchAddress}
           className='ring-gray-300 focus:ring-indigo-500 cursor-default rounded-md bg-white px-3 py-1.5 text-left shadow-sm ring-1 ring-inset focus:outline-none focus:ring-2 sm:text-sm sm:leading-6'
           placeholder='검색할 주소'></input>
-        <Button text='검색' onClick={() => searchAddressToCoordinate(searchAddress.current ? searchAddress.current.value : '')} />
+        <Button className='ml-2' text='검색' onClick={() => searchAddressToCoordinate(searchAddress.current ? searchAddress.current.value : '')} />
       </div>
       <div id='map' ref={mapElement} className='h-[500px] w-[500px] p-2' />
       <ToastComponent />

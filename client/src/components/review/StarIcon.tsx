@@ -9,9 +9,9 @@ function StarIcon({ filled, onClick, className }: Props) {
     <svg
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 24 24"
-      fill={filled ? '#FFD400' : 'none'}
-			stroke={filled ? '#FFD400' : 'gray'}
-      className={`w-6 h-6 cursor-pointer ${className}`}
+      fill={filled ? '#F5C371' : 'none'}
+			stroke={filled ? '#F5C371' : 'gray'}
+      className={`w-5 h-5 cursor-pointer ${className}`}
       onClick={onClick}
     >
       <path
