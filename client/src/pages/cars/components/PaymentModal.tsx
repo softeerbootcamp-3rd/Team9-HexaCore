@@ -10,10 +10,11 @@ type PaymentModalProps = {
   orderName: string;
   userName: string;
   reservationData: CreateReservationData;
+  carNumber: string;
   onClose: () => void;
 };
 
-function PaymentModal({ onClose, reservationData, price, orderName, userName }: PaymentModalProps) {
+function PaymentModal({ onClose, reservationData, price, orderName, userName, carNumber }: PaymentModalProps) {
   const navigate = useNavigate();
   const [isPending, setIsPending] = useState<boolean>(false);
   const [isFailed, setIsFailed] = useState<boolean>(false);
@@ -91,10 +92,10 @@ function PaymentModal({ onClose, reservationData, price, orderName, userName }: 
             )
           ) : (
             <>
-              <div className='flex flex-col justify-center'>
-                <div className='mb-7 text-xl font-bold'>예약 확인</div>
-                <div className='mb-2 text-md text-background-700'>
-                  <span className='font-semibold'> 차량 번호:</span> 11주 1111
+              <div className='ali flex flex-col justify-center gap-4'>
+                <div className='mb-2 text-xl font-bold'>예약 확인</div>
+                <div className='text-lg'>
+                  <span className='font-semibold'>차량 번호:</span> <span>{carNumber}</span>
                 </div>
                 <div className='mb-2 text-md text-background-700'>
                   <span className='font-semibold'> 예약 날짜:</span> {formatDate(reservationData.rentDateTime)} ~ {formatDate(reservationData.returnDateTime)}
