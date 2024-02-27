@@ -48,7 +48,7 @@ public class ReservationService {
         }
 
         Long carId = createReservationRequestDto.getCarId();
-        String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
+        String lockKey = LockKeyGenerator.generateReservationLockKey(carId);
         if (!lockManager.acquireRangeLock(lockKey, rentDateTime.toLocalDate(), returnDateTime.toLocalDate())) {
             throw new GeneralException(ErrorCode.CAR_DATE_RANGE_LOCK_ACQUIRE_FAIL);
         }

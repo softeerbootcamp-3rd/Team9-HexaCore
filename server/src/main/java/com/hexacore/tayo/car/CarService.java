@@ -169,7 +169,7 @@ public class CarService {
     /* 차량 삭제 */
     @Transactional
     public void deleteCar(Long carId, Long userId) {
-        String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
+        String lockKey = LockKeyGenerator.generateReservationLockKey(carId);
         if (!lockManager.acquireFullRangeLock(lockKey)) {
             throw new GeneralException(ErrorCode.CAR_DATE_RANGE_LOCK_ACQUIRE_FAIL);
         }
@@ -210,7 +210,7 @@ public class CarService {
     @Transactional
     public void updateDateRanges(Long hostUserId, Long carId,
             CarDateRangesDto carDateRangesDto) {
-        String lockKey = LockKeyGenerator.generateCarDateRangeLockKey(carId);
+        String lockKey = LockKeyGenerator.generateReservationLockKey(carId);
         if (!lockManager.acquireFullRangeLock(lockKey)) {
             throw new GeneralException(ErrorCode.CAR_DATE_RANGE_LOCK_ACQUIRE_FAIL);
         }
