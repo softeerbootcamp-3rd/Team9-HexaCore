@@ -311,6 +311,7 @@ function CarDetail() {
                 userName={userName}
                 orderName={`${data.carData.carNumber}:${reservationData.rentDateTime}-${reservationData.returnDateTime}`}
                 reservationData={reservationData}
+                carNumber={data.carData.categoryName}
                 onClose={() => setIsOpen(false)}
               />,
               document.body,
