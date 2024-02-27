@@ -5,15 +5,17 @@ import { useAuth } from '@/contexts/AuthContext';
 import { server } from '@/fetches/common/axios';
 import { ResponseWithoutData } from '@/fetches/common/response.type';
 import NotificationBox from './notification/NotificationBox';
+import { useCustomToast } from './Toast';
 
 function Header() {
   const navigate = useNavigate();
   const { auth, setAuth } = useAuth();
+  const { ToastComponent, showToast } = useCustomToast();
 
   const logout = async () => {
     const response = await server.get<ResponseWithoutData>('/auth/logout');
     if (!response.success) {
-      alert('로그아웃 실패'); // TODO: 실패 시 처리
+      showToast('로그인 실패', '로그아웃에 실패했습니다.');
       return;
     }
 
@@ -59,6 +61,7 @@ function Header() {
           </Link>
 
         </div>
+        <ToastComponent />
       </div>
     </header>
   );

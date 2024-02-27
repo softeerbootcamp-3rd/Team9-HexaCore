@@ -40,7 +40,8 @@ public class ReservationService {
     private final PaymentManager paymentManager;
 
     @Transactional
-    public CreateReservationResponseDto createReservation(Long guestId, CreateReservationRequestDto createReservationRequestDto) {
+    public CreateReservationResponseDto createReservation(Long guestId,
+            CreateReservationRequestDto createReservationRequestDto) {
         LocalDateTime rentDateTime = createReservationRequestDto.getRentDateTime();
         LocalDateTime returnDateTime = createReservationRequestDto.getReturnDateTime();
         if (rentDateTime.isAfter(returnDateTime.minusHours(1))) {
@@ -67,7 +68,8 @@ public class ReservationService {
             List<CarDateRange> sortedCarDateRanges = car.getCarDateRanges();
             sortedCarDateRanges.sort(CarDateRange::compareTo);
 
-            CarDateRange carDateRange = findCarDateRangeIncludesDateRange(sortedCarDateRanges, rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
+            CarDateRange carDateRange = findCarDateRangeIncludesDateRange(sortedCarDateRanges,
+                    rentDateTime.toLocalDate(), returnDateTime.toLocalDate());
             if (carDateRange == null) {
                 throw new GeneralException(ErrorCode.RESERVATION_DATE_NOT_IN_RANGE);
             }
@@ -107,7 +109,8 @@ public class ReservationService {
         }
     }
 
-    private CarDateRange findCarDateRangeIncludesDateRange(List<CarDateRange> sortedCarDateRanges, LocalDate rentDate, LocalDate returnDate) {
+    private CarDateRange findCarDateRangeIncludesDateRange(List<CarDateRange> sortedCarDateRanges, LocalDate rentDate,
+            LocalDate returnDate) {
         for (CarDateRange carDateRange : sortedCarDateRanges) {
             if (rentDate.isBefore(carDateRange.getStartDate())) {
                 return null;
@@ -120,7 +123,8 @@ public class ReservationService {
         return null;
     }
 
-    private boolean isOverlappedReservation(List<Reservation> sortedReservations, LocalDate rentDate, LocalDate returnDate) {
+    private boolean isOverlappedReservation(List<Reservation> sortedReservations, LocalDate rentDate,
+            LocalDate returnDate) {
         for (Reservation reservation : sortedReservations) {
             if (returnDate.isBefore(reservation.getRentDateTime().toLocalDate())) {
                 return false;
@@ -180,7 +184,7 @@ public class ReservationService {
                 reservation.setStatus(requestedStatus);
 
                 // 호스트가 예약을 거절하면 게스트에게 에약거절 알림을 전송
-                notificationManager.notify(reservation.getHost().getId(), reservation.getGuest().getName(),
+                notificationManager.notify(reservation.getGuest().getId(), reservation.getHost().getName(),
                         NotificationType.REFUSE);
             } else {
                 invalidUpdate = true;
@@ -229,8 +233,8 @@ public class ReservationService {
     }
 
     private void validateRentReturnInRangeElseThrow(Car car,
-                                                    LocalDateTime rentDateTime,
-                                                    LocalDateTime returnDateTime) throws GeneralException {
+            LocalDateTime rentDateTime,
+            LocalDateTime returnDateTime) throws GeneralException {
         if (rentDateTime.isAfter(returnDateTime)) {
             throw new GeneralException(ErrorCode.START_DATE_AFTER_END_DATE);
         }

@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 @Configuration
 @RequiredArgsConstructor
 public class AppConfig {
+
     private final SseEmitterService sseEmitterService;
     private final NotificationService notificationService;
 
