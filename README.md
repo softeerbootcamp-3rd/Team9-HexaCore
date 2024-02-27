@@ -1,23 +1,26 @@
 ## 🚙 프로젝트 소개 🚙
+
 ### 사용하지 않는 기간 동안 자신의 차를 빌려줄 수 있는 모빌리티 공유 플랫폼, 당신의 차를 타요하세요!
+
 > 👀  **`직관`** 차량 대여와 관련한 예약 및 이용 과정을 **직관적으로 제공**하고 대여 가능한 차량 간의 **가시적인 비교**가 가능합니다. <br/>
-💖  **`공유`** 하나의 차량을 여러 사람이 **공유**하여 불필요한 자원의 낭비를 막을 수 있습니다. <br/>
-🤝  **`P2P`** 렌트 중개업체를 거치지 않고 차량 소유주와 사용자를 연결합니다.
+> 💖  **`공유`** 하나의 차량을 여러 사람이 **공유**하여 불필요한 자원의 낭비를 막을 수 있습니다. <br/>
+> 🤝  **`P2P`** 렌트 중개업체를 거치지 않고 차량 소유주와 사용자를 연결합니다.
 
 ![image](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/56db0620-715b-48e6-b953-f8cfca0b31bf) <br/>
 <br/>
 
-
 ## 👫 헥사 코어 소개 👫
-|      개발(FE,BE)       |      개발(FE,BE)       |      개발(FE,BE)       |      개발(FE,BE)       |      개발(FE,BE)       |      개발(FE,BE)       |                                                                                                            
-| :-: | :-: | :-: | :-: | :-: | :-: |
-|   <img width="160px" src="https://avatars.githubusercontent.com/u/83699438?v=4" />    |                      <img width="160px" src="https://avatars.githubusercontent.com/u/87347699?v=4" />    |                   <img width="160px" src="https://avatars.githubusercontent.com/u/148764580?v=4"/>   |                   <img width="160px" src="https://avatars.githubusercontent.com/u/90602694?v=4"/>   |                   <img width="160px" src="https://avatars.githubusercontent.com/u/70956926?v=4"/>   |                   <img width="160px" src="https://avatars.githubusercontent.com/u/80809782?v=4"/>   |
-|   [@thecloer](https://github.com/thecloer)   |    [@jomulagy](https://github.com/jomulagy)  | [@timido7021](https://github.com/timido7021)  | [@SuHyeon00](https://github.com/SuHyeon00)  | [@Yoon-Suji](https://github.com/Yoon-Suji)  | [@kelly1422](https://github.com/kelly1422)  |
-| 최석규 | 김지훈 | 홍진섭 | 오수현 | 윤수지 | 김영경 |
+
+|                                   개발(FE,BE)                                    |                                   개발(FE,BE)                                    |                                   개발(FE,BE)                                    |                                   개발(FE,BE)                                   |                                   개발(FE,BE)                                   |                                   개발(FE,BE)                                   |
+| :------------------------------------------------------------------------------: | :------------------------------------------------------------------------------: | :------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------: | :-----------------------------------------------------------------------------: | :-----------------------------------------------------------------------------: |
+| <img width="160px" src="https://avatars.githubusercontent.com/u/83699438?v=4" /> | <img width="160px" src="https://avatars.githubusercontent.com/u/87347699?v=4" /> | <img width="160px" src="https://avatars.githubusercontent.com/u/148764580?v=4"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/90602694?v=4"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/70956926?v=4"/> | <img width="160px" src="https://avatars.githubusercontent.com/u/80809782?v=4"/> |
+|                     [@thecloer](https://github.com/thecloer)                     |                     [@jomulagy](https://github.com/jomulagy)                     |                   [@timido7021](https://github.com/timido7021)                   |                   [@SuHyeon00](https://github.com/SuHyeon00)                    |                   [@Yoon-Suji](https://github.com/Yoon-Suji)                    |                   [@kelly1422](https://github.com/kelly1422)                    |
+|                                      최석규                                      |                                      김지훈                                      |                                      홍진섭                                      |                                     오수현                                      |                                     윤수지                                      |                                     김영경                                      |
+
 <br/>
 
-
 ## ⚙️ 운영 체제 ⚙️
+
 ### 🤙🏻 커뮤니케이션 규칙 🤙🏻
 
 - 🚶 매일 3시에 산책하기 (수업이 있는 날에는, 수업이 끝나고)
@@ -33,25 +36,31 @@
 - 개발이 들어가기 전에 기획 싱크 맞추기
 - 자신이 개발한 내용을 노션에 계속 정리해서 공유하기
 - 코드리뷰: 각자 지정된 2명의 PR에 대해 필수로 코드리뷰 남기기
-    - 매주 바뀌는 자리의 양 옆사람 PR
-    - 머지는 리뷰를 받은 후에 본인이 직접 하기
+  - 매주 바뀌는 자리의 양 옆사람 PR
+  - 머지는 리뷰를 받은 후에 본인이 직접 하기
 - 코드 전체공유: 금요일 (4시 30분) - 마지막 회의도 포함
-    - 핵심 로직, 기술 공유
+  - 핵심 로직, 기술 공유
 - [코드 컨벤션](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EC%BD%94%EB%93%9C-%EC%BB%A8%EB%B2%A4%EC%85%98)
-- [깃헙 컨벤션(이슈, 브랜치, 커밋, PR)](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EA%B9%83%ED%97%99-%EC%BB%A8%EB%B2%A4%EC%85%98-(%EC%9D%B4%EC%8A%88,-%EB%B8%8C%EB%9E%9C%EC%B9%98,-%EC%BB%A4%EB%B0%8B,-PR))
+- [깃헙 컨벤션(이슈, 브랜치, 커밋, PR)](<https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EA%B9%83%ED%97%99-%EC%BB%A8%EB%B2%A4%EC%85%98-(%EC%9D%B4%EC%8A%88,-%EB%B8%8C%EB%9E%9C%EC%B9%98,-%EC%BB%A4%EB%B0%8B,-PR)>)
+
 <br/>
 
-
 ## 🔥 우리의 도전들 🔥
+
 ### FE
+
 - [프론트 배포를 해보자! - 지훈]()
 
 ### BE
+
 - [결제 기능을 어떻게 구현하지? - 수지]()
+- [Query DSL을 적용해 보자! - 석규](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/Query-DSL%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%B4%EB%B3%B4%EC%9E%90!)
+- [예약 시스템 데이터베이스 설계 - 석규](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EC%98%88%EC%95%BD-%EC%8B%9C%EC%8A%A4%ED%85%9C-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4-%EC%84%A4%EA%B3%84)
+- [인터셉터를 거치지 않는 요청이 있다? - 영경](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EC%9D%B8%ED%84%B0%EC%85%89%ED%84%B0%EB%A5%BC-%EA%B1%B0%EC%B9%98%EC%A7%80-%EC%95%8A%EB%8A%94-%EC%9A%94%EC%B2%AD%EC%9D%B4-%EC%9E%88%EB%8B%A4%3F)
 
 <br/>
 
 ## 문서 정리
-| 📚문서 | [기획서](https://wiry-elderberry-3bf.notion.site/2f55d6aa566c4cf694fb1a8c4caf431e?pvs=4) | [디자인](https://www.figma.com/file/iInwlOQsmu8fNSMiLRHJRX/Airbnb-UI-Kit-(Community)?type=design&node-id=303%3A2220&mode=design&t=8TYu14orzQ9npxZ4-1) | [wiki]() | [팀 노션](https://wiry-elderberry-3bf.notion.site/Hexa-Core-2ae3a479a34d490ebf22493abbbdedbc?pvs=4) |
-| :-: | :-: | :-: | :-: | :-: |
 
+| 📚문서 | [기획서](https://wiry-elderberry-3bf.notion.site/2f55d6aa566c4cf694fb1a8c4caf431e?pvs=4) | [디자인](<https://www.figma.com/file/iInwlOQsmu8fNSMiLRHJRX/Airbnb-UI-Kit-(Community)?type=design&node-id=303%3A2220&mode=design&t=8TYu14orzQ9npxZ4-1>) | [wiki]() | [팀 노션](https://wiry-elderberry-3bf.notion.site/Hexa-Core-2ae3a479a34d490ebf22493abbbdedbc?pvs=4) |
+| :----: | :--------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------: | :------: | :-------------------------------------------------------------------------------------------------: |
