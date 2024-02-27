@@ -8,6 +8,7 @@ import type { MouseEventHandler } from 'react';
 import { distance } from '@/utils/DistanceCalculater';
 import { dateTimeFormatter } from '@/utils/converters';
 import StarIcon from './review/StarIcon';
+import CheckModal from './CheckModal';
 import { useCustomToast } from './Toast';
 
 type ButtonType = 'disabled' | 'enabled' | 'danger';
@@ -25,11 +26,11 @@ type Props = {
 function ListComponent({ type, reservation, className, reviewOnClick, isReviewed }: Props) {
   const [buttonText, setButtonText] = useState('');
   const [buttonType, setButtonType] = useState<ButtonType>('disabled');
-  const [buttonClick, setButtonClick] = useState<((reservation: ReservationData) => void) | null>(null);
+  const [buttonClick, setButtonClick] = useState<((reservation?: ReservationData) => void) | null>(null);
   const [rentStatus, setRentStatus] = useState(reservation.rentStatus);
   const [timeDifference, setTimeDifference] = useState(0);
   const [extraFee, setExtraFee] = useState(0);
-
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const { ToastComponent, showToast } = useCustomToast();
 
   useEffect(() => {
@@ -85,12 +86,15 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
         status: reservationStatus.CANCEL,
       },
     });
+
+    const toastMsg = (type === 'guest') ? '예약 취소' : '예약 거절';
     if (response && !response.success) {
-      showToast('예약 취소 실패', response.message ?? '다음에 다시 시도해주세요.');
+      showToast(toastMsg + ' 실패', response.message);
     } else {
-      showToast('예약 취소 성공', '예약이 성공적으로 취소되었습니다.', true);
+      showToast(toastMsg + ' 성공', toastMsg + '되었습니다.');
       setRentStatus('CANCEL');
     }
+    setIsCancelModalOpen(false);
   };
 
   const getCurrentLocation = () => {
@@ -118,16 +122,16 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
           });
 
           if (response && !response.success) {
-            showToast('반납 실패', response.message ?? '다음에 다시 시도해주세요.');
+            showToast('반납 실패',  '반납에 실패했습니다.');
           } else {
-            showToast('반납 성공', '차량이 성공적으로 반납되었습니다.', true);
             setRentStatus('TERMINATED');
           }
+        } else {
+          showToast('거리가 너무 멉니다.',  '반납할 수 있는 위치가 아닙니다.');
         }
-        showToast('반납 실패', '현재 위치가 반납하려는 위치와 맞지 않습니다.');
       }
     } catch (error) {
-      showToast('반납 실패', '위치 정보를 불러올 수 없습니다. 다음에 다시 시도해주세요.');
+      showToast('위치 정보 획득 실패',  '다시 시도해주세요.');
     }
   };
 
@@ -141,8 +145,8 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
       guest: { buttonText: '취소됨', buttonType: 'disabled', buttonClick: null },
     },
     READY: {
-      host: { buttonText: '거절하기', buttonType: 'danger', buttonClick: updateToCancel },
-      guest: { buttonText: '예약취소', buttonType: 'danger', buttonClick: updateToCancel },
+      host: { buttonText: '거절하기', buttonType: 'danger', buttonClick: () => setIsCancelModalOpen(true) },
+      guest: { buttonText: '예약취소', buttonType: 'danger', buttonClick: () => setIsCancelModalOpen(true) },
     },
     USING: {
       host: { buttonText: '대여중', buttonType: 'disabled', buttonClick: null },
@@ -159,9 +163,10 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
   };
 
   return (
-    <div className={`flex flex-col rounded-3xl bg-white px-6 py-4 text-sm shadow-md md:text-base ${className}`}>
+    <div
+      className={`flex flex-col rounded-3xl bg-white px-6 py-4 text-sm shadow-md md:text-base ${className}`}>
       <ul role='list'>
-        <li key={reservation.target.id}>
+        <li key='person.email'>
           <div className='flex gap-4 items-center justify-between'>
             <Link to={type === 'guest' ? `/cars/${reservation.target.id}` : `/profile/${reservation.target.id}`} className='flex gap-4 items-center'>
               <img
@@ -177,7 +182,7 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
                   <div className='flex gap-1 items-center'>
                     <p className='text-md font-semibold'>{reservation.target.name}</p>
                     <div className='flex gap-1 items-center'>
-                      <StarIcon filled={true} className='w-4 h-4' />
+                      <StarIcon filled={true} />
                       <div className='text-sm'>{reservation.target.averageRate ?? 0}</div>
                     </div>
                   </div>
@@ -191,34 +196,48 @@ function ListComponent({ type, reservation, className, reviewOnClick, isReviewed
                   </div>
               </div>
             </Link>
-            <div className='flex flex-col gap-3 items-center'>
+            <div className='flex flex-col gap-3'>
               <div className='flex flex-col text-md text-right font-semibold'>
-                  <p>
-                    {reservation.rentFee.toLocaleString('ko-KR') || null}원
+                  <p className='text-[15px]'>
+                    {reservation.rentFee.toLocaleString('ko-KR') || null} 원
                   </p>
                   {reservation.rentStatus === 'USING' && extraFee > 0 && type === 'guest' && (
-                    <p className='text-danger'>{'+' + extraFee.toLocaleString('ko-KR') || null}원</p>
+                    <p className='text-danger text-[15px]'>{'+ ' + extraFee.toLocaleString('ko-KR') || null} 원</p>
                   )}
                   {reservation.rentStatus === 'TERMINATED' && reservation.extraFee > 0 && (
                     <p>
-                      {'+' + reservation.extraFee.toLocaleString('ko-KR') || null}원
+                      {'+' + reservation.extraFee.toLocaleString('ko-KR') || null} 원
                     </p>
                   )}
               </div>
-              <div className='flex gap-2'>
+              <div className='flex justify-end min-w-20 text-sm'>
                 <Button
+                  className='w-[85px] text-[13px]'
                   type={buttonType}
                   text={buttonText}
-                  onClick={() => buttonClick && buttonClick(reservation)}></Button>
-                  {isReviewed || reservation.rentStatus !== 'TERMINATED' 
-                  ? <></> 
-                  : <Button text='리뷰 작성' onClick={reviewOnClick}/>}
+                  onClick={() => buttonClick && buttonClick(reservation)}/>
+                  {!isReviewed && reservation.rentStatus === 'TERMINATED' && <Button className='ml-3' text='리뷰 작성' onClick={reviewOnClick}/>}
               </div>
             </div>
           </div>
         </li>
       </ul>
+
+      {
+        (isCancelModalOpen) ?
+        <CheckModal
+          title={(type === 'guest') ? '정말로 취소하시겠습니까?' : '정말로 거절하시겠습니까?'}
+          content={(type === 'guest') ? '예약을 취소하면 차주에게 예약 취소 알림이 전송됩니다.' : '예약을 거절하면 차를 빌린 사용자에게 예약 거절 알림이 전송됩니다.'}
+          onCancel={() => {setIsCancelModalOpen(false)}}
+          confirmMsg={(type === 'guest') ? '예약 취소' : '예약 거절'}
+          onConfirm={() => {updateToCancel(reservation)}} 
+        />
+        :
+        <></>
+      }
+
       <ToastComponent />
+
     </div>
   );
 }
