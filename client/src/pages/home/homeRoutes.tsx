@@ -4,6 +4,7 @@ import type { CategoryResponse } from '@/fetches/categories/categories.type';
 import type { CarData, CarSearchParam } from '@/fetches/cars/cars.type';
 import { fetchCategories } from '@/fetches/categories/fetchCategories';
 import { fetchCars } from '@/fetches/cars/fetchCars';
+import { addDownscaledPrefix } from '@/utils/ImageManger';
 
 export type HomeLoaderResponse = {
   categories: CategoryResponse[];
@@ -24,6 +25,14 @@ const homeRoutes: RouteObject[] = [
       const categories: CategoryResponse[] = await fetchCategories();
       const carSearchParam = parseQueryString(request.url);
       const cars = carSearchParam ? await fetchCars(carSearchParam) : null;
+
+      if (cars && cars.data) {
+        cars.data = cars.data.map((car) => ({
+          ...car,
+          imageUrl: addDownscaledPrefix(car.imageUrl),
+        }));
+      }
+
       return { categories: categories, cars: cars };
     },
     element: <Home />,
