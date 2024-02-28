@@ -41,11 +41,11 @@ public class InMemoryRangeLockManager implements RangeLockManager {
 
     @Override
     public boolean acquireFullRangeLock(String key) {
-        return acquireFullRangeLock(key, LocalDate.MIN, LocalDate.MAX);
+        return acquireRangeLock(key, LocalDate.MIN, LocalDate.MAX);
     }
 
     @Override
-    public synchronized boolean acquireFullRangeLock(String key, LocalDate start, LocalDate end) {
+    public synchronized boolean acquireRangeLock(String key, LocalDate start, LocalDate end) {
         TreeSet<Range> sortedRanges = rangeLocks.computeIfAbsent(key, k -> new TreeSet<>());
 
         Range newRange = new Range(start, end);
@@ -69,11 +69,11 @@ public class InMemoryRangeLockManager implements RangeLockManager {
 
     @Override
     public void releaseFullRangeLock(String key) {
-        releaseFullRangeLock(key, LocalDate.MIN, LocalDate.MAX);
+        releaseRangeLock(key, LocalDate.MIN, LocalDate.MAX);
     }
 
     @Override
-    public synchronized void releaseFullRangeLock(String key, LocalDate start, LocalDate end) {
+    public synchronized void releaseRangeLock(String key, LocalDate start, LocalDate end) {
         TreeSet<Range> ranges = rangeLocks.get(key);
         if (ranges == null) {
             return;
