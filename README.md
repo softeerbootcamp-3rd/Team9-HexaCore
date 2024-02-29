@@ -34,9 +34,9 @@
 - 예약을 하면 실시간으로 호스트에게 알람이 발송됩니다.
 
 ### 차량 등록
-<img width="1728" alt="스크린샷 2024-02-29 오전 10 37 58" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/fc7a12ae-4d4b-4385-8ef3-025380d9e5d8">
+<img width="1840" alt="스크린샷 2024-02-29 오전 11 24 39" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/658fd460-b008-4999-9fde-62efd62d4a0f">
 
-<img width="1728" alt="스크린샷 2024-02-29 오전 10 40 30" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/f639e450-4bfb-47dd-a9a6-b9f2beed3293">
+<img width="1840" alt="스크린샷 2024-02-29 오전 11 28 11" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/dad7252a-6e9e-409b-8ff9-e02f52f74b84">
 
 - 호스트 버튼을 클릭하여 차량 등록 페이지에서 빌려줄 차량을 등록할 수 있습니다.
 - 차량 번호를 입력하면 차량에 대한 기본 정보를 가져올 수 있습니다.
@@ -47,8 +47,11 @@
 
 <img width="1840" alt="스크린샷 2024-02-29 오전 10 38 28" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/a0d40555-e9ad-477e-8c43-f3ca18ea1b6f">
 
+<img width="1840" alt="스크린샷 2024-02-29 오전 11 30 10" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/cb4ec528-719e-4141-97d0-9b78012bb096">
+
 - 호스트는 차량 관리 페이지에서 차량의 예약 가능한 날짜를 수정할 수 있습니다.
 - 호스트는 차량 관리 페이지에서 차량에 대한 예약 내역을 확인하고, 예약을 거절할 수 있습니다.
+- 게스트가 차량을 반납하지 않았을 경우 챗봇을 통해 헥사코어 운영 채널로 문의할 수 있습니다.
 
 ### 예약 관리
 <img width="1840" alt="스크린샷 2024-02-29 오전 11 24 17" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/920b246c-6f3e-41da-bd41-557f602a5bba">
