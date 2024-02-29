@@ -61,8 +61,8 @@
 - 반납 시간이 지났음에도 "반납하기" 버튼을 누르지 않은 경우 시간 당 과금이 진행되고, 반납하기 버튼을 누를 때 자동으로 과금된 금액이 결제됩니다.
 
 ### 리뷰 작성
-<img width="1728" alt="스크린샷 2024-02-29 오전 11 19 01" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/6454f13c-cd6c-4eaa-9a67-3091d5bf4769">
-<img width="1728" alt="스크린샷 2024-02-29 오전 11 19 54" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/08373bdd-f8db-49c6-bbd6-63f9f8259f79">
+<img width="1840" alt="스크린샷 2024-02-29 오후 1 03 08" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/721943c4-6cf9-4054-afb5-19befbbcd68a">
+<img width="1840" alt="스크린샷 2024-02-29 오후 1 04 08" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/098e5dd8-ec5a-4929-aa95-e90d6140c988">
 
 - 게스트는 자신이 예약한 내역에 대해 리뷰와 별점을 작성할 수 있습니다.
 - 호스트는 자신의 차량을 이용한 게스트에 대해 리뷰와 별점을 작성할 수 있습니다.
