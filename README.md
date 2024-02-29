@@ -34,9 +34,9 @@
 - 예약을 하면 실시간으로 호스트에게 알람이 발송됩니다.
 
 ### 차량 등록
-<img width="1728" alt="스크린샷 2024-02-29 오전 10 37 58" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/fc7a12ae-4d4b-4385-8ef3-025380d9e5d8">
+<img width="1840" alt="스크린샷 2024-02-29 오전 11 24 39" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/658fd460-b008-4999-9fde-62efd62d4a0f">
 
-<img width="1728" alt="스크린샷 2024-02-29 오전 10 40 30" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/f639e450-4bfb-47dd-a9a6-b9f2beed3293">
+<img width="1840" alt="스크린샷 2024-02-29 오전 11 28 11" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/dad7252a-6e9e-409b-8ff9-e02f52f74b84">
 
 - 호스트 버튼을 클릭하여 차량 등록 페이지에서 빌려줄 차량을 등록할 수 있습니다.
 - 차량 번호를 입력하면 차량에 대한 기본 정보를 가져올 수 있습니다.
@@ -47,8 +47,11 @@
 
 <img width="1840" alt="스크린샷 2024-02-29 오전 10 38 28" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/a0d40555-e9ad-477e-8c43-f3ca18ea1b6f">
 
+<img width="1840" alt="스크린샷 2024-02-29 오전 11 30 10" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/cb4ec528-719e-4141-97d0-9b78012bb096">
+
 - 호스트는 차량 관리 페이지에서 차량의 예약 가능한 날짜를 수정할 수 있습니다.
 - 호스트는 차량 관리 페이지에서 차량에 대한 예약 내역을 확인하고, 예약을 거절할 수 있습니다.
+- 게스트가 차량을 반납하지 않았을 경우 챗봇을 통해 헥사코어 운영 채널로 문의할 수 있습니다.
 
 ### 예약 관리
 <img width="1840" alt="스크린샷 2024-02-29 오전 11 24 17" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/920b246c-6f3e-41da-bd41-557f602a5bba">
@@ -58,8 +61,8 @@
 - 반납 시간이 지났음에도 "반납하기" 버튼을 누르지 않은 경우 시간 당 과금이 진행되고, 반납하기 버튼을 누를 때 자동으로 과금된 금액이 결제됩니다.
 
 ### 리뷰 작성
-<img width="1728" alt="스크린샷 2024-02-29 오전 11 19 01" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/6454f13c-cd6c-4eaa-9a67-3091d5bf4769">
-<img width="1728" alt="스크린샷 2024-02-29 오전 11 19 54" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/08373bdd-f8db-49c6-bbd6-63f9f8259f79">
+<img width="1840" alt="스크린샷 2024-02-29 오후 1 03 08" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/721943c4-6cf9-4054-afb5-19befbbcd68a">
+<img width="1840" alt="스크린샷 2024-02-29 오후 1 04 08" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/098e5dd8-ec5a-4929-aa95-e90d6140c988">
 
 - 게스트는 자신이 예약한 내역에 대해 리뷰와 별점을 작성할 수 있습니다.
 - 호스트는 자신의 차량을 이용한 게스트에 대해 리뷰와 별점을 작성할 수 있습니다.
@@ -135,7 +138,7 @@
 | PR | [캘린더 컴포넌트 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/60) | 최석규 |
 | PR | [JWT, 인터셉터를 이용한 사용자 인증 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/67) | 김영경 |
 | PR | [리뷰 등록 및 조회 기능 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/189) | 오수현 |
-| PR | [차량 삭제 API(Soft Delete 관련 논의)](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/189) | 윤수지 |
+| PR | [차량 삭제 API(Soft Delete 관련 논의)](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/42) | 윤수지 |
 | PR | [ERD 수정으로 인한 연관관계 변경 및 예외 추가](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/113)| 홍진섭 |
 | PR | [차량번호 조회 기능](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/143)| 홍진섭 |
 | PR | [HTTP 공통 응답 형식 리팩토링](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/83) | 오수현 |
@@ -177,6 +180,7 @@
   <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
   <img src="https://img.shields.io/badge/jpa-6DB33F?style=for-the-badge&logo=jpa&logoColor=white">
   <img src="https://img.shields.io/badge/junit5-25A162?style=for-the-badge&logo=unit5&logoColor=white">
+  <img src="https://img.shields.io/badge/queryDSL-0389CF?style=for-the-badge&logo=unit5&logoColor=white">
 </div>
 
 ### Database
