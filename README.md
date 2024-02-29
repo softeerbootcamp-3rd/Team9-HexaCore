@@ -1,7 +1,9 @@
 # ⚛️ 헥사코어 - 🚙 타요(Tayo)
 
 ![소프티어_9조_헥사코어_최종발표자료](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/6bddc868-f3e2-4643-89c2-5cbb5b896159)
+### ⭐️ 서비스 링크 > [Link](https://tayo.hexacore.co.kr/)
 
+<br/>
 
 ## 👫 헥사 코어 소개 👫
 
@@ -19,21 +21,61 @@
 
 ## 주요 기능
 ### 차량 검색
+<img width="1840" alt="Untitled" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/e40fafb5-98d1-469e-b5d8-2881f4e2188d">
+
+- 차량을 대여할 위치, 차량을 대여하고 싶은 날짜, 인원 수로 차량을 검색할 수 있습니다.
+- 검색 결과 내에서 최저/최고 가격, 차종, 모델, 세부 모델 명으로 필터링 할 수 있습니다.
 
 ### 차량 예약
+<img width="1840" alt="Untitled" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/f6952ced-f286-4f94-9c60-2ca792b52abd">
+
+- 차량 상세 페이지에서 날짜, 시간을 선택하여 예약할 수 있습니다.
+- 최초 결제 시 카드를 한 번 등록해 놓으면 이후 부터는 자동으로 결제를 진행할 수 있습니다.
+- 예약을 하면 실시간으로 호스트에게 알람이 발송됩니다.
 
 ### 차량 등록
+<img width="1728" alt="스크린샷 2024-02-29 오전 10 37 58" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/fc7a12ae-4d4b-4385-8ef3-025380d9e5d8">
+
+<img width="1728" alt="스크린샷 2024-02-29 오전 10 40 30" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/f639e450-4bfb-47dd-a9a6-b9f2beed3293">
+
+- 호스트 버튼을 클릭하여 차량 등록 페이지에서 빌려줄 차량을 등록할 수 있습니다.
+- 차량 번호를 입력하면 차량에 대한 기본 정보를 가져올 수 있습니다.
+- 차량을 빌려줄 위치, 차량 상세 정보, 대여 가격, 차량 이미지를 등록할 수 있습니다.
 
 ### 차량 관리
+<img width="1840" alt="스크린샷 2024-02-29 오전 10 38 15" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/8d88a058-206f-408e-8da2-7119b7cf83bf">
+
+<img width="1840" alt="스크린샷 2024-02-29 오전 10 38 28" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/a0d40555-e9ad-477e-8c43-f3ca18ea1b6f">
+
+- 호스트는 차량 관리 페이지에서 차량의 예약 가능한 날짜를 수정할 수 있습니다.
+- 호스트는 차량 관리 페이지에서 차량에 대한 예약 내역을 확인하고, 예약을 거절할 수 있습니다.
 
 ### 예약 관리
+<img width="1840" alt="스크린샷 2024-02-29 오전 11 24 17" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/920b246c-6f3e-41da-bd41-557f602a5bba">
+
+- 게스트는 마이 페이지에서 자신이 예약한 예약 내역을 확인할 수 있습니다.
+- 대여 시작 시간이 지나면 예약의 상태가 "사용 중" 으로 바뀌고, 반납을 할 때는 게스트가 직접 차량 반납 위치로 이동하여 "반납하기" 버튼을 클릭해야 합니다.
+- 반납 시간이 지났음에도 "반납하기" 버튼을 누르지 않은 경우 시간 당 과금이 진행되고, 반납하기 버튼을 누를 때 자동으로 과금된 금액이 결제됩니다.
 
 ### 리뷰 작성
+<img width="1728" alt="스크린샷 2024-02-29 오전 11 19 01" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/6454f13c-cd6c-4eaa-9a67-3091d5bf4769">
+<img width="1728" alt="스크린샷 2024-02-29 오전 11 19 54" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/08373bdd-f8db-49c6-bbd6-63f9f8259f79">
+
+- 게스트는 자신이 예약한 내역에 대해 리뷰와 별점을 작성할 수 있습니다.
+- 호스트는 자신의 차량을 이용한 게스트에 대해 리뷰와 별점을 작성할 수 있습니다.
 
 ### 로그인, 로그아웃
+<img width="1840" alt="스크린샷 2024-02-29 오전 11 27 32" src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/9c48db09-53a2-480a-8310-afb8166b52ad">
 
+- 사용자는 로그인, 로그아웃, 회원가입, 회원탈퇴를 할 수 있습니다.
+
+<br />
 
 ## ⚙️ 운영 체제 ⚙️
+
+<div align='center' text-color='red'>
+  <h2>즐기자, 불태우자, 싸우지 말자!</h2>
+</div>
 
 ### 🤙🏻 커뮤니케이션 규칙 🤙🏻
 
@@ -59,13 +101,49 @@
 - [코드 컨벤션](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EC%BD%94%EB%93%9C-%EC%BB%A8%EB%B2%A4%EC%85%98)
 - [깃헙 컨벤션(이슈, 브랜치, 커밋, PR)](<https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EA%B9%83%ED%97%99-%EC%BB%A8%EB%B2%A4%EC%85%98-(%EC%9D%B4%EC%8A%88,-%EB%B8%8C%EB%9E%9C%EC%B9%98,-%EC%BB%A4%EB%B0%8B,-PR)>)
 
-
+<br />
 
 ## 문서 정리
 
 | 📚문서 | [기획서](https://wiry-elderberry-3bf.notion.site/2f55d6aa566c4cf694fb1a8c4caf431e?pvs=4) | [디자인](<https://www.figma.com/file/iInwlOQsmu8fNSMiLRHJRX/Airbnb-UI-Kit-(Community)?type=design&node-id=303%3A2220&mode=design&t=8TYu14orzQ9npxZ4-1>) | [wiki](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki) | [팀 노션](https://wiry-elderberry-3bf.notion.site/Hexa-Core-2ae3a479a34d490ebf22493abbbdedbc?pvs=4) |
 | :----: | :--------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------: | :------: | :-------------------------------------------------------------------------------------------------: |
 
+## 우리들의 기록!
+| 분류 | 제목 |
+| :-: | :-: |
+| Discussion | [사용자 인증을 Filter, Interceptor 중 어디에 구현해야 할까요?](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/issues/54) |
+| Discussion | [HTTP 공통 응답 형식 refactoring](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/issues/72)|
+| Discussion | [세부 모델명 조회 API 쿼리 성능 개선 (N+1 문제 해결)](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/issues/146) |
+| Discussion | [예약 상태 플로우 변경](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/issues/192) |
+| Discussion | [요청 파라미터의 유효성을 어디서 검증할까?](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/issues/58) |
+| Issue | [더미데이터 생성 방법 설명](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/issues/136) |
+| Wiki | [Query DSL을 사용해보자!](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/Query-DSL%EC%9D%84-%EC%82%AC%EC%9A%A9%ED%95%B4%EB%B3%B4%EC%9E%90!)|
+| Wiki | [그래도 나는 Nginx가 좋다](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EA%B7%B8%EB%9E%98%EB%8F%84-%EB%82%98%EB%8A%94-Nginx%EA%B0%80-%EC%A2%8B%EB%8B%A4)|
+| Wiki | [인터셉터를 거치지 않는 요청이 있다?](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EC%9D%B8%ED%84%B0%EC%85%89%ED%84%B0%EB%A5%BC-%EA%B1%B0%EC%B9%98%EC%A7%80-%EC%95%8A%EB%8A%94-%EC%9A%94%EC%B2%AD%EC%9D%B4-%EC%9E%88%EB%8B%A4%3F)|
+| Wiki | [예약 시스템 데이터베이스 설계](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki/%EC%98%88%EC%95%BD-%EC%8B%9C%EC%8A%A4%ED%85%9C-%EB%8D%B0%EC%9D%B4%ED%84%B0%EB%B2%A0%EC%9D%B4%EC%8A%A4-%EC%84%A4%EA%B3%84) |
+| PT | [예약 상태 플로우 변경 제안 PT 영상](https://youtu.be/KN4P62uyy7o) |
+
+
+## 우리들의 도전!
+| 분류 | 제목 | 작성자 |
+| :-: | :-: | :-: |
+| PR | [Pre-signed URL 적용](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/261)| 윤수지 |
+| PR | [SSE 클라이언트 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/219)| 김영경|
+| PR | [쿼리 DSL 적용](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/185) | 최석규 |
+| PR | [검색 API 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/112)| 최석규 |
+| PR | [예약 동시성 락 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/249) | 최석규 |
+| PR | [캘린더 컴포넌트 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/60) | 최석규 |
+| PR | [JWT, 인터셉터를 이용한 사용자 인증 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/67) | 김영경 |
+| PR | [리뷰 등록 및 조회 기능 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/189) | 오수현 |
+| PR | [차량 삭제 API(Soft Delete 관련 논의)](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/189) | 윤수지 |
+| PR | [ERD 수정으로 인한 연관관계 변경 및 예외 추가](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/113)| 홍진섭 |
+| PR | [차량번호 조회 기능](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/143)| 홍진섭 |
+| PR | [HTTP 공통 응답 형식 리팩토링](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/83) | 오수현 |
+| PR | [위치 기반 예약 상태 관리 기능 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/209) | 김지훈 |
+| PR | [차량 조회 알고리즘 개선](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/235) | 김지훈 |
+| PR | [자동 결제 모듈 개발](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/217)| 윤수지 |
+
+<br />
 
 ## Infra Architecture
 ![무제-페이지-2 drawio (1)](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/5d3f2e54-2237-4c4f-bb00-82588a160e9d)
