@@ -153,7 +153,8 @@
 
 
 ## ERD
-<img width=500 src="https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/edf80a8a-8334-48b3-afc9-ff35e1332732" />
+![Untitled](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/90602694/54735aa0-bf40-42ec-b458-add03986435f)
+
 
 ## 배포 파이프라인
 ### FE
