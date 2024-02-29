@@ -108,7 +108,7 @@
 
 ## 문서 정리
 
-| 📚문서 | [기획서](https://wiry-elderberry-3bf.notion.site/2f55d6aa566c4cf694fb1a8c4caf431e?pvs=4) | [디자인](<https://www.figma.com/file/iInwlOQsmu8fNSMiLRHJRX/Airbnb-UI-Kit-(Community)?type=design&node-id=303%3A2220&mode=design&t=8TYu14orzQ9npxZ4-1>) | [wiki](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki) | [팀 노션](https://wiry-elderberry-3bf.notion.site/Hexa-Core-2ae3a479a34d490ebf22493abbbdedbc?pvs=4) |
+| 📚문서 | [기획서](https://wiry-elderberry-3bf.notion.site/2f55d6aa566c4cf694fb1a8c4caf431e?pvs=4) | [디자인](<https://www.figma.com/file/iInwlOQsmu8fNSMiLRHJRX/Airbnb-UI-Kit-(Community)?type=design&node-id=303%3A2220&mode=design&t=8TYu14orzQ9npxZ4-1>) | [wiki](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/wiki) | [API 명세서](https://wiry-elderberry-3bf.notion.site/API-5cbb35efbefd42dbb92d6eca6ae2ad1f?pvs=4) |
 | :----: | :--------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------: | :------: | :-------------------------------------------------------------------------------------------------: |
 
 ## 우리들의 기록!
