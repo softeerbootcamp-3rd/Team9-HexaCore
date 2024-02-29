@@ -138,7 +138,7 @@
 | PR | [캘린더 컴포넌트 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/60) | 최석규 |
 | PR | [JWT, 인터셉터를 이용한 사용자 인증 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/67) | 김영경 |
 | PR | [리뷰 등록 및 조회 기능 구현](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/189) | 오수현 |
-| PR | [차량 삭제 API(Soft Delete 관련 논의)](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/189) | 윤수지 |
+| PR | [차량 삭제 API(Soft Delete 관련 논의)](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/42) | 윤수지 |
 | PR | [ERD 수정으로 인한 연관관계 변경 및 예외 추가](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/113)| 홍진섭 |
 | PR | [차량번호 조회 기능](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/143)| 홍진섭 |
 | PR | [HTTP 공통 응답 형식 리팩토링](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/pull/83) | 오수현 |
