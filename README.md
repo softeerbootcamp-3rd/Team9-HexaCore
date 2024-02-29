@@ -180,6 +180,7 @@
   <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white">
   <img src="https://img.shields.io/badge/jpa-6DB33F?style=for-the-badge&logo=jpa&logoColor=white">
   <img src="https://img.shields.io/badge/junit5-25A162?style=for-the-badge&logo=unit5&logoColor=white">
+  <img src="https://img.shields.io/badge/queryDSL-0389CF?style=for-the-badge&logo=unit5&logoColor=white">
 </div>
 
 ### Database
