@@ -1,6 +1,15 @@
-# ⚛️ 헥사코어 - 🚙 타요(Tayo)
+
+<div align="center">
+<h1>
+  ⚛️ 헥사코어 - 🚙 타요(Tayo)
+</h1> 
+  
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fsofteerbootcamp-3rd%2FTeam9-HexaCore&count_bg=%236366F1&title_bg=%2371717A&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+
+</div>
 
 ![소프티어_9조_헥사코어_최종발표자료](https://github.com/softeerbootcamp-3rd/Team9-HexaCore/assets/70956926/6bddc868-f3e2-4643-89c2-5cbb5b896159)
+
 ### ⭐️ 서비스 링크 > [Link](https://tayo.hexacore.co.kr/)
 
 <br/>
